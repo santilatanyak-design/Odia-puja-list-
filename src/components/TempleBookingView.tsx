@@ -44,7 +44,11 @@ export const injectSquareOpenGraphMetaTags = (temple: Temple, shareUrl?: string)
   const url = shareUrl || `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
   const title = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
   const description = `🚩 ${temple.name} (${temple.location || 'Odisha'}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
-  const imageUrl = temple.imageUrl;
+  const imageUrl = temple.imageUrl || (temple as any).image || '';
+
+  if (title) {
+    document.title = title;
+  }
 
   const updateOrSetMeta = (attrName: 'name' | 'property', attrValue: string, contentValue: string) => {
     let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
@@ -71,6 +75,38 @@ export const injectSquareOpenGraphMetaTags = (temple: Temple, shareUrl?: string)
   updateOrSetMeta('property', 'og:image:width', '800');
   updateOrSetMeta('property', 'og:image:height', '800');
 };
+
+// Dynamic Meta Tag Injection (Runs immediately on page load to swap og:title & og:image)
+export const swapMetaTagsOnPageLoad = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const templeId = params.get('templeId');
+    if (!templeId) return;
+
+    let temples: Temple[] = [];
+    const raw = localStorage.getItem('temple_system_temples_json') || localStorage.getItem('savedTemples');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        temples = parsed;
+      }
+    }
+
+    const matchedTemple = temples.find((t) => t.id === templeId);
+    if (matchedTemple) {
+      injectSquareOpenGraphMetaTags(matchedTemple);
+    }
+  } catch (err) {
+    console.warn('Dynamic meta tag swap error on page load:', err);
+  }
+};
+
+// Execute immediately on script evaluation
+if (typeof window !== 'undefined') {
+  swapMetaTagsOnPageLoad();
+}
 
 export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone = '' }) => {
   const [temples, setTemples] = useState<Temple[]>([]);
@@ -312,15 +348,16 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
     }
   };
 
-  // Deep Share Handler
+  // Deep Share Handler with Mobile Priority Web Share API
   const handleShareTemple = async (temple: Temple) => {
+    const templeImg = temple.imageUrl || (temple as any).image || '';
     const shareUrl = `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
     
     // Dynamically inject 1:1 Square Open Graph & Twitter Card meta tags for Social Media Previews
     injectSquareOpenGraphMetaTags(temple, shareUrl);
 
     const shareTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
-    const shareText = `🚩 ${temple.name} (${temple.location}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ। ପୂଜାରୀ ନମ୍ବର: ${temple.pujariPhone}\n${shareUrl}`;
+    const shareText = `🙏 ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରନ୍ତୁ: ${temple.name}\n\nମନ୍ଦିର ଫଟୋ: ${templeImg}\n\nଏଠାରେ ବୁକିଂ କରନ୍ତୁ: `;
 
     if (navigator.share) {
       try {
@@ -335,14 +372,15 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
       }
     }
 
-    // Fallback: Copy Link
+    // Fallback: Copy Link or Direct WhatsApp API
+    const fullMsg = `${shareText}\n${shareUrl}`;
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(fullMsg);
       setCopiedTempleId(temple.id);
       setTimeout(() => setCopiedTempleId(null), 3000);
     } catch (clipErr) {
       // WhatsApp fallback
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMsg)}`, '_blank');
     }
   };
 
