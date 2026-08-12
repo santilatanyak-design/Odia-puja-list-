@@ -12,13 +12,47 @@
     <meta name="theme-color" content="#b45309" />
     <!-- Open Graph & Social Media Previews (1:1 Square Aspect Ratio) -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ (Puja Samagri Store)" />
-    <meta property="og:description" content="ପୂଜା ସାମଗ୍ରୀ ଖରିଦ କରନ୍ତୁ - ନଗଦ ଦେୟ (Cash on Delivery)" />
-    <meta property="og:image" content="https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop" />
+    <meta property="og:title" id="og-title" content="🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ - Online Temple Booking" />
+    <meta property="og:description" id="og-desc" content="ଆପଣଙ୍କ ନିକଟସ୍ଥ ମନ୍ଦିରରେ ପୂଜା ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ।" />
+    <meta property="og:image" id="og-img" content="https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=1000" />
     <meta property="og:image:width" content="800" />
     <meta property="og:image:height" content="800" />
-    <meta property="og:url" content="https://ais-dev-lasn76uxlqr7sxjyb64tyw-393242306562.asia-east1.run.app" />
     <meta name="twitter:card" content="summary" />
+    <script>
+      (function() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var templeId = params.get('temple') || params.get('templeId');
+          if (!templeId) return;
+
+          var raw = localStorage.getItem('temple_system_temples_json') || localStorage.getItem('savedTemples');
+          if (raw) {
+            var temples = JSON.parse(raw);
+            if (Array.isArray(temples)) {
+              var match = temples.find(function(t) { return t.id === templeId; });
+              if (match) {
+                var title = match.name + ' - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ';
+                var desc = '🚩 ' + match.name + ' ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।';
+                var img = match.imageUrl || match.image || '';
+
+                document.title = title;
+
+                var elTitle = document.getElementById('og-title');
+                if (elTitle) elTitle.setAttribute('content', title);
+
+                var elDesc = document.getElementById('og-desc');
+                if (elDesc) elDesc.setAttribute('content', desc);
+
+                if (img) {
+                  var elImg = document.getElementById('og-img');
+                  if (elImg) elImg.setAttribute('content', img);
+                }
+              }
+            }
+          }
+        } catch(e) {}
+      })();
+    </script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
