@@ -4,8 +4,10 @@ import { getQrConfig, loginPujari, subscribeQrConfig, subscribePujaris, subscrib
 import { Language } from './lib/translations';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { HomePage } from './components/HomePage';
 import { PujariLogin } from './components/PujariLogin';
 import { PujariPortal } from './components/PujariPortal';
+import { StoreView } from './components/StoreView';
 import { AdminPanel } from './components/AdminPanel';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { SiteLockOverlay } from './components/SiteLockOverlay';
@@ -21,6 +23,9 @@ export default function App() {
   });
   const [activePujari, setActivePujari] = useState<Pujari | null>(null);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
+
+  // View Navigation State: Default view is ALWAYS 'home' on initial page load
+  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal'>('home');
 
   // Global Emergency Site Lock State
   const [isSiteLocked, setIsSiteLocked] = useState<boolean>(() => {
@@ -88,7 +93,7 @@ export default function App() {
     const config = await getQrConfig();
     setQrConfig(config);
 
-    // Check stored Pujari ID session
+    // Check stored Pujari ID session silently in background without overriding initial Home Page landing
     const storedPujariId = localStorage.getItem('puja_app_pujari_id');
     if (storedPujariId) {
       const res = await loginPujari({ pujariId: storedPujariId, skipPinCheck: true });
@@ -101,11 +106,13 @@ export default function App() {
   const handlePujariLoginSuccess = (pujari: Pujari) => {
     setActivePujari(pujari);
     localStorage.setItem('puja_app_pujari_id', pujari.id);
+    setViewMode('portal');
   };
 
   const handlePujariLogout = () => {
     setActivePujari(null);
     localStorage.removeItem('puja_app_pujari_id');
+    setViewMode('home');
   };
 
   const handleRefreshPujariStatus = async () => {
@@ -125,6 +132,10 @@ export default function App() {
         activePujari={activePujari}
         lang={lang}
         onToggleLang={toggleLang}
+        onGoHome={() => {
+          setCurrentRole('pujari');
+          setViewMode('home');
+        }}
         onSwitchRole={(role) => {
           if (role === 'admin') {
             if (isAdminAuthenticated) {
@@ -148,20 +159,56 @@ export default function App() {
               setIsAdminAuthenticated(false);
               sessionStorage.removeItem('puja_app_admin_auth');
               setCurrentRole('pujari');
+              setViewMode('home');
             }}
           />
-        ) : !activePujari ? (
-          <PujariLogin
-            lang={lang}
-            onLoginSuccess={handlePujariLoginSuccess}
-            onOpenAdminModal={() => setAdminModalOpen(true)}
-          />
-        ) : (
+        ) : viewMode === 'store' ? (
+          <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
+            <button
+              onClick={() => setViewMode('home')}
+              className="mb-4 px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
+            >
+              <span>←</span>
+              <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
+            </button>
+            <StoreView userPhone={activePujari?.phone} />
+          </div>
+        ) : viewMode === 'login' ? (
+          <div className="max-w-7xl mx-auto px-2 sm:px-6 py-2">
+            <div className="max-w-lg mx-auto mb-2">
+              <button
+                onClick={() => setViewMode('home')}
+                className="px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
+              >
+                <span>←</span>
+                <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
+              </button>
+            </div>
+            <PujariLogin
+              lang={lang}
+              onLoginSuccess={handlePujariLoginSuccess}
+              onOpenAdminModal={() => setAdminModalOpen(true)}
+            />
+          </div>
+        ) : viewMode === 'portal' && activePujari ? (
           <PujariPortal
             pujari={activePujari}
             qrConfig={qrConfig}
             onRefreshPujari={handleRefreshPujariStatus}
             onLogout={handlePujariLogout}
+          />
+        ) : (
+          <HomePage
+            activePujari={activePujari}
+            onNavigateToCreateList={() => {
+              if (activePujari) {
+                setViewMode('portal');
+              } else {
+                setViewMode('login');
+              }
+            }}
+            onNavigateToStore={() => setViewMode('store')}
+            onNavigateToLogin={() => setViewMode('login')}
           />
         )}
       </main>

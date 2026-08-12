@@ -33,6 +33,7 @@ import {
 } from '../lib/api';
 import { UpiQrDisplay } from './UpiQrDisplay';
 import { PujaListPDFView } from './PujaListPDFView';
+import { AdminStoreManagement } from './AdminStoreManagement';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -98,7 +99,7 @@ export function getDisplayUtr(pmt?: PaymentRequest | null, list?: PujaList | nul
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
-  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'qr' | 'templates'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'qr' | 'templates' | 'store'>('payments');
 
   // Data States
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
@@ -787,7 +788,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
         >
           <BookOpen className="w-4 h-4" /> ପୂଜା ଟେମ୍ପଲେଟ୍ ସମୂହ
         </button>
+
+        <button
+          onClick={() => setActiveTab('store')}
+          className={`px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 ${
+            activeTab === 'store'
+              ? 'bg-gradient-to-r from-amber-700 to-red-800 text-white font-extrabold shadow-xs border border-amber-400'
+              : 'text-slate-800 hover:bg-amber-50'
+          }`}
+        >
+          <span className="text-sm">🏪</span>
+          <span>ଷ୍ଟୋର୍ ମ୍ୟାନେଜମେଣ୍ଟ (Store Admin)</span>
+        </button>
       </div>
+
+      {/* TAB: PUJA SAMAGRI STORE MANAGEMENT */}
+      {activeTab === 'store' && <AdminStoreManagement />}
 
       {/* TAB 1: PAYMENT UNLOCK REQUESTS */}
       {activeTab === 'payments' && (

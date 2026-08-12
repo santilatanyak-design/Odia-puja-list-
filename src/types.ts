@@ -126,3 +126,42 @@ export interface PujaTemplate {
   description: string;
   items: { name: string; quantity: string; unit: string }[];
 }
+
+export interface StoreProduct {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  imageUrl?: string;
+  description?: string;
+  inStock: boolean;
+  createdAt: string;
+}
+
+export interface StoreOrderItem {
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+}
+
+export interface StoreOrder {
+  id: string;
+  customerName: string;
+  customerMobile: string;
+  deliveryAddress: string;
+  items: StoreOrderItem[];
+  totalAmount: number;
+  paymentMethod: 'COD';
+  status: 'pending' | 'approved' | 'delivered' | 'cancelled';
+  deliveryDate?: string;
+  cancellationReason?: string;
+  cancelledAt?: string;
+  createdAt: string;
+}
+
+export interface StoreConfig {
+  bannerImageUrl: string;
+  suspendedMobiles: string[];
+  districtCodStatus?: Record<string, boolean>;
+}

@@ -1,19 +1,39 @@
 import React, { useState } from 'react';
 
 export const Footer: React.FC = () => {
-  const [activeModal, setActiveModal] = useState<'odia' | 'english' | null>(null);
+  const [activeModal, setActiveModal] = useState<'odia' | 'english' | 'about' | 'complaint' | null>(null);
 
   return (
     <>
       <footer className="w-full bg-[#FAF5E6] border-t border-amber-200/80 text-amber-950/80 py-6 px-4 sm:px-6 lg:px-8 mt-12 text-xs leading-relaxed font-sans">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Copyright notice */}
-          <div className="text-gray-600 text-xs font-medium">
+          <div className="text-gray-600 text-xs font-medium text-center sm:text-left">
             © {new Date().getFullYear()} Puja Samagri Portal. All Rights Reserved.
           </div>
 
-          {/* Privacy Links */}
-          <div className="flex items-center gap-3 text-xs font-semibold">
+          {/* Links: About Us, Complaint, Privacy Policies */}
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setActiveModal('about')}
+              className="text-amber-900 hover:text-amber-700 underline underline-offset-2 transition-colors cursor-pointer"
+            >
+              ℹ️ About Us (ଆମ ବିଷୟରେ)
+            </button>
+
+            <span className="text-amber-300">|</span>
+
+            <button
+              type="button"
+              onClick={() => setActiveModal('complaint')}
+              className="text-amber-900 hover:text-amber-700 underline underline-offset-2 transition-colors cursor-pointer"
+            >
+              📩 Complaint & Support (ଅଭିଯୋଗ)
+            </button>
+
+            <span className="text-amber-300">|</span>
+
             <button
               type="button"
               onClick={() => setActiveModal('odia')}
@@ -21,7 +41,9 @@ export const Footer: React.FC = () => {
             >
               🔒 ଗୋପନୀୟତା ନୀତି (Odia)
             </button>
+
             <span className="text-amber-300">|</span>
+
             <button
               type="button"
               onClick={() => setActiveModal('english')}
@@ -32,6 +54,113 @@ export const Footer: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* About Us Modal */}
+      {activeModal === 'about' && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999999] flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="bg-white border-2 border-amber-600 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left text-gray-800 space-y-4 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-amber-200 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">ℹ️</span>
+                <h3 className="text-base font-bold text-amber-950">
+                  ଆମ ବିଷୟରେ (About Puja Samagri Portal)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="text-gray-400 hover:text-gray-700 text-lg font-bold p-1 rounded-lg transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs leading-relaxed text-gray-700">
+              <p>
+                <strong>ପୂଜା ସାମଗ୍ରୀ ପୋର୍ଟାଲ୍ (Puja Samagri Portal)</strong> ହେଉଛି ଓଡ଼ିଶାର ଏକମାତ୍ର ସମ୍ପୂର୍ଣ୍ଣ ସୁରକ୍ଷିତ ଏବଂ ପ୍ରତିଷ୍ଠିତ ପୂଜାରୀ ଓ ଶ୍ରଦ୍ଧାଳୁ ସେବା ପୋର୍ଟାଲ୍।
+              </p>
+              <p>
+                ଆମର ମୂଳ ଲକ୍ଷ୍ୟ ହେଉଛି ସମସ୍ତ ପ୍ରକାର ପୂଜା ଫର୍ମାଟ୍, ସାମଗ୍ରୀ ତାଲିକା, ନାମଯଜ୍ଞ କାର୍ଡ ପ୍ରସ୍ତୁତି, ଏବଂ ଘରେ ବସି ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ ମଗାଇବାର ସୁବିଧା ପ୍ରଦାନ କରିବା।
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="w-full bg-amber-900 hover:bg-amber-950 text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors cursor-pointer"
+              >
+                ✕ ବନ୍ଦ କରନ୍ତୁ (Close)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complaint / Support Modal */}
+      {activeModal === 'complaint' && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[999999] flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="bg-white border-2 border-amber-600 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left text-gray-800 space-y-4 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-amber-200 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📩</span>
+                <h3 className="text-base font-bold text-amber-950">
+                  ଅଭିଯୋଗ ଏବଂ ସହାୟତା (Complaint & Support)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="text-gray-400 hover:text-gray-700 text-lg font-bold p-1 rounded-lg transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs leading-relaxed text-gray-700">
+              <p>
+                ଯଦି ଆପଣଙ୍କର କୌଣସି ଅଭିଯୋଗ, ସମସ୍ୟା, କିମ୍ବା ପରାମର୍ଶ ଅଛି, ତେବେ ଦୟାକରି ସିଧାସଳଖ ଆମର ଅଫିସିଆଲ୍ ଇମେଲ୍ ମାଧ୍ୟମରେ ଯୋଗାଯୋଗ କରନ୍ତୁ:
+              </p>
+
+              <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
+                <span className="text-xs font-bold text-gray-600 block mb-1">Official Support Email:</span>
+                <a
+                  href="mailto:nayakjitu986@gmail.com"
+                  className="font-mono font-bold text-amber-900 text-sm hover:underline"
+                >
+                  nayakjitu986@gmail.com
+                </a>
+              </div>
+
+              <p className="text-gray-500 italic text-[11px]">
+                ଆମର ସପୋର୍ଟ ଟିମ୍ ୨୪ ଘଣ୍ଟା ମଧ୍ୟରେ ଆପଣଙ୍କ ଇମେଲ୍‌ର ଉତ୍ତର ଦେବେ।
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="w-full bg-amber-900 hover:bg-amber-950 text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors cursor-pointer"
+              >
+                ✕ ବନ୍ଦ କରନ୍ତୁ (Close)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Odia Privacy Policy Modal */}
       {activeModal === 'odia' && (
