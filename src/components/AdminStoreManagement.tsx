@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StoreProduct, StoreOrder, StoreConfig } from '../types';
+import { sendOrderApprovedPushNotification } from '../lib/pushNotifications';
 import {
   getStoreProducts,
   subscribeStoreProducts,
@@ -42,6 +43,15 @@ import {
   MapPin,
   Save,
   RefreshCw,
+  Sliders,
+  ToggleLeft,
+  ToggleRight,
+  Palette,
+  LayoutGrid,
+  List,
+  Sparkles,
+  Type,
+  Settings,
 } from 'lucide-react';
 
 export const AdminStoreManagement: React.FC = () => {
@@ -52,12 +62,31 @@ export const AdminStoreManagement: React.FC = () => {
     suspendedMobiles: [],
   });
 
-  const [activeSubTab, setActiveSubTab] = useState<'orders' | 'products' | 'districts' | 'banner_security'>('orders');
+  const [activeSubTab, setActiveSubTab] = useState<'orders' | 'products' | 'districts' | 'banner_security' | 'global_settings'>('orders');
   const [districtSearch, setDistrictSearch] = useState('');
 
   // Banner State
   const [bannerInputUrl, setBannerInputUrl] = useState('');
   const [bannerSaveStatus, setBannerSaveStatus] = useState<string | null>(null);
+
+  // Global Settings State
+  const [settingsState, setSettingsState] = useState<Partial<StoreConfig>>({
+    enableFestivalBanner: true,
+    enableDeliveryCharge: false,
+    enableCod: true,
+    showNoticeBar: true,
+    primaryColor: '#78350f',
+    backgroundColor: '#fffbeb',
+    templateStyle: 'grid',
+    noticeBarText: '⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!',
+    festivalBannerUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
+    bannerImageUrl: DEFAULT_BANNER_IMAGE,
+    deliveryChargeAmount: 40,
+    freeDeliveryThreshold: 500,
+    customToggles: {},
+  });
+  const [settingsSaveStatus, setSettingsSaveStatus] = useState<string | null>(null);
+  const [newCustomToggleKey, setNewCustomToggleKey] = useState('');
 
   // Security / Blacklist State
   const [newSuspendMobile, setNewSuspendMobile] = useState('');
@@ -77,6 +106,22 @@ export const AdminStoreManagement: React.FC = () => {
     const unsubC = subscribeStoreConfig((cfg) => {
       setConfig(cfg);
       setBannerInputUrl(cfg.bannerImageUrl || DEFAULT_BANNER_IMAGE);
+      setSettingsState((prev) => ({
+        ...cfg,
+        enableFestivalBanner: cfg.enableFestivalBanner ?? true,
+        enableDeliveryCharge: cfg.enableDeliveryCharge ?? false,
+        enableCod: cfg.enableCod ?? true,
+        showNoticeBar: cfg.showNoticeBar ?? true,
+        primaryColor: cfg.primaryColor || '#78350f',
+        backgroundColor: cfg.backgroundColor || '#fffbeb',
+        templateStyle: cfg.templateStyle || 'grid',
+        noticeBarText: cfg.noticeBarText || '⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!',
+        festivalBannerUrl: cfg.festivalBannerUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
+        bannerImageUrl: cfg.bannerImageUrl || DEFAULT_BANNER_IMAGE,
+        deliveryChargeAmount: cfg.deliveryChargeAmount ?? 40,
+        freeDeliveryThreshold: cfg.freeDeliveryThreshold ?? 500,
+        customToggles: cfg.customToggles || {},
+      }));
     });
 
     return () => {
@@ -90,9 +135,37 @@ export const AdminStoreManagement: React.FC = () => {
   const handleSaveBanner = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanUrl = bannerInputUrl.trim() || DEFAULT_BANNER_IMAGE;
+    try {
+      localStorage.setItem('storeBannerUrl', cleanUrl);
+    } catch (err) {
+      console.warn('Error saving storeBannerUrl to localStorage:', err);
+    }
     await updateStoreConfig({ bannerImageUrl: cleanUrl });
-    setBannerSaveStatus('ବ୍ୟାନର୍ ଚବି URL ସଫଳତାର ସହ ଅପଡେଟ୍ ହେଲା! (Banner updated successfully)');
+    setBannerSaveStatus('ବ୍ୟାନର୍ ଚିତ୍ର URL ସଫଳତାର ସହ ଅପଡେଟ୍ ହେଲା! (Banner updated successfully)');
     setTimeout(() => setBannerSaveStatus(null), 4000);
+  };
+
+  // Save Global Settings
+  const handleSaveGlobalSettings = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    try {
+      localStorage.setItem('global_settings', JSON.stringify(settingsState));
+      if (settingsState.bannerImageUrl) {
+        localStorage.setItem('storeBannerUrl', settingsState.bannerImageUrl);
+      }
+    } catch (err) {
+      console.warn('Error saving global settings to localStorage:', err);
+    }
+
+    await updateStoreConfig(settingsState);
+
+    // Broadcast global settings update event
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('global_settings_updated'));
+    }
+
+    setSettingsSaveStatus('ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ ସଫଳତାର ସହ ଅପଡେଟ୍ ହେଲା! (Global settings saved successfully)');
+    setTimeout(() => setSettingsSaveStatus(null), 4000);
   };
 
   // Add/Suspend Mobile Number
@@ -167,7 +240,16 @@ export const AdminStoreManagement: React.FC = () => {
   };
 
   const handleApproveOrder = async (orderId: string, deliveryDateStr: string) => {
+    const targetOrder = orders.find((o) => o.id === orderId);
     await updateOrderStatus(orderId, 'approved', deliveryDateStr || '3-5 କାର୍ଯ୍ୟ ଦିବସ ମଧ୍ୟରେ');
+    if (targetOrder) {
+      const approvedOrder: StoreOrder = {
+        ...targetOrder,
+        status: 'approved',
+        deliveryDate: deliveryDateStr || '3-5 କାର୍ଯ୍ୟ ଦିବସ ମଧ୍ୟରେ',
+      };
+      await sendOrderApprovedPushNotification(approvedOrder);
+    }
     setEditingDeliveryDate(null);
   };
 
@@ -234,6 +316,18 @@ export const AdminStoreManagement: React.FC = () => {
           >
             <Image className="w-4 h-4" />
             <span>ବ୍ୟାନର୍ ଓ ନିଲମ୍ବନ (Banner & Blacklist)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('global_settings')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+              activeSubTab === 'global_settings'
+                ? 'bg-amber-400 text-amber-950 font-black shadow-md'
+                : 'bg-amber-950/60 text-amber-200 hover:bg-amber-800'
+            }`}
+          >
+            <Sliders className="w-4 h-4" />
+            <span>🌐 ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ (Global Settings)</span>
           </button>
         </div>
       </div>
@@ -728,16 +822,25 @@ export const AdminStoreManagement: React.FC = () => {
             <form onSubmit={handleSaveBanner} className="space-y-3 text-xs">
               <div>
                 <label className="font-bold text-gray-800 block mb-1">
-                  Store Banner Image URL:
+                  Store Banner Background Image URL:
                 </label>
-                <input
-                  type="url"
-                  required
-                  value={bannerInputUrl}
-                  onChange={(e) => setBannerInputUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/photo-..."
-                  className="w-full p-2.5 rounded-xl border border-amber-300 text-xs focus:ring-2 focus:ring-amber-500"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    required
+                    value={bannerInputUrl}
+                    onChange={(e) => setBannerInputUrl(e.target.value)}
+                    placeholder="https://images.unsplash.com/photo-..."
+                    className="flex-1 p-2.5 rounded-xl border border-amber-300 text-xs focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Update Banner</span>
+                  </button>
+                </div>
               </div>
 
               {/* Banner Live Preview */}
@@ -754,14 +857,6 @@ export const AdminStoreManagement: React.FC = () => {
                   />
                 </div>
               </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Save className="w-4 h-4" />
-                <span>Update Banner</span>
-              </button>
             </form>
           </div>
 
@@ -955,6 +1050,415 @@ export const AdminStoreManagement: React.FC = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* 5. UNIVERSAL GLOBAL SETTINGS & FEATURE TOGGLES TAB */}
+      {activeSubTab === 'global_settings' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="bg-gradient-to-r from-amber-900 via-amber-950 to-amber-900 text-white p-5 rounded-2xl shadow-lg border border-amber-400/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-amber-400/20 text-amber-300 rounded-xl border border-amber-400/30">
+                <Sliders className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base sm:text-lg text-amber-100 flex items-center gap-2">
+                  <span>🌐 ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ ଓ ଫିଚର୍ ଟୋଗଲ୍ (Global Settings)</span>
+                </h3>
+                <p className="text-xs text-amber-200/80 mt-0.5">
+                  ୱେବସାଇଟ୍‌ର ସମସ୍ତ ଫିଚର୍, ଥିମ୍ କଲର୍, ବ୍ୟାନର୍ ଇମେଜ୍ ଓ ନୋଟିସ୍‌କୁ କୋଡ୍ ସମ୍ପାଦନା ନକରି ସିଧାସଳଖ ପରିଚାଳନା କରନ୍ତୁ।
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleSaveGlobalSettings()}
+              className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs rounded-xl shadow-lg transition cursor-pointer flex items-center gap-2 shrink-0"
+            >
+              <Save className="w-4 h-4" />
+              <span>ସେଟିଂସ୍ ସେଭ୍ କରନ୍ତୁ (Save Settings)</span>
+            </button>
+          </div>
+
+          {settingsSaveStatus && (
+            <div className="p-3.5 bg-emerald-100 border border-emerald-400 rounded-xl text-emerald-950 font-bold text-xs flex items-center gap-2 shadow-xs">
+              <CheckCircle className="w-4 h-4 text-emerald-700" />
+              <span>{settingsSaveStatus}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSaveGlobalSettings} className="space-y-6">
+            {/* 1. FEATURE TOGGLES (ON / OFF SWITCHES) */}
+            <div className="bg-white p-5 rounded-2xl border border-amber-200 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 border-b border-amber-100 pb-3">
+                <ToggleRight className="w-5 h-5 text-amber-800" />
+                <h4 className="font-bold text-sm text-amber-950">
+                  ୧. ୱେବସାଇଟ୍ ଫିଚର୍ ଟୋଗଲ୍ ସ୍ୱିଚ୍ (Website Feature On/Off Switches)
+                </h4>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Notice Bar Toggle */}
+                <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-200 flex items-center justify-between gap-3">
+                  <div>
+                    <label className="font-bold text-xs text-gray-900 block">Notice Bar Ticker</label>
+                    <span className="text-[11px] text-gray-500 block mt-0.5">ଉପର ନୋଟିସ୍ ବାର୍ ଦେଖାନ୍ତୁ</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsState({ ...settingsState, showNoticeBar: !settingsState.showNoticeBar })}
+                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer flex items-center gap-1.5 ${
+                      settingsState.showNoticeBar
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {settingsState.showNoticeBar ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    <span>{settingsState.showNoticeBar ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
+
+                {/* Festival Banner Toggle */}
+                <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-200 flex items-center justify-between gap-3">
+                  <div>
+                    <label className="font-bold text-xs text-gray-900 block">Festival Offer Banner</label>
+                    <span className="text-[11px] text-gray-500 block mt-0.5">ଉତ୍ସବ ବ୍ୟାନର୍ ପ୍ରଦର୍ଶନ</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsState({ ...settingsState, enableFestivalBanner: !settingsState.enableFestivalBanner })}
+                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer flex items-center gap-1.5 ${
+                      settingsState.enableFestivalBanner
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {settingsState.enableFestivalBanner ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    <span>{settingsState.enableFestivalBanner ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
+
+                {/* Delivery Charge Toggle */}
+                <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-200 flex items-center justify-between gap-3">
+                  <div>
+                    <label className="font-bold text-xs text-gray-900 block">Delivery Charge</label>
+                    <span className="text-[11px] text-gray-500 block mt-0.5">ଡେଲିଭରୀ ଶୁଳ୍କ ସକ୍ରିୟ</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsState({ ...settingsState, enableDeliveryCharge: !settingsState.enableDeliveryCharge })}
+                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer flex items-center gap-1.5 ${
+                      settingsState.enableDeliveryCharge
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {settingsState.enableDeliveryCharge ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    <span>{settingsState.enableDeliveryCharge ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
+
+                {/* COD Toggle */}
+                <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-200 flex items-center justify-between gap-3">
+                  <div>
+                    <label className="font-bold text-xs text-gray-900 block">Cash on Delivery (COD)</label>
+                    <span className="text-[11px] text-gray-500 block mt-0.5">ନଗଦ ଦେୟ ସୁବିଧା</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsState({ ...settingsState, enableCod: !settingsState.enableCod })}
+                    className={`px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer flex items-center gap-1.5 ${
+                      settingsState.enableCod
+                        ? 'bg-emerald-600 text-white shadow-xs'
+                        : 'bg-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {settingsState.enableCod ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                    <span>{settingsState.enableCod ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Dynamic Extensible Custom Toggles */}
+              <div className="pt-3 border-t border-amber-100">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                  <span className="text-xs font-bold text-gray-800">କଷ୍ଟମ୍ ଟୋଗଲ୍ ସମୂହ (Dynamic Custom Feature Toggles):</span>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. expressDelivery"
+                      value={newCustomToggleKey}
+                      onChange={(e) => setNewCustomToggleKey(e.target.value.replace(/\s+/g, ''))}
+                      className="p-1.5 rounded-lg border border-amber-300 text-xs w-44"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!newCustomToggleKey.trim()) return;
+                        const key = newCustomToggleKey.trim();
+                        setSettingsState({
+                          ...settingsState,
+                          customToggles: {
+                            ...(settingsState.customToggles || {}),
+                            [key]: true,
+                          },
+                        });
+                        setNewCustomToggleKey('');
+                      }}
+                      className="px-3 py-1.5 bg-amber-900 text-white font-bold text-xs rounded-lg hover:bg-amber-950 transition cursor-pointer flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Toggle</span>
+                    </button>
+                  </div>
+                </div>
+
+                {Object.keys(settingsState.customToggles || {}).length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {Object.entries(settingsState.customToggles || {}).map(([key, isEnabled]) => (
+                      <div key={key} className="bg-amber-100/80 px-3 py-1.5 rounded-xl border border-amber-300 text-xs flex items-center gap-2">
+                        <span className="font-mono font-bold text-amber-950">{key}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSettingsState({
+                              ...settingsState,
+                              customToggles: {
+                                ...(settingsState.customToggles || {}),
+                                [key]: !isEnabled,
+                              },
+                            });
+                          }}
+                          className={`px-2 py-0.5 rounded font-bold text-[10px] ${
+                            isEnabled ? 'bg-emerald-600 text-white' : 'bg-gray-400 text-white'
+                          }`}
+                        >
+                          {isEnabled ? 'ON' : 'OFF'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const copy = { ...(settingsState.customToggles || {}) };
+                            delete copy[key];
+                            setSettingsState({ ...settingsState, customToggles: copy });
+                          }}
+                          className="text-rose-600 hover:text-rose-800"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 2. DESIGN & THEME CONTROLS */}
+            <div className="bg-white p-5 rounded-2xl border border-amber-200 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 border-b border-amber-100 pb-3">
+                <Palette className="w-5 h-5 text-amber-800" />
+                <h4 className="font-bold text-sm text-amber-950">
+                  ୨. ଡିଜାଇନ୍ ଓ ଥିମ୍ କଣ୍ଟ୍ରୋଲ୍ (Theme Colors & Layout Design)
+                </h4>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Primary Color Picker */}
+                <div>
+                  <label className="font-bold text-xs text-gray-800 block mb-1">
+                    Primary Website Color (ପ୍ରାଥମିକ ରଙ୍ଗ)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={settingsState.primaryColor || '#78350f'}
+                      onChange={(e) => setSettingsState({ ...settingsState, primaryColor: e.target.value })}
+                      className="w-10 h-10 rounded-xl border border-amber-300 cursor-pointer bg-transparent p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={settingsState.primaryColor || '#78350f'}
+                      onChange={(e) => setSettingsState({ ...settingsState, primaryColor: e.target.value })}
+                      className="flex-1 p-2 rounded-xl border border-amber-300 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Background Color Picker */}
+                <div>
+                  <label className="font-bold text-xs text-gray-800 block mb-1">
+                    Background Color (ପୃଷ୍ଠଭୂମି ରଙ୍ଗ)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={settingsState.backgroundColor || '#fffbeb'}
+                      onChange={(e) => setSettingsState({ ...settingsState, backgroundColor: e.target.value })}
+                      className="w-10 h-10 rounded-xl border border-amber-300 cursor-pointer bg-transparent p-0.5"
+                    />
+                    <input
+                      type="text"
+                      value={settingsState.backgroundColor || '#fffbeb'}
+                      onChange={(e) => setSettingsState({ ...settingsState, backgroundColor: e.target.value })}
+                      className="flex-1 p-2 rounded-xl border border-amber-300 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Template Style Selector */}
+                <div>
+                  <label className="font-bold text-xs text-gray-800 block mb-1">
+                    Product Template Style (ଲେଆଉଟ୍ ଷ୍ଟାଇଲ୍)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSettingsState({ ...settingsState, templateStyle: 'grid' })}
+                      className={`p-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border cursor-pointer ${
+                        settingsState.templateStyle === 'grid'
+                          ? 'bg-amber-900 text-white border-amber-950 shadow-xs'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                      }`}
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                      <span>Grid View</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSettingsState({ ...settingsState, templateStyle: 'list' })}
+                      className={`p-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border cursor-pointer ${
+                        settingsState.templateStyle === 'list'
+                          ? 'bg-amber-900 text-white border-amber-950 shadow-xs'
+                          : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                      <span>List View</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. TEXT & IMAGE INPUTS */}
+            <div className="bg-white p-5 rounded-2xl border border-amber-200 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 border-b border-amber-100 pb-3">
+                <Type className="w-5 h-5 text-amber-800" />
+                <h4 className="font-bold text-sm text-amber-950">
+                  ୩. ନୋଟିସ୍ ଟେକ୍ସଟ୍, ବ୍ୟାନର୍ ଇମେଜ୍ ଓ ଡେଲିଭରୀ ଶୁଳ୍କ (Notice Text, Banners & Delivery Fee)
+                </h4>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                {/* Notice Bar Text Input */}
+                <div>
+                  <label className="font-bold text-gray-800 block mb-1">
+                    Notice Bar Running Text (ଉପର ସୂଚନା ବାର୍ ଟେକ୍ସଟ୍):
+                  </label>
+                  <input
+                    type="text"
+                    value={settingsState.noticeBarText || ''}
+                    onChange={(e) => setSettingsState({ ...settingsState, noticeBarText: e.target.value })}
+                    placeholder="⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!"
+                    className="w-full p-2.5 rounded-xl border border-amber-300 text-xs focus:ring-2 focus:ring-amber-500 font-medium"
+                  />
+                </div>
+
+                {/* Banner Image URLs Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Festival Offer Banner URL */}
+                  <div>
+                    <label className="font-bold text-gray-800 block mb-1">
+                      Festival Banner Image URL (ଉତ୍ସବ ବ୍ୟାନର୍ ଛବି URL):
+                    </label>
+                    <input
+                      type="url"
+                      value={settingsState.festivalBannerUrl || ''}
+                      onChange={(e) => setSettingsState({ ...settingsState, festivalBannerUrl: e.target.value })}
+                      placeholder="https://images.unsplash.com/photo-..."
+                      className="w-full p-2.5 rounded-xl border border-amber-300 text-xs mb-2"
+                    />
+                    <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
+                      <img
+                        src={settingsState.festivalBannerUrl || DEFAULT_BANNER_IMAGE}
+                        alt="Festival Banner Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).setAttribute('src', DEFAULT_BANNER_IMAGE);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Store Background Header Banner URL */}
+                  <div>
+                    <label className="font-bold text-gray-800 block mb-1">
+                      Store Header Banner Image URL (ଷ୍ଟୋର୍ ହେଡର୍ ବ୍ୟାନର୍ URL):
+                    </label>
+                    <input
+                      type="url"
+                      value={settingsState.bannerImageUrl || ''}
+                      onChange={(e) => setSettingsState({ ...settingsState, bannerImageUrl: e.target.value })}
+                      placeholder="https://images.unsplash.com/photo-..."
+                      className="w-full p-2.5 rounded-xl border border-amber-300 text-xs mb-2"
+                    />
+                    <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
+                      <img
+                        src={settingsState.bannerImageUrl || DEFAULT_BANNER_IMAGE}
+                        alt="Store Header Banner Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).setAttribute('src', DEFAULT_BANNER_IMAGE);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Delivery Charge Amounts Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="font-bold text-gray-800 block mb-1">
+                      Standard Delivery Charge Amount (₹ ଡେଲିଭରୀ ଶୁଳ୍କ):
+                    </label>
+                    <input
+                      type="number"
+                      value={settingsState.deliveryChargeAmount ?? 40}
+                      onChange={(e) => setSettingsState({ ...settingsState, deliveryChargeAmount: Number(e.target.value) })}
+                      placeholder="40"
+                      className="w-full p-2.5 rounded-xl border border-amber-300 text-xs font-mono font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-gray-800 block mb-1">
+                      Free Delivery Minimum Order Threshold (₹ ମାଗଣା ଡେଲିଭରୀ ସୀମା):
+                    </label>
+                    <input
+                      type="number"
+                      value={settingsState.freeDeliveryThreshold ?? 500}
+                      onChange={(e) => setSettingsState({ ...settingsState, freeDeliveryThreshold: Number(e.target.value) })}
+                      placeholder="500"
+                      className="w-full p-2.5 rounded-xl border border-amber-300 text-xs font-mono font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit / Save Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="w-full py-3 bg-amber-900 hover:bg-amber-950 text-white font-extrabold text-sm rounded-2xl shadow-xl transition cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Save className="w-5 h-5" />
+                <span>ସମସ୍ତ ଗ୍ଲୋବାଲ୍ ସେଟିଂସ୍ ସେଭ୍ କରନ୍ତୁ (Submit / Save Global Settings)</span>
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

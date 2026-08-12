@@ -19,21 +19,44 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background push message:', payload);
 
-  const title = payload.notification?.title || payload.data?.title || '🚨 ନୂଆ ପୂଜାରୀ ପଞ୍ଜୀକରଣ (New Pujari Registered)';
-  const body = payload.notification?.body || payload.data?.body || 'ଜଣେ ନୂଆ ପୂଜାରୀ ଆପ୍‌ରେ ପଞ୍ଜୀକୃତ ହୋଇଛନ୍ତି।';
+  const title = payload.notification?.title || payload.data?.title || 'Order Approved!';
+  const body = payload.notification?.body || payload.data?.body || 'Your order has been approved and is being processed.';
   
   const notificationOptions = {
     body: body,
     icon: '/pwa-icon.svg',
     badge: '/pwa-icon.svg',
-    vibrate: [200, 100, 200],
+    vibrate: [200, 100, 200, 100, 200],
     data: payload.data || { url: '/' },
     actions: [
-      { action: 'open', title: 'ଦେଖନ୍ତୁ (View Admin)' }
+      { action: 'open', title: 'ଦେଖନ୍ତୁ (View Order)' }
     ]
   };
 
   self.registration.showNotification(title, notificationOptions);
+});
+
+// Handle custom push event fallback
+self.addEventListener('push', (event) => {
+  if (event.data) {
+    try {
+      const data = event.data.json();
+      const title = data.title || data.notification?.title || 'Order Approved!';
+      const body = data.body || data.notification?.body || 'Your order has been approved and is being processed.';
+      
+      const options = {
+        body: body,
+        icon: '/pwa-icon.svg',
+        badge: '/pwa-icon.svg',
+        vibrate: [200, 100, 200],
+        data: data.data || { url: '/' }
+      };
+
+      event.waitUntil(self.registration.showNotification(title, options));
+    } catch (e) {
+      console.log('Push event data non-JSON:', event.data.text());
+    }
+  }
 });
 
 // Handle notification click event

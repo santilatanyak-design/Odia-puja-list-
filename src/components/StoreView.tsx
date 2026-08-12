@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StoreProduct, StoreOrder, StoreConfig } from '../types';
+import { requestNotificationPermissionAndGetToken } from '../lib/pushNotifications';
 import {
   getStoreProducts,
   subscribeStoreProducts,
@@ -31,6 +32,9 @@ import {
   Calendar,
   Sparkles,
   Trash2,
+  Bell,
+  Share2,
+  Check,
 } from 'lucide-react';
 
 interface StoreViewProps {
@@ -83,18 +87,197 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
 
+  // Push Notification Prompt State
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
+  const [showNotificationBanner, setShowNotificationBanner] = useState(false);
+
+  // Share & Deep Linking State
+  const [copiedProductId, setCopiedProductId] = useState<string | null>(null);
+  const [highlightedProductId, setHighlightedProductId] = useState<string | null>(null);
+
+  // Dynamic Store Banner Background Image URL State
+  const [storeBannerUrl, setStoreBannerUrl] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('storeBannerUrl');
+      if (saved) return saved;
+    }
+    return '';
+  });
+
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('storeBannerUrl');
+      if (saved) setStoreBannerUrl(saved);
+    }
+    if (config.bannerImageUrl) {
+      setStoreBannerUrl(config.bannerImageUrl);
+    }
+  }, [config.bannerImageUrl]);
+
+  // Dynamic Open Graph Meta Tags Updater for Social Media Previews
+  const updateOgMetaTags = (product: StoreProduct) => {
+    if (typeof document === 'undefined') return;
+    document.title = `${product.name} - ₹${product.price} | Puja Samagri Store`;
+
+    const setMeta = (attr: 'property' | 'name', key: string, content: string) => {
+      let el = document.querySelector(`meta[${attr}="${key}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+
+    setMeta('property', 'og:title', `${product.name} - ₹${product.price}`);
+    setMeta('property', 'og:description', product.description || `Buy ${product.name} on Puja Samagri Store with Cash on Delivery.`);
+    setMeta('property', 'og:image', product.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop');
+    setMeta('property', 'og:url', window.location.href);
+    setMeta('name', 'twitter:title', `${product.name} - ₹${product.price}`);
+    setMeta('name', 'twitter:image', product.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop');
+  };
+
+  // Deep Link Routing: Detect product_id in URL and scroll to / highlight product
+  useEffect(() => {
+    if (products.length === 0) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetId = urlParams.get('product_id') || urlParams.get('product');
+
+    if (targetId) {
+      const matched = products.find((p) => p.id === targetId);
+      if (matched) {
+        setActiveTab('browse');
+        setSelectedCategory('all');
+        setSearchQuery('');
+        setHighlightedProductId(matched.id);
+        updateOgMetaTags(matched);
+
+        setTimeout(() => {
+          const el = document.getElementById(`product-${matched.id}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 350);
+
+        const timer = setTimeout(() => {
+          setHighlightedProductId(null);
+        }, 4500);
+
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [products]);
+
+  // Web Share API Handler
+  const handleShareProduct = async (product: StoreProduct, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}${window.location.pathname}?product_id=${product.id}`;
+    const shareData = {
+      title: `${product.name} - ₹${product.price}`,
+      text: `Buy ${product.name} for ₹${product.price} at Puja Samagri Store (Cash on Delivery available)!`,
+      url: shareUrl,
+    };
+
+    updateOgMetaTags(product);
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err: unknown) {
+        // If user cancelled or dismissed native share dialog, do not attempt copy fallback
+        if (err && typeof err === 'object' && 'name' in err && (err as { name: string }).name === 'AbortError') {
+          return;
+        }
+        console.log('Share prompt dismissed or unsupported, falling back to copy:', err);
+      }
+    }
+
+    // Fallback 1: Clipboard API with focus check
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        if (document.hasFocus && !document.hasFocus()) {
+          window.focus();
+        }
+        await navigator.clipboard.writeText(shareUrl);
+        setCopiedProductId(product.id);
+        setTimeout(() => setCopiedProductId(null), 3000);
+        return;
+      }
+    } catch (err) {
+      console.warn('navigator.clipboard failed, attempting legacy execCommand fallback:', err);
+    }
+
+    // Fallback 2: Legacy document.execCommand('copy')
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        setCopiedProductId(product.id);
+        setTimeout(() => setCopiedProductId(null), 3000);
+      }
+    } catch (fallbackErr) {
+      console.warn('ExecCommand copy fallback failed:', fallbackErr);
+    }
+  };
+
+  useEffect(() => {
+    // Check Notification status and register SW
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        setShowNotificationBanner(true);
+      } else if (Notification.permission === 'granted') {
+        requestNotificationPermissionAndGetToken().then((token) => {
+          if (token) setFcmToken(token);
+        });
+      }
+    }
+
     // Subscribe real-time updates
     const unsubProducts = subscribeStoreProducts((data) => setProducts(data));
     const unsubConfig = subscribeStoreConfig((cfg) => setConfig(cfg));
     const unsubOrders = subscribeStoreOrders((data) => setOrders(data));
 
+    const handleSettingsUpdate = () => {
+      try {
+        const savedGlobal = localStorage.getItem('global_settings');
+        if (savedGlobal) {
+          const parsed = JSON.parse(savedGlobal);
+          setConfig((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch (err) {
+        console.warn('Error reading global settings event:', err);
+      }
+    };
+    window.addEventListener('global_settings_updated', handleSettingsUpdate);
+    window.addEventListener('storage', handleSettingsUpdate);
+
     return () => {
       unsubProducts();
       unsubConfig();
       unsubOrders();
+      window.removeEventListener('global_settings_updated', handleSettingsUpdate);
+      window.removeEventListener('storage', handleSettingsUpdate);
     };
   }, []);
+
+  const handleEnableNotifications = async () => {
+    const token = await requestNotificationPermissionAndGetToken();
+    if (token) {
+      setFcmToken(token);
+    }
+    setShowNotificationBanner(false);
+  };
 
   // Save Cart to localStorage whenever modified
   useEffect(() => {
@@ -164,7 +347,9 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
 
   // Total Calculations
   const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const deliveryCharge = 0; // Free Cash on Delivery
+  const deliveryCharge = config.enableDeliveryCharge !== false
+    ? (subtotal >= (config.freeDeliveryThreshold ?? 500) ? 0 : (config.deliveryChargeAmount ?? 40))
+    : 0;
   const grandTotal = subtotal + deliveryCharge;
   const totalCartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -181,6 +366,11 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
     e.preventDefault();
     if (cart.length === 0) {
       setCheckoutError('ଆପଣଙ୍କ କାର୍ଟ ଖାଲି ଅଛି। ଦୟାକରି କିଛି ସାମଗ୍ରୀ ଯୋଡ଼ନ୍ତୁ। (Your cart is empty)');
+      return;
+    }
+
+    if (config.enableCod === false) {
+      setCheckoutError('❌ ନଗଦ ଦେୟ (Cash on Delivery) ସୁବିଧା ବର୍ତ୍ତମାନ ଆଡମିନ୍‌ଙ୍କ ଦ୍ୱାରା ବନ୍ଦ କରାଯାଇଛି। (COD temporarily disabled)');
       return;
     }
 
@@ -220,6 +410,7 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
       deliveryAddress: deliveryAddress.trim(),
       items: orderItems,
       totalAmount: grandTotal,
+      fcmToken: fcmToken || undefined,
     });
 
     setIsSubmitting(false);
@@ -260,10 +451,51 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6 font-sans pb-28">
+      {/* Background Web Push Notification Permission Prompt Banner */}
+      {showNotificationBanner && (
+        <div className="bg-amber-900 text-amber-50 p-4 rounded-2xl shadow-xl border-2 border-amber-400 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-amber-400 text-amber-950 rounded-xl flex items-center justify-center shrink-0">
+              <Bell className="w-5 h-5 animate-bounce" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm text-amber-200">
+                ନୋଟିଫିକେସନ୍ ଅନୁମତି ଦିଅନ୍ତୁ (Allow Order Push Notifications)
+              </h4>
+              <p className="text-xs text-amber-100/90 mt-0.5">
+                ଆପଣଙ୍କ ଅର୍ଡର୍ ଗୃହୀତ (Approved) ହେବା କ୍ଷଣି ତୁରନ୍ତ ଆପଣଙ୍କ ମୋବାଇଲ୍/ଡିଭାଇସ୍‌ରେ ନୋଟିଫିକେସନ୍ ପାଇବା ପାଇଁ ଅନୁମତି ଦିଅନ୍ତୁ।
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+            <button
+              type="button"
+              onClick={() => setShowNotificationBanner(false)}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-200 hover:text-white transition cursor-pointer"
+            >
+              ପରେ (Later)
+            </button>
+            <button
+              type="button"
+              onClick={handleEnableNotifications}
+              className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs rounded-xl shadow transition cursor-pointer flex items-center gap-1.5"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              <span>Allow Notifications</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* YouTube Style Store Banner Header */}
       <div className="relative w-full h-44 sm:h-64 rounded-3xl overflow-hidden shadow-2xl mb-8 border-2 border-amber-300/80 group">
         <img
-          src={config.bannerImageUrl || DEFAULT_BANNER_IMAGE}
+          src={
+            storeBannerUrl ||
+            (typeof window !== 'undefined' ? localStorage.getItem('storeBannerUrl') || undefined : undefined) ||
+            config.bannerImageUrl ||
+            DEFAULT_BANNER_IMAGE
+          }
           alt="Puja Samagri Store Banner"
           className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-700"
           onError={(e) => {
@@ -283,6 +515,41 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
           </p>
         </div>
       </div>
+
+      {/* Dynamic Running Notice Bar Ticker */}
+      {config.showNoticeBar !== false && (
+        <div className="bg-amber-900 text-amber-100 text-xs py-2.5 px-4 rounded-2xl mb-6 shadow-md flex items-center justify-between border border-amber-700 animate-pulse">
+          <span className="font-bold flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>{config.noticeBarText || '⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!'}</span>
+          </span>
+        </div>
+      )}
+
+      {/* Dynamic Festival Offer Banner */}
+      {config.enableFestivalBanner !== false && (
+        <div className="w-full h-36 sm:h-48 rounded-2xl overflow-hidden shadow-lg mb-6 border border-amber-300/80 relative group">
+          <img
+            src={config.festivalBannerUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop'}
+            alt="Festival Special Offer Banner"
+            className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+            onError={(e) => {
+              (e.target as HTMLElement).setAttribute('src', DEFAULT_BANNER_IMAGE);
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent p-4 sm:p-6 flex flex-col justify-center text-white">
+            <span className="bg-amber-500 text-amber-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full w-fit mb-1.5 shadow-sm">
+              🎉 ବିଶେଷ ସ୍ୱତନ୍ତ୍ର ଅଫର୍ (Festival Offer)
+            </span>
+            <h3 className="text-lg sm:text-2xl font-black drop-shadow text-amber-100">
+              ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ସ୍ୱତନ୍ତ୍ର ରିହାତି ଅଫର୍
+            </h3>
+            <p className="text-xs sm:text-sm text-amber-200 mt-1 font-medium">
+              ସମସ୍ତ ପୂଜା ସାମଗ୍ରୀ ଉପରେ ସ୍ୱତନ୍ତ୍ର ରିହାତି ଓ ନଗଦ ଦେୟ (Cash on Delivery) ସୁବିଧା।
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Navigation Tabs + Shopping Cart Bar */}
       <div className="flex flex-wrap items-center justify-between border-b border-amber-200/80 mb-6 pb-3 gap-3">
@@ -397,7 +664,13 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div
+              className={
+                config.templateStyle === 'list'
+                  ? 'flex flex-col space-y-3'
+                  : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'
+              }
+            >
               {filteredProducts.map((product) => {
                 const cartItem = cart.find((ci) => ci.product.id === product.id);
                 const itemQty = cartItem ? cartItem.quantity : 0;
@@ -405,8 +678,35 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                 return (
                   <div
                     key={product.id}
-                    className="bg-white rounded-2xl border border-amber-200 shadow-sm hover:shadow-xl transition flex flex-col overflow-hidden relative group"
+                    id={`product-${product.id}`}
+                    className={`bg-white rounded-2xl border shadow-sm hover:shadow-xl transition flex overflow-hidden relative group ${
+                      config.templateStyle === 'list' ? 'flex-col sm:flex-row' : 'flex-col'
+                    } ${
+                      highlightedProductId === product.id
+                        ? 'border-2 border-amber-500 ring-4 ring-amber-400/60 scale-[1.02] shadow-2xl transition-all duration-500'
+                        : 'border-amber-200'
+                    }`}
                   >
+                    {/* Share Button (Web Share API) */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleShareProduct(product, e)}
+                      className="absolute top-3 left-3 z-20 px-2.5 py-1.5 bg-white/95 hover:bg-white text-amber-950 rounded-full shadow-md border border-amber-300 transition cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1 text-[11px] font-bold"
+                      title="Share Product Link"
+                    >
+                      {copiedProductId === product.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600 animate-bounce" />
+                          <span className="text-emerald-700 font-extrabold text-[10px]">କପି ହେଲା</span>
+                        </>
+                      ) : (
+                        <>
+                          <Share2 className="w-3.5 h-3.5 text-amber-800" />
+                          <span className="text-amber-900 font-bold text-[10px]">ଶେୟାର୍</span>
+                        </>
+                      )}
+                    </button>
+
                     {/* Stock Badge */}
                     <div className="absolute top-3 right-3 z-10">
                       {product.inStock ? (
@@ -421,7 +721,13 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                     </div>
 
                     {/* Product Image */}
-                    <div className="w-full h-44 bg-amber-50 overflow-hidden relative">
+                    <div
+                      className={
+                        config.templateStyle === 'list'
+                          ? 'w-full sm:w-48 h-44 sm:h-auto bg-amber-50 overflow-hidden relative shrink-0'
+                          : 'w-full h-44 bg-amber-50 overflow-hidden relative'
+                      }
+                    >
                       <img
                         src={
                           product.imageUrl ||

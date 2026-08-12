@@ -1,5 +1,6 @@
 import { StoreProduct, StoreOrder, StoreConfig } from '../types';
 import { db } from './firebase';
+import { sendOrderApprovedPushNotification } from './pushNotifications';
 import {
   collection,
   doc,
@@ -339,6 +340,7 @@ export async function createStoreOrder(payload: {
   deliveryAddress: string;
   items: StoreOrder['items'];
   totalAmount: number;
+  fcmToken?: string;
 }): Promise<{ success: boolean; message?: string; order?: StoreOrder }> {
   const cleanMobile = payload.customerMobile.trim().replace(/\D/g, '');
 
@@ -353,6 +355,7 @@ export async function createStoreOrder(payload: {
 
   const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
   const now = new Date().toISOString();
+  const savedFcmToken = payload.fcmToken || (typeof localStorage !== 'undefined' ? localStorage.getItem('puja_fcm_token') || undefined : undefined);
 
   const newOrder: StoreOrder = {
     id: orderId,
@@ -363,6 +366,7 @@ export async function createStoreOrder(payload: {
     totalAmount: payload.totalAmount,
     paymentMethod: 'COD',
     status: 'pending',
+    fcmToken: savedFcmToken,
     createdAt: now,
   };
 
@@ -388,11 +392,14 @@ export async function updateOrderStatus(
 ): Promise<boolean> {
   const existing = loadLocal<StoreOrder[]>(STORAGE_KEYS.ORDERS, []);
   const idx = existing.findIndex((o) => o.id === orderId);
+  let updatedOrder: StoreOrder | null = null;
+
   if (idx !== -1) {
     existing[idx].status = status;
     if (deliveryDate !== undefined) {
       existing[idx].deliveryDate = deliveryDate;
     }
+    updatedOrder = existing[idx];
     saveLocal(STORAGE_KEYS.ORDERS, existing);
   }
 
@@ -402,6 +409,11 @@ export async function updateOrderStatus(
     await updateDoc(doc(db, COLLECTIONS.ORDERS, orderId), updates);
   } catch (err) {
     console.warn('Error updating order status in Firestore:', err);
+  }
+
+  // Admin Trigger: Send Push Notification when order is approved
+  if (status === 'approved' && updatedOrder) {
+    sendOrderApprovedPushNotification(updatedOrder);
   }
 
   return true;
@@ -453,45 +465,63 @@ export async function cancelStoreOrder(
 // 3. STORE CONFIG & SUSPENSION API
 // ----------------------------------------------------------------------
 
-export async function getStoreConfig(): Promise<StoreConfig> {
-  const defaultConfig: StoreConfig = {
-    bannerImageUrl: DEFAULT_BANNER_IMAGE,
-    suspendedMobiles: [],
-  };
+export const DEFAULT_STORE_CONFIG: StoreConfig = {
+  bannerImageUrl: DEFAULT_BANNER_IMAGE,
+  suspendedMobiles: [],
+  districtCodStatus: {},
 
-  const localConfig = loadLocal<StoreConfig>(STORAGE_KEYS.CONFIG, defaultConfig);
+  // Global Settings & Feature Toggles
+  enableFestivalBanner: true,
+  enableDeliveryCharge: false,
+  enableCod: true,
+  showNoticeBar: true,
+
+  primaryColor: '#78350f',
+  backgroundColor: '#fffbeb',
+  templateStyle: 'grid',
+
+  noticeBarText: '⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!',
+  festivalBannerUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
+  deliveryChargeAmount: 40,
+  freeDeliveryThreshold: 500,
+  customToggles: {},
+};
+
+export async function getStoreConfig(): Promise<StoreConfig> {
+  const localConfig = loadLocal<StoreConfig>(STORAGE_KEYS.CONFIG, DEFAULT_STORE_CONFIG);
+  const mergedLocal = { ...DEFAULT_STORE_CONFIG, ...localConfig };
 
   try {
     const docRef = doc(db, COLLECTIONS.CONFIG, 'storeBannerAndSecurity');
     const snap = await getDoc(docRef);
     if (snap.exists()) {
       const fsConfig = snap.data() as StoreConfig;
-      saveLocal(STORAGE_KEYS.CONFIG, fsConfig);
-      return fsConfig;
+      const merged = { ...DEFAULT_STORE_CONFIG, ...fsConfig };
+      saveLocal(STORAGE_KEYS.CONFIG, merged);
+      return merged;
     } else {
-      await setDoc(docRef, localConfig);
+      await setDoc(docRef, mergedLocal);
     }
   } catch (err) {
     console.warn('Firestore getStoreConfig fallback to localStorage:', err);
   }
 
-  return localConfig;
+  return mergedLocal;
 }
 
 export function subscribeStoreConfig(callback: (config: StoreConfig) => void): Unsubscribe {
-  const initial = loadLocal<StoreConfig>(STORAGE_KEYS.CONFIG, {
-    bannerImageUrl: DEFAULT_BANNER_IMAGE,
-    suspendedMobiles: [],
-  });
-  callback(initial);
+  const initial = loadLocal<StoreConfig>(STORAGE_KEYS.CONFIG, DEFAULT_STORE_CONFIG);
+  const mergedInitial = { ...DEFAULT_STORE_CONFIG, ...initial };
+  callback(mergedInitial);
 
   return onSnapshot(
     doc(db, COLLECTIONS.CONFIG, 'storeBannerAndSecurity'),
     (snap) => {
       if (snap.exists()) {
         const config = snap.data() as StoreConfig;
-        saveLocal(STORAGE_KEYS.CONFIG, config);
-        callback(config);
+        const merged = { ...DEFAULT_STORE_CONFIG, ...config };
+        saveLocal(STORAGE_KEYS.CONFIG, merged);
+        callback(merged);
       }
     },
     (err) => console.warn('subscribeStoreConfig error:', err)

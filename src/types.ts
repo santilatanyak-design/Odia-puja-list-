@@ -155,6 +155,7 @@ export interface StoreOrder {
   paymentMethod: 'COD';
   status: 'pending' | 'approved' | 'delivered' | 'cancelled';
   deliveryDate?: string;
+  fcmToken?: string;
   cancellationReason?: string;
   cancelledAt?: string;
   createdAt: string;
@@ -164,4 +165,21 @@ export interface StoreConfig {
   bannerImageUrl: string;
   suspendedMobiles: string[];
   districtCodStatus?: Record<string, boolean>;
+
+  // Global Settings & Feature Toggles
+  enableFestivalBanner?: boolean;
+  enableDeliveryCharge?: boolean;
+  enableCod?: boolean;
+  showNoticeBar?: boolean;
+
+  primaryColor?: string;
+  backgroundColor?: string;
+  templateStyle?: 'grid' | 'list';
+
+  noticeBarText?: string;
+  festivalBannerUrl?: string;
+  deliveryChargeAmount?: number;
+  freeDeliveryThreshold?: number;
+
+  customToggles?: Record<string, boolean>;
 }
