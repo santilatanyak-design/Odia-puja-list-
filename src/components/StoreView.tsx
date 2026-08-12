@@ -29,12 +29,17 @@ import {
   MapPin,
   User,
   Calendar,
-  FileText,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 
 interface StoreViewProps {
   userPhone?: string;
+}
+
+export interface CartItem {
+  product: StoreProduct;
+  quantity: number;
 }
 
 export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
@@ -50,9 +55,19 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Checkout Modal State
-  const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
-  const [quantity, setQuantity] = useState<number>(1);
+  // Cart State (Persisted in localStorage)
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('puja_store_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  // Checkout Form State
   const [customerName, setCustomerName] = useState('');
   const [customerMobile, setCustomerMobile] = useState(userPhone || '');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('Ganjam');
@@ -81,6 +96,15 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
     };
   }, []);
 
+  // Save Cart to localStorage whenever modified
+  useEffect(() => {
+    try {
+      localStorage.setItem('puja_store_cart', JSON.stringify(cart));
+    } catch (e) {
+      console.warn('Failed to save cart to localStorage:', e);
+    }
+  }, [cart]);
+
   const categories = ['all', ...Array.from(new Set(products.map((p) => p.category)))];
 
   const filteredProducts = products.filter((p) => {
@@ -101,17 +125,64 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
     return o.customerMobile === cleanUser || !cleanUser;
   });
 
-  const handleOpenCheckout = (product: StoreProduct) => {
+  // Cart Handlers
+  const handleAddToCart = (product: StoreProduct) => {
     if (!product.inStock) return;
-    setSelectedProduct(product);
-    setQuantity(1);
-    setSelectedDistrict('Ganjam');
+    setCart((prev) => {
+      const idx = prev.findIndex((item) => item.product.id === product.id);
+      if (idx !== -1) {
+        const copy = [...prev];
+        copy[idx] = { ...copy[idx], quantity: copy[idx].quantity + 1 };
+        return copy;
+      }
+      return [...prev, { product, quantity: 1 }];
+    });
+  };
+
+  const handleUpdateCartQuantity = (productId: string, delta: number) => {
+    setCart((prev) =>
+      prev
+        .map((item) => {
+          if (item.product.id === productId) {
+            const nextQty = item.quantity + delta;
+            return nextQty > 0 ? { ...item, quantity: nextQty } : null;
+          }
+          return item;
+        })
+        .filter((item): item is CartItem => item !== null)
+    );
+  };
+
+  const handleRemoveFromCart = (productId: string) => {
+    setCart((prev) => prev.filter((item) => item.product.id !== productId));
+  };
+
+  const handleClearCart = () => {
+    setCart([]);
+    localStorage.removeItem('puja_store_cart');
+  };
+
+  // Total Calculations
+  const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const deliveryCharge = 0; // Free Cash on Delivery
+  const grandTotal = subtotal + deliveryCharge;
+  const totalCartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Quick Buy Now (Adds to cart and opens checkout)
+  const handleQuickBuy = (product: StoreProduct) => {
+    if (!product.inStock) return;
+    handleAddToCart(product);
+    setIsCartOpen(true);
     setCheckoutError(null);
   };
 
+  // Place Order Handler for Multi-Select Cart
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedProduct) return;
+    if (cart.length === 0) {
+      setCheckoutError('ଆପଣଙ୍କ କାର୍ଟ ଖାଲି ଅଛି। ଦୟାକରି କିଛି ସାମଗ୍ରୀ ଯୋଡ଼ନ୍ତୁ। (Your cart is empty)');
+      return;
+    }
 
     const isCodActive = config.districtCodStatus?.[selectedDistrict] !== false;
     if (!isCodActive) {
@@ -136,21 +207,19 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
     setIsSubmitting(true);
     setCheckoutError(null);
 
-    const total = selectedProduct.price * quantity;
+    const orderItems = cart.map((item) => ({
+      productId: item.product.id,
+      productName: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+    }));
 
     const res = await createStoreOrder({
       customerName: customerName.trim(),
       customerMobile: cleanMobile,
       deliveryAddress: deliveryAddress.trim(),
-      items: [
-        {
-          productId: selectedProduct.id,
-          productName: selectedProduct.name,
-          price: selectedProduct.price,
-          quantity,
-        },
-      ],
-      totalAmount: total,
+      items: orderItems,
+      totalAmount: grandTotal,
     });
 
     setIsSubmitting(false);
@@ -162,7 +231,8 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
 
     if (res.order) {
       setOrderSuccess(res.order);
-      setSelectedProduct(null);
+      handleClearCart();
+      setIsCartOpen(false);
     }
   };
 
@@ -189,7 +259,7 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6 font-sans">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6 font-sans pb-28">
       {/* YouTube Style Store Banner Header */}
       <div className="relative w-full h-44 sm:h-64 rounded-3xl overflow-hidden shadow-2xl mb-8 border-2 border-amber-300/80 group">
         <img
@@ -214,8 +284,8 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-amber-200/80 mb-6 pb-2">
+      {/* Navigation Tabs + Shopping Cart Bar */}
+      <div className="flex flex-wrap items-center justify-between border-b border-amber-200/80 mb-6 pb-3 gap-3">
         <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={() => setActiveTab('browse')}
@@ -245,6 +315,26 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
             )}
           </button>
         </div>
+
+        {/* Top Cart Button */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsCartOpen(true);
+            setCheckoutError(null);
+          }}
+          className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg transition cursor-pointer flex items-center gap-2 border border-emerald-500"
+        >
+          <ShoppingCart className="w-4 h-4" />
+          <span>କାର୍ଟ (Cart)</span>
+          {totalCartItemsCount > 0 ? (
+            <span className="bg-amber-300 text-amber-950 font-black text-xs px-2 py-0.5 rounded-full">
+              {totalCartItemsCount} • ₹{subtotal}
+            </span>
+          ) : (
+            <span className="text-emerald-200 text-xs">(0)</span>
+          )}
+        </button>
       </div>
 
       {/* BROWSE PRODUCTS TAB */}
@@ -308,81 +398,132 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-2xl border border-amber-200 shadow-sm hover:shadow-xl transition flex flex-col overflow-hidden relative group"
-                >
-                  {/* Stock Badge */}
-                  <div className="absolute top-3 right-3 z-10">
-                    {product.inStock ? (
-                      <span className="bg-emerald-600/90 text-white font-bold text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-                        <CheckCircle className="w-3 h-3" /> ଷ୍ଟକ୍‌ରେ ଅଛି (In Stock)
-                      </span>
-                    ) : (
-                      <span className="bg-rose-600/90 text-white font-bold text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-                        <Ban className="w-3 h-3" /> ଷ୍ଟକ୍ ଶେଷ (Out of Stock)
-                      </span>
-                    )}
-                  </div>
+              {filteredProducts.map((product) => {
+                const cartItem = cart.find((ci) => ci.product.id === product.id);
+                const itemQty = cartItem ? cartItem.quantity : 0;
 
-                  {/* Product Image */}
-                  <div className="w-full h-44 bg-amber-50 overflow-hidden relative">
-                    <img
-                      src={
-                        product.imageUrl ||
-                        'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
-                      }
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      onError={(e) => {
-                        (e.target as HTMLElement).setAttribute(
-                          'src',
-                          'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
-                        );
-                      }}
-                    />
-                  </div>
-
-                  {/* Product Content */}
-                  <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div>
-                      <span className="text-[10px] font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-md">
-                        {product.category}
-                      </span>
-                      <h3 className="font-bold text-sm text-amber-950 mt-1.5 leading-snug">
-                        {product.name}
-                      </h3>
-                      {product.description && (
-                        <p className="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
-                          {product.description}
-                        </p>
+                return (
+                  <div
+                    key={product.id}
+                    className="bg-white rounded-2xl border border-amber-200 shadow-sm hover:shadow-xl transition flex flex-col overflow-hidden relative group"
+                  >
+                    {/* Stock Badge */}
+                    <div className="absolute top-3 right-3 z-10">
+                      {product.inStock ? (
+                        <span className="bg-emerald-600/90 text-white font-bold text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" /> ଷ୍ଟକ୍‌ରେ ଅଛି
+                        </span>
+                      ) : (
+                        <span className="bg-rose-600/90 text-white font-bold text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                          <Ban className="w-3 h-3" /> ଷ୍ଟକ୍ ଶେଷ
+                        </span>
                       )}
                     </div>
 
-                    <div className="pt-2 border-t border-amber-100 flex items-center justify-between">
+                    {/* Product Image */}
+                    <div className="w-full h-44 bg-amber-50 overflow-hidden relative">
+                      <img
+                        src={
+                          product.imageUrl ||
+                          'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
+                        }
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLElement).setAttribute(
+                            'src',
+                            'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
+                          );
+                        }}
+                      />
+                    </div>
+
+                    {/* Product Content */}
+                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                       <div>
-                        <span className="text-[10px] text-gray-500 block leading-none">ମୂଲ୍ୟ (Price)</span>
-                        <span className="text-base font-black text-amber-900">₹{product.price}</span>
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-100/80 px-2 py-0.5 rounded-md">
+                          {product.category}
+                        </span>
+                        <h3 className="font-bold text-sm text-amber-950 mt-1.5 leading-snug">
+                          {product.name}
+                        </h3>
+                        {product.description && (
+                          <p className="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
+                            {product.description}
+                          </p>
+                        )}
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => handleOpenCheckout(product)}
-                        disabled={!product.inStock}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                          product.inStock
-                            ? 'bg-amber-900 hover:bg-amber-950 text-white shadow-md active:scale-95'
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-70'
-                        }`}
-                      >
-                        <ShoppingCart className="w-3.5 h-3.5" />
-                        <span>{product.inStock ? 'ଅର୍ଡର୍ କରନ୍ତୁ (Buy COD)' : 'ଷ୍ଟକ୍ ନାହିଁ'}</span>
-                      </button>
+                      <div className="pt-2 border-t border-amber-100 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] text-gray-500 block leading-none">
+                              ମୂଲ୍ୟ (Price)
+                            </span>
+                            <span className="text-base font-black text-amber-900">
+                              ₹{product.price}
+                            </span>
+                          </div>
+
+                          {/* Item Quantity Counter if in Cart */}
+                          {itemQty > 0 && (
+                            <div className="flex items-center gap-1 bg-emerald-50 border border-emerald-300 rounded-xl p-1">
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateCartQuantity(product.id, -1)}
+                                className="w-6 h-6 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-black flex items-center justify-center cursor-pointer text-xs"
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="font-black text-xs text-emerald-950 px-1.5">
+                                {itemQty}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateCartQuantity(product.id, 1)}
+                                className="w-6 h-6 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-black flex items-center justify-center cursor-pointer text-xs"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Add to Cart & Buy Now Action Buttons */}
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(product)}
+                            disabled={!product.inStock}
+                            className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                              product.inStock
+                                ? 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                            }`}
+                          >
+                            <ShoppingCart className="w-3.5 h-3.5" />
+                            <span>{itemQty > 0 ? `କାର୍ଟ (${itemQty})` : 'କାର୍ଟରେ ଯୋଡ଼ନ୍ତୁ'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleQuickBuy(product)}
+                            disabled={!product.inStock}
+                            className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                              product.inStock
+                                ? 'bg-amber-900 hover:bg-amber-950 text-white shadow-md active:scale-95'
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-60'
+                            }`}
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>ଅର୍ଡର୍ କରନ୍ତୁ</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -527,27 +668,55 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
         </div>
       )}
 
-      {/* COD CHECKOUT MODAL */}
-      {selectedProduct && (
+      {/* FLOATING BOTTOM CART SUMMARY BAR */}
+      {cart.length > 0 && activeTab === 'browse' && !isCartOpen && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9990] w-11/12 max-w-xl bg-amber-950 text-white p-3.5 rounded-2xl shadow-2xl border-2 border-amber-400 flex items-center justify-between gap-3 animate-bounce-short">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 bg-amber-500 text-amber-950 rounded-xl flex items-center justify-center font-black text-sm shadow">
+              {totalCartItemsCount}
+            </div>
+            <div>
+              <div className="text-xs font-bold text-amber-200">ସାମଗ୍ରୀ କାର୍ଟରେ ଅଛି</div>
+              <div className="text-sm font-black text-amber-400">₹{subtotal} (COD)</div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsCartOpen(true);
+              setCheckoutError(null);
+            }}
+            className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs sm:text-sm rounded-xl shadow transition cursor-pointer flex items-center gap-1.5"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span>କାର୍ଟ ଦେଖନ୍ତୁ ଓ ଅର୍ଡର୍ କରନ୍ତୁ</span>
+          </button>
+        </div>
+      )}
+
+      {/* MULTI-SELECT CART & COD CHECKOUT MODAL */}
+      {isCartOpen && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 overflow-y-auto"
-          onClick={() => setSelectedProduct(null)}
+          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[99999] flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          onClick={() => setIsCartOpen(false)}
         >
           <div
-            className="bg-white border-2 border-amber-600 rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-left text-gray-800 space-y-4 my-8"
+            className="bg-white border-2 border-amber-600 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative text-left text-gray-800 space-y-4 my-8"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Header */}
             <div className="flex items-center justify-between border-b border-amber-200 pb-3">
               <div className="flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5 text-amber-900" />
+                <ShoppingCart className="w-5 h-5 text-amber-900" />
                 <h3 className="text-base font-bold text-amber-950">
-                  ନଗଦ ଦେୟ ଅର୍ଡର୍ (Cash on Delivery)
+                  ଖରିଦ କାର୍ଟ ଓ ନଗଦ ଦେୟ (Multi-Item COD Cart)
                 </h3>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedProduct(null)}
-                className="text-gray-400 hover:text-gray-700 text-lg font-bold"
+                onClick={() => setIsCartOpen(false)}
+                className="text-gray-400 hover:text-gray-700 text-lg font-bold p-1"
               >
                 ✕
               </button>
@@ -560,49 +729,114 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
               </div>
             )}
 
-            <div className="bg-amber-50 p-3 rounded-2xl border border-amber-200 flex items-center gap-3">
-              <img
-                src={
-                  selectedProduct.imageUrl ||
-                  'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
-                }
-                alt={selectedProduct.name}
-                className="w-16 h-16 object-cover rounded-xl border border-amber-300"
-              />
-              <div className="flex-1">
-                <h4 className="font-bold text-xs text-amber-950">{selectedProduct.name}</h4>
-                <div className="text-xs text-amber-900 font-extrabold mt-0.5">
-                  ମୂଲ୍ୟ: ₹{selectedProduct.price}
+            {/* Cart Items List */}
+            {cart.length === 0 ? (
+              <div className="text-center py-8 bg-amber-50 rounded-2xl border border-amber-200 p-4 space-y-2">
+                <ShoppingBag className="w-10 h-10 text-amber-400 mx-auto" />
+                <p className="text-xs font-bold text-amber-950">ଆପଣଙ୍କ କାର୍ଟ ଖାଲି ଅଛି।</p>
+                <button
+                  type="button"
+                  onClick={() => setIsCartOpen(false)}
+                  className="px-3 py-1.5 bg-amber-900 text-white font-bold text-xs rounded-xl"
+                >
+                  ସାମଗ୍ରୀ ପସନ୍ଦ କରନ୍ତୁ
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-56 overflow-y-auto pr-1">
+                <div className="flex items-center justify-between text-xs font-bold text-amber-900 border-b border-amber-100 pb-1">
+                  <span>ଚୟନିତ ସାମଗ୍ରୀ ତାଲିକା ({cart.length})</span>
+                  <button
+                    type="button"
+                    onClick={handleClearCart}
+                    className="text-rose-600 hover:text-rose-800 text-[11px] font-semibold underline cursor-pointer"
+                  >
+                    ସବୁ ଖାଲି କରନ୍ତୁ (Clear All)
+                  </button>
                 </div>
+
+                {cart.map((item) => (
+                  <div
+                    key={item.product.id}
+                    className="bg-amber-50/80 p-2.5 rounded-2xl border border-amber-200 flex items-center justify-between gap-2"
+                  >
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                      <img
+                        src={
+                          item.product.imageUrl ||
+                          'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
+                        }
+                        alt={item.product.name}
+                        className="w-12 h-12 object-cover rounded-xl border border-amber-300 shrink-0"
+                      />
+                      <div className="truncate">
+                        <h4 className="font-bold text-xs text-amber-950 truncate">
+                          {item.product.name}
+                        </h4>
+                        <div className="text-[11px] text-amber-800">
+                          ₹{item.product.price} × {item.quantity} ={' '}
+                          <span className="font-black text-amber-950">
+                            ₹{item.product.price * item.quantity}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {/* Quantity Adjusters */}
+                      <div className="flex items-center gap-1 bg-white border border-amber-300 rounded-xl p-1">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateCartQuantity(item.product.id, -1)}
+                          className="w-5 h-5 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-950 font-black flex items-center justify-center cursor-pointer text-xs"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="font-black text-xs text-amber-950 px-1">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateCartQuantity(item.product.id, 1)}
+                          className="w-5 h-5 rounded-md bg-amber-100 hover:bg-amber-200 text-amber-950 font-black flex items-center justify-center cursor-pointer text-xs"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+
+                      {/* Remove Item */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFromCart(item.product.id)}
+                        className="p-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-xl transition cursor-pointer"
+                        title="Remove item"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Total Calculation Breakdown */}
+            <div className="bg-amber-100/80 p-3.5 rounded-2xl border border-amber-300 space-y-1.5 text-xs">
+              <div className="flex justify-between text-gray-700">
+                <span>ସବ୍-ଟୋଟାଲ୍ (Subtotal):</span>
+                <span className="font-bold text-amber-950">₹{subtotal}</span>
+              </div>
+              <div className="flex justify-between text-emerald-800 font-semibold">
+                <span>ଡେଲିଭରୀ ଚାର୍ଜ (Delivery Charge):</span>
+                <span className="font-bold">FREE (₹0.00)</span>
+              </div>
+              <div className="border-t border-amber-300 pt-1.5 flex justify-between font-black text-amber-950 text-sm">
+                <span>ମୋଟ ଦେୟ (Grand Total - COD):</span>
+                <span className="text-amber-900 text-base">₹{grandTotal}</span>
               </div>
             </div>
 
+            {/* Checkout Form */}
             <form onSubmit={handlePlaceOrder} className="space-y-3 text-xs">
-              {/* Quantity Selector */}
-              <div>
-                <label className="font-bold text-gray-800 block mb-1">ପରିମାଣ (Quantity):</label>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold flex items-center justify-center cursor-pointer"
-                  >
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="font-black text-sm text-amber-950 w-6 text-center">{quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity((q) => q + 1)}
-                    className="w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold flex items-center justify-center cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-xs text-gray-500 font-semibold ml-auto">
-                    ମୋଟ: ₹{selectedProduct.price * quantity}
-                  </span>
-                </div>
-              </div>
-
               {/* Customer Name */}
               <div>
                 <label className="font-bold text-gray-800 block mb-1">
@@ -668,13 +902,13 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
               {(() => {
                 const isCodActive = config.districtCodStatus?.[selectedDistrict] !== false;
                 return isCodActive ? (
-                  <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-2 rounded-xl text-[11px] font-bold flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>COD Available for {selectedDistrict}</span>
                   </div>
                 ) : (
-                  <div className="bg-rose-50 border border-rose-300 text-rose-900 p-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
-                    <XCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <div className="bg-rose-50 border border-rose-300 text-rose-900 p-2 rounded-xl text-[11px] font-bold flex items-center gap-1.5">
+                    <XCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                     <span>COD Not Available for this location</span>
                   </div>
                 );
@@ -689,7 +923,7 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                   <MapPin className="w-4 h-4 text-amber-600 absolute left-3 top-3" />
                   <textarea
                     required
-                    rows={3}
+                    rows={2}
                     value={deliveryAddress}
                     onChange={(e) => setDeliveryAddress(e.target.value)}
                     placeholder="ଗ୍ରାମ / ସହର, ପିନ୍ କୋଡ୍, ଲ୍ୟାଣ୍ଡମାର୍କ..."
@@ -698,31 +932,31 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                 </div>
               </div>
 
-              {/* Payment Summary */}
-              <div className="bg-amber-100/80 p-3 rounded-2xl border border-amber-300 flex items-center justify-between font-black text-amber-950 text-xs">
-                <span>ନଗଦ ଦେୟ (Cash On Delivery):</span>
-                <span className="text-sm text-amber-900">₹{selectedProduct.price * quantity}</span>
-              </div>
-
               <div className="pt-2 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setSelectedProduct(null)}
+                  onClick={() => setIsCartOpen(false)}
                   className="w-1/3 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-bold hover:bg-gray-100 transition cursor-pointer"
                 >
                   ରଦ୍ଦ କରନ୍ତୁ
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting || config.districtCodStatus?.[selectedDistrict] === false}
-                  className={`w-2/3 py-2.5 rounded-xl text-white font-bold transition cursor-pointer shadow-md flex items-center justify-center gap-1.5 ${
+                  disabled={
+                    isSubmitting ||
+                    cart.length === 0 ||
                     config.districtCodStatus?.[selectedDistrict] === false
+                  }
+                  className={`w-2/3 py-2.5 rounded-xl text-white font-bold transition cursor-pointer shadow-md flex items-center justify-center gap-1.5 ${
+                    config.districtCodStatus?.[selectedDistrict] === false || cart.length === 0
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-amber-900 hover:bg-amber-950'
                   }`}
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  <span>{isSubmitting ? 'ଅର୍ଡର୍ ହେଉଛି...' : 'ଅର୍ଡର୍ କନଫର୍ମ କରନ୍ତୁ'}</span>
+                  <span>
+                    {isSubmitting ? 'ଅର୍ଡର୍ ହେଉଛି...' : `ଅର୍ଡର୍ କନଫର୍ମ (₹${grandTotal})`}
+                  </span>
                 </button>
               </div>
             </form>

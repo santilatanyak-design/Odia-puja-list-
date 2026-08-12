@@ -125,7 +125,7 @@ export const AdminStoreManagement: React.FC = () => {
       return;
     }
 
-    await saveStoreProduct({
+    const saved = await saveStoreProduct({
       id: editingProduct.id,
       name: editingProduct.name.trim(),
       price: Number(editingProduct.price) || 0,
@@ -135,8 +135,35 @@ export const AdminStoreManagement: React.FC = () => {
       inStock: editingProduct.inStock ?? true,
     });
 
+    setProducts((prev) => {
+      const idx = prev.findIndex((p) => p.id === saved.id);
+      if (idx !== -1) {
+        const copy = [...prev];
+        copy[idx] = saved;
+        return copy;
+      }
+      return [...prev, saved];
+    });
+
     setEditingProduct(null);
     setProductFormError(null);
+  };
+
+  // Toggle Stock Status
+  const handleToggleStock = async (productId: string, currentStock: boolean) => {
+    const nextStock = !currentStock;
+    await toggleProductStock(productId, nextStock);
+    setProducts((prev) =>
+      prev.map((p) => (p.id === productId ? { ...p, inStock: nextStock } : p))
+    );
+  };
+
+  // Delete Product with Confirmation
+  const handleDeleteProduct = async (productId: string) => {
+    if (window.confirm('ଆପଣ ସତରେ ଏହି ସାମଗ୍ରୀଟିକୁ ତାଲିକାରୁ କାଢ଼ିବାକୁ (Delete) ଚାହୁଁଛନ୍ତି କି?')) {
+      await deleteStoreProduct(productId);
+      setProducts((prev) => prev.filter((p) => p.id !== productId));
+    }
   };
 
   const handleApproveOrder = async (orderId: string, deliveryDateStr: string) => {
@@ -528,7 +555,7 @@ export const AdminStoreManagement: React.FC = () => {
                 <div className="pt-2 border-t border-amber-100 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => toggleProductStock(p.id, !p.inStock)}
+                    onClick={() => handleToggleStock(p.id, p.inStock)}
                     className={`px-3 py-1.5 rounded-xl font-bold text-xs transition cursor-pointer flex items-center gap-1.5 ${
                       p.inStock
                         ? 'bg-emerald-100 text-emerald-900 border border-emerald-300 hover:bg-emerald-200'
@@ -552,16 +579,20 @@ export const AdminStoreManagement: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setEditingProduct(p)}
-                      className="p-2 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl transition cursor-pointer"
+                      title="Edit Product (ସମ୍ପାଦନା କରନ୍ତୁ)"
+                      className="px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl transition cursor-pointer flex items-center gap-1 font-bold text-xs"
                     >
                       <Edit className="w-3.5 h-3.5" />
+                      <span>Edit</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => deleteStoreProduct(p.id)}
-                      className="p-2 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl transition cursor-pointer"
+                      onClick={() => handleDeleteProduct(p.id)}
+                      title="Delete Product (କାଢ଼ନ୍ତୁ)"
+                      className="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl transition cursor-pointer flex items-center gap-1 font-bold text-xs"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
                     </button>
                   </div>
                 </div>
@@ -697,7 +728,7 @@ export const AdminStoreManagement: React.FC = () => {
             <form onSubmit={handleSaveBanner} className="space-y-3 text-xs">
               <div>
                 <label className="font-bold text-gray-800 block mb-1">
-                  ବ୍ୟାନର୍ ଚବି Image URL (Paste Direct Image Link):
+                  Store Banner Image URL:
                 </label>
                 <input
                   type="url"
@@ -729,7 +760,7 @@ export const AdminStoreManagement: React.FC = () => {
                 className="w-full py-2.5 bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Save className="w-4 h-4" />
-                <span>Save Banner Image URL</span>
+                <span>Update Banner</span>
               </button>
             </form>
           </div>

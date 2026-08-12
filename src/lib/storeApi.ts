@@ -564,9 +564,12 @@ export async function setAllDistrictsCodStatus(active: boolean): Promise<boolean
 // ----------------------------------------------------------------------
 
 export function generateJpgBill(order: StoreOrder): void {
+  const itemsCount = order.items.length;
+  const calculatedHeight = Math.max(900, 520 + itemsCount * 42 + 220);
+
   const canvas = document.createElement('canvas');
   canvas.width = 800;
-  canvas.height = 1000;
+  canvas.height = calculatedHeight;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
@@ -574,75 +577,78 @@ export function generateJpgBill(order: StoreOrder): void {
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Outer Border & Header Box
+  // Outer Border
   ctx.strokeStyle = '#8B0000';
   ctx.lineWidth = 8;
   ctx.strokeRect(16, 16, canvas.width - 32, canvas.height - 32);
 
-  // Top Header Gradient Area
+  // Top Header Area
   ctx.fillStyle = '#701a1e';
   ctx.fillRect(24, 24, canvas.width - 48, 120);
 
   // Title Text
   ctx.fillStyle = '#FFD700';
-  ctx.font = 'bold 32px sans-serif';
+  ctx.font = 'bold 30px sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('🕉️ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ (PUJA SAMAGRI STORE)', canvas.width / 2, 70);
+  ctx.fillText('🕉️ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ (PUJA SAMAGRI STORE)', canvas.width / 2, 68);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '18px sans-serif';
-  ctx.fillText('CASH ON DELIVERY (COD) OFFICIAL RECEIPT', canvas.width / 2, 105);
+  ctx.font = '16px sans-serif';
+  ctx.fillText('CASH ON DELIVERY (COD) OFFICIAL RECEIPT / SHOPKEEPER BILL', canvas.width / 2, 102);
 
   // Order Details Box
   ctx.fillStyle = '#FAF5E6';
-  ctx.fillRect(40, 160, canvas.width - 80, 150);
+  ctx.fillRect(40, 160, canvas.width - 80, 145);
   ctx.strokeStyle = '#D97706';
   ctx.lineWidth = 2;
-  ctx.strokeRect(40, 160, canvas.width - 80, 150);
+  ctx.strokeRect(40, 160, canvas.width - 80, 145);
 
   ctx.textAlign = 'left';
   ctx.fillStyle = '#451a03';
   ctx.font = 'bold 18px sans-serif';
   ctx.fillText(`ORDER ID: #${order.id}`, 60, 195);
 
-  ctx.font = '16px sans-serif';
-  ctx.fillText(`Date: ${new Date(order.createdAt).toLocaleString('en-IN')}`, 480, 195);
-  ctx.fillText(`Customer Name: ${order.customerName}`, 60, 230);
-  ctx.fillText(`Mobile No: +91 ${order.customerMobile}`, 480, 230);
+  ctx.font = '15px sans-serif';
+  ctx.fillText(`Date: ${new Date(order.createdAt).toLocaleString('en-IN')}`, 460, 195);
+  ctx.fillText(`Customer Name: ${order.customerName}`, 60, 228);
+  ctx.fillText(`Mobile No: +91 ${order.customerMobile}`, 460, 228);
 
   // Address line wrapping
-  ctx.fillText(`Delivery Address: ${order.deliveryAddress.slice(0, 50)}`, 60, 265);
+  ctx.fillText(`Delivery Address: ${order.deliveryAddress.slice(0, 50)}`, 60, 260);
   if (order.deliveryAddress.length > 50) {
-    ctx.fillText(`                  ${order.deliveryAddress.slice(50, 110)}`, 60, 288);
+    ctx.fillText(`                  ${order.deliveryAddress.slice(50, 110)}`, 60, 282);
   }
 
   // Items Table Header
   ctx.fillStyle = '#8B0000';
-  ctx.fillRect(40, 330, canvas.width - 80, 40);
+  ctx.fillRect(40, 325, canvas.width - 80, 40);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 16px sans-serif';
-  ctx.fillText('SL', 60, 355);
-  ctx.fillText('ITEM DESCRIPTION', 120, 355);
-  ctx.fillText('QTY', 520, 355);
-  ctx.fillText('PRICE', 600, 355);
-  ctx.fillText('TOTAL', 690, 355);
+  ctx.font = 'bold 15px sans-serif';
+  ctx.fillText('SL', 60, 350);
+  ctx.fillText('ITEM DESCRIPTION', 110, 350);
+  ctx.fillText('QTY', 520, 350);
+  ctx.fillText('PRICE', 600, 350);
+  ctx.fillText('TOTAL', 690, 350);
 
   // Items List Rows
-  let y = 400;
-  ctx.font = '15px sans-serif';
-  ctx.fillStyle = '#111827';
+  let y = 395;
+  ctx.font = '14px sans-serif';
+  let subtotal = 0;
 
   order.items.forEach((item, index) => {
+    const itemTotal = item.price * item.quantity;
+    subtotal += itemTotal;
+
     ctx.fillStyle = index % 2 === 0 ? '#FFFFFF' : '#FFFBEB';
     ctx.fillRect(40, y - 25, canvas.width - 80, 36);
 
     ctx.fillStyle = '#111827';
     ctx.fillText(`${index + 1}.`, 60, y);
-    ctx.fillText(item.productName.slice(0, 38), 120, y);
-    ctx.fillText(`${item.quantity}`, 530, y);
+    ctx.fillText(item.productName.slice(0, 42), 110, y);
+    ctx.fillText(`${item.quantity}`, 525, y);
     ctx.fillText(`₹${item.price}`, 600, y);
-    ctx.fillText(`₹${item.price * item.quantity}`, 690, y);
+    ctx.fillText(`₹${itemTotal}`, 690, y);
 
     y += 40;
   });
@@ -651,33 +657,35 @@ export function generateJpgBill(order: StoreOrder): void {
   ctx.strokeStyle = '#9CA3AF';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(40, y + 10);
-  ctx.lineTo(canvas.width - 40, y + 10);
+  ctx.moveTo(40, y + 5);
+  ctx.lineTo(canvas.width - 40, y + 5);
   ctx.stroke();
 
   // Summary Box
-  y += 30;
+  y += 25;
   ctx.fillStyle = '#FEF3C7';
-  ctx.fillRect(440, y, 320, 110);
+  ctx.fillRect(420, y, 340, 135);
   ctx.strokeStyle = '#D97706';
-  ctx.strokeRect(440, y, 320, 110);
+  ctx.lineWidth = 2;
+  ctx.strokeRect(420, y, 340, 135);
 
   ctx.fillStyle = '#78350F';
-  ctx.font = 'bold 16px sans-serif';
-  ctx.fillText(`Payment Mode: CASH ON DELIVERY`, 460, y + 35);
-  ctx.fillText(`Order Status: ${order.status.toUpperCase()}`, 460, y + 65);
+  ctx.font = '15px sans-serif';
+  ctx.fillText(`Subtotal: ₹${subtotal}`, 440, y + 30);
+  ctx.fillText(`Delivery Fee: FREE (₹0.00)`, 440, y + 58);
+  ctx.fillText(`Payment Mode: CASH ON DELIVERY`, 440, y + 86);
 
   ctx.fillStyle = '#8B0000';
-  ctx.font = 'bold 22px sans-serif';
-  ctx.fillText(`Grand Total: ₹${order.totalAmount}`, 460, y + 95);
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillText(`Grand Total: ₹${order.totalAmount}`, 440, y + 118);
 
   // Footer Note
-  const footerY = canvas.height - 80;
+  const footerY = canvas.height - 75;
   ctx.fillStyle = '#4B5563';
   ctx.font = 'italic 14px sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('Thank you for shopping with Puja Samagri Portal! 🙏', canvas.width / 2, footerY);
-  ctx.fillText('Shopkeeper Copy | Support Email: nayakjitu986@gmail.com', canvas.width / 2, footerY + 25);
+  ctx.fillText('Shopkeeper Copy | Official Customer Invoice', canvas.width / 2, footerY + 22);
 
   // Trigger Download as JPG image
   const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
