@@ -168,6 +168,7 @@ export const AdminTempleManagement: React.FC = () => {
       location: 'ଓଡ଼ିଶା (Location)',
       pujariPhone: '9000000000',
       imageUrl: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop',
+      thumbnailUrl: '',
       qrCodeUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=400&auto=format&fit=crop',
       description: 'ମନ୍ଦିର ପୂଜା ସେବା ବିବରଣୀ।',
       history: 'ମନ୍ଦିରର ଇତିହାସ ଏବଂ ମାହାତ୍ମ୍ୟ ଏଠାରେ ଲେଖନ୍ତୁ...',
@@ -773,6 +774,18 @@ export const AdminTempleManagement: React.FC = () => {
                       value={temple.imageUrl}
                       onChange={(e) => handleTempleChange(idx, 'imageUrl', e.target.value)}
                       placeholder="https://..."
+                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                    />
+                  </div>
+
+                  {/* Thumbnail / Banner Image URL */}
+                  <div className="space-y-1">
+                    <label className="block font-bold text-amber-950">ଫଟୋ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ (Thumbnail Image URL)</label>
+                    <input
+                      type="url"
+                      value={temple.thumbnailUrl || ''}
+                      onChange={(e) => handleTempleChange(idx, 'thumbnailUrl', e.target.value)}
+                      placeholder="https://... (Thumbnail image for social share preview)"
                       className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>

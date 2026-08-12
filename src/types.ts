@@ -190,6 +190,7 @@ export interface Temple {
   location: string;
   pujariPhone: string;
   imageUrl: string;
+  thumbnailUrl?: string;
   qrCodeUrl?: string;
   description?: string;
   history?: string;

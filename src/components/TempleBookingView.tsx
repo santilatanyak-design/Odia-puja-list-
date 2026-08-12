@@ -41,10 +41,10 @@ interface TempleBookingViewProps {
 export const injectSquareOpenGraphMetaTags = (temple: Temple, shareUrl?: string) => {
   if (typeof document === 'undefined') return;
 
-  const url = shareUrl || `${window.location.origin}${window.location.pathname}?temple=${temple.id}`;
+  const url = shareUrl || `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
   const title = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
   const description = `🚩 ${temple.name} (${temple.location || 'Odisha'}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
-  const imageUrl = temple.imageUrl || (temple as any).image || '';
+  const imageUrl = temple.thumbnailUrl || temple.imageUrl || (temple as any).image || '';
 
   if (title) {
     document.title = title;
@@ -82,7 +82,7 @@ export const swapMetaTagsOnPageLoad = () => {
 
   try {
     const params = new URLSearchParams(window.location.search);
-    const templeId = params.get('temple') || params.get('templeId');
+    const templeId = params.get('templeId') || params.get('temple');
     if (!templeId) return;
 
     let temples: Temple[] = [];
@@ -350,7 +350,7 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
 
   // Deep Share Handler with Mobile Priority Web Share API
   const handleShareTemple = async (temple: Temple) => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}?temple=${temple.id}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
     
     // Dynamically inject 1:1 Square Open Graph & Twitter Card meta tags for Social Media Previews
     injectSquareOpenGraphMetaTags(temple, shareUrl);
