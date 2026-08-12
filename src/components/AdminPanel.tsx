@@ -34,6 +34,7 @@ import {
 import { UpiQrDisplay } from './UpiQrDisplay';
 import { PujaListPDFView } from './PujaListPDFView';
 import { AdminStoreManagement } from './AdminStoreManagement';
+import { AdminTempleManagement } from './AdminTempleManagement';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -99,7 +100,7 @@ export function getDisplayUtr(pmt?: PaymentRequest | null, list?: PujaList | nul
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
-  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'qr' | 'templates' | 'store'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'qr' | 'templates' | 'store' | 'temple'>('payments');
 
   // Data States
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
@@ -800,7 +801,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
           <span className="text-sm">🏪</span>
           <span>ଷ୍ଟୋର୍ ମ୍ୟାନେଜମେଣ୍ଟ (Store Admin)</span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('temple')}
+          className={`px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 ${
+            activeTab === 'temple'
+              ? 'bg-gradient-to-r from-amber-700 to-amber-900 text-white font-extrabold shadow-xs border border-amber-400'
+              : 'text-slate-800 hover:bg-amber-50'
+          }`}
+        >
+          <span className="text-sm">🏛️</span>
+          <span>ମନ୍ଦିର ବୁକିଂ ପରିଚାଳନା (Temple Admin)</span>
+        </button>
       </div>
+
+      {/* TAB: TEMPLE PUJA MANAGEMENT */}
+      {activeTab === 'temple' && <AdminTempleManagement />}
 
       {/* TAB: PUJA SAMAGRI STORE MANAGEMENT */}
       {activeTab === 'store' && <AdminStoreManagement />}

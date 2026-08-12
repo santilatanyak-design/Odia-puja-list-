@@ -6,6 +6,7 @@ interface HomePageProps {
   activePujari: Pujari | null;
   onNavigateToCreateList: () => void;
   onNavigateToStore: () => void;
+  onNavigateToTemple?: () => void;
   onNavigateToLogin: () => void;
 }
 
@@ -13,6 +14,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   activePujari,
   onNavigateToCreateList,
   onNavigateToStore,
+  onNavigateToTemple,
   onNavigateToLogin,
 }) => {
   return (
@@ -136,6 +138,34 @@ export const HomePage: React.FC<HomePageProps> = ({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Card 3: Full-width Temple Puja & Jal Abhishek Banner */}
+      <div
+        onClick={onNavigateToTemple}
+        className="bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#4a0b0e] text-white border-2 sm:border-3 border-amber-400 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group hover:shadow-3xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-6"
+      >
+        <div className="space-y-3 max-w-2xl relative z-10">
+          <span className="px-3.5 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-black rounded-full text-xs inline-flex items-center gap-1.5">
+            <span>🚩 ନୂତନ ସେବା (NEW)</span>
+            <span>•</span>
+            <span>Platform Fee ₹5</span>
+          </span>
+          <h3 className="text-2xl sm:text-3xl font-black text-amber-100 tracking-tight leading-tight">
+            ୩- ମନ୍ଦିର ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ (Temple Puja Booking)
+          </h3>
+          <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
+            ଲିଙ୍ଗରାଜ, ଶ୍ରୀମନ୍ଦିର ଓ ସମଲେଶ୍ୱରୀ ପୀଠରେ ଜଳାଭିଷେକ ଓ ପୂଜା ବୁକିଂ କରନ୍ତୁ। ଅନୁମୋଦନ ପରେ ଅଫିସିଆଲ୍ JPG ରସିଦ୍ ଡାଉନଲୋଡ୍ କରନ୍ତୁ।
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-200"
+        >
+          <span>🚩 ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </button>
       </div>
 
       {/* Quick Login / Portal Button for Registered Pujaris */}

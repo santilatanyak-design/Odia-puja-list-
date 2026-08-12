@@ -183,3 +183,41 @@ export interface StoreConfig {
 
   customToggles?: Record<string, boolean>;
 }
+
+export interface Temple {
+  id: string;
+  name: string;
+  location: string;
+  pujariPhone: string;
+  imageUrl: string;
+  qrCodeUrl?: string;
+  description?: string;
+  history?: string;
+  isJalAbhishekAvailable?: boolean;
+  customPujaLabel?: string;
+}
+
+export interface TempleBooking {
+  id: string; // Alphanumeric Unique ID e.g. BKG-98472
+  templeId: string;
+  templeName: string;
+  templeLocation?: string;
+  pujariPhone?: string;
+  userName: string;
+  userPhone: string;
+  userAddress: string;
+  gotraRasi?: string;
+  bookingType: string;
+  platformFeeAmount: number;
+  utrRef: string;
+  status: 'pending' | 'approved' | 'rejected' | 'waiting_list' | 'rescheduled' | 'cancelled';
+  pujaDateTime?: string;
+  rejectionReason?: string;
+  adminReason?: string;
+  requestedRescheduleDate?: string;
+  isRescheduleRequested?: boolean;
+  userCancelReason?: string;
+  createdAt: string;
+  approvedAt?: string;
+  updatedAt?: string;
+}

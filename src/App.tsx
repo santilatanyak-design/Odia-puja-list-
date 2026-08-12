@@ -8,6 +8,7 @@ import { HomePage } from './components/HomePage';
 import { PujariLogin } from './components/PujariLogin';
 import { PujariPortal } from './components/PujariPortal';
 import { StoreView } from './components/StoreView';
+import { TempleBookingView } from './components/TempleBookingView';
 import { AdminPanel } from './components/AdminPanel';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { SiteLockOverlay } from './components/SiteLockOverlay';
@@ -25,7 +26,15 @@ export default function App() {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   // View Navigation State: Default view is ALWAYS 'home' on initial page load
-  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal'>('home');
+  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple'>('home');
+
+  // Deep-link check for Temple Share URLs
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('templeId')) {
+      setViewMode('temple');
+    }
+  }, []);
 
   // Global Emergency Site Lock State
   const [isSiteLocked, setIsSiteLocked] = useState<boolean>(() => {
@@ -173,6 +182,17 @@ export default function App() {
             </button>
             <StoreView userPhone={activePujari?.phone} />
           </div>
+        ) : viewMode === 'temple' ? (
+          <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
+            <button
+              onClick={() => setViewMode('home')}
+              className="mb-4 px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
+            >
+              <span>←</span>
+              <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
+            </button>
+            <TempleBookingView userPhone={activePujari?.phone} />
+          </div>
         ) : viewMode === 'login' ? (
           <div className="max-w-7xl mx-auto px-2 sm:px-6 py-2">
             <div className="max-w-lg mx-auto mb-2">
@@ -208,6 +228,7 @@ export default function App() {
               }
             }}
             onNavigateToStore={() => setViewMode('store')}
+            onNavigateToTemple={() => setViewMode('temple')}
             onNavigateToLogin={() => setViewMode('login')}
           />
         )}
