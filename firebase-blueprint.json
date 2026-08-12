@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0",
+  "entities": {
+    "pujari": {
+      "title": "Pujari",
+      "description": "Pujari profiles and accounts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "pin": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "suspended"] },
+        "hasAcceptedTerms": { "type": "boolean" },
+        "freeTierUsed": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "status"]
+    },
+    "pujari_list": {
+      "title": "Puja List",
+      "description": "Puja samagri lists created by Pujaris",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "pujariId": { "type": "string" },
+        "pujariName": { "type": "string" },
+        "pujaName": { "type": "string" },
+        "yajamanaName": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "contact": { "type": "string" },
+        "location": { "type": "string" },
+        "notes": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "string" },
+              "unit": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "isUnlocked": { "type": "boolean" },
+        "paymentStatus": { "type": "string" },
+        "paymentType": { "type": "string" },
+        "paymentAmount": { "type": "number" },
+        "utrRef": { "type": "string" },
+        "rejectionReason": { "type": "string" }
+      },
+      "required": ["id", "pujariId", "pujaName", "yajamanaName", "items"]
+    },
+    "payment": {
+      "title": "Payment Request",
+      "description": "Payment verification requests submitted by Pujaris",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "pujariId": { "type": "string" },
+        "pujariName": { "type": "string" },
+        "listId": { "type": "string" },
+        "pujaName": { "type": "string" },
+        "yajamanaName": { "type": "string" },
+        "type": { "type": "string" },
+        "amount": { "type": "number" },
+        "utrRef": { "type": "string" },
+        "status": { "type": "string" },
+        "rejectionReason": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "approvedAt": { "type": "string" }
+      },
+      "required": ["id", "pujariId", "listId", "amount", "status"]
+    },
+    "config": {
+      "title": "QR Config",
+      "description": "Admin payment QR codes and pricing configuration",
+      "type": "object",
+      "properties": {
+        "newCreationQrUrl": { "type": "string" },
+        "newCreationUpiId": { "type": "string" },
+        "newCreationAmount": { "type": "number" },
+        "reDownloadQrUrl": { "type": "string" },
+        "reDownloadUpiId": { "type": "string" },
+        "reDownloadAmount": { "type": "number" }
+      }
+    },
+    "template": {
+      "title": "Puja Template",
+      "description": "Pre-defined puja samagri templates",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "items": { "type": "array" }
+      },
+      "required": ["id", "name", "items"]
+    },
+    "free_claim": {
+      "title": "Free Download Claim",
+      "description": "Claim records linking Device Hash and Voter ID PIN to enforce one-time free downloads",
+      "type": "object",
+      "properties": {
+        "deviceHash": { "type": "string" },
+        "voterIdPin": { "type": "string" },
+        "claimedAt": { "type": "string" },
+        "listId": { "type": "string" },
+        "pujariId": { "type": "string" }
+      },
+      "required": ["deviceHash", "voterIdPin", "claimedAt"]
+    }
+  },
+  "firestore": {
+    "/pujaris/{pujariId}": {
+      "schema": "pujari",
+      "description": "Pujari profiles"
+    },
+    "/pujari_lists/{listId}": {
+      "schema": "pujari_list",
+      "description": "Puja Samagri lists"
+    },
+    "/free_claims_devices/{deviceHash}": {
+      "schema": "free_claim",
+      "description": "Used device hashes for free downloads"
+    },
+    "/free_claims_voters/{voterIdPin}": {
+      "schema": "free_claim",
+      "description": "Used voter ID PINs for free downloads"
+    },
+    "/free_download_claims/{claimId}": {
+      "schema": "free_claim",
+      "description": "Full audit logs of free download claims"
+    }
+  }
+}

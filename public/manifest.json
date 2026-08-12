@@ -1,0 +1,18 @@
+{
+  "short_name": "ପୂଜା ସାମଗ୍ରୀ",
+  "name": "ଓଁ ଶ୍ରୀ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ | Puja Samagri List",
+  "description": "ପୂଜାରୀ ଓ ଯଜମାନଙ୍କ ପାଇଁ ସହଜ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FFFBF0",
+  "theme_color": "#b45309",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Remix Puja Samagri List Generator \u0026 Management System",
+  "description": "Complete Puja Samagri list creation, management, PDF generator, and payment verification portal for Pujaris and Admin.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

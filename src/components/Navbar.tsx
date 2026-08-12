@@ -1,0 +1,188 @@
+import React, { useEffect, useState } from 'react';
+import { Pujari } from '../types';
+import { ShieldCheck, User, LogOut, Sparkles, Languages, Download, CheckCircle2 } from 'lucide-react';
+import { Language, translations } from '../lib/translations';
+
+interface NavbarProps {
+  currentRole: 'pujari' | 'admin';
+  activePujari: Pujari | null;
+  lang: Language;
+  onToggleLang: () => void;
+  onSwitchRole: (role: 'pujari' | 'admin') => void;
+  onLogoutPujari: () => void;
+  onOpenAdminModal: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({
+  currentRole,
+  activePujari,
+  lang,
+  onToggleLang,
+  onSwitchRole,
+  onLogoutPujari,
+  onOpenAdminModal,
+}) => {
+  const t = translations[lang];
+
+  // PWA Install Prompt State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Check if running in standalone PWA mode
+    if (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true
+    ) {
+      setIsInstalled(true);
+    }
+
+    const handleBeforeInstallPrompt = (e: Event) => {
+      // Prevent standard browser infobar
+      e.preventDefault();
+      // Store event for 1-click install trigger
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setIsInstalled(true);
+          setDeferredPrompt(null);
+        }
+      } catch (err) {
+        console.error('PWA install prompt error:', err);
+      }
+    }
+  };
+
+  return (
+    <header className="sticky top-0 z-40 bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#701a1e] text-white border-b-2 border-amber-400 shadow-lg w-full max-w-full overflow-hidden box-border">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2.5 w-full box-border">
+        {/* Logo & Sacred Branding */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer min-w-0 shrink">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-500 text-amber-950 rounded-xl sm:rounded-2xl flex items-center justify-center font-serif text-lg sm:text-2xl shadow-md font-black border border-amber-300 shrink-0">
+            🕉️
+          </div>
+          <div className="min-w-0 shrink">
+            <h1 className="text-xs sm:text-lg font-black text-amber-100 leading-tight tracking-tight flex items-center gap-1 min-w-0">
+              <span className="truncate">{t.appTitle}</span>
+              <span className="text-amber-300 text-[10px] sm:text-sm font-black hidden xs:inline shrink-0">{t.appSubtitle}</span>
+            </h1>
+            <p className="text-[10px] sm:text-xs text-amber-200/90 font-bold hidden sm:block truncate">
+              {t.navSubtitle}
+            </p>
+          </div>
+        </div>
+
+        {/* Right Section / Controls */}
+        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+          {/* PWA 1-Click App Install Button */}
+          {!isInstalled && deferredPrompt ? (
+            <button
+              onClick={handleInstallClick}
+              title={lang === 'OD' ? 'ମୋବାଇଲ୍‌ରେ ଆପ୍ ସଂସ୍ଥାପନ କରନ୍ତୁ' : 'Install App on Mobile'}
+              className="px-2 sm:px-3.5 py-1.2 sm:py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-amber-950 font-black text-[11px] sm:text-xs rounded-xl border-2 border-amber-500 shadow-md flex items-center gap-1 cursor-pointer transition active:scale-95"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-950 stroke-[2.5]" />
+              <span className="hidden lg:inline">{t.downloadApp}</span>
+              <span className="lg:hidden">{t.downloadAppShort}</span>
+            </button>
+          ) : isInstalled ? (
+            <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-400/50 rounded-xl text-[11px] font-black">
+              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+              <span>{t.appInstalled}</span>
+            </div>
+          ) : null}
+
+          {/* Language Toggle Button */}
+          <button
+            onClick={onToggleLang}
+            title={lang === 'OD' ? 'Switch to English' : 'ଓଡ଼ିଆ ଭାଷା ବାଛନ୍ତୁ'}
+            className="flex items-center gap-1 px-2 sm:px-3 py-1.2 sm:py-1.5 rounded-xl border-2 border-amber-400 bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 font-black text-[11px] sm:text-xs transition cursor-pointer shadow-xs active:scale-95"
+          >
+            <Languages className="w-3.5 h-3.5 text-amber-300" />
+            <span>{lang === 'OD' ? 'English' : 'ଓଡ଼ିଆ'}</span>
+          </button>
+
+          {currentRole === 'pujari' && activePujari && (
+            <div className="hidden md:flex items-center gap-2 bg-amber-950/60 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs">
+              <User className="w-4 h-4 text-amber-300 shrink-0" />
+              <div>
+                <div className="font-black text-amber-100 leading-none">
+                  {activePujari.name}{' '}
+                  <span className="font-mono text-[10px] text-amber-300">({activePujari.id})</span>
+                </div>
+                <div className="text-[10px] font-bold flex items-center gap-1 mt-0.5">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  {activePujari.freeTierUsed ? (
+                    <span className="text-amber-200/80">{t.firstListUsed}</span>
+                  ) : (
+                    <span className="text-emerald-300 font-black">{t.firstListFree}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Role Indicator / Toggle */}
+          <div className="flex items-center bg-black/40 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border border-amber-400/50 text-[11px] sm:text-xs font-bold">
+            <button
+              onClick={() => onSwitchRole('pujari')}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl transition cursor-pointer flex items-center gap-1 ${
+                currentRole === 'pujari'
+                  ? 'bg-amber-400 text-amber-950 font-black shadow-md'
+                  : 'text-amber-200 hover:text-white'
+              }`}
+            >
+              <User className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {t.rolePujari}
+            </button>
+            <button
+              onClick={() => {
+                if (currentRole !== 'admin') {
+                  onOpenAdminModal();
+                } else {
+                  onSwitchRole('admin');
+                }
+              }}
+              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl transition cursor-pointer flex items-center gap-1 ${
+                currentRole === 'admin'
+                  ? 'bg-amber-400 text-amber-950 font-black shadow-md'
+                  : 'text-amber-200 hover:text-white'
+              }`}
+            >
+              <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-950" /> {t.roleAdmin}
+            </button>
+          </div>
+
+          {currentRole === 'pujari' && activePujari && (
+            <button
+              onClick={onLogoutPujari}
+              title="Logout"
+              className="p-2 text-amber-200 hover:text-white hover:bg-amber-900/50 rounded-xl transition cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+};

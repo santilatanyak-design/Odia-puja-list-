@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="or">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର | Puja Samagri List Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Odia:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
+    <meta name="theme-color" content="#b45309" />
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
+    
+    <!-- GOOGLE FIREBASE JS SDK (Modular / Compatibility) -->
+    <!-- Place your custom Firebase API configuration keys below if needed -->
+    <script>
+      /*
+      // ====================================================
+      // FIREBASE CONFIGURATION BLOCK
+      // Paste your Firebase Web App credentials here:
+      // ====================================================
+      window.firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      };
+      */
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
