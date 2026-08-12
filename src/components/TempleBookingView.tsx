@@ -28,6 +28,9 @@ import {
   Copy,
   Check,
   BookOpen,
+  Search,
+  FileText,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface TempleBookingViewProps {
@@ -106,6 +109,49 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
   const [cancelBookingId, setCancelBookingId] = useState<string | null>(null);
   const [userCancelReasonInput, setUserCancelReasonInput] = useState('');
   const [isSubmittingCancel, setIsSubmittingCancel] = useState(false);
+
+  // Track My Booking Portal States
+  const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
+  const [trackNameInput, setTrackNameInput] = useState('');
+  const [trackPhoneInput, setTrackPhoneInput] = useState(userPhone || '');
+  const [hasSearchedTrack, setHasSearchedTrack] = useState(false);
+  const [trackResults, setTrackResults] = useState<TempleBooking[]>([]);
+
+  // Re-sync track results automatically when bookings change
+  useEffect(() => {
+    if (hasSearchedTrack) {
+      const name = trackNameInput.trim().toLowerCase();
+      const phoneNum = trackPhoneInput.trim().replace(/\D/g, '');
+
+      const matches = bookings.filter((b) => {
+        const matchPhone = phoneNum ? b.userPhone.replace(/\D/g, '').includes(phoneNum) : true;
+        const matchName = name ? b.userName.toLowerCase().includes(name) || b.id.toLowerCase().includes(name) : true;
+        return matchPhone && matchName;
+      });
+
+      setTrackResults(matches);
+    }
+  }, [bookings, hasSearchedTrack, trackNameInput, trackPhoneInput]);
+
+  const handleSearchTrack = (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = trackNameInput.trim().toLowerCase();
+    const phoneNum = trackPhoneInput.trim().replace(/\D/g, '');
+
+    if (!name && !phoneNum) {
+      alert('ଦୟାକରି ଆପଣଙ୍କ ନାମ କିମ୍ବା ମୋବାଇଲ୍ ନମ୍ବର ପ୍ରବେଶ କରନ୍ତୁ। (Please enter Name or Mobile Number)');
+      return;
+    }
+
+    const matches = bookings.filter((b) => {
+      const matchPhone = phoneNum ? b.userPhone.replace(/\D/g, '').includes(phoneNum) : true;
+      const matchName = name ? b.userName.toLowerCase().includes(name) || b.id.toLowerCase().includes(name) : true;
+      return matchPhone && matchName;
+    });
+
+    setTrackResults(matches);
+    setHasSearchedTrack(true);
+  };
 
   // Deep-linking URL check & Puja Types Subscription
   useEffect(() => {
@@ -309,8 +355,18 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
       <div className="bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#5c0f12] text-white rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-amber-400 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-amber-400/20 text-amber-200 border border-amber-400/50 rounded-full text-xs font-black">
-            <span>🚩 ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର ସେବା</span>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-amber-400/20 text-amber-200 border border-amber-400/50 rounded-full text-xs font-black">
+              <span>🚩 ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର ସେବା</span>
+            </div>
+
+            <button
+              onClick={() => setIsTrackModalOpen(true)}
+              className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-black text-xs rounded-2xl shadow-xl border-2 border-amber-200 transition cursor-pointer flex items-center gap-1.5 transform hover:scale-105 active:scale-95"
+            >
+              <Search className="w-4 h-4 text-amber-950 shrink-0" />
+              <span>Track Booking (ବୁକିଂ ଷ୍ଟାଟସ୍)</span>
+            </button>
           </div>
           <h2 className="text-2xl sm:text-4xl font-black text-amber-100 tracking-tight leading-tight">
             ମନ୍ଦିର ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସେବା
@@ -1036,6 +1092,299 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
               >
                 <Calendar className="w-3.5 h-3.5 text-amber-300" />
                 <span>ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TRACK MY BOOKING / ORDERS MODAL */}
+      {isTrackModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl border-2 border-amber-400 shadow-2xl w-full max-w-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200 font-sans">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#5c0f12] text-white p-4 sm:p-5 flex items-center justify-between border-b border-amber-400">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-amber-400/20 rounded-xl border border-amber-400/50 text-amber-300">
+                  <Search className="w-5 h-5 shrink-0" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-amber-100 leading-tight">
+                    Track Booking / ବୁକିଂ ଷ୍ଟାଟସ୍ (My Orders)
+                  </h3>
+                  <p className="text-[11px] text-amber-200/90 font-medium">
+                    ଆପଣଙ୍କ ନାମ ଏବଂ ମୋବାଇଲ୍ ନମ୍ବର ଦେଇ ବୁକିଂ ସ୍ଥିତି ଯାଞ୍ଚ କରନ୍ତୁ
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsTrackModalOpen(false)}
+                className="p-1.5 hover:bg-white/20 rounded-full transition text-amber-200 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Search Form Box */}
+            <div className="p-4 sm:p-5 space-y-4 max-h-[80vh] overflow-y-auto bg-amber-50/30">
+              <form onSubmit={handleSearchTrack} className="bg-white p-4 rounded-2xl border-2 border-amber-300 shadow-xs space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div>
+                    <label className="block font-extrabold text-amber-950 mb-1">
+                      ଭକ୍ତଙ୍କ ନାମ (Devotee Name) *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ramesh Sahoo"
+                      value={trackNameInput}
+                      onChange={(e) => setTrackNameInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 font-medium text-slate-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-extrabold text-amber-950 mb-1">
+                      ମୋବାଇଲ୍ ନମ୍ବର (Mobile Number) *
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="10-digit Mobile Number"
+                      value={trackPhoneInput}
+                      onChange={(e) => setTrackPhoneInput(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 font-mono font-medium text-slate-900"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Search className="w-4 h-4 text-amber-300" />
+                    <span>Search My Booking (ଖୋଜନ୍ତୁ)</span>
+                  </button>
+
+                  {(trackNameInput || trackPhoneInput || hasSearchedTrack) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTrackNameInput('');
+                        setTrackPhoneInput('');
+                        setHasSearchedTrack(false);
+                        setTrackResults([]);
+                      }}
+                      className="px-3.5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-xs transition cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </form>
+
+              {/* Search Results Display Area */}
+              {hasSearchedTrack && (
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-xs font-black text-amber-950">
+                      📋 ଖୋଜାଯାଇଥିବା ବୁକିଂ ଫଳାଫଳ ({trackResults.length} Found)
+                    </span>
+                  </div>
+
+                  {trackResults.length === 0 ? (
+                    <div className="p-6 bg-white rounded-2xl border-2 border-dashed border-amber-300 text-center space-y-2">
+                      <div className="text-3xl">🔍</div>
+                      <h4 className="text-sm font-extrabold text-amber-950">
+                        କୌଣସି ବୁକିଂ ମିଳିଲା ନାହିଁ (No Bookings Found)
+                      </h4>
+                      <p className="text-xs text-slate-600 max-w-sm mx-auto">
+                        ଆପଣ ଦେଇଥିବା ନାମ ଏବଂ ମୋବାଇଲ୍ ନମ୍ବର ଯାଞ୍ଚ କରନ୍ତୁ କିମ୍ବା ନୂତନ ପୂଜା ବୁକିଂ କରନ୍ତୁ।
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {trackResults.map((b) => {
+                        const matchedTemple = temples.find((t) => t.id === b.templeId);
+                        const isActive = b.status !== 'cancelled' && b.status !== 'rejected';
+
+                        return (
+                          <div
+                            key={b.id}
+                            className={`p-4 sm:p-5 rounded-2xl border-2 shadow-md transition space-y-3 font-sans ${
+                              b.status === 'approved'
+                                ? 'bg-emerald-50/90 border-emerald-400'
+                                : b.status === 'rescheduled'
+                                ? 'bg-indigo-50/90 border-indigo-400'
+                                : b.status === 'waiting_list'
+                                ? 'bg-purple-50/90 border-purple-400'
+                                : b.status === 'cancelled'
+                                ? 'bg-slate-100 border-slate-300 opacity-85'
+                                : b.status === 'rejected'
+                                ? 'bg-rose-50/90 border-rose-400'
+                                : 'bg-amber-50/90 border-amber-400'
+                            }`}
+                          >
+                            {/* Card Top Row - Flipkart Style Header */}
+                            <div className="flex flex-wrap items-start justify-between gap-2 border-b border-amber-200/80 pb-2.5">
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-mono text-xs bg-white px-2.5 py-0.5 rounded-md border-2 border-amber-400 font-black text-amber-950 shadow-2xs">
+                                    ID: {b.id}
+                                  </span>
+                                  <span className="text-xs font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300">
+                                    🪔 {b.bookingType || 'Jal Abhishek'}
+                                  </span>
+                                </div>
+                                <h4 className="text-base font-black text-amber-950 mt-1">
+                                  {b.templeName}
+                                </h4>
+                              </div>
+
+                              {/* Flipkart Style Status Pill */}
+                              <div>
+                                {b.status === 'approved' && (
+                                  <span className="px-3 py-1 bg-emerald-600 text-white font-black text-xs rounded-full shadow-xs inline-flex items-center gap-1">
+                                    ✓ APPROVED (ଅନୁମୋଦିତ)
+                                  </span>
+                                )}
+                                {b.status === 'rescheduled' && (
+                                  <span className="px-3 py-1 bg-indigo-600 text-white font-black text-xs rounded-full shadow-xs inline-flex items-center gap-1">
+                                    📅 DATE CHANGED (ସମୟ ପରିବର୍ତ୍ତିତ)
+                                  </span>
+                                )}
+                                {b.status === 'waiting_list' && (
+                                  <span className="px-3 py-1 bg-purple-600 text-white font-black text-xs rounded-full shadow-xs inline-flex items-center gap-1">
+                                    ⏳ WAITING LIST
+                                  </span>
+                                )}
+                                {b.status === 'pending' && (
+                                  <span className="px-3 py-1 bg-amber-500 text-amber-950 font-black text-xs rounded-full shadow-xs inline-flex items-center gap-1">
+                                    ⏳ PENDING VERIFICATION
+                                  </span>
+                                )}
+                                {b.status === 'cancelled' && (
+                                  <span className="px-3 py-1 bg-slate-700 text-white font-black text-xs rounded-full shadow-xs inline-flex items-center gap-1">
+                                    🚫 CANCELLED (ବାତିଲ୍)
+                                  </span>
+                                )}
+                                {b.status === 'rejected' && (
+                                  <span className="px-3 py-1 bg-rose-600 text-white font-black text-xs rounded-full shadow-xs inline-flex items-center gap-1">
+                                    ✕ REJECTED
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Devotee Info Body */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-800">
+                              <div>
+                                <span className="text-slate-500 font-semibold">ଭକ୍ତଙ୍କ ନାମ:</span>{' '}
+                                <strong className="font-extrabold text-slate-900">{b.userName}</strong>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 font-semibold">ମୋବାଇଲ୍:</span>{' '}
+                                <strong className="font-mono font-bold text-slate-900">{b.userPhone}</strong>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 font-semibold">ଠିକଣା:</span>{' '}
+                                <span className="font-medium text-slate-900">{b.userAddress}</span>
+                              </div>
+                              {b.gotraRasi && (
+                                <div>
+                                  <span className="text-slate-500 font-semibold">ଗୋତ୍ର / ରାଶି:</span>{' '}
+                                  <span className="font-medium text-slate-900">{b.gotraRasi}</span>
+                                </div>
+                              )}
+                              <div className="col-span-1 sm:col-span-2 text-slate-600 font-mono text-[11px] bg-white/80 p-2 rounded-xl border border-slate-200">
+                                Platform Fee Paid: ₹5 (Verified) • Payment Proof UTR: <strong>{b.utrRef}</strong>
+                              </div>
+                            </div>
+
+                            {/* Scheduled Time Box */}
+                            {(b.status === 'approved' || b.status === 'rescheduled') && b.pujaDateTime && (
+                              <div className="text-emerald-900 font-extrabold bg-emerald-100/90 p-2.5 rounded-xl border border-emerald-300 flex items-center gap-2 text-xs">
+                                <Calendar className="w-4 h-4 text-emerald-700 shrink-0" />
+                                <span>ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ: <strong className="text-emerald-950 underline">{b.pujaDateTime}</strong></span>
+                              </div>
+                            )}
+
+                            {/* Reschedule Request Box */}
+                            {b.isRescheduleRequested && b.requestedRescheduleDate && (
+                              <div className="text-amber-900 font-semibold bg-amber-100/90 p-2.5 rounded-xl border border-amber-300 flex items-center gap-2 text-xs">
+                                <Clock className="w-4 h-4 text-amber-700 shrink-0" />
+                                <span>ଅନୁରୋଧିତ ନୂତନ ତାରିଖ: <strong>{b.requestedRescheduleDate}</strong> (Pending Admin Approval)</span>
+                              </div>
+                            )}
+
+                            {/* Admin Reason / Note Box */}
+                            {(b.adminReason || b.rejectionReason) && (
+                              <div className="p-3 bg-amber-100/90 border-2 border-amber-300 rounded-xl text-xs text-amber-950 font-semibold flex items-start gap-2 shadow-2xs">
+                                <span className="text-base shrink-0">📢</span>
+                                <div>
+                                  <span className="font-extrabold text-amber-900 block">Admin Note / Reason:</span>
+                                  <span className="font-bold text-amber-950">{b.adminReason || b.rejectionReason}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Card Action Buttons Footer */}
+                            <div className="pt-2 border-t border-amber-200 flex flex-wrap items-center justify-end gap-2">
+                              {(b.status === 'approved' || b.status === 'rescheduled') && (
+                                <button
+                                  type="button"
+                                  onClick={() => generateTempleReceiptJPG(b, matchedTemple)}
+                                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <Download className="w-4 h-4" />
+                                  <span>Download JPG Receipt (ରସିଦ୍ ଡାଉନଲୋଡ୍)</span>
+                                </button>
+                              )}
+
+                              {isActive && (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setRescheduleBookingId(b.id);
+                                      setRequestedNewDate(b.pujaDateTime || '');
+                                    }}
+                                    className="px-3 py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-900 border border-indigo-300 font-extrabold rounded-xl text-xs transition cursor-pointer flex items-center gap-1"
+                                  >
+                                    <Calendar className="w-3.5 h-3.5 text-indigo-700" />
+                                    <span>Request Date Change</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setCancelBookingId(b.id);
+                                      setUserCancelReasonInput('');
+                                    }}
+                                    className="px-3.5 py-2 bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 font-extrabold rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5"
+                                  >
+                                    <X className="w-4 h-4 text-rose-700" />
+                                    <span>Cancel My Booking (ବାତିଲ୍ କରନ୍ତୁ)</span>
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3.5 bg-amber-100/80 border-t border-amber-200 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsTrackModalOpen(false)}
+                className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-black rounded-xl text-xs cursor-pointer transition shadow-xs"
+              >
+                ବନ୍ଦ କରନ୍ତୁ (Close)
               </button>
             </div>
           </div>
