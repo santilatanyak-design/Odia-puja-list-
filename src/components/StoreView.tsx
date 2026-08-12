@@ -35,6 +35,7 @@ import {
   Bell,
   Share2,
   Check,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface StoreViewProps {
@@ -1235,6 +1236,17 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                     placeholder="ଗ୍ରାମ / ସହର, ପିନ୍ କୋଡ୍, ଲ୍ୟାଣ୍ଡମାର୍କ..."
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-amber-300 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   />
+                </div>
+              </div>
+
+              {/* Return & Refund Policy Warning Notice */}
+              <div className="bg-amber-50/90 border-2 border-amber-400/80 p-3 rounded-2xl text-amber-950 text-[11px] leading-relaxed shadow-sm flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-extrabold text-amber-900 block mb-0.5">⚠️ ରିଟର୍ଣ୍ଣ ଓ ରିଫଣ୍ଡ୍ ନିୟମାବଳୀ (Return Policy):</span>
+                  <p className="font-medium text-amber-950">
+                    ସୂଚନା: କୌଣସି ସାମଗ୍ରୀ ଫେରାଇବା ପାଇଁ, ପାର୍ସଲ୍ ଖୋଲିବା ସମୟର ଭିଡିଓ (Unboxing Video) ଦେବା ବାଧ୍ୟତାମୂଳକ। ବିନା ଭିଡିଓରେ କୌଣସି ରିଟର୍ଣ୍ଣ ଗ୍ରହଣ କରାଯିବ ନାହିଁ ଏବଂ ଅଭିଯୋଗ ୨୪ ଘଣ୍ଟା ମଧ୍ୟରେ କରିବାକୁ ହେବ।
+                  </p>
                 </div>
               </div>
 
