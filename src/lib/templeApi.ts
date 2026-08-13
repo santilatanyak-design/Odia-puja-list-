@@ -124,14 +124,21 @@ export function subscribePujaTypes(callback: (types: string[]) => void): () => v
 export function getTemplesFromLocal(): Temple[] {
   try {
     const raw = localStorage.getItem(LOCAL_TEMPLES_KEY);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
   } catch (err) {
     console.warn('Error reading local temples:', err);
+  }
+
+  // Only load default temples the very first time the app is opened (when localStorage is completely null)
+  try {
+    localStorage.setItem(LOCAL_TEMPLES_KEY, JSON.stringify(DEFAULT_TEMPLES));
+  } catch (err) {
+    console.warn('Error setting default temples:', err);
   }
   return DEFAULT_TEMPLES;
 }
@@ -172,7 +179,7 @@ export function subscribeTemples(callback: (temples: Temple[]) => void): () => v
     unsubFs = onSnapshot(configRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
-        if (data && Array.isArray(data.temples) && data.temples.length > 0) {
+        if (data && Array.isArray(data.temples)) {
           localStorage.setItem(LOCAL_TEMPLES_KEY, JSON.stringify(data.temples));
           callback(data.temples);
         }

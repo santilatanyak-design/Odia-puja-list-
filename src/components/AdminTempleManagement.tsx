@@ -179,11 +179,13 @@ export const AdminTempleManagement: React.FC = () => {
     setTimeout(() => setStatusMsg(null), 4000);
   };
 
-  const handleDeleteTemple = (index: number) => {
+  const handleDeleteTemple = async (index: number) => {
     const target = temples[index];
     if (confirm(`ଆପଣ ସତରେ '${target?.name || 'ଏହି ମନ୍ଦିର'}' କୁ ଡିଲିଟ୍ କରିବାକୁ ଚାହୁଁଛନ୍ତି କି?`)) {
-      setTemples((prev) => prev.filter((_, i) => i !== index));
-      setStatusMsg({ text: '🗑️ ମନ୍ଦିର ହଟାଗଲା। Save Changes ରେ କ୍ଲିକ୍ କରନ୍ତୁ।', type: 'error' });
+      const updated = temples.filter((_, i) => i !== index);
+      setTemples(updated);
+      await saveTemples(updated);
+      setStatusMsg({ text: '🗑️ ମନ୍ଦିର ହଟାଗଲା ଏବଂ ସଂରକ୍ଷିତ ହେଲା।', type: 'error' });
       setTimeout(() => setStatusMsg(null), 4000);
     }
   };
