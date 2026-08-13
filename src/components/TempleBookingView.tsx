@@ -368,9 +368,6 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
   // Deep Share Handler with Mobile Priority Web Share API
   const handleShareTemple = async (temple: Temple) => {
     const shareUrl = `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
-    
-    // Dynamically inject 1:1 Square Open Graph & Twitter Card meta tags for Social Media Previews
-    injectSquareOpenGraphMetaTags(temple, shareUrl);
 
     const shareTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
     const shareText = `🙏 ${temple.name} ରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରନ୍ତୁ!`;

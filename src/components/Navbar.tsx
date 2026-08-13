@@ -60,7 +60,6 @@ export const syncGlobalOpenGraphMetaTags = () => {
 
 export const handleHeaderAppShare = async () => {
   const homepageUrl = `${window.location.origin}${window.location.pathname}`;
-  syncGlobalOpenGraphMetaTags();
 
   const shareTitle = '🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ପୋର୍ଟାଲ୍';
   const shareText = '🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ପୋର୍ଟାଲ୍। ଘରେ ବସି ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ 👇';
