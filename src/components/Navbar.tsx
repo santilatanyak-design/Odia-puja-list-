@@ -1,7 +1,91 @@
 import React, { useEffect, useState } from 'react';
 import { Pujari } from '../types';
-import { ShieldCheck, User, LogOut, Sparkles, Languages, Download, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, User, LogOut, Sparkles, Languages, Download, CheckCircle2, Share2 } from 'lucide-react';
 import { Language, translations } from '../lib/translations';
+
+export const getGlobalMainThumbnailUrl = (): string => {
+  try {
+    const globalThumb = (localStorage.getItem('globalThumbnail') || localStorage.getItem('main_app_thumbnail_url') || '').trim();
+    if (globalThumb) return globalThumb;
+  } catch (e) {
+    console.warn('Error reading globalThumbnail from localStorage:', e);
+  }
+  return ''; // Strict No-Default: returns empty string if no Admin thumbnail is configured
+};
+
+export const syncGlobalOpenGraphMetaTags = () => {
+  if (typeof document === 'undefined') return;
+
+  const homepageUrl = `${window.location.origin}${window.location.pathname}`;
+  const title = '🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ - Online Temple Booking';
+  const description = 'ଆପଣଙ୍କ ନିକଟସ୍ଥ ମନ୍ଦିରରେ ପୂଜା ଏବଂ ଦର୍ଶନ ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ।';
+  const mainImage = getGlobalMainThumbnailUrl();
+
+  const updateOrSetMeta = (attrName: string, attrValue: string, contentValue: string) => {
+    let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute(attrName, attrValue);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', contentValue);
+  };
+
+  const removeMeta = (attrName: string, attrValue: string) => {
+    const el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
+    if (el) el.remove();
+  };
+
+  updateOrSetMeta('property', 'og:type', 'website');
+  updateOrSetMeta('property', 'og:url', homepageUrl);
+  updateOrSetMeta('property', 'og:title', title);
+  updateOrSetMeta('property', 'og:description', description);
+  updateOrSetMeta('name', 'twitter:title', title);
+  updateOrSetMeta('name', 'twitter:description', description);
+
+  if (mainImage) {
+    updateOrSetMeta('property', 'og:image', mainImage);
+    updateOrSetMeta('property', 'og:image:width', '1200');
+    updateOrSetMeta('property', 'og:image:height', '630');
+    updateOrSetMeta('name', 'twitter:card', 'summary_large_image');
+    updateOrSetMeta('name', 'twitter:image', mainImage);
+  } else {
+    updateOrSetMeta('property', 'og:image', '');
+    removeMeta('property', 'og:image:width');
+    removeMeta('property', 'og:image:height');
+    removeMeta('name', 'twitter:image');
+    updateOrSetMeta('name', 'twitter:card', 'summary');
+  }
+};
+
+export const handleHeaderAppShare = async () => {
+  const homepageUrl = `${window.location.origin}${window.location.pathname}`;
+  syncGlobalOpenGraphMetaTags();
+
+  const shareTitle = '🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ପୋର୍ଟାଲ୍';
+  const shareText = '🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ପୋର୍ଟାଲ୍। ଘରେ ବସି ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ 👇';
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: shareTitle,
+        text: shareText,
+        url: homepageUrl,
+      });
+      return;
+    } catch (err) {
+      console.log('Native share dismissed:', err);
+    }
+  }
+
+  const fullMsg = `${shareText}\n${homepageUrl}`;
+  try {
+    await navigator.clipboard.writeText(fullMsg);
+    alert('ଲିଙ୍କ୍ କପି ହୋଇଗଲା! (Homepage link copied to clipboard)');
+  } catch (clipErr) {
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMsg)}`, '_blank');
+  }
+};
 
 interface NavbarProps {
   currentRole: 'pujari' | 'admin';
@@ -31,6 +115,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
 
   useEffect(() => {
+    // Synchronize global Open Graph meta tags on initial page mount
+    syncGlobalOpenGraphMetaTags();
+
     // Check if running in standalone PWA mode
     if (
       window.matchMedia('(display-mode: standalone)').matches ||
@@ -122,6 +209,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Languages className="w-3.5 h-3.5 text-amber-300" />
             <span>{lang === 'OD' ? 'English' : 'ଓଡ଼ିଆ'}</span>
+          </button>
+
+          {/* Header Main App Share Button */}
+          <button
+            onClick={handleHeaderAppShare}
+            title={lang === 'OD' ? 'ଆପ୍ ଶେୟାର୍ କରନ୍ତୁ' : 'Share App'}
+            className="flex items-center gap-1 px-2 sm:px-3 py-1.2 sm:py-1.5 rounded-xl border-2 border-amber-400 bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 font-black text-[11px] sm:text-xs transition cursor-pointer shadow-xs active:scale-95"
+          >
+            <Share2 className="w-3.5 h-3.5 text-amber-300" />
+            <span className="hidden xs:inline">{lang === 'OD' ? 'ଶେୟାର୍' : 'Share'}</span>
           </button>
 
           {currentRole === 'pujari' && activePujari && (

@@ -63,6 +63,24 @@ export const AdminTempleManagement: React.FC = () => {
   const [editingLabelTempleIdx, setEditingLabelTempleIdx] = useState<number | null>(null);
   const [editingLabelText, setEditingLabelText] = useState<string>('');
 
+  // Global Social Media Thumbnail State
+  const [globalThumbnail, setGlobalThumbnail] = useState<string>(() => {
+    return localStorage.getItem('globalThumbnail') || localStorage.getItem('main_app_thumbnail_url') || '';
+  });
+
+  const handleGlobalThumbnailChange = (val: string) => {
+    setGlobalThumbnail(val);
+    localStorage.setItem('globalThumbnail', val);
+    localStorage.setItem('main_app_thumbnail_url', val);
+  };
+
+  const handleSaveGlobalThumbnail = () => {
+    const val = globalThumbnail.trim();
+    localStorage.setItem('globalThumbnail', val);
+    localStorage.setItem('main_app_thumbnail_url', val);
+    alert('✅ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ ସଫଳତାର ସହ ସେଭ୍ ହୋଇଗଲା! (Thumbnail Saved Successfully!)');
+  };
+
   // Status Message Feedback
   const [statusMsg, setStatusMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -164,14 +182,14 @@ export const AdminTempleManagement: React.FC = () => {
     const newId = `temple_${Date.now().toString().slice(-6)}`;
     const newTemple: Temple = {
       id: newId,
-      name: 'ନୂତନ ମନ୍ଦିର (New Temple Name)',
-      location: 'ଓଡ଼ିଶା (Location)',
-      pujariPhone: '9000000000',
-      imageUrl: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop',
+      name: '',
+      location: '',
+      pujariPhone: '',
+      imageUrl: '',
       thumbnailUrl: '',
-      qrCodeUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=400&auto=format&fit=crop',
-      description: 'ମନ୍ଦିର ପୂଜା ସେବା ବିବରଣୀ।',
-      history: 'ମନ୍ଦିରର ଇତିହାସ ଏବଂ ମାହାତ୍ମ୍ୟ ଏଠାରେ ଲେଖନ୍ତୁ...',
+      qrCodeUrl: '',
+      description: '',
+      history: '',
       isJalAbhishekAvailable: true,
     };
     setTemples((prev) => [...prev, newTemple]);
@@ -697,6 +715,32 @@ export const AdminTempleManagement: React.FC = () => {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* GLOBAL SOCIAL MEDIA THUMBNAIL SETTING */}
+          <div className="p-5 bg-white border-2 border-amber-300 rounded-3xl space-y-3 shadow-sm">
+            <label className="block font-black text-amber-950 text-xs sm:text-sm">
+              🌐 ଗ୍ଲୋବାଲ୍ ସୋସିଆଲ୍ ମିଡିଆ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ (Global Thumbnail URL)
+            </label>
+            <p className="text-[11px] text-amber-800 font-medium">
+              ଏହି ଲିଙ୍କ୍ ଆପ୍ ଶେୟାର୍ (Homepage Share) କରିବା ସମୟରେ Facebook / WhatsApp / Telegram ରେ ପ୍ରଦର୍ଶିତ ହେବ।
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="url"
+                value={globalThumbnail}
+                onChange={(e) => handleGlobalThumbnailChange(e.target.value)}
+                placeholder="https://... (Enter global social share thumbnail image URL)"
+                className="flex-1 px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-mono text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+              />
+              <button
+                type="button"
+                onClick={handleSaveGlobalThumbnail}
+                className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-2xl transition shadow-xs flex items-center justify-center gap-1.5 shrink-0 cursor-pointer active:scale-95"
+              >
+                💾 ସେଭ୍ କରନ୍ତୁ (Save Thumbnail)
+              </button>
             </div>
           </div>
 

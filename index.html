@@ -15,13 +15,17 @@
     <meta property="og:url" content="https://main.d3jris9uwg3szb.amplifyapp.com/" />
     <meta property="og:title" id="og-title" content="🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ - Online Temple Booking" />
     <meta property="og:description" id="og-desc" content="ଆପଣଙ୍କ ନିକଟସ୍ଥ ମନ୍ଦିରରେ ପୂଜା ଏବଂ ଦର୍ଶନ ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ।" />
-    <meta property="og:image" id="og-img" content="https://www.dropbox.com/scl/fi/z4och2otsola6sxybwmno/ChatGPT-Image-Aug-12-2026-06_22_31-PM.png?rlkey=t1jxheb9rvre6zkdrmzgiglec&st=0ydgiixd&raw=1" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="og:image" id="og-img" content="" />
+    <meta name="twitter:card" content="summary" />
     <script>
       (function() {
         try {
+          var globalThumb = (localStorage.getItem('globalThumbnail') || localStorage.getItem('main_app_thumbnail_url') || '').trim();
+          var elImg = document.getElementById('og-img');
+          if (globalThumb && elImg) {
+            elImg.setAttribute('content', globalThumb);
+          }
+
           var params = new URLSearchParams(window.location.search);
           var templeId = params.get('temple') || params.get('templeId');
           if (!templeId) return;
@@ -44,9 +48,8 @@
                 var elDesc = document.getElementById('og-desc');
                 if (elDesc) elDesc.setAttribute('content', desc);
 
-                if (img) {
-                  var elImg = document.getElementById('og-img');
-                  if (elImg) elImg.setAttribute('content', img);
+                if (img && elImg) {
+                  elImg.setAttribute('content', img);
                 }
               }
             }

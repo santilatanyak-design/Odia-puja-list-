@@ -37,14 +37,16 @@ interface TempleBookingViewProps {
   userPhone?: string;
 }
 
-// Dynamic Open Graph & Twitter Meta Tag Injector for 1:1 Square Social Previews
+// Dynamic Open Graph & Twitter Meta Tag Injector for Temple Sharing
 export const injectSquareOpenGraphMetaTags = (temple: Temple, shareUrl?: string) => {
   if (typeof document === 'undefined') return;
 
   const url = shareUrl || `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
   const title = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
   const description = `🚩 ${temple.name} (${temple.location || 'Odisha'}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
-  const imageUrl = temple.thumbnailUrl || temple.imageUrl || (temple as any).image || '';
+  
+  // Strict Custom Thumbnail Only: Uses only Admin-saved thumbnailUrl/imageUrl for this temple
+  const customImageUrl = (temple.thumbnailUrl || temple.imageUrl || '').trim();
 
   if (title) {
     document.title = title;
@@ -60,20 +62,35 @@ export const injectSquareOpenGraphMetaTags = (temple: Temple, shareUrl?: string)
     el.setAttribute('content', contentValue);
   };
 
-  // Twitter Card -> summary forces 1:1 square preview
-  updateOrSetMeta('name', 'twitter:card', 'summary');
-  updateOrSetMeta('name', 'twitter:title', title);
-  updateOrSetMeta('name', 'twitter:description', description);
-  updateOrSetMeta('name', 'twitter:image', imageUrl);
+  const removeMeta = (attrName: 'name' | 'property', attrValue: string) => {
+    const el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
+    if (el) el.remove();
+  };
 
-  // Open Graph 1:1 Square Dimensions & Meta Specs
+  // Open Graph Specs
   updateOrSetMeta('property', 'og:type', 'website');
   updateOrSetMeta('property', 'og:title', title);
   updateOrSetMeta('property', 'og:description', description);
   updateOrSetMeta('property', 'og:url', url);
-  updateOrSetMeta('property', 'og:image', imageUrl);
-  updateOrSetMeta('property', 'og:image:width', '800');
-  updateOrSetMeta('property', 'og:image:height', '800');
+
+  // Twitter Meta Specs
+  updateOrSetMeta('name', 'twitter:title', title);
+  updateOrSetMeta('name', 'twitter:description', description);
+
+  if (customImageUrl) {
+    updateOrSetMeta('property', 'og:image', customImageUrl);
+    updateOrSetMeta('property', 'og:image:width', '800');
+    updateOrSetMeta('property', 'og:image:height', '800');
+    updateOrSetMeta('name', 'twitter:card', 'summary');
+    updateOrSetMeta('name', 'twitter:image', customImageUrl);
+  } else {
+    // STRICT NO-DEFAULT RULE: If no custom thumbnail exists, clear og:image to prevent wrong previews
+    updateOrSetMeta('property', 'og:image', '');
+    removeMeta('property', 'og:image:width');
+    removeMeta('property', 'og:image:height');
+    removeMeta('name', 'twitter:image');
+    updateOrSetMeta('name', 'twitter:card', 'summary');
+  }
 };
 
 // Dynamic Meta Tag Injection (Runs immediately on page load to swap og:title & og:image)
