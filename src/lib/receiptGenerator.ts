@@ -1,4 +1,5 @@
 import { TempleBooking, Temple } from '../types';
+import { getReceiptHeaderConfig } from './templeApi';
 
 /**
  * Storage-Free On-the-Fly High-Resolution JPG Receipt Generator.
@@ -35,19 +36,24 @@ export function generateTempleReceiptJPG(booking: TempleBooking, temple?: Temple
   ctx.fillStyle = '#FEF3C7';
   ctx.fillRect(52, 52, width - 104, 180);
 
-  // 3. Header Section - Sacred Title & Om Motif
+  // 3. Header Section - Sacred Title & Om Motif (Customizable from Admin Panel)
+  const receiptConfig = getReceiptHeaderConfig();
+  const topBannerText = (receiptConfig.topBanner || '').trim() || '🕉️ ଓଡ଼ିଶା ଅଫିସିଆଲ ମନ୍ଦିର ପୂଜା ସେବା 🕉️';
+  const mainTitleText = (receiptConfig.mainTitle || '').trim() || 'TEMPLE PUJA & JAL ABHISHEK RECEIPT';
+  const subTitleText = (receiptConfig.subTitle || '').trim() || '(ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସ୍ୱୀକୃତି ରସିଦ୍)';
+
   ctx.textAlign = 'center';
   ctx.fillStyle = '#701A1E';
   ctx.font = 'bold 52px serif';
-  ctx.fillText('🕉️ ଓଡ଼ିଶା ଅଫିସିଆଲ ମନ୍ଦିର ପୂଜା ସେବା 🕉️', width / 2, 115);
+  ctx.fillText(topBannerText, width / 2, 115);
 
   ctx.fillStyle = '#92400E';
   ctx.font = 'bold 30px sans-serif';
-  ctx.fillText('TEMPLE PUJA & JAL ABHISHEK RECEIPT', width / 2, 165);
+  ctx.fillText(mainTitleText, width / 2, 165);
 
   ctx.fillStyle = '#451A03';
   ctx.font = 'bold 24px sans-serif';
-  ctx.fillText('(ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସ୍ୱୀକୃତି ରସିଦ୍)', width / 2, 205);
+  ctx.fillText(subTitleText, width / 2, 205);
 
   // Decorative Horizontal Divider
   ctx.beginPath();

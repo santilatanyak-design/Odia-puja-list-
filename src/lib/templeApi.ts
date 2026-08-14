@@ -1,6 +1,109 @@
-import { Temple, TempleBooking } from '../types';
+import { Temple, TempleBooking, ReceiptHeaderConfig } from '../types';
 import { db, sanitizeFirestoreData } from './firebase';
 import { collection, doc, setDoc, getDocs, onSnapshot, updateDoc } from 'firebase/firestore';
+
+export const DEFAULT_RECEIPT_HEADER_CONFIG: ReceiptHeaderConfig = {
+  topBanner: '🕉️ ଓଡ଼ିଶା ଅଫିସିଆଲ ମନ୍ଦିର ପୂଜା ସେବା 🕉️',
+  mainTitle: 'TEMPLE PUJA & JAL ABHISHEK RECEIPT',
+  subTitle: '(ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସ୍ୱୀକୃତି ରସିଦ୍)',
+};
+
+const LOCAL_RECEIPT_HEADER_KEY = 'receipt_header_config';
+
+export function getReceiptHeaderConfig(): ReceiptHeaderConfig {
+  try {
+    const raw = localStorage.getItem(LOCAL_RECEIPT_HEADER_KEY) || localStorage.getItem('temple_receipt_header_config');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        const topBanner = typeof parsed.topBanner === 'string' ? parsed.topBanner.trim() : '';
+        const mainTitle = typeof parsed.mainTitle === 'string' ? parsed.mainTitle.trim() : '';
+        const subTitle = typeof parsed.subTitle === 'string' ? parsed.subTitle.trim() : '';
+
+        return {
+          topBanner: topBanner || DEFAULT_RECEIPT_HEADER_CONFIG.topBanner,
+          mainTitle: mainTitle || DEFAULT_RECEIPT_HEADER_CONFIG.mainTitle,
+          subTitle: subTitle || DEFAULT_RECEIPT_HEADER_CONFIG.subTitle,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Error reading local receipt header config:', err);
+  }
+  return DEFAULT_RECEIPT_HEADER_CONFIG;
+}
+
+export async function saveReceiptHeaderConfig(config: Partial<ReceiptHeaderConfig>): Promise<boolean> {
+  try {
+    const cleaned: ReceiptHeaderConfig = {
+      topBanner: (config.topBanner || '').trim() || DEFAULT_RECEIPT_HEADER_CONFIG.topBanner,
+      mainTitle: (config.mainTitle || '').trim() || DEFAULT_RECEIPT_HEADER_CONFIG.mainTitle,
+      subTitle: (config.subTitle || '').trim() || DEFAULT_RECEIPT_HEADER_CONFIG.subTitle,
+    };
+    const jsonStr = JSON.stringify(cleaned);
+    localStorage.setItem(LOCAL_RECEIPT_HEADER_KEY, jsonStr);
+    localStorage.setItem('temple_receipt_header_config', jsonStr);
+    window.dispatchEvent(new Event('receipt_header_updated'));
+
+    try {
+      const configRef = doc(db, 'config', 'receipt_header_data');
+      await setDoc(configRef, sanitizeFirestoreData({ ...cleaned, updatedAt: new Date().toISOString() }));
+    } catch (fsErr) {
+      console.warn('Firestore receipt header save fallback to local:', fsErr);
+    }
+    return true;
+  } catch (err) {
+    console.error('Error saving receipt header config:', err);
+    return false;
+  }
+}
+
+export function subscribeReceiptHeaderConfig(callback: (config: ReceiptHeaderConfig) => void): () => void {
+  callback(getReceiptHeaderConfig());
+
+  const handleLocalUpdate = () => {
+    callback(getReceiptHeaderConfig());
+  };
+  window.addEventListener('receipt_header_updated', handleLocalUpdate);
+  window.addEventListener('storage', handleLocalUpdate);
+
+  let unsubFs: (() => void) | null = null;
+  try {
+    const configRef = doc(db, 'config', 'receipt_header_data');
+    unsubFs = onSnapshot(
+      configRef,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data) {
+            const topBanner = typeof data.topBanner === 'string' ? data.topBanner.trim() : '';
+            const mainTitle = typeof data.mainTitle === 'string' ? data.mainTitle.trim() : '';
+            const subTitle = typeof data.subTitle === 'string' ? data.subTitle.trim() : '';
+
+            const cfg: ReceiptHeaderConfig = {
+              topBanner: topBanner || DEFAULT_RECEIPT_HEADER_CONFIG.topBanner,
+              mainTitle: mainTitle || DEFAULT_RECEIPT_HEADER_CONFIG.mainTitle,
+              subTitle: subTitle || DEFAULT_RECEIPT_HEADER_CONFIG.subTitle,
+            };
+            localStorage.setItem(LOCAL_RECEIPT_HEADER_KEY, JSON.stringify(cfg));
+            callback(cfg);
+          }
+        }
+      },
+      (err) => {
+        console.warn('Firestore receipt header snapshot fallback:', err);
+      }
+    );
+  } catch (err) {
+    console.warn('Error subscribing to firestore receipt header:', err);
+  }
+
+  return () => {
+    window.removeEventListener('receipt_header_updated', handleLocalUpdate);
+    window.removeEventListener('storage', handleLocalUpdate);
+    if (unsubFs) unsubFs();
+  };
+}
 
 export const DEFAULT_TEMPLES: Temple[] = [
   {

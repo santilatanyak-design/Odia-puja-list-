@@ -450,16 +450,23 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
               <div>
                 {/* Temple Image & Badges (1:1 Aspect Ratio) */}
                 <div className="w-full aspect-square bg-amber-100 relative overflow-hidden">
-                  <img
-                    src={temple.imageUrl}
-                    alt={temple.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  {temple.imageUrl && temple.imageUrl.trim() ? (
+                    <img
+                      src={temple.imageUrl}
+                      alt={temple.name || 'Temple'}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-amber-700 via-amber-800 to-amber-950 flex flex-col items-center justify-center text-amber-100 p-4 text-center">
+                      <span className="text-4xl mb-1">🕉️</span>
+                      <span className="text-xs font-bold text-amber-200">{temple.name || 'ମନ୍ଦିର'}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                   <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
                     {temple.isJalAbhishekAvailable !== false && (
                       <span className="bg-amber-500 text-amber-950 font-black text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 border border-amber-300">
@@ -1091,15 +1098,22 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
 
             <div className="space-y-3.5 text-xs">
               <div className="w-full aspect-square bg-amber-50 rounded-2xl overflow-hidden border-2 border-amber-300 max-h-60 shadow-inner">
-                <img
-                  src={selectedHistoryTemple.imageUrl}
-                  alt={selectedHistoryTemple.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
-                  }}
-                />
+                {selectedHistoryTemple.imageUrl && selectedHistoryTemple.imageUrl.trim() ? (
+                  <img
+                    src={selectedHistoryTemple.imageUrl}
+                    alt={selectedHistoryTemple.name || 'Temple'}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-amber-100 text-amber-900 font-bold p-4 text-center">
+                    <span className="text-3xl mb-1">🏛️</span>
+                    <span>{selectedHistoryTemple.name || 'ମନ୍ଦିର ବିବରଣୀ'}</span>
+                  </div>
+                )}
               </div>
 
               <div>

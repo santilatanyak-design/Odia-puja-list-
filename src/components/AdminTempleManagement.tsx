@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Temple, TempleBooking } from '../types';
+import { Temple, TempleBooking, ReceiptHeaderConfig } from '../types';
 import {
   subscribeTemples,
   saveTemples,
@@ -9,6 +9,10 @@ import {
   updateBookingStatusByAdmin,
   subscribePujaTypes,
   savePujaTypes,
+  getReceiptHeaderConfig,
+  saveReceiptHeaderConfig,
+  subscribeReceiptHeaderConfig,
+  DEFAULT_RECEIPT_HEADER_CONFIG,
 } from '../lib/templeApi';
 import { generateTempleReceiptJPG } from '../lib/receiptGenerator';
 import {
@@ -31,6 +35,8 @@ import {
   Trash2,
   BookOpen,
   Edit3,
+  FileText,
+  RotateCcw,
 } from 'lucide-react';
 
 export const AdminTempleManagement: React.FC = () => {
@@ -68,6 +74,10 @@ export const AdminTempleManagement: React.FC = () => {
     return localStorage.getItem('globalThumbnail') || localStorage.getItem('main_app_thumbnail_url') || '';
   });
 
+  // Receipt Header Management State
+  const [receiptHeader, setReceiptHeader] = useState<ReceiptHeaderConfig>(() => getReceiptHeaderConfig());
+  const [isSavingReceiptHeader, setIsSavingReceiptHeader] = useState(false);
+
   const handleGlobalThumbnailChange = (val: string) => {
     setGlobalThumbnail(val);
     localStorage.setItem('globalThumbnail', val);
@@ -81,6 +91,33 @@ export const AdminTempleManagement: React.FC = () => {
     alert('✅ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ ସଫଳତାର ସହ ସେଭ୍ ହୋଇଗଲା! (Thumbnail Saved Successfully!)');
   };
 
+  const handleSaveReceiptHeader = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setIsSavingReceiptHeader(true);
+    try {
+      const ok = await saveReceiptHeaderConfig(receiptHeader);
+      if (ok) {
+        setStatusMsg({ text: '✅ ରସିଦ୍ ହେଡର୍ ସଫଳତାର ସହ ସେଭ୍ ହୋଇଗଲା! (Receipt Header Saved Successfully!)', type: 'success' });
+        alert('✅ ରସିଦ୍ ହେଡର୍ ସଫଳତାର ସହ ସେଭ୍ ହୋଇଗଲା! (Receipt Header Saved Successfully!)');
+        setTimeout(() => setStatusMsg(null), 4000);
+      } else {
+        setStatusMsg({ text: '❌ ରସିଦ୍ ହେଡର୍ ସଂରକ୍ଷଣ କରିବାରେ ତ୍ରୁଟି ହେଲା।', type: 'error' });
+      }
+    } finally {
+      setIsSavingReceiptHeader(false);
+    }
+  };
+
+  const handleResetReceiptHeader = () => {
+    if (confirm('ଆପଣ ସତରେ ରସିଦ୍ ହେଡର୍‌କୁ ଡିଫଲ୍ଟ (Standard Sacred Header) କୁ ରିସେଟ୍ କରିବାକୁ ଚାହୁଁଛନ୍ତି କି?')) {
+      const resetConfig: ReceiptHeaderConfig = { ...DEFAULT_RECEIPT_HEADER_CONFIG };
+      setReceiptHeader(resetConfig);
+      saveReceiptHeaderConfig(resetConfig);
+      setStatusMsg({ text: '🔄 ରସିଦ୍ ହେଡର୍ ଡିଫଲ୍ଟକୁ ରିସେଟ୍ ହେଲା।', type: 'success' });
+      setTimeout(() => setStatusMsg(null), 3000);
+    }
+  };
+
   // Status Message Feedback
   const [statusMsg, setStatusMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -88,11 +125,13 @@ export const AdminTempleManagement: React.FC = () => {
     const unsubT = subscribeTemples((data) => setTemples(data));
     const unsubB = subscribeBookings((data) => setBookings(data));
     const unsubP = subscribePujaTypes((data) => setPujaTypes(data));
+    const unsubR = subscribeReceiptHeaderConfig((data) => setReceiptHeader(data));
 
     return () => {
       unsubT();
       unsubB();
       unsubP();
+      unsubR();
     };
   }, []);
 
@@ -213,6 +252,23 @@ export const AdminTempleManagement: React.FC = () => {
     const ok = await saveTemples(temples);
     if (ok) {
       setStatusMsg({ text: '✅ ମନ୍ଦିର ତଥ୍ୟ ସଫଳତାର ସହ ସଂରକ୍ଷିତ ହେଲା! (Temple settings updated)', type: 'success' });
+      alert('✅ ସମସ୍ତ ମନ୍ଦିର ତଥ୍ୟ ସଫଳତାର ସହ ସଂରକ୍ଷିତ ହେଲା! (All Temples Saved Successfully!)');
+      setTimeout(() => setStatusMsg(null), 4000);
+    } else {
+      setStatusMsg({ text: '❌ ସଂରକ୍ଷଣ କରିବାରେ ତ୍ରୁଟି ହେଲା।', type: 'error' });
+    }
+  };
+
+  const handleSaveSingleTemple = async (index: number) => {
+    const target = temples[index];
+    if (!target.name.trim() || !target.location.trim() || !target.pujariPhone.trim()) {
+      alert('⚠️ ଦୟାକରି ମନ୍ଦିର ନାମ, ଠିକଣା ଏବଂ ପୂଜାରୀ ଫୋନ୍ ନମ୍ବର ପୂରଣ କରନ୍ତୁ!');
+      return;
+    }
+    const ok = await saveTemples(temples);
+    if (ok) {
+      setStatusMsg({ text: `✅ '${target.name || 'ମନ୍ଦିର'}' ତଥ୍ୟ ସଫଳତାର ସହ ସଂରକ୍ଷିତ ହେଲା!`, type: 'success' });
+      alert(`✅ '${target.name || 'ମନ୍ଦିର'}' ତଥ୍ୟ ସଫଳତାର ସହ ସେଭ୍ ହୋଇଗଲା! (Temple Saved Successfully!)`);
       setTimeout(() => setStatusMsg(null), 4000);
     } else {
       setStatusMsg({ text: '❌ ସଂରକ୍ଷଣ କରିବାରେ ତ୍ରୁଟି ହେଲା।', type: 'error' });
@@ -744,6 +800,103 @@ export const AdminTempleManagement: React.FC = () => {
             </div>
           </div>
 
+          {/* RECEIPT HEADER CONFIGURATION SETTINGS */}
+          <div className="p-5 bg-white border-2 border-amber-300 rounded-3xl space-y-4 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-3">
+              <div>
+                <h3 className="font-black text-amber-950 text-sm sm:text-base flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-amber-700" />
+                  <span>🧾 ରସିଦ୍ ହେଡର୍ ସମ୍ପାଦନା (Temple Puja Receipt Header Settings)</span>
+                </h3>
+                <p className="text-[11px] text-amber-800 font-medium mt-0.5">
+                  ଏଠାରେ ଆପଣ ଅଫିସିଆଲ୍ ପୂଜା ରସିଦ୍ (Puja Receipt JPG) ର ହେଡର୍ ଟାଇଟଲ୍ ସିଧାସଳଖ ଏଡିଟ୍ କରି ସେଭ୍ କରିପାରିବେ।
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleResetReceiptHeader}
+                className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                title="Reset to default sacred header"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset to Default</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="block text-[11px] font-black text-amber-950">
+                  🕉️ ଶୀର୍ଷ ପୋର୍ଟାଲ୍ ବ୍ୟାନର (Top Sacred Banner)
+                </label>
+                <input
+                  type="text"
+                  value={receiptHeader.topBanner}
+                  onChange={(e) => setReceiptHeader({ ...receiptHeader, topBanner: e.target.value })}
+                  placeholder="🕉️ ଓଡ଼ିଶା ଅଫିସିଆଲ ମନ୍ଦିର ପୂଜା ସେବା 🕉️"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-black text-amber-950">
+                  📜 ରସିଦ୍ ମୁଖ୍ୟ ଶୀର୍ଷକ (Receipt Main Title - English)
+                </label>
+                <input
+                  type="text"
+                  value={receiptHeader.mainTitle}
+                  onChange={(e) => setReceiptHeader({ ...receiptHeader, mainTitle: e.target.value })}
+                  placeholder="TEMPLE PUJA & JAL ABHISHEK RECEIPT"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-black text-amber-950">
+                  🚩 ରସିଦ୍ ଉପ-ଶୀର୍ଷକ (Receipt Subtitle / Tagline - Odia)
+                </label>
+                <input
+                  type="text"
+                  value={receiptHeader.subTitle}
+                  onChange={(e) => setReceiptHeader({ ...receiptHeader, subTitle: e.target.value })}
+                  placeholder="(ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସ୍ୱୀକୃତି ରସିଦ୍)"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                />
+              </div>
+            </div>
+
+            {/* LIVE RECEIPT HEADER PREVIEW BOX */}
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-[10px] font-black text-amber-900 uppercase tracking-wider">
+                👁️ ରସିଦ୍ ହେଡର୍ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ (Live Receipt Header Preview):
+              </label>
+              <div className="p-4 rounded-2xl border-4 border-[#701A1E] bg-[#FFFDF7] text-center shadow-inner relative overflow-hidden">
+                <div className="p-3 border-2 border-[#D97706] bg-[#FEF3C7] rounded-xl space-y-1">
+                  <div className="text-sm sm:text-base font-serif font-black text-[#701A1E] tracking-wide">
+                    {receiptHeader.topBanner.trim() || '🕉️ ଓଡ଼ିଶା ଅଫିସିଆଲ ମନ୍ଦିର ପୂଜା ସେବା 🕉️'}
+                  </div>
+                  <div className="text-xs sm:text-sm font-sans font-black text-[#92400E] tracking-wider uppercase">
+                    {receiptHeader.mainTitle.trim() || 'TEMPLE PUJA & JAL ABHISHEK RECEIPT'}
+                  </div>
+                  <div className="text-[11px] sm:text-xs font-sans font-bold text-[#451A03]">
+                    {receiptHeader.subTitle.trim() || '(ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସ୍ୱୀକୃତି ରସିଦ୍)'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={handleSaveReceiptHeader}
+                disabled={isSavingReceiptHeader}
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-black text-xs rounded-2xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <Save className="w-4 h-4 text-amber-300" />
+                <span>{isSavingReceiptHeader ? 'ସେଭ୍ ହେଉଛି...' : '💾 ରସିଦ୍ ହେଡର୍ ସେଭ୍ କରନ୍ତୁ (Save Receipt Header)'}</span>
+              </button>
+            </div>
+          </div>
+
           {/* SECTION B: UNLIMITED TEMPLES MANAGEMENT FORM */}
           <form onSubmit={handleSaveTemples} className="space-y-6">
           <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-3xl text-amber-950 text-xs font-bold flex flex-wrap items-center justify-between gap-3 shadow-2xs">
@@ -802,85 +955,94 @@ export const AdminTempleManagement: React.FC = () => {
 
                   {/* Temple Image Preview & URL */}
                   <div className="space-y-1.5">
-                    <label className="block font-bold text-amber-950">ମନ୍ଦିର ଫଟୋ URL (Image URL)</label>
+                    <label className="block font-bold text-amber-950">🖼️ ମନ୍ଦିର ଫଟୋ URL (Image URL)</label>
                     <div className="w-full aspect-square bg-amber-50 rounded-2xl overflow-hidden border-2 border-amber-300 mb-2 max-h-48">
-                      <img
-                        src={temple.imageUrl}
-                        alt={temple.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
-                        }}
-                      />
+                      {temple.imageUrl && temple.imageUrl.trim() ? (
+                        <img
+                          src={temple.imageUrl}
+                          alt={temple.name || 'Temple'}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-amber-700/60 p-4 text-center">
+                          <span className="text-3xl mb-1">🏛️</span>
+                          <span className="text-[11px] font-bold">ଫଟୋ URL ଦିଅନ୍ତୁ (No Image Preview)</span>
+                        </div>
+                      )}
                     </div>
                     <input
                       type="url"
-                      required
                       value={temple.imageUrl}
                       onChange={(e) => handleTempleChange(idx, 'imageUrl', e.target.value)}
-                      placeholder="https://..."
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      placeholder="https://... (Enter main temple image URL)"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>
 
                   {/* Thumbnail / Banner Image URL */}
                   <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">ଫଟୋ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ (Thumbnail Image URL)</label>
+                    <label className="block font-bold text-amber-950">🏷️ ଫଟୋ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ (Thumbnail Image URL)</label>
                     <input
                       type="url"
                       value={temple.thumbnailUrl || ''}
                       onChange={(e) => handleTempleChange(idx, 'thumbnailUrl', e.target.value)}
                       placeholder="https://... (Thumbnail image for social share preview)"
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>
 
                   {/* Temple Name */}
                   <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">ମନ୍ଦିର ନାମ (Temple Name)</label>
+                    <label className="block font-bold text-amber-950">🏛️ ମନ୍ଦିର ନାମ (Temple Name) *</label>
                     <input
                       type="text"
                       required
                       value={temple.name}
                       onChange={(e) => handleTempleChange(idx, 'name', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      placeholder="e.g. ଶ୍ରୀ ଲିଙ୍ଗରାଜ ମନ୍ଦିର (Shree Lingaraj Temple)"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>
 
                   {/* Location Address */}
                   <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">ଠିକଣା (Location Address)</label>
+                    <label className="block font-bold text-amber-950">📍 ଠିକଣା (Location Address) *</label>
                     <input
                       type="text"
                       required
                       value={temple.location}
                       onChange={(e) => handleTempleChange(idx, 'location', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      placeholder="e.g. ଏକାମ୍ର କ୍ଷେତ୍ର, ଭୁବନେଶ୍ୱର (Bhubaneswar, Odisha)"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>
 
                   {/* Pujari Phone */}
                   <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">ପୂଜାରୀ ମୋବାଇଲ୍ (Pujari Phone)</label>
+                    <label className="block font-bold text-amber-950">📞 ପୂଜାରୀ ମୋବାଇଲ୍ (Pujari Phone) *</label>
                     <input
                       type="tel"
                       required
                       value={temple.pujariPhone}
                       onChange={(e) => handleTempleChange(idx, 'pujariPhone', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      placeholder="e.g. 9861054321"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>
 
                   {/* Short Description */}
                   <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">ସଂକ୍ଷିପ୍ତ ସୂଚନା (Short Subtitle)</label>
+                    <label className="block font-bold text-amber-950">📝 ସଂକ୍ଷିପ୍ତ ସୂଚନା (Short Subtitle)</label>
                     <input
                       type="text"
                       value={temple.description || ''}
                       onChange={(e) => handleTempleChange(idx, 'description', e.target.value)}
                       placeholder="e.g. ପବିତ୍ର ଜଳାଭିଷେକ ଓ ସ୍ୱତନ୍ତ୍ର ପୂଜା ସେବା।"
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>
 
@@ -888,25 +1050,26 @@ export const AdminTempleManagement: React.FC = () => {
                   <div className="space-y-1">
                     <label className="block font-black text-amber-950 flex items-center gap-1">
                       <BookOpen className="w-3.5 h-3.5 text-amber-700" />
-                      <span>Temple History / Description (ମନ୍ଦିର ଇତିହାସ)</span>
+                      <span>📜 Temple History / Description (ମନ୍ଦିର ଇତିହାସ)</span>
                     </label>
                     <textarea
                       rows={4}
                       value={temple.history || ''}
                       onChange={(e) => handleTempleChange(idx, 'history', e.target.value)}
                       placeholder="ଏଠାରେ ମନ୍ଦିରର ଇତିହାସ, ସ୍ଥାପନା କାଳ, ପ୍ରସିଦ୍ଧି ଏବଂ ମାହାତ୍ମ୍ୟ ସମ୍ପର୍କରେ ସମ୍ପୂର୍ଣ୍ଣ ଲେଖନ୍ତୁ..."
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 font-medium leading-relaxed"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 font-medium leading-relaxed"
                     />
                   </div>
 
                   {/* QR Code Image URL */}
                   <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">Paytm / UPI QR Code Image URL</label>
+                    <label className="block font-bold text-amber-950">💳 Paytm / UPI QR Code Image URL</label>
                     <input
                       type="url"
                       value={temple.qrCodeUrl || ''}
                       onChange={(e) => handleTempleChange(idx, 'qrCodeUrl', e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      placeholder="https://... (Enter UPI payment QR code URL)"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
                   </div>
 
@@ -961,14 +1124,22 @@ export const AdminTempleManagement: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-amber-200 mt-2 flex justify-end">
+                <div className="pt-3 border-t border-amber-200 mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleSaveSingleTemple(idx)}
+                    className="py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                  >
+                    <Save className="w-3.5 h-3.5 text-emerald-200" />
+                    <span>💾 ସେଭ୍ କରନ୍ତୁ</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleDeleteTemple(idx)}
-                    className="w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="py-2 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>ଏହି ମନ୍ଦିରକୁ ଡିଲିଟ୍ କରନ୍ତୁ</span>
+                    <span>ଡିଲିଟ୍</span>
                   </button>
                 </div>
               </div>
@@ -979,7 +1150,7 @@ export const AdminTempleManagement: React.FC = () => {
             <button
               type="button"
               onClick={handleAddTemple}
-              className="px-5 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold rounded-2xl text-xs shadow-lg transition flex items-center gap-2 cursor-pointer"
+              className="px-5 py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold rounded-2xl text-xs shadow-lg transition flex items-center gap-2 cursor-pointer active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>+ ଅନ୍ୟ ଏକ ନୂତନ ମନ୍ଦିର ଯୋଡ଼ନ୍ତୁ (Add Another Temple)</span>
@@ -987,10 +1158,10 @@ export const AdminTempleManagement: React.FC = () => {
 
             <button
               type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-2xl text-xs shadow-lg transition flex items-center gap-2 cursor-pointer"
+              className="px-6 py-3 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-2xl text-xs shadow-lg transition flex items-center gap-2 cursor-pointer active:scale-95"
             >
               <Save className="w-4 h-4 text-amber-300" />
-              <span>ସଂରକ୍ଷଣ କରନ୍ତୁ (Save All Temples)</span>
+              <span>💾 ସମସ୍ତ ମନ୍ଦିର ତଥ୍ୟ ସଂରକ୍ଷଣ କରନ୍ତୁ (Save All Temples)</span>
             </button>
           </div>
         </form>

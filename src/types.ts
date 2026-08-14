@@ -184,6 +184,12 @@ export interface StoreConfig {
   customToggles?: Record<string, boolean>;
 }
 
+export interface ReceiptHeaderConfig {
+  topBanner: string;
+  mainTitle: string;
+  subTitle: string;
+}
+
 export interface Temple {
   id: string;
   name: string;
