@@ -6,6 +6,9 @@ export const DEFAULT_RECEIPT_HEADER_CONFIG: ReceiptHeaderConfig = {
   topBanner: '🕉️ ଓଡ଼ିଶା ଅଫିସିଆଲ ମନ୍ଦିର ପୂଜା ସେବା 🕉️',
   mainTitle: 'TEMPLE PUJA & JAL ABHISHEK RECEIPT',
   subTitle: '(ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସ୍ୱୀକୃତି ରସିଦ୍)',
+  section1Heading: 'ମନ୍ଦିର ତଥ୍ୟ (Temple Details)',
+  section2Heading: 'ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)',
+  footerText: 'ଦୟାକରି ଏହି ରସିଦ୍‌କୁ ମନ୍ଦିରରେ ଦର୍ଶାଇ ପୂଜା / ଜଳାଭିଷେକ ସମ୍ପନ୍ନ କରନ୍ତୁ । Generated on demand via Odisha Temple Puja Portal • All Rights Reserved',
 };
 
 const LOCAL_RECEIPT_HEADER_KEY = 'receipt_header_config';
@@ -19,11 +22,17 @@ export function getReceiptHeaderConfig(): ReceiptHeaderConfig {
         const topBanner = typeof parsed.topBanner === 'string' ? parsed.topBanner.trim() : '';
         const mainTitle = typeof parsed.mainTitle === 'string' ? parsed.mainTitle.trim() : '';
         const subTitle = typeof parsed.subTitle === 'string' ? parsed.subTitle.trim() : '';
+        const section1Heading = typeof parsed.section1Heading === 'string' ? parsed.section1Heading.trim() : '';
+        const section2Heading = typeof parsed.section2Heading === 'string' ? parsed.section2Heading.trim() : '';
+        const footerText = typeof parsed.footerText === 'string' ? parsed.footerText.trim() : '';
 
         return {
           topBanner: topBanner || DEFAULT_RECEIPT_HEADER_CONFIG.topBanner,
           mainTitle: mainTitle || DEFAULT_RECEIPT_HEADER_CONFIG.mainTitle,
           subTitle: subTitle || DEFAULT_RECEIPT_HEADER_CONFIG.subTitle,
+          section1Heading: section1Heading || DEFAULT_RECEIPT_HEADER_CONFIG.section1Heading,
+          section2Heading: section2Heading || DEFAULT_RECEIPT_HEADER_CONFIG.section2Heading,
+          footerText: footerText || DEFAULT_RECEIPT_HEADER_CONFIG.footerText,
         };
       }
     }
@@ -39,6 +48,9 @@ export async function saveReceiptHeaderConfig(config: Partial<ReceiptHeaderConfi
       topBanner: (config.topBanner || '').trim() || DEFAULT_RECEIPT_HEADER_CONFIG.topBanner,
       mainTitle: (config.mainTitle || '').trim() || DEFAULT_RECEIPT_HEADER_CONFIG.mainTitle,
       subTitle: (config.subTitle || '').trim() || DEFAULT_RECEIPT_HEADER_CONFIG.subTitle,
+      section1Heading: (config.section1Heading || '').trim() || (DEFAULT_RECEIPT_HEADER_CONFIG.section1Heading as string),
+      section2Heading: (config.section2Heading || '').trim() || (DEFAULT_RECEIPT_HEADER_CONFIG.section2Heading as string),
+      footerText: (config.footerText || '').trim() || (DEFAULT_RECEIPT_HEADER_CONFIG.footerText as string),
     };
     const jsonStr = JSON.stringify(cleaned);
     localStorage.setItem(LOCAL_RECEIPT_HEADER_KEY, jsonStr);
@@ -79,11 +91,17 @@ export function subscribeReceiptHeaderConfig(callback: (config: ReceiptHeaderCon
             const topBanner = typeof data.topBanner === 'string' ? data.topBanner.trim() : '';
             const mainTitle = typeof data.mainTitle === 'string' ? data.mainTitle.trim() : '';
             const subTitle = typeof data.subTitle === 'string' ? data.subTitle.trim() : '';
+            const section1Heading = typeof data.section1Heading === 'string' ? data.section1Heading.trim() : '';
+            const section2Heading = typeof data.section2Heading === 'string' ? data.section2Heading.trim() : '';
+            const footerText = typeof data.footerText === 'string' ? data.footerText.trim() : '';
 
             const cfg: ReceiptHeaderConfig = {
               topBanner: topBanner || DEFAULT_RECEIPT_HEADER_CONFIG.topBanner,
               mainTitle: mainTitle || DEFAULT_RECEIPT_HEADER_CONFIG.mainTitle,
               subTitle: subTitle || DEFAULT_RECEIPT_HEADER_CONFIG.subTitle,
+              section1Heading: section1Heading || DEFAULT_RECEIPT_HEADER_CONFIG.section1Heading,
+              section2Heading: section2Heading || DEFAULT_RECEIPT_HEADER_CONFIG.section2Heading,
+              footerText: footerText || DEFAULT_RECEIPT_HEADER_CONFIG.footerText,
             };
             localStorage.setItem(LOCAL_RECEIPT_HEADER_KEY, JSON.stringify(cfg));
             callback(cfg);

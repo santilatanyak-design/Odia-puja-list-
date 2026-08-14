@@ -800,23 +800,23 @@ export const AdminTempleManagement: React.FC = () => {
             </div>
           </div>
 
-          {/* RECEIPT HEADER CONFIGURATION SETTINGS */}
+          {/* RECEIPT HEADER & CUSTOM TEXT CONFIGURATION SETTINGS */}
           <div className="p-5 bg-white border-2 border-amber-300 rounded-3xl space-y-4 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 pb-3">
               <div>
                 <h3 className="font-black text-amber-950 text-sm sm:text-base flex items-center gap-2">
                   <FileText className="w-5 h-5 text-amber-700" />
-                  <span>🧾 ରସିଦ୍ ହେଡର୍ ସମ୍ପାଦନା (Temple Puja Receipt Header Settings)</span>
+                  <span>🧾 ରସିଦ୍ ଟେକ୍ସଟ୍ ଓ ହେଡର୍ ସମ୍ପାଦନା (Temple Puja Receipt Custom Settings)</span>
                 </h3>
                 <p className="text-[11px] text-amber-800 font-medium mt-0.5">
-                  ଏଠାରେ ଆପଣ ଅଫିସିଆଲ୍ ପୂଜା ରସିଦ୍ (Puja Receipt JPG) ର ହେଡର୍ ଟାଇଟଲ୍ ସିଧାସଳଖ ଏଡିଟ୍ କରି ସେଭ୍ କରିପାରିବେ।
+                  ଏଠାରେ ଆପଣ ଅଫିସିଆଲ୍ ପୂଜା ରସିଦ୍ (Puja Receipt JPG) ର ହେଡର୍, Section 1, Section 2 ଏବଂ Footer ଟେକ୍ସଟ୍ ଏଡିଟ୍ କରି ସେଭ୍ କରିପାରିବେ।
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleResetReceiptHeader}
                 className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                title="Reset to default sacred header"
+                title="Reset to default sacred header and sections"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset to Default</span>
@@ -864,12 +864,54 @@ export const AdminTempleManagement: React.FC = () => {
               </div>
             </div>
 
-            {/* LIVE RECEIPT HEADER PREVIEW BOX */}
+            {/* THREE EDITABLE STATIC TEXTS: SECTION 1, SECTION 2, FOOTER */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 border-t border-amber-100">
+              <div className="space-y-1">
+                <label className="block text-[11px] font-black text-amber-950">
+                  🏛️ Section 1 Heading (Default: "ମନ୍ଦିର ତଥ୍ୟ (Temple Details)")
+                </label>
+                <input
+                  type="text"
+                  value={receiptHeader.section1Heading ?? ''}
+                  onChange={(e) => setReceiptHeader({ ...receiptHeader, section1Heading: e.target.value })}
+                  placeholder="ମନ୍ଦିର ତଥ୍ୟ (Temple Details)"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-black text-amber-950">
+                  📅 Section 2 Heading (Default: "ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)")
+                </label>
+                <input
+                  type="text"
+                  value={receiptHeader.section2Heading ?? ''}
+                  onChange={(e) => setReceiptHeader({ ...receiptHeader, section2Heading: e.target.value })}
+                  placeholder="ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)"
+                  className="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-bold text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1 pt-1">
+              <label className="block text-[11px] font-black text-amber-950">
+                📜 Footer Text (Default: "ଦୟାକରି ଏହି ରସିଦ୍‌କୁ ମନ୍ଦିରରେ ଦର୍ଶାଇ ପୂଜା / ଜଳାଭିଷେକ ସମ୍ପନ୍ନ କରନ୍ତୁ । Generated on demand via Odisha Temple Puja Portal • All Rights Reserved")
+              </label>
+              <textarea
+                rows={2}
+                value={receiptHeader.footerText ?? ''}
+                onChange={(e) => setReceiptHeader({ ...receiptHeader, footerText: e.target.value })}
+                placeholder="ଦୟାକରି ଏହି ରସିଦ୍‌କୁ ମନ୍ଦିରରେ ଦର୍ଶାଇ ପୂଜା / ଜଳାଭିଷେକ ସମ୍ପନ୍ନ କରନ୍ତୁ । Generated on demand via Odisha Temple Puja Portal • All Rights Reserved"
+                className="w-full px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-medium text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 leading-relaxed"
+              />
+            </div>
+
+            {/* LIVE RECEIPT PREVIEW BOX */}
             <div className="space-y-1.5 pt-1">
               <label className="block text-[10px] font-black text-amber-900 uppercase tracking-wider">
-                👁️ ରସିଦ୍ ହେଡର୍ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ (Live Receipt Header Preview):
+                👁️ ରସିଦ୍ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ (Live Receipt Canvas Preview):
               </label>
-              <div className="p-4 rounded-2xl border-4 border-[#701A1E] bg-[#FFFDF7] text-center shadow-inner relative overflow-hidden">
+              <div className="p-4 rounded-2xl border-4 border-[#701A1E] bg-[#FFFDF7] text-center shadow-inner relative overflow-hidden space-y-3">
                 <div className="p-3 border-2 border-[#D97706] bg-[#FEF3C7] rounded-xl space-y-1">
                   <div className="text-sm sm:text-base font-serif font-black text-[#701A1E] tracking-wide">
                     {receiptHeader.topBanner.trim() || '🕉️ ଓଡ଼ିଶା ଅଫିସିଆଲ ମନ୍ଦିର ପୂଜା ସେବା 🕉️'}
@@ -880,6 +922,25 @@ export const AdminTempleManagement: React.FC = () => {
                   <div className="text-[11px] sm:text-xs font-sans font-bold text-[#451A03]">
                     {receiptHeader.subTitle.trim() || '(ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ ସ୍ୱୀକୃତି ରସିଦ୍)'}
                   </div>
+                </div>
+
+                {/* Section Headers Mini Preview */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
+                  <div className="bg-[#701A1E] text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                    <span>🏛️</span>
+                    <span className="truncate">{receiptHeader.section1Heading?.trim() || 'ମନ୍ଦିର ତଥ୍ୟ (Temple Details)'}</span>
+                  </div>
+                  <div className="bg-[#701A1E] text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5">
+                    <span>📅</span>
+                    <span className="truncate">{receiptHeader.section2Heading?.trim() || 'ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)'}</span>
+                  </div>
+                </div>
+
+                {/* Footer Preview */}
+                <div className="border-t border-amber-200 pt-2 text-[11px] text-[#701A1E] font-medium leading-tight">
+                  <p className="font-bold">
+                    🚩 {receiptHeader.footerText?.trim() || 'ଦୟାକରି ଏହି ରସିଦ୍‌କୁ ମନ୍ଦିରରେ ଦର୍ଶାଇ ପୂଜା / ଜଳାଭିଷେକ ସମ୍ପନ୍ନ କରନ୍ତୁ । Generated on demand via Odisha Temple Puja Portal • All Rights Reserved'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -892,7 +953,7 @@ export const AdminTempleManagement: React.FC = () => {
                 className="px-5 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-black text-xs rounded-2xl transition shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 <Save className="w-4 h-4 text-amber-300" />
-                <span>{isSavingReceiptHeader ? 'ସେଭ୍ ହେଉଛି...' : '💾 ରସିଦ୍ ହେଡର୍ ସେଭ୍ କରନ୍ତୁ (Save Receipt Header)'}</span>
+                <span>{isSavingReceiptHeader ? 'ସେଭ୍ ହେଉଛି...' : '💾 ରସିଦ୍ ସେଟିଙ୍ଗ୍ ସେଭ୍ କରନ୍ତୁ (Save Receipt Settings)'}</span>
               </button>
             </div>
           </div>
@@ -1071,6 +1132,46 @@ export const AdminTempleManagement: React.FC = () => {
                       placeholder="https://... (Enter UPI payment QR code URL)"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
+                  </div>
+
+                  {/* Per-Temple Custom Receipt Headings & Footer */}
+                  <div className="space-y-2 pt-2 border-t border-amber-200">
+                    <label className="block font-black text-amber-950 text-[11px] flex items-center gap-1">
+                      <FileText className="w-3.5 h-3.5 text-amber-700" />
+                      <span>🧾 ଏହି ମନ୍ଦିର ପାଇଁ ସ୍ୱତନ୍ତ୍ର ରସିଦ୍ ଟେକ୍ସଟ୍ (Custom Receipt Texts for this Temple)</span>
+                    </label>
+                    <div className="space-y-2 bg-amber-50/70 p-2.5 rounded-2xl border border-amber-200">
+                      <div className="space-y-0.5">
+                        <label className="text-[10px] font-bold text-amber-900">🏛️ Section 1 Heading (Default: "ମନ୍ଦିର ତଥ୍ୟ (Temple Details)")</label>
+                        <input
+                          type="text"
+                          value={temple.customSection1Heading || ''}
+                          onChange={(e) => handleTempleChange(idx, 'customSection1Heading', e.target.value)}
+                          placeholder="ମନ୍ଦିର ତଥ୍ୟ (Temple Details)"
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-0.5">
+                        <label className="text-[10px] font-bold text-amber-900">📅 Section 2 Heading (Default: "ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)")</label>
+                        <input
+                          type="text"
+                          value={temple.customSection2Heading || ''}
+                          onChange={(e) => handleTempleChange(idx, 'customSection2Heading', e.target.value)}
+                          placeholder="ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)"
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white"
+                        />
+                      </div>
+                      <div className="space-y-0.5">
+                        <label className="text-[10px] font-bold text-amber-900">📜 Footer Text (Optional Override)</label>
+                        <textarea
+                          rows={2}
+                          value={temple.customFooterText || ''}
+                          onChange={(e) => handleTempleChange(idx, 'customFooterText', e.target.value)}
+                          placeholder="ଦୟାକରି ଏହି ରସିଦ୍‌କୁ ମନ୍ଦିରରେ ଦର୍ଶାଇ ପୂଜା / ଜଳାଭିଷେକ ସମ୍ପନ୍ନ କରନ୍ତୁ । Generated on demand via Odisha Temple Puja Portal • All Rights Reserved"
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white leading-tight"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Jal Abhishek / Custom Puja Label Toggle & Inline Editor */}

@@ -188,6 +188,9 @@ export interface ReceiptHeaderConfig {
   topBanner: string;
   mainTitle: string;
   subTitle: string;
+  section1Heading?: string;
+  section2Heading?: string;
+  footerText?: string;
 }
 
 export interface Temple {
@@ -202,6 +205,9 @@ export interface Temple {
   history?: string;
   isJalAbhishekAvailable?: boolean;
   customPujaLabel?: string;
+  customSection1Heading?: string;
+  customSection2Heading?: string;
+  customFooterText?: string;
 }
 
 export interface TempleBooking {

@@ -112,7 +112,8 @@ export function generateTempleReceiptJPG(booking: TempleBooking, temple?: Temple
   };
 
   // --- SECTION A: TEMPLE DETAILS ---
-  drawSectionHeader('ମନ୍ଦିର ତଥ୍ୟ (Temple Details)', '🏛️', currentY);
+  const section1Title = (temple?.customSection1Heading || receiptConfig.section1Heading || '').trim() || 'ମନ୍ଦିର ତଥ୍ୟ (Temple Details)';
+  drawSectionHeader(section1Title, '🏛️', currentY);
   currentY += 44;
   drawRow('ମନ୍ଦିର ନାମ (Temple Name):', booking.templeName, currentY);
   currentY += 56;
@@ -137,7 +138,8 @@ export function generateTempleReceiptJPG(booking: TempleBooking, temple?: Temple
   currentY += 20;
 
   // --- SECTION C: APPROVED PUJA DATE & TIME ---
-  drawSectionHeader('ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)', '📅', currentY);
+  const section2Title = (temple?.customSection2Heading || receiptConfig.section2Heading || '').trim() || 'ନିର୍ଦ୍ଧାରିତ ପୂଜା / ଜଳାଭିଷେକ ସମୟ (Scheduled Date & Time)';
+  drawSectionHeader(section2Title, '📅', currentY);
   currentY += 44;
   const assignedDateTime = booking.pujaDateTime || 'As scheduled with Pujari';
   drawRow('ପୂଜା/ଅଭିଷେକ ସମୟ (Puja Date & Time):', assignedDateTime, currentY, true);
@@ -181,14 +183,47 @@ export function generateTempleReceiptJPG(booking: TempleBooking, temple?: Temple
 
   currentY += 130;
 
-  // 7. Footer Sacred Message & Instructions
-  ctx.fillStyle = '#701A1E';
-  ctx.font = 'bold 20px serif';
-  ctx.fillText('🚩 ଦୟାକରି ଏହି ରସିଦ୍‌କୁ ମନ୍ଦିରରେ ଦର୍ଶାଇ ପୂଜା / ଜଳାଭିଷେକ ସମ୍ପନ୍ନ କରନ୍ତୁ।', width / 2, currentY);
+  // 7. Footer Sacred Message & Instructions (Customizable from Admin Panel)
+  const rawFooterText = (temple?.customFooterText || receiptConfig.footerText || '').trim() ||
+    'ଦୟାକରି ଏହି ରସିଦ୍‌କୁ ମନ୍ଦିରରେ ଦର୍ଶାଇ ପୂଜା / ଜଳାଭିଷେକ ସମ୍ପନ୍ନ କରନ୍ତୁ । Generated on demand via Odisha Temple Puja Portal • All Rights Reserved';
 
-  ctx.fillStyle = '#78350F';
-  ctx.font = '18px sans-serif';
-  ctx.fillText('Generated on demand via Odisha Temple Puja Portal • All Rights Reserved', width / 2, currentY + 30);
+  ctx.textAlign = 'center';
+  if (rawFooterText.includes('\n')) {
+    const lines = rawFooterText.split('\n').map((l) => l.trim()).filter(Boolean);
+    lines.forEach((line, idx) => {
+      ctx.fillStyle = idx === 0 ? '#701A1E' : '#78350F';
+      ctx.font = idx === 0 ? 'bold 20px serif' : '18px sans-serif';
+      ctx.fillText(line, width / 2, currentY + idx * 28);
+    });
+  } else if (rawFooterText.includes(' • ')) {
+    const [line1, ...rest] = rawFooterText.split(' • ');
+    ctx.fillStyle = '#701A1E';
+    ctx.font = 'bold 20px serif';
+    ctx.fillText(line1.trim(), width / 2, currentY);
+
+    ctx.fillStyle = '#78350F';
+    ctx.font = '18px sans-serif';
+    ctx.fillText(rest.join(' • ').trim(), width / 2, currentY + 28);
+  } else {
+    ctx.fillStyle = '#701A1E';
+    ctx.font = 'bold 20px serif';
+    if (ctx.measureText(rawFooterText).width > width - 160) {
+      let breakIdx = rawFooterText.indexOf('।');
+      if (breakIdx === -1) breakIdx = rawFooterText.indexOf('|');
+      if (breakIdx === -1) breakIdx = Math.floor(rawFooterText.length / 2);
+      else breakIdx += 1;
+
+      const line1 = rawFooterText.slice(0, breakIdx).trim();
+      const line2 = rawFooterText.slice(breakIdx).trim();
+
+      ctx.fillText(line1, width / 2, currentY);
+      ctx.fillStyle = '#78350F';
+      ctx.font = '18px sans-serif';
+      ctx.fillText(line2, width / 2, currentY + 28);
+    } else {
+      ctx.fillText(rawFooterText, width / 2, currentY);
+    }
+  }
 
   // 8. Convert to High-Res JPG DataURL & Download Immediately
   try {
