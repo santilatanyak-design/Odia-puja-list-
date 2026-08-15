@@ -16,12 +16,26 @@ import { SiteLockOverlay } from './components/SiteLockOverlay';
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
-    const saved = localStorage.getItem('puja_app_lang');
-    return (saved === 'EN' || saved === 'OD') ? saved : 'OD';
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const saved = localStorage.getItem('puja_app_lang');
+        return (saved === 'EN' || saved === 'OD') ? saved : 'OD';
+      }
+    } catch {
+      // Fallback on restricted storage
+    }
+    return 'OD';
   });
   const [currentRole, setCurrentRole] = useState<'pujari' | 'admin'>('pujari');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('puja_app_admin_auth') === 'true';
+    try {
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        return sessionStorage.getItem('puja_app_admin_auth') === 'true';
+      }
+    } catch {
+      // Fallback
+    }
+    return false;
   });
   const [activePujari, setActivePujari] = useState<Pujari | null>(null);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
@@ -31,17 +45,30 @@ export default function App() {
 
   // Deep-link check for Temple Share URLs and Shorts
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('templeId')) {
-      setViewMode('temple');
-    } else if (params.get('shorts') || params.get('feed')) {
-      setViewMode('shorts');
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('templeId')) {
+          setViewMode('temple');
+        } else if (params.get('shorts') || params.get('feed')) {
+          setViewMode('shorts');
+        }
+      }
+    } catch {
+      // Ignore URL parsing errors on old browsers
     }
   }, []);
 
   // Global Emergency Site Lock State
   const [isSiteLocked, setIsSiteLocked] = useState<boolean>(() => {
-    return localStorage.getItem('puja_app_site_locked') === 'true';
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return localStorage.getItem('puja_app_site_locked') === 'true';
+      }
+    } catch {
+      // Fallback
+    }
+    return false;
   });
 
   // Real-time site lock subscription
@@ -65,7 +92,13 @@ export default function App() {
   const toggleLang = () => {
     setLang((prev) => {
       const next = prev === 'OD' ? 'EN' : 'OD';
-      localStorage.setItem('puja_app_lang', next);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('puja_app_lang', next);
+        }
+      } catch {
+        // Safe skip
+      }
       return next;
     });
   };
@@ -102,28 +135,52 @@ export default function App() {
   }, [activePujari?.id]);
 
   const initApp = async () => {
-    const config = await getQrConfig();
-    setQrConfig(config);
+    try {
+      const config = await getQrConfig();
+      setQrConfig(config);
 
-    // Check stored Pujari ID session silently in background without overriding initial Home Page landing
-    const storedPujariId = localStorage.getItem('puja_app_pujari_id');
-    if (storedPujariId) {
-      const res = await loginPujari({ pujariId: storedPujariId, skipPinCheck: true });
-      if (res.success && res.pujari) {
-        setActivePujari(res.pujari);
+      // Check stored Pujari ID session silently in background without overriding initial Home Page landing
+      let storedPujariId: string | null = null;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          storedPujariId = localStorage.getItem('puja_app_pujari_id');
+        }
+      } catch {
+        // Safe skip
       }
+
+      if (storedPujariId) {
+        const res = await loginPujari({ pujariId: storedPujariId, skipPinCheck: true });
+        if (res.success && res.pujari) {
+          setActivePujari(res.pujari);
+        }
+      }
+    } catch (err) {
+      console.warn('App initialization warning:', err);
     }
   };
 
   const handlePujariLoginSuccess = (pujari: Pujari) => {
     setActivePujari(pujari);
-    localStorage.setItem('puja_app_pujari_id', pujari.id);
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('puja_app_pujari_id', pujari.id);
+      }
+    } catch {
+      // Safe skip
+    }
     setViewMode('portal');
   };
 
   const handlePujariLogout = () => {
     setActivePujari(null);
-    localStorage.removeItem('puja_app_pujari_id');
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.removeItem('puja_app_pujari_id');
+      }
+    } catch {
+      // Safe skip
+    }
     setViewMode('home');
   };
 

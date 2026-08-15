@@ -183,8 +183,17 @@ export async function saveTempleShorts(shorts: TempleShort[]): Promise<boolean> 
       };
     }).filter((s) => s.youtubeUrl.length > 0 && extractYouTubeId(s.youtubeUrl) !== null);
 
-    localStorage.setItem(LOCAL_SHORTS_KEY, JSON.stringify(cleanList));
-    window.dispatchEvent(new CustomEvent('temple_shorts_updated', { detail: cleanList }));
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(LOCAL_SHORTS_KEY, JSON.stringify(cleanList));
+      }
+    } catch (e) {}
+
+    try {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('temple_shorts_updated', { detail: cleanList }));
+      }
+    } catch (e) {}
 
     const docRef = doc(db, 'temple_shorts_config', SHORTS_DOC_ID);
     await setDoc(docRef, {
@@ -227,7 +236,11 @@ export function subscribeTempleShorts(callback: (shorts: TempleShort[]) => void)
         if (snap.exists()) {
           const data = snap.data();
           if (Array.isArray(data?.shorts)) {
-            localStorage.setItem(LOCAL_SHORTS_KEY, JSON.stringify(data.shorts));
+            try {
+              if (typeof window !== 'undefined' && window.localStorage) {
+                localStorage.setItem(LOCAL_SHORTS_KEY, JSON.stringify(data.shorts));
+              }
+            } catch (e) {}
             callback(data.shorts as TempleShort[]);
           }
         }

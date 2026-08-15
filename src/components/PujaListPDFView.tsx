@@ -1,6 +1,6 @@
 import { showCustomAlert } from '../lib/customAlert';
 import React, { useRef, useState } from 'react';
-import { PujaList } from '../types';
+import { PujaList, Pujari } from '../types';
 import { Download, Printer, Lock, ArrowLeft, ShieldAlert, QrCode } from 'lucide-react';
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
@@ -11,6 +11,7 @@ import { handleFreeDownloadWithDoubleLock } from '../lib/deviceFingerprint';
 
 interface PujaListPDFViewProps {
   list: PujaList;
+  pujari?: Pujari;
   onBack?: () => void;
   onRequestUnlock?: () => void;
 }

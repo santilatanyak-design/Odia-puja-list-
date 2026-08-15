@@ -115,13 +115,21 @@ export const TempleShortsFeed: React.FC<TempleShortsFeedProps> = ({
     const isLiked = !likedMap[shortId];
     const newLikedMap = { ...likedMap, [shortId]: isLiked };
     setLikedMap(newLikedMap);
-    localStorage.setItem('temple_shorts_liked_map', JSON.stringify(newLikedMap));
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('temple_shorts_liked_map', JSON.stringify(newLikedMap));
+      }
+    } catch (e) {}
 
-    const currentCount = likeCountMap[shortId] ?? 0;
+    const currentCount = typeof likeCountMap[shortId] === 'number' ? likeCountMap[shortId] : 0;
     const newCount = isLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
     const newLikeCountMap = { ...likeCountMap, [shortId]: newCount };
     setLikeCountMap(newLikeCountMap);
-    localStorage.setItem('temple_shorts_like_counts', JSON.stringify(newLikeCountMap));
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('temple_shorts_like_counts', JSON.stringify(newLikeCountMap));
+      }
+    } catch (e) {}
 
     if (isLiked) {
       setAnimatingReaction(true);
@@ -131,40 +139,62 @@ export const TempleShortsFeed: React.FC<TempleShortsFeedProps> = ({
 
   // Share Short via Website Link (Never raw YouTube link)
   const handleShare = async (short: TempleShort, index: number) => {
-    const websiteUrl = typeof window !== 'undefined' ? (window.location.origin || window.location.href) : '';
-    const shareTitle = short.title?.trim() || 'ମନ୍ଦିର ପୂଜା ଓ ଦିବ୍ୟ ଦର୍ଶନ 🚩';
-    const shareText = `🚩 ${shareTitle}\n🙏 ଦର୍ଶନ କରନ୍ତୁ ଏବଂ ସିଧାସଳଖ ପୂଜା ବୁକିଂ କରନ୍ତୁ! (Watch Darshan and book Puja directly!)`;
+    try {
+      const websiteUrl = typeof window !== 'undefined' ? (window.location.origin || window.location.href || '') : '';
+      const shareTitle = (short && short.title) ? short.title.trim() : 'ମନ୍ଦିର ପୂଜା ଓ ଦିବ୍ୟ ଦର୍ଶନ 🚩';
+      const shareText = `🚩 ${shareTitle}\n🙏 ଦର୍ଶନ କରନ୍ତୁ ଏବଂ ସିଧାସଳଖ ପୂଜା ବୁକିଂ କରନ୍ତୁ! (Watch Darshan and book Puja directly!)`;
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: websiteUrl,
-        });
-        return;
-      } catch (err: any) {
-        // If user actively cancelled the native share sheet, do not open fallback
-        if (err?.name === 'AbortError') {
-          return;
+      // Check if Web Share API is available and callable
+      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        try {
+          const shareData: ShareData = {
+            title: shareTitle,
+            text: shareText,
+            url: websiteUrl,
+          };
+          if (typeof navigator.canShare === 'function') {
+            if (navigator.canShare(shareData)) {
+              await navigator.share(shareData);
+              return;
+            }
+          } else {
+            await navigator.share(shareData);
+            return;
+          }
+        } catch (shareErr: any) {
+          // If user actively cancelled/dismissed native share sheet, exit gracefully
+          if (shareErr && (shareErr.name === 'AbortError' || shareErr.message?.includes('Abort'))) {
+            return;
+          }
         }
       }
-    }
 
-    // Fallback: Copy link to clipboard for instant user feedback
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(`${shareText}\n${websiteUrl}`);
-        setCopiedIndex(index);
-        setTimeout(() => setCopiedIndex(null), 2500);
+      // Safe Clipboard Fallback
+      try {
+        if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          await navigator.clipboard.writeText(`${shareText}\n${websiteUrl}`);
+          setCopiedIndex(index);
+          setTimeout(() => setCopiedIndex(null), 2500);
+        }
+      } catch {
+        // Silently skip clipboard permission issues
       }
-    } catch {
-      // Ignore clipboard permission errors
-    }
 
-    // Direct WhatsApp Share Link fallback
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText}\n${websiteUrl}`)}`;
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      // Direct WhatsApp Share Link fallback
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText}\n${websiteUrl}`)}`;
+      try {
+        const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        if (!opened && typeof window !== 'undefined') {
+          window.location.href = whatsappUrl;
+        }
+      } catch {
+        if (typeof window !== 'undefined') {
+          window.location.href = whatsappUrl;
+        }
+      }
+    } catch (outerErr) {
+      console.warn('Share operation encountered a safe error:', outerErr);
+    }
   };
 
   const currentShort = shorts[currentIndex];

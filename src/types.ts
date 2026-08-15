@@ -32,6 +32,7 @@ export interface PasswordResetRequest {
   pujariPhone: string;
   registeredPin: string;
   submittedPin: string;
+  currentVoterIdPin?: string;
   newPin?: string;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: string;

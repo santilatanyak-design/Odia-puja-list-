@@ -367,33 +367,62 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
 
   // Deep Share Handler with Mobile Priority Web Share API
   const handleShareTemple = async (temple: Temple) => {
-    const shareUrl = `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
-
-    const shareTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
-    const shareText = `🙏 ${temple.name} ରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରନ୍ତୁ!`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: shareTitle,
-          text: shareText,
-          url: shareUrl,
-        });
-        return;
-      } catch (err) {
-        console.log('Native share dismissed or failed:', err);
-      }
-    }
-
-    // Fallback: Copy Link or Direct WhatsApp API
-    const fullMsg = `${shareText}\n${shareUrl}`;
     try {
-      await navigator.clipboard.writeText(fullMsg);
-      setCopiedTempleId(temple.id);
-      setTimeout(() => setCopiedTempleId(null), 3000);
-    } catch (clipErr) {
-      // WhatsApp fallback
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMsg)}`, '_blank');
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+      const shareUrl = `${origin}${pathname}?templeId=${temple.id}`;
+
+      const shareTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
+      const shareText = `🙏 ${temple.name} ରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରନ୍ତୁ!`;
+
+      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+        try {
+          const shareData: ShareData = {
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl,
+          };
+          if (typeof navigator.canShare === 'function') {
+            if (navigator.canShare(shareData)) {
+              await navigator.share(shareData);
+              return;
+            }
+          } else {
+            await navigator.share(shareData);
+            return;
+          }
+        } catch (err: any) {
+          if (err && (err.name === 'AbortError' || err.message?.includes('Abort'))) {
+            return;
+          }
+        }
+      }
+
+      // Fallback: Copy Link or Direct WhatsApp API
+      const fullMsg = `${shareText}\n${shareUrl}`;
+      try {
+        if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          await navigator.clipboard.writeText(fullMsg);
+          setCopiedTempleId(temple.id);
+          setTimeout(() => setCopiedTempleId(null), 3000);
+        }
+      } catch {
+        // Silently skip clipboard error
+      }
+
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullMsg)}`;
+      try {
+        const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        if (!opened && typeof window !== 'undefined') {
+          window.location.href = whatsappUrl;
+        }
+      } catch {
+        if (typeof window !== 'undefined') {
+          window.location.href = whatsappUrl;
+        }
+      }
+    } catch (outerErr) {
+      console.warn('Temple share encountered safe error:', outerErr);
     }
   };
 
