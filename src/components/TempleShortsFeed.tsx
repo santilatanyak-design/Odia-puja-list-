@@ -129,32 +129,42 @@ export const TempleShortsFeed: React.FC<TempleShortsFeedProps> = ({
     }
   };
 
-  // Share Short
+  // Share Short via Website Link (Never raw YouTube link)
   const handleShare = async (short: TempleShort, index: number) => {
-    const shareUrl = short.youtubeUrl;
-    const shareText = `🚩 ${short.title}\nଦିବ୍ୟ ମନ୍ଦିର ପୂଜା ଭିଡିଓ ଦର୍ଶନ କରନ୍ତୁ: ${shareUrl}`;
+    const websiteUrl = typeof window !== 'undefined' ? (window.location.origin || window.location.href) : '';
+    const shareTitle = short.title?.trim() || 'ମନ୍ଦିର ପୂଜା ଓ ଦିବ୍ୟ ଦର୍ଶନ 🚩';
+    const shareText = `🚩 ${shareTitle}\n🙏 ଦର୍ଶନ କରନ୍ତୁ ଏବଂ ସିଧାସଳଖ ପୂଜା ବୁକିଂ କରନ୍ତୁ! (Watch Darshan and book Puja directly!)`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: short.title,
+          title: shareTitle,
           text: shareText,
-          url: shareUrl,
+          url: websiteUrl,
         });
         return;
-      } catch (err) {
-        // Fallback to clipboard
+      } catch (err: any) {
+        // If user actively cancelled the native share sheet, do not open fallback
+        if (err?.name === 'AbortError') {
+          return;
+        }
       }
     }
 
+    // Fallback: Copy link to clipboard for instant user feedback
     try {
-      await navigator.clipboard.writeText(`${shareText}`);
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2500);
-      showCustomAlert('ଭିଡିଓ ଲିଙ୍କ କପି ହୋଇଛି! ଆପଣ ଏହାକୁ WhatsApp ରେ ସେୟାର କରିପାରିବେ।');
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(`${shareText}\n${websiteUrl}`);
+        setCopiedIndex(index);
+        setTimeout(() => setCopiedIndex(null), 2500);
+      }
     } catch {
-      showCustomAlert(`ଭିଡିଓ ଲିଙ୍କ: ${shareUrl}`);
+      // Ignore clipboard permission errors
     }
+
+    // Direct WhatsApp Share Link fallback
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText}\n${websiteUrl}`)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
   const currentShort = shorts[currentIndex];
