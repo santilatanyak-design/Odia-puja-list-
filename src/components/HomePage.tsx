@@ -7,6 +7,7 @@ interface HomePageProps {
   onNavigateToCreateList: () => void;
   onNavigateToStore: () => void;
   onNavigateToTemple?: () => void;
+  onNavigateToShorts?: () => void;
   onNavigateToLogin: () => void;
 }
 
@@ -15,6 +16,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   onNavigateToCreateList,
   onNavigateToStore,
   onNavigateToTemple,
+  onNavigateToShorts,
   onNavigateToLogin,
 }) => {
   return (
@@ -164,6 +166,39 @@ export const HomePage: React.FC<HomePageProps> = ({
           className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-200"
         >
           <span>🚩 ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+
+      {/* Card 4: Full-width Temple Puja Shorts / Video Feed Banner */}
+      <div
+        onClick={onNavigateToShorts}
+        className="bg-gradient-to-r from-[#420d11] via-[#751118] to-[#2e0508] text-white border-2 sm:border-3 border-amber-400 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group hover:shadow-3xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-6"
+      >
+        {/* Decorative background glow elements */}
+        <div className="absolute -right-8 -bottom-8 w-44 h-44 bg-rose-500/15 rounded-full blur-2xl group-hover:bg-rose-400/25 transition-all pointer-events-none" />
+        <div className="absolute top-0 right-0 w-36 h-36 bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-amber-400/20 via-transparent to-transparent pointer-events-none" />
+
+        <div className="space-y-3 max-w-2xl relative z-10">
+          <span className="px-3.5 py-1 bg-rose-600/30 border border-rose-400/70 text-rose-200 font-black rounded-full text-xs inline-flex items-center gap-1.5 backdrop-blur-xs">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+            <span>🎬 ଲାଇଭ୍ ଭିଡିଓ ଫିଡ୍ (Shorts / Reels)</span>
+            <span>•</span>
+            <span>HD Darshan</span>
+          </span>
+          <h3 className="text-2xl sm:text-3xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
+            <span>୪- ମନ୍ଦିର ପୂଜା ଭିଡିଓ (Temple Puja Shorts)</span>
+          </h3>
+          <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
+            ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର, ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ, ଏକାମ୍ର କ୍ଷେତ୍ର ଲିଙ୍ଗରାଜ ଓ ସମଲେଶ୍ୱରୀ ପୀଠର ଦିବ୍ୟ ଆରତି, ଜଳାଭିଷେକ ଏବଂ ପୂଜାର ସୁନ୍ଦର ଭର୍ଟିକାଲ୍ Shorts ଦର୍ଶନ କରନ୍ତୁ।
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-rose-600 via-amber-500 to-amber-400 text-white hover:text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-300"
+        >
+          <span>▶️ ଭିଡିଓ ଦେଖନ୍ତୁ (Watch Shorts)</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>

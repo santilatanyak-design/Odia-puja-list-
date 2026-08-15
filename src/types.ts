@@ -210,6 +210,16 @@ export interface Temple {
   customFooterText?: string;
 }
 
+export interface TempleShort {
+  id: string;
+  title: string;
+  youtubeUrl: string;
+  templeName?: string;
+  templeId?: string;
+  description?: string;
+  createdAt?: string;
+}
+
 export interface TempleBooking {
   id: string; // Alphanumeric Unique ID e.g. BKG-98472
   templeId: string;

@@ -9,6 +9,7 @@ import { PujariLogin } from './components/PujariLogin';
 import { PujariPortal } from './components/PujariPortal';
 import { StoreView } from './components/StoreView';
 import { TempleBookingView } from './components/TempleBookingView';
+import { TempleShortsFeed } from './components/TempleShortsFeed';
 import { AdminPanel } from './components/AdminPanel';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { SiteLockOverlay } from './components/SiteLockOverlay';
@@ -26,13 +27,15 @@ export default function App() {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   // View Navigation State: Default view is ALWAYS 'home' on initial page load
-  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple'>('home');
+  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts'>('home');
 
-  // Deep-link check for Temple Share URLs
+  // Deep-link check for Temple Share URLs and Shorts
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('templeId')) {
       setViewMode('temple');
+    } else if (params.get('shorts') || params.get('feed')) {
+      setViewMode('shorts');
     }
   }, []);
 
@@ -217,6 +220,13 @@ export default function App() {
             onRefreshPujari={handleRefreshPujariStatus}
             onLogout={handlePujariLogout}
           />
+        ) : viewMode === 'shorts' ? (
+          <TempleShortsFeed
+            onClose={() => setViewMode('home')}
+            onNavigateToTemple={(templeId) => {
+              setViewMode('temple');
+            }}
+          />
         ) : (
           <HomePage
             activePujari={activePujari}
@@ -229,6 +239,7 @@ export default function App() {
             }}
             onNavigateToStore={() => setViewMode('store')}
             onNavigateToTemple={() => setViewMode('temple')}
+            onNavigateToShorts={() => setViewMode('shorts')}
             onNavigateToLogin={() => setViewMode('login')}
           />
         )}
