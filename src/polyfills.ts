@@ -172,7 +172,18 @@ if (typeof window !== 'undefined' && typeof window.structuredClone !== 'function
   };
 }
 
-// 8. Global Unhandled Promise Rejection & Window Error Guard to prevent blank screens
+// 8. String.prototype.replaceAll polyfill
+if (typeof String !== 'undefined' && !String.prototype.replaceAll) {
+  // @ts-ignore
+  String.prototype.replaceAll = function (str: any, newStr: any) {
+    if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
+      return this.replace(str, newStr);
+    }
+    return this.replace(new RegExp(String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newStr);
+  };
+}
+
+// 9. Global Unhandled Promise Rejection & Window Error Guard to prevent blank screens
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', function (event) {
     try {
@@ -190,6 +201,27 @@ if (typeof window !== 'undefined') {
       }
     } catch (e) {}
   });
+
+  // 10. Auto-Recovery 3-Second Check
+  setTimeout(function () {
+    try {
+      var root = document.getElementById('root');
+      var isBlank = !root || root.children.length === 0;
+      var hasReloaded = false;
+      try {
+        hasReloaded = sessionStorage.getItem('auto_recovery_reload_executed') === 'true';
+      } catch (e) {}
+
+      if (isBlank && !hasReloaded) {
+        try {
+          sessionStorage.setItem('auto_recovery_reload_executed', 'true');
+        } catch (e) {}
+        if (typeof window.location.reload === 'function') {
+          window.location.reload();
+        }
+      }
+    } catch (e) {}
+  }, 3000);
 }
 
 export {};

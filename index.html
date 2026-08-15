@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର | Puja Samagri List Generator</title>
+    
+    <!-- Aggressive Cache-Busting Meta Headers to ensure users always receive latest code -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Odia:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -17,6 +23,98 @@
     <meta property="og:url" content="https://main.d3jris9uwg3szb.amplifyapp.com/">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Early Essential Polyfills for Legacy Mobile WebViews & Old Browsers -->
+    <script>
+      (function() {
+        // String.prototype.replaceAll polyfill
+        if (!String.prototype.replaceAll) {
+          String.prototype.replaceAll = function(str, newStr) {
+            if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
+              return this.replace(str, newStr);
+            }
+            return this.replace(new RegExp(str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newStr);
+          };
+        }
+
+        // Array.prototype.includes polyfill
+        if (!Array.prototype.includes) {
+          Array.prototype.includes = function(searchElement, fromIndex) {
+            if (this == null) throw new TypeError('"this" is null or not defined');
+            var o = Object(this);
+            var len = o.length >>> 0;
+            if (len === 0) return false;
+            var n = fromIndex | 0;
+            var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+            while (k < len) {
+              if (o[k] === searchElement || (typeof o[k] === 'number' && typeof searchElement === 'number' && isNaN(o[k]) && isNaN(searchElement))) {
+                return true;
+              }
+              k++;
+            }
+            return false;
+          };
+        }
+
+        // Object.assign polyfill
+        if (typeof Object.assign !== 'function') {
+          Object.assign = function(target) {
+            if (target === null || target === undefined) {
+              throw new TypeError('Cannot convert undefined or null to object');
+            }
+            var to = Object(target);
+            for (var index = 1; index < arguments.length; index++) {
+              var nextSource = arguments[index];
+              if (nextSource !== null && nextSource !== undefined) {
+                for (var nextKey in nextSource) {
+                  if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                    to[nextKey] = nextSource[nextKey];
+                  }
+                }
+              }
+            }
+            return to;
+          };
+        }
+      })();
+    </script>
+
+    <!-- 3-Second Auto-Reload Failsafe against White Screens / Cached Script Crashes -->
+    <script>
+      (function() {
+        var hasReloaded = false;
+        try {
+          hasReloaded = sessionStorage.getItem('auto_reload_failsafe_done') === 'true';
+        } catch (e) {}
+
+        // Global Error Trap during startup
+        var startupErrorOccurred = false;
+        window.addEventListener('error', function(e) {
+          startupErrorOccurred = true;
+        });
+
+        // 3-second check for blank/crashed page
+        setTimeout(function() {
+          try {
+            var rootEl = document.getElementById('root');
+            var isBlank = !rootEl || rootEl.children.length === 0;
+
+            if ((isBlank || startupErrorOccurred) && !hasReloaded) {
+              try {
+                sessionStorage.setItem('auto_reload_failsafe_done', 'true');
+              } catch (e) {}
+              console.warn('Auto-Recovery Failsafe Triggered: Refreshing to clear stale cache and recover UI...');
+              if (typeof window.location.reload === 'function') {
+                window.location.reload(true);
+              } else {
+                window.location.href = window.location.href;
+              }
+            }
+          } catch (err) {}
+        }, 3000);
+      })();
+    </script>
+
     <script>
       (function() {
         try {
