@@ -61,88 +61,7 @@ export const ODISHA_DISTRICTS = [
   'Sundargarh',
 ];
 
-export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [
-  {
-    id: 'PROD-101',
-    name: 'ଶୁଦ୍ଧ ଗାଈ ଘିଅ (Pure Cow Ghee 500g)',
-    price: 380,
-    category: 'ଘିଅ ଓ ଦୀପ (Ghee & Lamps)',
-    imageUrl: 'https://images.unsplash.com/photo-1589927986089-35812388d1f4?q=80&w=600&auto=format&fit=crop',
-    description: 'ପୂଜା ଓ ହବନ ପାଇଁ ୧୦୦% ଶୁଦ୍ଧ ଗାଈ ଘିଅ।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'PROD-102',
-    name: 'ଶୁଦ୍ଧ ପବିତ୍ର ଗଙ୍ଗା ଜଳ (Pure Ganga Jal 500ml)',
-    price: 120,
-    category: 'ପବିତ୍ର ଜଳ (Sacred Waters)',
-    imageUrl: 'https://images.unsplash.com/photo-1548839140-29a749e1bc4e?q=80&w=600&auto=format&fit=crop',
-    description: 'ଗଙ୍ଗୋତ୍ରୀ ରୁ ଆନୀତ ପବିତ୍ର ଶୁଦ୍ଧ ଗଙ୍ଗା ଜଳ।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'PROD-103',
-    name: 'ପୂଜା ପଞ୍ଚାମୃତ କିଟ୍ (Complete Panchamruta Kit)',
-    price: 250,
-    category: 'ପୂଜା ସାମଗ୍ରୀ କିଟ୍ (Puja Kits)',
-    imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop',
-    description: 'କ୍ଷୀର, ଦହି, ଘିଅ, ମହୁ ଓ ସରକାର ସହ ସମ୍ପୂର୍ଣ୍ଣ ପଞ୍ଚାମୃତ କିଟ୍।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'PROD-104',
-    name: 'ଶୁଦ୍ଧ ରକ୍ତ ଚନ୍ଦନ ଓ ଶ୍ୱେତ ଚନ୍ଦନ ପ୍ୟାକ୍ (Sandalwood Paste)',
-    price: 150,
-    category: 'ଚନ୍ଦନ ଓ ସିନ୍ଦୂର (Chandan & Kumkum)',
-    imageUrl: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=600&auto=format&fit=crop',
-    description: 'ଦେବ ପୂଜା ଓ ତିଳକ ପାଇଁ ପ୍ରାକୃତିକ ଚନ୍ଦନ।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'PROD-105',
-    name: 'ଭୀମସେନୀ କର୍ପୂର (Bhimseni Camphor 100g)',
-    price: 180,
-    category: 'ଧୂପ ଓ କର୍ପୂର (Incense & Camphor)',
-    imageUrl: 'https://images.unsplash.com/photo-1602928321679-560bb453f190?q=80&w=600&auto=format&fit=crop',
-    description: 'ଆରତୀ ଓ ଯଜ୍ଞ ପାଇଁ ୧୦୦% ପ୍ରାକୃତିକ କର୍ପୂର।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'PROD-106',
-    name: 'ପ୍ରାକୃତିକ ଧୂପକାଠି ଓ ସୁଗନ୍ଧିତ ଧୂପ (Incense Sticks Set)',
-    price: 99,
-    category: 'ଧୂପ ଓ କର୍ପୂର (Incense & Camphor)',
-    imageUrl: 'https://images.unsplash.com/photo-1514782831304-632d84503f6f?q=80&w=600&auto=format&fit=crop',
-    description: 'ମୁଗ୍ରା, ଚନ୍ଦନ ଓ ଗୋଲାପ ସୁବାସିତ ଧୂପ।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'PROD-107',
-    name: 'ପିତ୍ତଳ ପୂଜା ଥାଳି ସେଟ୍ (Brass Puja Thali Set)',
-    price: 750,
-    category: 'ପୂଜା ବାସନ (Puja Utensils)',
-    imageUrl: 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=600&auto=format&fit=crop',
-    description: 'ଥାଳି, ଦୀପ, ଘଣ୍ଟି, ଓ ଆଚମନୀ ସହ ଭାରୀ ପିତ୍ତଳ ପୂଜା ସେଟ୍।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'PROD-108',
-    name: 'ଅକ୍ଷତ, ଗୁଆ, ଜନେଉ ଓ ନାଗପାଶ ସେଟ୍',
-    price: 110,
-    category: 'ପୂଜା ସାମଗ୍ରୀ (General Samagri)',
-    imageUrl: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=600&auto=format&fit=crop',
-    description: 'ପୂଜାରେ ଲାଗୁଥିବା ଶୁଦ୍ଧ ସମ୍ପୂର୍ଣ୍ଣ ଆନୁଷଙ୍ଗିକ ସାମଗ୍ରୀ।',
-    inStock: true,
-    createdAt: new Date().toISOString(),
-  },
-];
+export const INITIAL_STORE_PRODUCTS: StoreProduct[] = [];
 
 // ----------------------------------------------------------------------
 // HELPER: LOCAL STORAGE PERSISTENCE + FIRESTORE FALLBACK
@@ -166,30 +85,50 @@ function saveLocal<T>(key: string, value: T): void {
   }
 }
 
+function isDummyProduct(p: StoreProduct): boolean {
+  if (!p || !p.name) return true;
+  const lower = p.name.toLowerCase().trim();
+  return (
+    lower.includes('sword') ||
+    lower.includes('carrot') ||
+    lower.includes('sandal cream') ||
+    p.name.includes('ଖଣ୍ଡା') ||
+    p.name.includes('ତରବାରି') ||
+    lower.startsWith('sample') ||
+    (lower === 'new item' && p.price === 100) ||
+    p.id.startsWith('PROD-10')
+  );
+}
+
+function sanitizeProductList(products: StoreProduct[]): StoreProduct[] {
+  if (!Array.isArray(products)) return [];
+  return products.filter((p) => !isDummyProduct(p));
+}
+
 // ----------------------------------------------------------------------
 // 1. STORE PRODUCTS API
 // ----------------------------------------------------------------------
 
 export async function getStoreProducts(): Promise<StoreProduct[]> {
-  // Load local first for zero latency
-  let localProducts = loadLocal<StoreProduct[]>(STORAGE_KEYS.PRODUCTS, []);
-  if (!localProducts || localProducts.length === 0) {
-    localProducts = INITIAL_STORE_PRODUCTS;
-    saveLocal(STORAGE_KEYS.PRODUCTS, localProducts);
-  }
+  // Load local first for zero latency, stripping any dummy products
+  let localProducts = sanitizeProductList(loadLocal<StoreProduct[]>(STORAGE_KEYS.PRODUCTS, []));
+  saveLocal(STORAGE_KEYS.PRODUCTS, localProducts);
 
   try {
     const snap = await getDocs(collection(db, COLLECTIONS.PRODUCTS));
-    if (!snap.empty) {
-      const fsProducts = snap.docs.map((d) => d.data() as StoreProduct);
-      saveLocal(STORAGE_KEYS.PRODUCTS, fsProducts);
-      return fsProducts;
-    } else {
-      // Seed initial products to Firestore
-      for (const p of INITIAL_STORE_PRODUCTS) {
-        await setDoc(doc(db, COLLECTIONS.PRODUCTS, p.id), p);
+    const fsProducts = snap.docs.map((d) => d.data() as StoreProduct);
+    const cleaned = sanitizeProductList(fsProducts);
+
+    // Clean up any dummy docs found in Firestore in the background
+    for (const d of snap.docs) {
+      const data = d.data() as StoreProduct;
+      if (isDummyProduct(data)) {
+        deleteDoc(d.ref).catch(() => {});
       }
     }
+
+    saveLocal(STORAGE_KEYS.PRODUCTS, cleaned);
+    return cleaned;
   } catch (err) {
     console.warn('Firestore getStoreProducts fallback to localStorage:', err);
   }
@@ -198,18 +137,27 @@ export async function getStoreProducts(): Promise<StoreProduct[]> {
 }
 
 export function subscribeStoreProducts(callback: (products: StoreProduct[]) => void): Unsubscribe {
-  // Emit local products immediately
-  const initial = loadLocal<StoreProduct[]>(STORAGE_KEYS.PRODUCTS, INITIAL_STORE_PRODUCTS);
+  // Emit cleaned local products immediately
+  const initial = sanitizeProductList(loadLocal<StoreProduct[]>(STORAGE_KEYS.PRODUCTS, INITIAL_STORE_PRODUCTS));
+  saveLocal(STORAGE_KEYS.PRODUCTS, initial);
   callback(initial);
 
   return onSnapshot(
     collection(db, COLLECTIONS.PRODUCTS),
     (snap) => {
-      if (!snap.empty) {
-        const products = snap.docs.map((d) => d.data() as StoreProduct);
-        saveLocal(STORAGE_KEYS.PRODUCTS, products);
-        callback(products);
+      const products = snap.docs.map((d) => d.data() as StoreProduct);
+      const cleaned = sanitizeProductList(products);
+
+      // Asynchronously delete any dummy docs from Firestore
+      for (const d of snap.docs) {
+        const data = d.data() as StoreProduct;
+        if (isDummyProduct(data)) {
+          deleteDoc(d.ref).catch(() => {});
+        }
       }
+
+      saveLocal(STORAGE_KEYS.PRODUCTS, cleaned);
+      callback(cleaned);
     },
     (err) => console.warn('subscribeStoreProducts error:', err)
   );

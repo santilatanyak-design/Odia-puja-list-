@@ -1,14 +1,6 @@
 <!doctype html>
 <html lang="or">
   <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THTPDPPDEK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-THTPDPPDEK');
-</script>
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର | Puja Samagri List Generator</title>
@@ -193,6 +185,31 @@
       };
       */
     </script>
+    <!-- Google Analytics (GA4) Tracking -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Safe GA4 initialization: Uses configured ID or default
+      (function() {
+        var gaId = (window.GA_MEASUREMENT_ID || "G-XXXXXXXXXX").trim();
+        try {
+          if (!gaId || gaId === "G-XXXXXXXXXX") {
+            gaId = (localStorage.getItem('ga_measurement_id') || "G-XXXXXXXXXX").trim();
+          }
+        } catch(e) {}
+        
+        if (gaId && gaId !== "G-XXXXXXXXXX") {
+          gtag('config', gaId, {
+            send_page_view: true,
+            anonymize_ip: true
+          });
+        }
+      })();
+    </script>
+
     <!-- OneSignal Auto Background Web Push Notification SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
