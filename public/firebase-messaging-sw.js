@@ -19,8 +19,8 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background push message:', payload);
 
-  const title = payload.notification?.title || payload.data?.title || 'Order Approved!';
-  const body = payload.notification?.body || payload.data?.body || 'Your order has been approved and is being processed.';
+  const title = payload.notification?.title || payload.data?.title || '';
+  const body = payload.notification?.body || payload.data?.body || '';
   
   const notificationOptions = {
     body: body,
@@ -41,8 +41,8 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       const data = event.data.json();
-      const title = data.title || data.notification?.title || 'Order Approved!';
-      const body = data.body || data.notification?.body || 'Your order has been approved and is being processed.';
+      const title = data.title || data.notification?.title || '';
+      const body = data.body || data.notification?.body || '';
       
       const options = {
         body: body,
