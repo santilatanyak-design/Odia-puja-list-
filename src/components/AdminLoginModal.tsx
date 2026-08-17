@@ -75,13 +75,13 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-amber-950 mb-1">
-              ଆଡମିନ୍ ମାଷ୍ଟର ID (Admin Master ID)
+              ଆଡମିନ୍ ପାସୱାର୍ଡ / ମାଷ୍ଟର ID (Admin Password)
             </label>
             <div className="relative">
               <input
                 type="password"
                 required
-                placeholder="୬-ଅଙ୍କ ବିଶିଷ୍ଟ Master ID ଦିଅନ୍ତୁ"
+                placeholder="ଆଡମିନ୍ Password / Master ID ଦିଅନ୍ତୁ"
                 value={masterId}
                 onChange={(e) => setMasterId(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 border border-amber-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none font-mono font-bold"

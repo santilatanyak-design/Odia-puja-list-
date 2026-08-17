@@ -5,18 +5,30 @@ import { Language } from './lib/translations';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { HomePage } from './components/HomePage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Lazy load non-critical secondary routes for dramatic JavaScript bundle reduction & fast FCP/LCP
-const PujariLogin = lazy(() => import('./components/PujariLogin').then((m) => ({ default: m.PujariLogin })));
-const PujariPortal = lazy(() => import('./components/PujariPortal').then((m) => ({ default: m.PujariPortal })));
-const StoreView = lazy(() => import('./components/StoreView').then((m) => ({ default: m.StoreView })));
-const TempleBookingView = lazy(() => import('./components/TempleBookingView').then((m) => ({ default: m.TempleBookingView })));
-const TempleShortsFeed = lazy(() => import('./components/TempleShortsFeed').then((m) => ({ default: m.TempleShortsFeed })));
-const PanchangPage = lazy(() => import('./components/PanchangPage').then((m) => ({ default: m.PanchangPage })));
-const SpiritualBlog = lazy(() => import('./components/SpiritualBlog').then((m) => ({ default: m.SpiritualBlog })));
-const AdminPanel = lazy(() => import('./components/AdminPanel').then((m) => ({ default: m.AdminPanel })));
-const AdminLoginModal = lazy(() => import('./components/AdminLoginModal').then((m) => ({ default: m.AdminLoginModal })));
-const SiteLockOverlay = lazy(() => import('./components/SiteLockOverlay').then((m) => ({ default: m.SiteLockOverlay })));
+// Safe lazy loading wrapper with automatic dynamic import recovery
+const lazyWithRetry = (componentImport: () => Promise<{ default: React.ComponentType<any> }>) =>
+  lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      console.warn('Chunk load error, retrying component import:', error);
+      return await componentImport();
+    }
+  });
+
+// Lazy load non-critical secondary routes with safe named export resolution
+const PujariLogin = lazyWithRetry(() => import('./components/PujariLogin').then((m) => ({ default: m.PujariLogin })));
+const PujariPortal = lazyWithRetry(() => import('./components/PujariPortal').then((m) => ({ default: m.PujariPortal })));
+const StoreView = lazyWithRetry(() => import('./components/StoreView').then((m) => ({ default: m.StoreView })));
+const TempleBookingView = lazyWithRetry(() => import('./components/TempleBookingView').then((m) => ({ default: m.TempleBookingView })));
+const TempleShortsFeed = lazyWithRetry(() => import('./components/TempleShortsFeed').then((m) => ({ default: m.TempleShortsFeed })));
+const PanchangPage = lazyWithRetry(() => import('./components/PanchangPage').then((m) => ({ default: m.PanchangPage })));
+const SpiritualBlog = lazyWithRetry(() => import('./components/SpiritualBlog').then((m) => ({ default: m.SpiritualBlog })));
+const AdminPanel = lazyWithRetry(() => import('./components/AdminPanel').then((m) => ({ default: m.AdminPanel })));
+const AdminLoginModal = lazyWithRetry(() => import('./components/AdminLoginModal').then((m) => ({ default: m.AdminLoginModal })));
+const SiteLockOverlay = lazyWithRetry(() => import('./components/SiteLockOverlay').then((m) => ({ default: m.SiteLockOverlay })));
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -230,105 +242,107 @@ export default function App() {
 
       {/* Main View Area */}
       <main className="flex-1 w-full max-w-full overflow-x-hidden box-border">
-        <Suspense
-          fallback={
-            <div className="w-full py-20 flex flex-col items-center justify-center space-y-3">
-              <div className="w-8 h-8 border-3 border-amber-600 border-t-transparent rounded-full animate-spin" />
-              <span className="text-xs font-bold text-amber-900">ଲୋଡ୍ ହେଉଛି (Loading...)...</span>
-            </div>
-          }
-        >
-          {currentRole === 'admin' && isAdminAuthenticated ? (
-            <AdminPanel
-              onLogoutAdmin={() => {
-                setIsAdminAuthenticated(false);
-                sessionStorage.removeItem('puja_app_admin_auth');
-                setCurrentRole('pujari');
-                setViewMode('home');
-              }}
-            />
-          ) : viewMode === 'store' ? (
-            <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
-              <button
-                onClick={() => setViewMode('home')}
-                className="mb-4 px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
-              >
-                <span>←</span>
-                <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
-              </button>
-              <StoreView userPhone={activePujari?.phone} />
-            </div>
-          ) : viewMode === 'temple' ? (
-            <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
-              <button
-                onClick={() => setViewMode('home')}
-                className="mb-4 px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
-              >
-                <span>←</span>
-                <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
-              </button>
-              <TempleBookingView userPhone={activePujari?.phone} />
-            </div>
-          ) : viewMode === 'login' ? (
-            <div className="max-w-7xl mx-auto px-2 sm:px-6 py-2">
-              <div className="max-w-lg mx-auto mb-2">
+        <ErrorBoundary onReset={() => setViewMode('home')}>
+          <Suspense
+            fallback={
+              <div className="w-full py-20 flex flex-col items-center justify-center space-y-3">
+                <div className="w-8 h-8 border-3 border-amber-600 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs font-bold text-amber-900">ଲୋଡ୍ ହେଉଛି (Loading...)...</span>
+              </div>
+            }
+          >
+            {currentRole === 'admin' && isAdminAuthenticated ? (
+              <AdminPanel
+                onLogoutAdmin={() => {
+                  setIsAdminAuthenticated(false);
+                  sessionStorage.removeItem('puja_app_admin_auth');
+                  setCurrentRole('pujari');
+                  setViewMode('home');
+                }}
+              />
+            ) : viewMode === 'store' ? (
+              <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
                 <button
                   onClick={() => setViewMode('home')}
-                  className="px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
+                  className="mb-4 px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
                 >
                   <span>←</span>
                   <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
                 </button>
+                <StoreView userPhone={activePujari?.phone} />
               </div>
-              <PujariLogin
-                lang={lang}
-                onLoginSuccess={handlePujariLoginSuccess}
-                onOpenAdminModal={() => setAdminModalOpen(true)}
+            ) : viewMode === 'temple' ? (
+              <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
+                <button
+                  onClick={() => setViewMode('home')}
+                  className="mb-4 px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
+                >
+                  <span>←</span>
+                  <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
+                </button>
+                <TempleBookingView userPhone={activePujari?.phone} />
+              </div>
+            ) : viewMode === 'login' ? (
+              <div className="max-w-7xl mx-auto px-2 sm:px-6 py-2">
+                <div className="max-w-lg mx-auto mb-2">
+                  <button
+                    onClick={() => setViewMode('home')}
+                    className="px-4 py-2 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-400"
+                  >
+                    <span>←</span>
+                    <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Home)</span>
+                  </button>
+                </div>
+                <PujariLogin
+                  lang={lang}
+                  onLoginSuccess={handlePujariLoginSuccess}
+                  onOpenAdminModal={() => setAdminModalOpen(true)}
+                />
+              </div>
+            ) : viewMode === 'portal' && activePujari ? (
+              <PujariPortal
+                pujari={activePujari}
+                qrConfig={qrConfig}
+                onRefreshPujari={handleRefreshPujariStatus}
+                onLogout={handlePujariLogout}
               />
-            </div>
-          ) : viewMode === 'portal' && activePujari ? (
-            <PujariPortal
-              pujari={activePujari}
-              qrConfig={qrConfig}
-              onRefreshPujari={handleRefreshPujariStatus}
-              onLogout={handlePujariLogout}
-            />
-          ) : viewMode === 'shorts' ? (
-            <TempleShortsFeed
-              onClose={() => setViewMode('home')}
-              onNavigateToTemple={(templeId) => {
-                setViewMode('temple');
-              }}
-            />
-          ) : viewMode === 'panchang' ? (
-            <PanchangPage
-              onBack={() => setViewMode('home')}
-              onNavigateToBlog={() => setViewMode('blog')}
-            />
-          ) : viewMode === 'blog' ? (
-            <SpiritualBlog
-              onBack={() => setViewMode('home')}
-              onNavigateToPanchang={() => setViewMode('panchang')}
-            />
-          ) : (
-            <HomePage
-              activePujari={activePujari}
-              onNavigateToCreateList={() => {
-                if (activePujari) {
-                  setViewMode('portal');
-                } else {
-                  setViewMode('login');
-                }
-              }}
-              onNavigateToStore={() => setViewMode('store')}
-              onNavigateToTemple={() => setViewMode('temple')}
-              onNavigateToPanchang={() => setViewMode('panchang')}
-              onNavigateToBlog={() => setViewMode('blog')}
-              onNavigateToShorts={() => setViewMode('shorts')}
-              onNavigateToLogin={() => setViewMode('login')}
-            />
-          )}
-        </Suspense>
+            ) : viewMode === 'shorts' ? (
+              <TempleShortsFeed
+                onClose={() => setViewMode('home')}
+                onNavigateToTemple={(templeId) => {
+                  setViewMode('temple');
+                }}
+              />
+            ) : viewMode === 'panchang' ? (
+              <PanchangPage
+                onBack={() => setViewMode('home')}
+                onNavigateToBlog={() => setViewMode('blog')}
+              />
+            ) : viewMode === 'blog' ? (
+              <SpiritualBlog
+                onBack={() => setViewMode('home')}
+                onNavigateToPanchang={() => setViewMode('panchang')}
+              />
+            ) : (
+              <HomePage
+                activePujari={activePujari}
+                onNavigateToCreateList={() => {
+                  if (activePujari) {
+                    setViewMode('portal');
+                  } else {
+                    setViewMode('login');
+                  }
+                }}
+                onNavigateToStore={() => setViewMode('store')}
+                onNavigateToTemple={() => setViewMode('temple')}
+                onNavigateToPanchang={() => setViewMode('panchang')}
+                onNavigateToBlog={() => setViewMode('blog')}
+                onNavigateToShorts={() => setViewMode('shorts')}
+                onNavigateToLogin={() => setViewMode('login')}
+              />
+            )}
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
       {/* Footer Section: Privacy Policy & Terms of Use */}

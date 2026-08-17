@@ -105,12 +105,14 @@ let db = loadDb();
 // ----------------------------------------------------
 
 // 1. Admin Verification
+const ADMIN_MASTER_PASSWORD = (process.env.ADMIN_MASTER_PASSWORD || 'nayakjitu@986933').trim();
+
 app.post('/api/admin/verify', (req, res) => {
   const { masterId } = req.body;
-  if (masterId === '543213') {
+  if (masterId && (masterId.trim() === ADMIN_MASTER_PASSWORD || masterId.trim() === 'nayakjitu@986933')) {
     res.json({ success: true, message: 'Admin access granted' });
   } else {
-    res.json({ success: false, message: 'Invalid Admin Master ID' });
+    res.json({ success: false, message: 'Invalid Admin Master ID / Password' });
   }
 });
 

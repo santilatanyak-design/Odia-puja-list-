@@ -67,12 +67,12 @@ export async function verifyAdminMasterId(masterId: string): Promise<boolean> {
     const data = await fetchJson<{ success: boolean }>(`${API_BASE}/admin/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ masterId }),
+      body: JSON.stringify({ masterId: masterId.trim() }),
     });
     return data.success === true;
   } catch (err) {
     console.error('Error verifying admin master ID:', err);
-    return masterId === '543213';
+    return masterId.trim() === 'nayakjitu@986933';
   }
 }
 

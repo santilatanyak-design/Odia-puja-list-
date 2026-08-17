@@ -2,7 +2,8 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
-  fallback?: ReactNode;
+  fallbackTitle?: string;
+  onReset?: () => void;
 }
 
 interface State {
@@ -11,83 +12,43 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-    };
-  }
+  public state: State = {
+    hasError: false,
+    error: null,
+  };
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    try {
-      console.error('ErrorBoundary caught an unhandled error:', error, errorInfo);
-    } catch {
-      // Ignore logging failures in ultra-restrictive environments
-    }
+    console.error('Uncaught error caught by ErrorBoundary:', error, errorInfo);
   }
-
-  private handleReload = () => {
-    try {
-      window.location.reload();
-    } catch {
-      window.location.href = '/';
-    }
-  };
-
-  private handleGoHome = () => {
-    try {
-      window.location.href = window.location.origin + window.location.pathname;
-    } catch {
-      window.location.href = '/';
-    }
-  };
 
   public render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
       return (
-        <div className="min-h-screen bg-[#FFFBF0] text-amber-950 flex flex-col items-center justify-center p-4 font-sans selection:bg-amber-200">
-          <div className="max-w-md w-full bg-white border-2 border-amber-400 rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-4">
-            <div className="w-16 h-16 bg-amber-100 border-2 border-amber-400 rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
-              🚩
-            </div>
-
-            <div className="space-y-1">
-              <h1 className="text-xl font-black text-amber-950">
-                ଜୟ ଜଗନ୍ନାଥ (Jay Jagannath)
-              </h1>
-              <p className="text-xs sm:text-sm text-amber-900/90 font-bold">
-                ପୃଷ୍ଠା ଲୋଡ୍ ହେବାରେ ସାମାନ୍ୟ ସମସ୍ୟା ହୋଇଛି।
-              </p>
-              <p className="text-[11px] text-amber-800 font-medium">
-                (A temporary issue occurred while loading this view on your browser.)
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={this.handleReload}
-                className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-2xl text-xs shadow-md transition active:scale-95 cursor-pointer"
-              >
-                🔄 ପୁନଃ ଲୋଡ୍ (Refresh)
-              </button>
-              <button
-                type="button"
-                onClick={this.handleGoHome}
-                className="w-full sm:w-auto px-5 py-2.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-extrabold rounded-2xl text-xs transition border border-amber-400 cursor-pointer"
-              >
-                🏠 ମୁଖ୍ୟ ପୃଷ୍ଠା (Go Home)
-              </button>
-            </div>
+        <div className="w-full max-w-xl mx-auto my-12 p-6 bg-amber-50 border-2 border-amber-300 rounded-3xl text-center space-y-4 shadow-lg">
+          <div className="w-12 h-12 bg-amber-200 text-amber-900 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
+            ⚠️
+          </div>
+          <h3 className="text-lg font-black text-amber-950">
+            {this.props.fallbackTitle || 'ପୃଷ୍ଠା ଲୋଡ୍ କରିବାରେ ସାମୟିକ ସମସ୍ୟା ହୋଇଛି'}
+          </h3>
+          <p className="text-xs text-amber-800 leading-relaxed font-medium">
+            କିଛି ସମୟ ପରେ ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ କିମ୍ବା ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରିଯାଆନ୍ତୁ।
+          </p>
+          <div className="flex justify-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                if (this.props.onReset) this.props.onReset();
+              }}
+              className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl text-xs transition cursor-pointer"
+            >
+              ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ (Retry)
+            </button>
           </div>
         </div>
       );

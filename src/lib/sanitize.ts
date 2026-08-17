@@ -57,11 +57,11 @@ export function sanitizeUtr(utr: string): string {
 }
 
 /**
- * Strictly sanitizes Pujari ID or Admin Master ID to alphanumeric + hyphen (e.g., PJR-1001)
+ * Strictly sanitizes Pujari ID or Admin Master ID/Password (preserving @, alphanumeric, hyphen, dot, underscore)
  */
 export function sanitizeIdentifier(id: string): string {
   if (!id) return '';
-  return id.replace(/[^a-zA-Z0-9\-]/g, '').trim().slice(0, 30);
+  return id.replace(/[^a-zA-Z0-9\-_@.]/g, '').trim().slice(0, 50);
 }
 
 /**

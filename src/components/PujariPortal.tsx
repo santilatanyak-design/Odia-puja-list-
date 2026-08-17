@@ -1163,6 +1163,17 @@ export const PujariPortal: React.FC<PujariPortalProps> = ({
             <span>🌸 ନାମଯଜ୍ଞ କାର୍ଡ (PageMaker PDF)</span>
           </button>
           <button
+            onClick={() => setActiveTab('visiting_card')}
+            className={`px-4 py-3 rounded-xl transition cursor-pointer flex items-center gap-2 min-h-[44px] ${
+              activeTab === 'visiting_card'
+                ? 'bg-gradient-to-r from-amber-800 to-amber-900 text-amber-100 shadow-sm font-black border border-amber-500'
+                : 'text-amber-900 bg-amber-200/80 hover:bg-amber-200 border border-amber-300'
+            }`}
+          >
+            <span className="text-base leading-none">🎴</span>
+            <span>ଭିଜିଟିଂ କାର୍ଡ (Visiting Card)</span>
+          </button>
+          <button
             onClick={() => setActiveTab('store')}
             className={`px-4 py-3 rounded-xl transition cursor-pointer flex items-center gap-2 min-h-[44px] ${
               activeTab === 'store'
@@ -1193,103 +1204,6 @@ export const PujariPortal: React.FC<PujariPortalProps> = ({
           >
             <User className="w-4 h-4" /> ପ୍ରୋଫାଇଲ୍
           </button>
-        </div>
-      </div>
-
-      {/* PROMINENT HOME PAGE DUAL BANNER POSTER CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-1">
-        {/* Card 1: Create Puja List */}
-        <div
-          onClick={() => setActiveTab('create')}
-          className="bg-gradient-to-br from-[#5c0f12] via-[#8B0000] to-[#3a0608] text-white border-2 border-amber-400 rounded-3xl p-6 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between min-h-[210px]"
-        >
-          {/* Decorative background glow */}
-          <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-400/20 transition-all pointer-events-none" />
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-amber-400/20 via-transparent to-transparent pointer-events-none" />
-
-          <div className="relative z-10 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="px-3.5 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-extrabold rounded-full text-xs flex items-center gap-1.5 backdrop-blur-xs">
-                <span>✨</span>
-                <span>ପ୍ରାଥମିକ ସେବା</span>
-              </span>
-              <div className="w-12 h-12 bg-amber-400/20 border border-amber-400/50 rounded-2xl flex items-center justify-center text-2xl shadow-inner text-amber-300 group-hover:scale-110 transition-transform">
-                📜
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
-                <span>ପୂଜା ଲିଷ୍ଟ ତିଆରି କରନ୍ତୁ</span>
-              </h3>
-              <p className="text-xs text-amber-200/90 font-bold mt-1">
-                (Create Puja List)
-              </p>
-              <p className="text-xs text-amber-100/80 font-medium mt-2 leading-relaxed">
-                ସହଜରେ ପୂଜା ତଥ୍ୟ ପୂରଣ କରନ୍ତୁ, ନୂତନ ସାମଗ୍ରୀ ସୂଚୀ ତିଆରି କରନ୍ତୁ ଏବଂ Odia PDF ଡାଉନଲୋଡ୍ କରନ୍ତୁ।
-              </p>
-            </div>
-          </div>
-
-          <div className="relative z-10 pt-4 mt-2 border-t border-amber-500/30 flex items-center justify-between">
-            <span className="text-xs font-black text-amber-300 flex items-center gap-1">
-              <span>⚡ ୧ମ ସୂଚୀ ମାଗଣା (Free)</span>
-            </span>
-            <button
-              type="button"
-              className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-black rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 group-hover:px-6 cursor-pointer"
-            >
-              <span>ତିଆରି କରନ୍ତୁ</span>
-              <span className="text-base group-hover:translate-x-1 transition-transform">→</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Card 2: Order from Puja Store */}
-        <div
-          onClick={() => setActiveTab('store')}
-          className="bg-gradient-to-br from-[#3b080b] via-[#701a1e] to-amber-950 text-white border-2 border-amber-400 rounded-3xl p-6 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between min-h-[210px]"
-        >
-          {/* Decorative background glow */}
-          <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-400/20 transition-all pointer-events-none" />
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-amber-400/20 via-transparent to-transparent pointer-events-none" />
-
-          <div className="relative z-10 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="px-3.5 py-1 bg-emerald-500/20 border border-emerald-400/60 text-emerald-300 font-extrabold rounded-full text-xs flex items-center gap-1.5 backdrop-blur-xs">
-                <span>🚚</span>
-                <span>Cash on Delivery</span>
-              </span>
-              <div className="w-12 h-12 bg-amber-400/20 border border-amber-400/50 rounded-2xl flex items-center justify-center text-2xl shadow-inner text-amber-300 group-hover:scale-110 transition-transform">
-                🛍️
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
-                <span>ପୂଜା ଦୋକାନ ଅର୍ଡର୍ କରନ୍ତୁ</span>
-              </h3>
-              <p className="text-xs text-amber-200/90 font-bold mt-1">
-                (Order from Puja Store)
-              </p>
-              <p className="text-xs text-amber-100/80 font-medium mt-2 leading-relaxed">
-                ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ, ଯଜ୍ଞ କାଠ, ଘିଅ ଏବଂ ସମ୍ପୂର୍ଣ୍ଣ କିଟ୍ ଘରେ ବସି ସହଜରେ ଅର୍ଡର୍ କରନ୍ତୁ।
-              </p>
-            </div>
-          </div>
-
-          <div className="relative z-10 pt-4 mt-2 border-t border-amber-500/30 flex items-center justify-between">
-            <span className="text-xs font-black text-emerald-300 flex items-center gap-1">
-              <span>📦 ସିଧାସଳଖ ଘରକୁ ହୋମ୍ ଡେଲିଭରୀ</span>
-            </span>
-            <button
-              type="button"
-              className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-amber-950 font-black rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 group-hover:px-6 cursor-pointer"
-            >
-              <span>ଅର୍ଡର୍ କରନ୍ତୁ</span>
-              <span className="text-base group-hover:translate-x-1 transition-transform">→</span>
-            </button>
-          </div>
         </div>
       </div>
 
