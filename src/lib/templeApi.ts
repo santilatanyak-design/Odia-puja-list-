@@ -134,6 +134,8 @@ export const DEFAULT_TEMPLES: Temple[] = [
     description: 'ପବିତ୍ର ଜଳାଭିଷେକ ଓ ସ୍ୱତନ୍ତ୍ର ପୂଜା ସେବା। Ekamra Kshetra Sacred Shiva Shrine.',
     history: 'ଶ୍ରୀ ଲିଙ୍ଗରାଜ ମନ୍ଦିର ଏକାମ୍ର କ୍ଷେତ୍ର ଭୁବନେଶ୍ୱରର ସବୁଠାରୁ ପ୍ରାଚୀନ ଏବଂ ପ୍ରସିଦ୍ଧ ଶିବ ମନ୍ଦିର। ଏହା ଏକାଦଶ ଶତାବ୍ଦୀରେ ସୋମବଂଶୀ ରାଜା ଲଲାଟେନ୍ଦୁ କେଶରୀଙ୍କ ଦ୍ୱାରା ନିର୍ମିତ ହୋଇଥିଲା। ଏହି ମନ୍ଦିରର ଉଚ୍ଚତା ୫୫ ମିଟର। ଏଠାରେ ହରିହର (ଶିବ ଓ ବିଷ୍ଣୁ)ଙ୍କୁ ଏକତ୍ର ପୂଜା କରାଯାଏ।',
     isJalAbhishekAvailable: true,
+    isBookingLocked: false,
+    pujariContact: '',
   },
   {
     id: 'jagannath',
@@ -145,6 +147,8 @@ export const DEFAULT_TEMPLES: Temple[] = [
     description: 'ଶ୍ରୀ ଜଗନ୍ନାଥ ମନ୍ଦିର ସ୍ୱତନ୍ତ୍ର ନୀତିକାନ୍ତି ଓ ମହାପ୍ରସାଦ ପୂଜା ବୁକିଂ।',
     history: 'ଶ୍ରୀ ଜଗନ୍ନାଥ ମନ୍ଦିର ଚାରି ଧାମ ମଧ୍ୟରୁ ଅନ୍ୟତମ ପବିତ୍ର ପୁରୀ ଶ୍ରୀକ୍ଷେତ୍ରରେ ଅବସ୍ଥିତ। ଏହି ପ୍ରସିଦ୍ଧ ଦେବାଳୟ ଦ୍ୱାଦଶ ଶତାବ୍ଦୀରେ ଗଙ୍ଗବଂଶର ରାଜା ଅନନ୍ତବର୍ମନ ଚୋଡ଼ଗଙ୍ଗ ଦେବଙ୍କ ଦ୍ୱାରା ପ୍ରତିଷ୍ଠିତ ହୋଇଥିଲା। ଏଠାରେ ଚତୁର୍ଦ୍ଧା ମୂର୍ତ୍ତିଙ୍କ ବିଶ୍ୱପ୍ରସିଦ୍ଧ ରଥଯାତ୍ରା ଅନୁଷ୍ଠିତ ହୁଏ।',
     isJalAbhishekAvailable: false,
+    isBookingLocked: false,
+    pujariContact: '',
   },
   {
     id: 'samaleswari',
@@ -156,6 +160,8 @@ export const DEFAULT_TEMPLES: Temple[] = [
     description: 'ମା\' ସମଲେଶ୍ୱରୀଙ୍କ ପୀଠରେ ଜଳାଭିଷେକ, ଭୋଗ ଓ ମାନସିକ ପୂଜା ସେବା।',
     history: 'ମା\' ସମଲେଶ୍ୱରୀ ମନ୍ଦିର ସମ୍ବଲପୁରର ଅଧିଷ୍ଠାତ୍ରୀ ଦେବୀଙ୍କ ପ୍ରସିଦ୍ଧ ପୀଠ। ଏହା ଷୋଡ଼ଶ ଶତାବ୍ଦୀରେ ଚୌହାନ ରାଜା ବଳରାମ ଦେବଙ୍କ ଦ୍ୱାରା ସ୍ଥାପିତ ହୋଇଥିଲା। ମା\' ସମଲେଶ୍ୱରୀ ପଶ୍ଚିମ ଓଡ଼ିଶାର ଜନସାଧାରଣଙ୍କ ମୁଖ୍ୟ ଆରାଧ୍ୟା ଦେବୀ।',
     isJalAbhishekAvailable: true,
+    isBookingLocked: false,
+    pujariContact: '',
   },
 ];
 

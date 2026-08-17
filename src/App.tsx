@@ -10,6 +10,8 @@ import { PujariPortal } from './components/PujariPortal';
 import { StoreView } from './components/StoreView';
 import { TempleBookingView } from './components/TempleBookingView';
 import { TempleShortsFeed } from './components/TempleShortsFeed';
+import { PanchangPage } from './components/PanchangPage';
+import { SpiritualBlog } from './components/SpiritualBlog';
 import { AdminPanel } from './components/AdminPanel';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { SiteLockOverlay } from './components/SiteLockOverlay';
@@ -41,9 +43,9 @@ export default function App() {
   const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   // View Navigation State: Default view is ALWAYS 'home' on initial page load
-  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts'>('home');
+  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog'>('home');
 
-  // Deep-link check for Temple Share URLs and Shorts
+  // Deep-link check for Temple Share URLs, Shorts, Panchang, and Blog
   useEffect(() => {
     try {
       if (typeof window !== 'undefined') {
@@ -52,6 +54,10 @@ export default function App() {
           setViewMode('temple');
         } else if (params.get('shorts') || params.get('feed')) {
           setViewMode('shorts');
+        } else if (params.get('panchang')) {
+          setViewMode('panchang');
+        } else if (params.get('blog') || params.get('stories')) {
+          setViewMode('blog');
         }
       }
     } catch {
@@ -284,6 +290,16 @@ export default function App() {
               setViewMode('temple');
             }}
           />
+        ) : viewMode === 'panchang' ? (
+          <PanchangPage
+            onBack={() => setViewMode('home')}
+            onNavigateToBlog={() => setViewMode('blog')}
+          />
+        ) : viewMode === 'blog' ? (
+          <SpiritualBlog
+            onBack={() => setViewMode('home')}
+            onNavigateToPanchang={() => setViewMode('panchang')}
+          />
         ) : (
           <HomePage
             activePujari={activePujari}
@@ -296,6 +312,8 @@ export default function App() {
             }}
             onNavigateToStore={() => setViewMode('store')}
             onNavigateToTemple={() => setViewMode('temple')}
+            onNavigateToPanchang={() => setViewMode('panchang')}
+            onNavigateToBlog={() => setViewMode('blog')}
             onNavigateToShorts={() => setViewMode('shorts')}
             onNavigateToLogin={() => setViewMode('login')}
           />

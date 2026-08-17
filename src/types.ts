@@ -209,6 +209,8 @@ export interface Temple {
   customSection1Heading?: string;
   customSection2Heading?: string;
   customFooterText?: string;
+  isBookingLocked?: boolean;
+  pujariContact?: string;
 }
 
 export interface TempleShort {
@@ -244,4 +246,42 @@ export interface TempleBooking {
   createdAt: string;
   approvedAt?: string;
   updatedAt?: string;
+}
+
+export interface DailyPanchang {
+  id: string;
+  date: string;
+  odiaDateText: string;
+  odiaMonth: string;
+  paksha: string;
+  tithi: string;
+  nakshatra: string;
+  yoga: string;
+  karana: string;
+  sunrise: string;
+  sunset: string;
+  moonrise?: string;
+  rahukala: string;
+  amritabela: string;
+  brahmaMuhurta: string;
+  gulikaKala?: string;
+  yamaganda?: string;
+  specialFestival?: string;
+  dailyAdvice?: string;
+  fastingInfo?: string;
+  updatedAt?: string;
+}
+
+export interface SpiritualStory {
+  id: string;
+  title: string;
+  category: string;
+  summary: string;
+  content: string;
+  imageUrl: string;
+  author: string;
+  readTimeMinutes: number;
+  likesCount?: number;
+  publishedAt: string;
+  isFeatured?: boolean;
 }

@@ -7,6 +7,8 @@ interface HomePageProps {
   onNavigateToCreateList: () => void;
   onNavigateToStore: () => void;
   onNavigateToTemple?: () => void;
+  onNavigateToPanchang?: () => void;
+  onNavigateToBlog?: () => void;
   onNavigateToShorts?: () => void;
   onNavigateToLogin: () => void;
 }
@@ -16,6 +18,8 @@ export const HomePage: React.FC<HomePageProps> = ({
   onNavigateToCreateList,
   onNavigateToStore,
   onNavigateToTemple,
+  onNavigateToPanchang,
+  onNavigateToBlog,
   onNavigateToShorts,
   onNavigateToLogin,
 }) => {
@@ -170,7 +174,69 @@ export const HomePage: React.FC<HomePageProps> = ({
         </button>
       </div>
 
-      {/* Card 4: Full-width Temple Puja Shorts / Video Feed Banner */}
+      {/* Card 4: Daily Odia Panchang & Auspicious Timings Banner */}
+      <div
+        onClick={onNavigateToPanchang}
+        className="bg-gradient-to-r from-[#4d1014] via-[#7a181e] to-[#36080b] text-white border-2 sm:border-3 border-amber-400 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group hover:shadow-3xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-6"
+      >
+        <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-amber-500/15 rounded-full blur-2xl group-hover:bg-amber-400/25 transition-all pointer-events-none" />
+        <div className="absolute top-0 right-0 w-36 h-36 bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-amber-400/20 via-transparent to-transparent pointer-events-none" />
+
+        <div className="space-y-3 max-w-2xl relative z-10">
+          <span className="px-3.5 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-black rounded-full text-xs inline-flex items-center gap-1.5 backdrop-blur-xs">
+            <span>📅 ଶ୍ରୀକ୍ଷେତ୍ର ପଞ୍ଜିକା</span>
+            <span>•</span>
+            <span>ଦୈନିକ ଶୁଭ ବେଳା ଓ ରାହୁକାଳ</span>
+          </span>
+          <h3 className="text-2xl sm:text-3xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
+            <span>୪- ଓଡ଼ିଆ ଦୈନିକ ପଞ୍ଜିକା (Daily Odia Panchang)</span>
+          </h3>
+          <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
+            ଆଜିର ତିଥି, ନକ୍ଷତ୍ର, ପକ୍ଷ, ଅମୃତ ବେଳା, ରାହୁକାଳ, ବ୍ରାହ୍ମ ମୁହୂର୍ତ୍ତ, ସୂର୍ଯ୍ୟୋଦୟ ଓ ପର୍ବପର୍ବାଣିର ସଠିକ୍ ସୂଚୀ।
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-200"
+        >
+          <span>📅 ପଞ୍ଜିକା ଦେଖନ୍ତୁ (View Panchang)</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+
+      {/* Card 5: Spiritual Stories & Vedic Blog Banner */}
+      <div
+        onClick={onNavigateToBlog}
+        className="bg-gradient-to-r from-[#380b0e] via-[#66161b] to-[#250507] text-white border-2 sm:border-3 border-amber-400 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group hover:shadow-3xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-6"
+      >
+        <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-amber-500/15 rounded-full blur-2xl group-hover:bg-amber-400/25 transition-all pointer-events-none" />
+        <div className="absolute top-0 right-0 w-36 h-36 bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-amber-400/20 via-transparent to-transparent pointer-events-none" />
+
+        <div className="space-y-3 max-w-2xl relative z-10">
+          <span className="px-3.5 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-black rounded-full text-xs inline-flex items-center gap-1.5 backdrop-blur-xs">
+            <span>📖 ପୁରାଣ ଓ ଲୀଳା</span>
+            <span>•</span>
+            <span>ଆଧ୍ୟାତ୍ମିକ ଜ୍ଞାନ ଭଣ୍ଡାର</span>
+          </span>
+          <h3 className="text-2xl sm:text-3xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
+            <span>୫- ଦିବ୍ୟ ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ଲଗ୍ (Spiritual Stories & Blog)</span>
+          </h3>
+          <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
+            ପ୍ରଭୁ ଶ୍ରୀ ଜଗନ୍ନାଥଙ୍କ ଅଲୌକିକ ଲୀଳା, ଭକ୍ତ ସାଲବେଗ, ମାଣିକ ପାଟଣୀ ଓ ଶିବ ମହିମାର ପ୍ରେରଣାଦାୟୀ ଗାଥା ପଢ଼ନ୍ତୁ।
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="relative z-10 px-6 py-3.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-xl transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-200"
+        >
+          <span>📖 କାହାଣୀ ପଢ଼ନ୍ତୁ (Read Stories)</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </button>
+      </div>
+
+      {/* Card 6: Full-width Temple Puja Shorts / Video Feed Banner */}
       <div
         onClick={onNavigateToShorts}
         className="bg-gradient-to-r from-[#420d11] via-[#751118] to-[#2e0508] text-white border-2 sm:border-3 border-amber-400 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden group hover:shadow-3xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-6"
@@ -187,7 +253,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <span>HD Darshan</span>
           </span>
           <h3 className="text-2xl sm:text-3xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
-            <span>୪- ମନ୍ଦିର ପୂଜା ଭିଡିଓ (Temple Puja Shorts)</span>
+            <span>୬- ମନ୍ଦିର ପୂଜା ଭିଡିଓ (Temple Puja Shorts)</span>
           </h3>
           <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
             ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର, ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ, ଏକାମ୍ର କ୍ଷେତ୍ର ଲିଙ୍ଗରାଜ ଓ ସମଲେଶ୍ୱରୀ ପୀଠର ଦିବ୍ୟ ଆରତି, ଜଳାଭିଷେକ ଏବଂ ପୂଜାର ସୁନ୍ଦର ଭର୍ଟିକାଲ୍ Shorts ଦର୍ଶନ କରନ୍ତୁ।

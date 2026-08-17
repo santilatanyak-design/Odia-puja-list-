@@ -37,6 +37,8 @@ import {
   Edit3,
   FileText,
   RotateCcw,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 
 export const AdminTempleManagement: React.FC = () => {
@@ -230,6 +232,8 @@ export const AdminTempleManagement: React.FC = () => {
       description: '',
       history: '',
       isJalAbhishekAvailable: true,
+      isBookingLocked: false,
+      pujariContact: '',
     };
     setTemples((prev) => [...prev, newTemple]);
     setStatusMsg({ text: '➕ ନୂତନ ମନ୍ଦିର ଯୋଡ଼ାଗଲା! Save Changes ରେ କ୍ଲିକ୍ କରି ସଂରକ୍ଷଣ କରନ୍ତୁ।', type: 'success' });
@@ -1093,6 +1097,64 @@ export const AdminTempleManagement: React.FC = () => {
                       placeholder="e.g. 9861054321"
                       className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
                     />
+                  </div>
+
+                  {/* Lock / Unlock Booking Feature & Direct Pujari Contact */}
+                  <div className="p-3 bg-amber-50/90 border-2 border-amber-300 rounded-2xl space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="space-y-0.5">
+                        <span className="font-black text-amber-950 text-xs flex items-center gap-1.5">
+                          {temple.isBookingLocked ? (
+                            <Lock className="w-4 h-4 text-rose-600 shrink-0" />
+                          ) : (
+                            <Unlock className="w-4 h-4 text-emerald-600 shrink-0" />
+                          )}
+                          <span>Lock / Unlock Online Booking</span>
+                        </span>
+                        <p className="text-[10px] text-slate-600 font-medium">
+                          {temple.isBookingLocked
+                            ? '🔒 Online Booking is LOCKED for this temple'
+                            : '🔓 Online Booking is OPEN & active'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleTempleChange(idx, 'isBookingLocked', !temple.isBookingLocked)}
+                        className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition cursor-pointer flex items-center gap-1 shadow-xs ${
+                          temple.isBookingLocked
+                            ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        }`}
+                      >
+                        {temple.isBookingLocked ? (
+                          <>
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Locked (ବନ୍ଦ ଅଛି)</span>
+                          </>
+                        ) : (
+                          <>
+                            <Unlock className="w-3.5 h-3.5" />
+                            <span>Unlocked (ଖୋଲା ଅଛି)</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block font-bold text-amber-950 text-[11px]">
+                        📞 Pujari Contact / Phone for Direct Inquiries (ପୂଜାରୀ ଯୋଗାଯୋଗ)
+                      </label>
+                      <input
+                        type="text"
+                        value={temple.pujariContact ?? ''}
+                        onChange={(e) => handleTempleChange(idx, 'pujariContact', e.target.value)}
+                        placeholder={temple.pujariPhone || 'e.g. 9861054321 / Ramesh Panda'}
+                        className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                      />
+                      <p className="text-[10px] text-amber-800">
+                        When locked, devotees will see: "Online booking is not available for this temple. Please contact the Pujari directly: [pujariContact]"
+                      </p>
+                    </div>
                   </div>
 
                   {/* Short Description */}

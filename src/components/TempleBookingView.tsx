@@ -256,6 +256,7 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
   }, [userPhone]);
 
   const openBookingModal = (temple: Temple) => {
+    if (temple.isBookingLocked) return;
     setSelectedTemple(temple);
     setBookingStep(1);
     setSubmitSuccess(null);
@@ -541,32 +542,61 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
               </div>
 
               {/* Action Buttons */}
-              <div className="p-4 bg-amber-50/60 border-t border-amber-200/80 flex items-center gap-2">
-                <button
-                  onClick={() => openBookingModal(temple)}
-                  className="flex-1 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-2xl text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Calendar className="w-3.5 h-3.5 text-amber-300" />
-                  <span>ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
-                </button>
+              <div className="p-4 bg-amber-50/60 border-t border-amber-200/80">
+                {temple.isBookingLocked ? (
+                  <div className="space-y-2.5">
+                    <div className="p-3 bg-amber-100/90 border border-amber-300 rounded-2xl text-xs text-amber-950 font-bold text-center leading-relaxed">
+                      Online booking is not available for this temple. Please contact the Pujari directly: <strong className="font-mono text-amber-900 font-black">{temple.pujariContact || temple.pujariPhone}</strong>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => handleShareTemple(temple)}
+                        title="Share Temple"
+                        className="px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold rounded-xl text-xs border border-amber-400 transition cursor-pointer flex items-center gap-1"
+                      >
+                        {copiedTempleId === temple.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-700" />
+                            <span className="text-[10px]">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Share2 className="w-3.5 h-3.5 text-amber-900" />
+                            <span className="text-[10px]">Share</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => openBookingModal(temple)}
+                      className="flex-1 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-2xl text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-amber-300" />
+                      <span>ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
+                    </button>
 
-                <button
-                  onClick={() => handleShareTemple(temple)}
-                  title="Share Temple"
-                  className="px-3 py-2.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-black rounded-2xl text-xs border border-amber-400 transition cursor-pointer flex items-center gap-1 shrink-0"
-                >
-                  {copiedTempleId === temple.id ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-700" />
-                      <span className="text-[10px]">Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Share2 className="w-3.5 h-3.5 text-amber-900" />
-                      <span className="hidden sm:inline text-[10px]">Share</span>
-                    </>
-                  )}
-                </button>
+                    <button
+                      onClick={() => handleShareTemple(temple)}
+                      title="Share Temple"
+                      className="px-3 py-2.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-black rounded-2xl text-xs border border-amber-400 transition cursor-pointer flex items-center gap-1 shrink-0"
+                    >
+                      {copiedTempleId === temple.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-700" />
+                          <span className="text-[10px]">Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Share2 className="w-3.5 h-3.5 text-amber-900" />
+                          <span className="hidden sm:inline text-[10px]">Share</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -1169,24 +1199,30 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
               </div>
             </div>
 
-            <div className="pt-2 border-t border-amber-200 flex gap-2">
+            <div className="pt-2 border-t border-amber-200 flex flex-col sm:flex-row gap-2">
               <button
                 onClick={() => setSelectedHistoryTemple(null)}
                 className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold rounded-xl text-xs cursor-pointer"
               >
                 ବନ୍ଦ କରନ୍ତୁ (Close)
               </button>
-              <button
-                onClick={() => {
-                  const target = selectedHistoryTemple;
-                  setSelectedHistoryTemple(null);
-                  openBookingModal(target);
-                }}
-                className="flex-1 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-xl text-xs shadow-md cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Calendar className="w-3.5 h-3.5 text-amber-300" />
-                <span>ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
-              </button>
+              {selectedHistoryTemple.isBookingLocked ? (
+                <div className="flex-1 p-2.5 bg-amber-100/90 border border-amber-300 rounded-xl text-xs text-amber-950 font-bold text-center leading-relaxed">
+                  Online booking is not available for this temple. Please contact the Pujari directly: <strong className="font-mono text-amber-900 font-black">{selectedHistoryTemple.pujariContact || selectedHistoryTemple.pujariPhone}</strong>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    const target = selectedHistoryTemple;
+                    setSelectedHistoryTemple(null);
+                    openBookingModal(target);
+                  }}
+                  className="flex-1 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-xl text-xs shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-amber-300" />
+                  <span>ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
