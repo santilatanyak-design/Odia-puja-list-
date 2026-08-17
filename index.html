@@ -1,14 +1,6 @@
 <!doctype html>
 <html lang="or">
   <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THTPDPPDEK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-THTPDPPDEK');
-</script>
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର | Puja Samagri List Generator</title>
@@ -193,68 +185,71 @@
       };
       */
     </script>
-    <!-- Google Analytics (GA4) Tracking -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+  </head>
+  <body>
+    <!-- Critical Application Root (Renders First) -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 
-      // Safe GA4 initialization: Uses configured ID or default
-      (function() {
+    <!-- DEFERRED THIRD-PARTY SCRIPTS: Runs asynchronously when CPU/Network are idle -->
+    <script>
+      window.addEventListener('load', function() {
+        // 1. Deferred Google Analytics (GA4)
         var gaId = (window.GA_MEASUREMENT_ID || "G-XXXXXXXXXX").trim();
         try {
           if (!gaId || gaId === "G-XXXXXXXXXX") {
-            gaId = (localStorage.getItem('ga_measurement_id') || "G-XXXXXXXXXX").trim();
+            gaId = (localStorage.getItem('ga_measurement_id') || "").trim();
           }
         } catch(e) {}
-        
+
         if (gaId && gaId !== "G-XXXXXXXXXX") {
-          gtag('config', gaId, {
-            send_page_view: true,
-            anonymize_ip: true
-          });
-        }
-      })();
-    </script>
+          var gaScript = document.createElement('script');
+          gaScript.async = true;
+          gaScript.src = "https://www.googletagmanager.com/gtag/js?id=" + gaId;
+          document.head.appendChild(gaScript);
 
-    <!-- OneSignal Auto Background Web Push Notification SDK -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      (function() {
-        var appId = (window.ONESIGNAL_APP_ID || "c6015124-4159-4935-ae0b-9bd02007d3b6").trim();
-        try {
-          if (!appId) {
-            appId = (localStorage.getItem('onesignal_app_id') || "c6015124-4159-4935-ae0b-9bd02007d3b6").trim();
-          }
-        } catch(e) {}
-
-        if (!appId) {
-          return;
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){ dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', gaId, { send_page_view: true, anonymize_ip: true });
         }
 
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(async function(OneSignal) {
+        // 2. Deferred OneSignal Push SDK (Initialized during idle frame)
+        var initOneSignal = function() {
+          var appId = (window.ONESIGNAL_APP_ID || "c6015124-4159-4935-ae0b-9bd02007d3b6").trim();
           try {
-            await OneSignal.init({
-              appId: appId,
-              allowLocalhostAsSecureOrigin: true,
-            });
-            if (OneSignal.Notifications && typeof OneSignal.Notifications.requestPermission === 'function') {
-              await OneSignal.Notifications.requestPermission();
-            } else if (typeof OneSignal.showSlidedownPrompt === 'function') {
-              await OneSignal.showSlidedownPrompt();
+            if (!appId) {
+              appId = (localStorage.getItem('onesignal_app_id') || "c6015124-4159-4935-ae0b-9bd02007d3b6").trim();
             }
-          } catch (err) {
-            console.warn("OneSignal initialization notice:", err);
-          }
-        });
-      })();
+          } catch(e) {}
+
+          if (!appId) return;
+
+          var osScript = document.createElement('script');
+          osScript.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+          osScript.defer = true;
+          document.head.appendChild(osScript);
+
+          window.OneSignalDeferred = window.OneSignalDeferred || [];
+          window.OneSignalDeferred.push(async function(OneSignal) {
+            try {
+              await OneSignal.init({
+                appId: appId,
+                allowLocalhostAsSecureOrigin: true,
+              });
+            } catch (err) {
+              console.warn("OneSignal initialization notice:", err);
+            }
+          });
+        };
+
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(initOneSignal, { timeout: 2500 });
+        } else {
+          setTimeout(initOneSignal, 1500);
+        }
+      });
     </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 
