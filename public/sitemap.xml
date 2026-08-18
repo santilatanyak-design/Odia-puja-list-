@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  <!-- Homepage / Main Landing -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Create Puja List & Generator Portal -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/?view=portal</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Puja Samagri Online Store -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/?view=store</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Online Temple Puja Booking & Darshan -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/?view=temple</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Odia Kohinoor Panchang & Calendar -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/?panchang=true</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Spiritual Bhakti Shorts & Video Reels -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/?shorts=true</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Spiritual Stories, Blogs & Puja Vidhi Articles -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/?blog=true</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Pujari & User Login Portal -->
+  <url>
+    <loc>https://www.bhaktianandaodiatvofficial.blog/?view=login</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>
