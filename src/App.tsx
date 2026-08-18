@@ -3,6 +3,7 @@ import { Pujari, QrConfig } from './types';
 import { getQrConfig, loginPujari, subscribeQrConfig, subscribePujaris, subscribeSiteLock } from './lib/api';
 import { Language } from './lib/translations';
 import { Navbar } from './components/Navbar';
+import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
 import { HomePage } from './components/HomePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -241,7 +242,7 @@ export default function App() {
       />
 
       {/* Main View Area */}
-      <main className="flex-1 w-full max-w-full overflow-x-hidden box-border">
+      <main className="flex-1 w-full max-w-full overflow-x-hidden box-border pb-20 sm:pb-24">
         <ErrorBoundary onReset={() => setViewMode('home')}>
           <Suspense
             fallback={
@@ -347,6 +348,32 @@ export default function App() {
 
       {/* Footer Section: Privacy Policy & Terms of Use */}
       <Footer />
+
+      {/* Fixed Native Mobile App Bottom Navigation Bar */}
+      <BottomNav
+        currentView={viewMode}
+        activePujari={activePujari}
+        onNavigateHome={() => {
+          setCurrentRole('pujari');
+          setViewMode('home');
+        }}
+        onNavigateBookings={() => {
+          if (activePujari) {
+            setViewMode('portal');
+          } else {
+            setViewMode('temple');
+          }
+        }}
+        onNavigateTemples={() => setViewMode('temple')}
+        onNavigateProfile={() => {
+          if (activePujari) {
+            setViewMode('portal');
+          } else {
+            setViewMode('login');
+          }
+        }}
+        onOpenAdminModal={() => setAdminModalOpen(true)}
+      />
 
       {/* Admin Login Modal & SiteLock in Suspense */}
       <Suspense fallback={null}>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Pujari } from '../types';
 import { ShieldCheck, User, LogOut, Sparkles, Languages, Download, CheckCircle2, Share2 } from 'lucide-react';
 import { Language, translations } from '../lib/translations';
+import { TempleAppLogo } from './AppIcons';
 
 export const getGlobalMainThumbnailUrl = (): string => {
   try {
@@ -165,17 +166,14 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-40 bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#701a1e] text-white border-b-2 border-amber-400 shadow-lg w-full max-w-full overflow-hidden box-border">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2.5 w-full box-border">
         {/* Logo & Sacred Branding */}
-        <div onClick={onGoHome} className="flex items-center gap-1.5 sm:gap-2.5 cursor-pointer min-w-0 shrink">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-tr from-amber-400 via-yellow-400 to-amber-500 text-amber-950 rounded-xl sm:rounded-2xl flex items-center justify-center font-serif text-lg sm:text-2xl shadow-md font-black border border-amber-300 shrink-0">
-            🕉️
-          </div>
+        <div onClick={onGoHome} className="flex items-center gap-2 sm:gap-2.5 cursor-pointer min-w-0 shrink">
+          <TempleAppLogo size={38} className="shrink-0 shadow-sm" />
           <div className="min-w-0 shrink">
-            <h1 className="text-xs sm:text-lg font-black text-amber-100 leading-tight tracking-tight flex items-center gap-1 min-w-0">
-              <span className="truncate">{t.appTitle}</span>
-              <span className="text-amber-300 text-[10px] sm:text-sm font-black hidden xs:inline shrink-0">{t.appSubtitle}</span>
+            <h1 className="text-xs sm:text-base font-black text-amber-100 leading-tight tracking-tight flex items-center gap-1 min-w-0">
+              <span className="truncate">Bhakti Ananda Odia TV</span>
             </h1>
-            <p className="text-[10px] sm:text-xs text-amber-200/90 font-bold hidden sm:block truncate">
-              {t.navSubtitle}
+            <p className="text-[10px] sm:text-xs text-amber-200/90 font-medium hidden sm:block truncate">
+              Your Devotion, Our Service
             </p>
           </div>
         </div>

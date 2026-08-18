@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pujari } from '../types';
 import {
   Sparkles,
-  ShoppingBag,
-  ScrollText,
+  ShieldCheck,
+  UserCheck,
   Calendar,
   BookOpen,
   Video,
   ArrowRight,
-  ShieldCheck,
-  UserCheck
+  X
 } from 'lucide-react';
+import {
+  TempleAppLogo,
+  OdishaTempleBackdrop,
+  FindTemplesIllustration,
+  BookPujaIllustration,
+  PujaSamagriIllustration,
+  LiveDarshanIllustration,
+  PujaStatusIllustration,
+  DevotionalOmIllustration
+} from './AppIcons';
 
 interface HomePageProps {
   activePujari: Pujari | null;
@@ -33,277 +42,358 @@ export const HomePage: React.FC<HomePageProps> = ({
   onNavigateToShorts,
   onNavigateToLogin,
 }) => {
-  return (
-    <div className="w-full max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8 box-border">
-      {/* Sacred Welcome Header */}
-      <div className="text-center space-y-2 box-border">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-200/90 text-amber-950 border border-amber-400 rounded-full text-xs font-black shadow-2xs">
-          <span>🚩 ଜୟ ଜଗନ୍ନାଥ</span>
-          <span>•</span>
-          <span>ଶ୍ରୀକ୍ଷେତ୍ର ଧାମ, ପୁରୀ</span>
-        </div>
-        <h2 className="text-2xl sm:text-4xl font-black text-amber-950 tracking-tight">
-          ପୂଜା ସାମଗ୍ରୀ ଏବଂ ପୂଜାରୀ ପୋର୍ଟାଲ୍
-        </h2>
-        <p className="text-xs sm:text-sm text-amber-900/90 font-bold max-w-2xl mx-auto leading-relaxed">
-          ଓଡ଼ିଶାର ସମସ୍ତ ପୂଜକ, ପଣ୍ଡିତ ଏବଂ ଶ୍ରଦ୍ଧାଳୁଙ୍କ ପାଇଁ ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ତିଆରି ଏବଂ ଦୋକାନ ସେବା।
-        </p>
+  const [devotionalModalOpen, setDevotionalModalOpen] = useState(false);
 
+  const handleDevotionalClick = () => {
+    setDevotionalModalOpen(true);
+  };
+
+  return (
+    <div className="w-full max-w-lg md:max-w-3xl mx-auto px-3 sm:px-6 pt-2 pb-6 space-y-4 sm:space-y-6 box-border select-none">
+      {/* ------------------------------------------------------------- */}
+      {/* 1. NATIVE MOBILE APP HEADER & TEMPLE SCENIC BACKDROP           */}
+      {/* ------------------------------------------------------------- */}
+      <div className="relative bg-gradient-to-b from-[#FFFDF5] via-[#FFF8E7] to-[#FFF4D6] rounded-3xl p-4 sm:p-6 shadow-sm border border-amber-200/70 overflow-hidden">
+        {/* Scenic Odisha Temple Silhouette Panorama Background */}
+        <div className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none">
+          <OdishaTempleBackdrop className="w-full h-full" />
+        </div>
+
+        {/* Header Content on Top of Backdrop */}
+        <div className="relative z-10 flex items-center gap-3.5 sm:gap-5">
+          {/* Circular Temple Brand Logo */}
+          <TempleAppLogo size={78} className="shrink-0 shadow-md ring-4 ring-amber-300/40" />
+
+          {/* Title & Tagline */}
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-3xl font-black text-[#8B0000] tracking-tight leading-tight font-serif drop-shadow-2xs">
+              Bhakti Ananda <br className="hidden xs:inline sm:hidden" />
+              <span>Odia TV</span>
+            </h1>
+            <p className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight mt-0.5 sm:mt-1">
+              Your Devotion, Our Service
+            </p>
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-400/30 border border-amber-500/40 text-amber-950 font-black rounded-full text-[10px] sm:text-xs">
+                <span>🚩 ଜୟ ଜଗନ୍ନାଥ</span>
+                <span>•</span>
+                <span>ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Active Pujari Logged-in Notice (If authenticated) */}
         {activePujari && (
-          <div className="pt-2">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1 bg-amber-950 text-amber-300 rounded-full text-xs font-black border border-amber-400">
-              <UserCheck className="w-3.5 h-3.5 text-amber-400" />
-              <span>ଆପଣ ଲଗଇନ୍ ଅଛନ୍ତି: {activePujari.name} ({activePujari.id})</span>
+          <div className="relative z-10 mt-3 pt-2.5 border-t border-amber-300/50 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
+              <UserCheck className="w-4 h-4 text-emerald-700" />
+              <span>ସ୍ୱାଗତମ୍: {activePujari.name} ({activePujari.id})</span>
             </span>
+            <button
+              onClick={onNavigateToCreateList}
+              className="text-[11px] font-black text-[#8B0000] underline underline-offset-2 hover:text-amber-900 cursor-pointer"
+            >
+              ଡାସବୋର୍ଡକୁ ଯାଆନ୍ତୁ →
+            </button>
           </div>
         )}
       </div>
 
-      {/* TOP PRIMARY CARDS: 2 Columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-        {/* Section 1: Create Puja List */}
-        <div
-          id="home-card-create-list"
-          onClick={onNavigateToCreateList}
-          className="bg-gradient-to-br from-[#5c0f12] via-[#8B0000] to-[#3a0608] text-white border-2 border-amber-400 rounded-3xl p-6 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between min-h-[250px]"
-        >
-          <div className="relative z-10 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="px-3 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-extrabold rounded-full text-xs flex items-center gap-1.5 backdrop-blur-xs">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>୧ - ପୂଜା ଲିଷ୍ଟ୍ ସେବା</span>
-              </span>
-              <div className="w-12 h-12 bg-amber-400/20 border border-amber-400/60 rounded-2xl flex items-center justify-center text-2xl shadow-inner text-amber-300 group-hover:scale-110 transition-transform">
-                📜
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight">
-                ୧- ପୂଜା ଲିଷ୍ଟ୍ ତିଆରି କରନ୍ତୁ
-              </h3>
-              <p className="text-xs text-amber-200/90 font-bold mt-0.5">
-                (Create Puja Samagri List)
-              </p>
-              <p className="text-xs sm:text-sm text-amber-100/90 font-medium mt-2 leading-relaxed">
-                ସହଜରେ ପୂଜା ତଥ୍ୟ ପୂରଣ କରନ୍ତୁ, ନୂତନ ସାମଗ୍ରୀ ସୂଚୀ ତିଆରି କରନ୍ତୁ ଏବଂ ସୁନ୍ଦର Odia PDF ଡାଉନଲୋଡ୍ କରନ୍ତୁ।
-              </p>
-            </div>
-          </div>
-
-          <div className="relative z-10 pt-4 mt-3 border-t border-amber-500/30 flex items-center justify-between">
-            <span className="text-xs font-black text-amber-300">
-              ⚡ ୧ମ ସୂଚୀ ସମ୍ପୂର୍ଣ୍ଣ ମାଗଣା (Free)
-            </span>
-            <button
-              type="button"
-              className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-black rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 group-hover:px-5 cursor-pointer"
-            >
-              <span>{activePujari ? 'ଲିଷ୍ଟ ତିଆରି କରନ୍ତୁ' : 'ପ୍ରବେଶ କରନ୍ତୁ'}</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        </div>
-
-        {/* Section 2: Order from Puja Store */}
-        <div
-          id="home-card-puja-store"
-          onClick={onNavigateToStore}
-          className="bg-gradient-to-br from-[#3b080b] via-[#701a1e] to-amber-950 text-white border-2 border-amber-400 rounded-3xl p-6 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between min-h-[250px]"
-        >
-          <div className="relative z-10 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-400/60 text-emerald-300 font-extrabold rounded-full text-xs flex items-center gap-1.5 backdrop-blur-xs">
-                <span>🚚</span>
-                <span>Cash on Delivery (COD)</span>
-              </span>
-              <div className="w-12 h-12 bg-amber-400/20 border border-amber-400/60 rounded-2xl flex items-center justify-center text-2xl shadow-inner text-amber-300 group-hover:scale-110 transition-transform">
-                🛍️
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight">
-                ୨- ପୂଜା ଦୋକାନରୁ କିଣନ୍ତୁ
-              </h3>
-              <p className="text-xs text-amber-200/90 font-bold mt-0.5">
-                (Order from Puja Store)
-              </p>
-              <p className="text-xs sm:text-sm text-amber-100/90 font-medium mt-2 leading-relaxed">
-                ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ, ଯଜ୍ଞ କାଠ, ଘିଅ ଏବଂ ସମ୍ପୂର୍ଣ୍ଣ ପୂଜା କିଟ୍ ଘରେ ବସି ସହଜରେ ଅର୍ଡର୍ କରନ୍ତୁ।
-              </p>
-            </div>
-          </div>
-
-          <div className="relative z-10 pt-4 mt-3 border-t border-amber-500/30 flex items-center justify-between">
-            <span className="text-xs font-black text-emerald-300">
-              📦 ସିଧାସଳଖ ଘରକୁ ହୋମ୍ ଡେଲିଭରୀ
-            </span>
-            <button
-              type="button"
-              className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-950 font-black rounded-xl text-xs shadow-md transition-all flex items-center gap-1.5 group-hover:px-5 cursor-pointer"
-            >
-              <span>ଅର୍ଡର୍ କରନ୍ତୁ</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ADDITIONAL SECTIONS: Unique Full-Width Feature Cards in Sequential 1-to-6 Order */}
-      <div className="space-y-4 sm:space-y-5">
-        {/* Section 3: Temple Puja & Jal Abhishek Booking */}
-        <div
-          id="home-card-temple-booking"
+      {/* ------------------------------------------------------------- */}
+      {/* 2. NATIVE 6 FEATURE APP CARDS (Matching Reference Screenshot) */}
+      {/* ------------------------------------------------------------- */}
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+        {/* Card 1: Find Temples */}
+        <button
+          id="native-card-find-temples"
+          type="button"
           onClick={onNavigateToTemple}
-          className="bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#4a0b0e] text-white border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-5"
+          className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
         >
-          <div className="space-y-2 max-w-2xl relative z-10">
-            <span className="px-3 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-black rounded-full text-xs inline-flex items-center gap-1.5">
-              <span>🚩 ନୂତନ ସେବା (NEW)</span>
-              <span>•</span>
-              <span>Platform Fee ₹5</span>
-            </span>
-            <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight">
-              ୩- ମନ୍ଦିର ପୂଜା ଏବଂ ଜଳାଭିଷେକ ବୁକିଂ (Temple Puja Booking)
-            </h3>
-            <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
-              ଲିଙ୍ଗରାଜ, ଶ୍ରୀମନ୍ଦିର ଓ ସମଲେଶ୍ୱରୀ ପୀଠରେ ଜଳାଭିଷେକ ଓ ପୂଜା ବୁକିଂ କରନ୍ତୁ। ଅନୁମୋଦନ ପରେ ଅଫିସିଆଲ୍ JPG ରସିଦ୍ ଡାଉନଲୋଡ୍ କରନ୍ତୁ।
-            </p>
+          <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
+            <FindTemplesIllustration className="w-12 h-12 sm:w-16 sm:h-16" />
           </div>
+          <div className="mt-1">
+            <span className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight block">
+              Find Temples
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-amber-900/80 block mt-0.5">
+              ମନ୍ଦିର ଖୋଜନ୍ତୁ
+            </span>
+          </div>
+        </button>
 
-          <button
-            type="button"
-            className="relative z-10 px-5 py-3 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-200"
-          >
-            <span>🚩 ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-
-        {/* Section 4: Daily Odia Panchang */}
-        <div
-          id="home-card-panchang"
-          onClick={onNavigateToPanchang}
-          className="bg-gradient-to-r from-[#4d1014] via-[#7a181e] to-[#36080b] text-white border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-5"
+        {/* Card 2: Book Puja */}
+        <button
+          id="native-card-book-puja"
+          type="button"
+          onClick={onNavigateToTemple}
+          className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
         >
-          <div className="space-y-2 max-w-2xl relative z-10">
-            <span className="px-3 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-black rounded-full text-xs inline-flex items-center gap-1.5 backdrop-blur-xs">
-              <span>📅 ଶ୍ରୀକ୍ଷେତ୍ର ପଞ୍ଜିକା</span>
-              <span>•</span>
-              <span>ଦୈନିକ ଶୁଭ ବେଳା ଓ ରାହୁକାଳ</span>
-            </span>
-            <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
-              <span>୪- ଓଡ଼ିଆ ଦୈନିକ ପଞ୍ଜିକା (Daily Odia Panchang)</span>
-            </h3>
-            <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
-              ଆଜିର ତିଥି, ନକ୍ଷତ୍ର, ପକ୍ଷ, ଅମୃତ ବେଳା, ରାହୁକାଳ, ବ୍ରାହ୍ମ ମୁହୂର୍ତ୍ତ, ସୂର୍ଯ୍ୟୋଦୟ ଓ ପର୍ବପର୍ବାଣିର ସଠିକ୍ ସୂଚୀ।
-            </p>
+          <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
+            <BookPujaIllustration className="w-12 h-12 sm:w-16 sm:h-16" />
           </div>
+          <div className="mt-1">
+            <span className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight block">
+              Book Puja
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-amber-900/80 block mt-0.5">
+              ପୂଜା ବୁକିଂ
+            </span>
+          </div>
+        </button>
 
-          <button
-            type="button"
-            className="relative z-10 px-5 py-3 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-200"
-          >
-            <span>📅 ପଞ୍ଜିକା ଦେଖନ୍ତୁ (View Panchang)</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-
-        {/* Section 5: Spiritual Stories & Vedic Blog */}
-        <div
-          id="home-card-blog"
-          onClick={onNavigateToBlog}
-          className="bg-gradient-to-r from-[#380b0e] via-[#66161b] to-[#250507] text-white border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-5"
+        {/* Card 3: Puja Samagri Store */}
+        <button
+          id="native-card-puja-samagri"
+          type="button"
+          onClick={onNavigateToStore}
+          className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
         >
-          <div className="space-y-2 max-w-2xl relative z-10">
-            <span className="px-3 py-1 bg-amber-400/20 border border-amber-400/60 text-amber-300 font-black rounded-full text-xs inline-flex items-center gap-1.5 backdrop-blur-xs">
-              <span>📖 ପୁରାଣ ଓ ଲୀଳା</span>
-              <span>•</span>
-              <span>ଆଧ୍ୟାତ୍ମିକ ଜ୍ଞାନ ଭଣ୍ଡାର</span>
-            </span>
-            <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
-              <span>୫- ଦିବ୍ୟ ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ଲଗ୍ (Spiritual Stories & Blog)</span>
-            </h3>
-            <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
-              ପ୍ରଭୁ ଶ୍ରୀ ଜଗନ୍ନାଥଙ୍କ ଅଲୌକିକ ଲୀଳା, ଭକ୍ତ ସାଲବେଗ, ମାଣିକ ପାଟଣୀ ଓ ଶିବ ମହିମାର ପ୍ରେରଣାଦାୟୀ ଗାଥା ପଢ଼ନ୍ତୁ।
-            </p>
+          <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
+            <PujaSamagriIllustration className="w-12 h-12 sm:w-16 sm:h-16" />
           </div>
+          <div className="mt-1">
+            <span className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight block">
+              Puja Samagri
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-amber-900/80 block mt-0.5">
+              ପୂଜା ସାମଗ୍ରୀ
+            </span>
+          </div>
+        </button>
 
-          <button
-            type="button"
-            className="relative z-10 px-5 py-3 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-200"
-          >
-            <span>📖 କାହାଣୀ ପଢ଼ନ୍ତୁ (Read Stories)</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-
-        {/* Section 6: Temple Puja Shorts */}
-        <div
-          id="home-card-shorts"
+        {/* Card 4: Live Darshan / Shorts */}
+        <button
+          id="native-card-live-darshan"
+          type="button"
           onClick={onNavigateToShorts}
-          className="bg-gradient-to-r from-[#420d11] via-[#751118] to-[#2e0508] text-white border-2 border-amber-400 rounded-3xl p-5 sm:p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl hover:border-amber-300 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col md:flex-row items-center justify-between gap-5"
+          className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
         >
-          <div className="space-y-2 max-w-2xl relative z-10">
-            <span className="px-3 py-1 bg-rose-600/30 border border-rose-400/70 text-rose-200 font-black rounded-full text-xs inline-flex items-center gap-1.5 backdrop-blur-xs">
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-              <span>🎬 ଲାଇଭ୍ ଭିଡିଓ ଫିଡ୍ (Shorts / Reels)</span>
-              <span>•</span>
-              <span>HD Darshan</span>
-            </span>
-            <h3 className="text-xl sm:text-2xl font-black text-amber-100 tracking-tight leading-tight flex items-center gap-2">
-              <span>୬- ମନ୍ଦିର ପୂଜା ଭିଡିଓ (Temple Puja Shorts)</span>
-            </h3>
-            <p className="text-xs sm:text-sm text-amber-100/90 font-medium leading-relaxed">
-              ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର, ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ, ଏକାମ୍ର କ୍ଷେତ୍ର ଲିଙ୍ଗରାଜ ଓ ସମଲେଶ୍ୱରୀ ପୀଠର ଦିବ୍ୟ ଆରତି, ଜଳାଭିଷେକ ଏବଂ ପୂଜାର ସୁନ୍ଦର ଭର୍ଟିକାଲ୍ Shorts ଦର୍ଶନ କରନ୍ତୁ।
-            </p>
+          <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
+            <LiveDarshanIllustration className="w-12 h-12 sm:w-16 sm:h-16" />
           </div>
+          <div className="mt-1">
+            <span className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight block">
+              Live Darshan
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-rose-700 block mt-0.5">
+              ଲାଇଭ୍ ଭିଡିଓ
+            </span>
+          </div>
+        </button>
 
+        {/* Card 5: Puja Status & List Generator */}
+        <button
+          id="native-card-puja-status"
+          type="button"
+          onClick={onNavigateToCreateList}
+          className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
+        >
+          <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
+            <PujaStatusIllustration className="w-12 h-12 sm:w-16 sm:h-16" />
+          </div>
+          <div className="mt-1">
+            <span className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight block">
+              Puja Status
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 block mt-0.5">
+              ପୂଜା ସୂଚୀ ତିଆରି
+            </span>
+          </div>
+        </button>
+
+        {/* Card 6: Devotional Content (Panchang & Stories) */}
+        <button
+          id="native-card-devotional-content"
+          type="button"
+          onClick={handleDevotionalClick}
+          className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
+        >
+          <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
+            <DevotionalOmIllustration className="w-12 h-12 sm:w-16 sm:h-16" />
+          </div>
+          <div className="mt-1">
+            <span className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight block">
+              Devotional
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-amber-900/80 block mt-0.5">
+              ପଞ୍ଜିକା ଓ କଥା
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* 3. QUICK SPIRITUAL ACCESS PILLS (Daily Panchang & Vedic Blog)  */}
+      {/* ------------------------------------------------------------- */}
+      <div className="bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#701a1e] text-white rounded-2xl p-3 sm:p-4 shadow-md border border-amber-400/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-3 text-left w-full sm:w-auto">
+          <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-xl shrink-0">
+            📅
+          </div>
+          <div>
+            <div className="text-xs sm:text-sm font-black text-amber-200">
+              ଦୈନିକ ଓଡ଼ିଆ ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା
+            </div>
+            <div className="text-[10px] sm:text-xs text-amber-100/90 font-medium">
+              ଆଜିର ତିଥି, ଶୁଭ ବେଳା, ରାହୁକାଳ ଏବଂ ପୌରାଣିକ ଗାଥା
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <button
-            type="button"
-            className="relative z-10 px-5 py-3 bg-gradient-to-r from-rose-600 via-amber-500 to-amber-400 text-white hover:text-amber-950 font-black rounded-2xl text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 shrink-0 group-hover:scale-105 cursor-pointer border border-amber-300"
+            onClick={onNavigateToPanchang}
+            className="flex-1 sm:flex-initial px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black rounded-xl text-xs shadow-xs transition flex items-center justify-center gap-1 cursor-pointer"
           >
-            <span>▶️ ଭିଡିଓ ଦେଖନ୍ତୁ (Watch Shorts)</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <Calendar className="w-3.5 h-3.5" />
+            <span>ପଞ୍ଜିକା</span>
+          </button>
+          <button
+            onClick={onNavigateToBlog}
+            className="flex-1 sm:flex-initial px-3 py-1.5 bg-amber-100/20 hover:bg-amber-100/30 text-amber-200 hover:text-white font-black rounded-xl text-xs border border-amber-400/50 shadow-xs transition flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>କଥା ଓ ବ୍ଲଗ୍</span>
           </button>
         </div>
       </div>
 
-      {/* Pujari Account Status / Access Box (Single unified card) */}
-      <div id="home-pujari-status-box">
+      {/* ------------------------------------------------------------- */}
+      {/* 4. PUJARI LOGIN / ACCOUNT ACCESS BANNER                       */}
+      {/* ------------------------------------------------------------- */}
+      <div id="home-pujari-portal-banner">
         {!activePujari ? (
-          <div className="bg-amber-100/80 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 text-center space-y-3">
-            <div className="flex items-center justify-center gap-2 text-amber-950 font-black text-sm sm:text-base">
-              <ShieldCheck className="w-5 h-5 text-amber-800" />
-              <span>ପୂଜାରୀ / ପଣ୍ଡିତ ଅକାଉଣ୍ଟ୍ ଲଗଇନ୍ କିମ୍ବା ପଞ୍ଜୀକରଣ (Pujari Login)</span>
+          <div className="bg-amber-50/90 border border-amber-300/80 rounded-2xl p-3.5 sm:p-4 text-center space-y-2">
+            <div className="flex items-center justify-center gap-1.5 text-amber-950 font-black text-xs sm:text-sm">
+              <ShieldCheck className="w-4 h-4 text-amber-800 shrink-0" />
+              <span>ପୂଜାରୀ / ପଣ୍ଡିତ ପୋର୍ଟାଲ୍ (Pujari & Pandit Portal)</span>
             </div>
-            <p className="text-xs text-amber-900 font-bold">
-              ଯଦି ଆପଣ ପ୍ରଥମଥର ଆସିଛନ୍ତି, ତେବେ ୧ ମିନିଟ୍ ମଧ୍ୟରେ ମାଗଣାରେ ଆକାଉଣ୍ଟ ଖୋଲି ୧ମ ସୂଚୀ ତିଆରି କରନ୍ତୁ।
+            <p className="text-[11px] sm:text-xs text-amber-900/90 font-medium">
+              ଓଡ଼ିଶାର ସମସ୍ତ ପୂଜକଙ୍କ ପାଇଁ ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ତିଆରି ଏବଂ Odia PDF ଡାଉନଲୋଡ୍ ସେବା।
             </p>
             <button
               onClick={onNavigateToLogin}
               type="button"
-              className="px-6 py-2.5 bg-gradient-to-r from-amber-800 to-amber-950 text-amber-200 hover:text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2 bg-gradient-to-r from-[#701a1e] to-[#8B0000] hover:from-[#8B0000] hover:to-[#a00000] text-amber-200 hover:text-white font-extrabold rounded-xl text-xs shadow-sm transition cursor-pointer border border-amber-400/40"
             >
-              🔑 ପୂଜାରୀ ଲଗଇନ୍ / ରେଜିଷ୍ଟ୍ରେସନ୍ କରନ୍ତୁ
+              🔑 ପୂଜାରୀ ଲଗଇନ୍ / ରେଜିଷ୍ଟ୍ରେସନ୍ (Login)
             </button>
           </div>
         ) : (
-          <div className="bg-amber-100/80 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 text-center space-y-2">
-            <div className="text-xs sm:text-sm font-black text-amber-950">
-              ସ୍ୱାଗତମ୍! ଆପଣ ଲଗଇନ୍ ହୋଇସାରିଛନ୍ତି। ଆପଣଙ୍କ ପୂଜାରୀ ଡାସବୋର୍ଡକୁ ଯାଆନ୍ତୁ:
+          <div className="bg-amber-50/90 border border-amber-300/80 rounded-2xl p-3.5 sm:p-4 text-center space-y-2">
+            <div className="text-xs sm:text-sm font-black text-amber-950 flex items-center justify-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              <span>ଆପଣ ଲଗଇନ୍ ଅଛନ୍ତି: {activePujari.name}</span>
             </div>
             <button
               onClick={onNavigateToCreateList}
               type="button"
-              className="px-6 py-2.5 bg-gradient-to-r from-amber-800 to-amber-950 text-amber-200 hover:text-white font-extrabold rounded-xl text-xs sm:text-sm shadow-md transition cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2 bg-gradient-to-r from-[#701a1e] to-[#8B0000] text-amber-200 hover:text-white font-extrabold rounded-xl text-xs shadow-sm transition cursor-pointer border border-amber-400/40"
             >
               🙏 ପୂଜାରୀ ଡାସବୋର୍ଡ (Pujari Dashboard) କୁ ଯାଆନ୍ତୁ
             </button>
           </div>
         )}
       </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* DEVOTIONAL CONTENT SELECTION MODAL                            */}
+      {/* ------------------------------------------------------------- */}
+      {devotionalModalOpen && (
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border-2 border-amber-400 relative space-y-4">
+            <button
+              onClick={() => setDevotionalModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center space-y-1">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl font-black shadow-inner">
+                🕉️
+              </div>
+              <h3 className="text-base font-black text-amber-950">
+                ଆଧ୍ୟାତ୍ମିକ ବିଭାଗ (Devotional Content)
+              </h3>
+              <p className="text-xs text-amber-900/80 font-medium">
+                ଆପଣ କେଉଁ ବିଭାଗକୁ ଯିବାକୁ ଚାହାନ୍ତି ବାଛନ୍ତୁ:
+              </p>
+            </div>
+
+            <div className="space-y-2.5 pt-1">
+              {/* Option 1: Daily Panchang */}
+              <button
+                onClick={() => {
+                  setDevotionalModalOpen(false);
+                  if (onNavigateToPanchang) onNavigateToPanchang();
+                }}
+                className="w-full p-3 bg-gradient-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 border border-amber-300 rounded-2xl flex items-center gap-3 text-left transition cursor-pointer group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+                  📅
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-black text-amber-950">
+                    ଦୈନିକ ଓଡ଼ିଆ ପଞ୍ଜିକା (Daily Panchang)
+                  </div>
+                  <div className="text-[10px] text-amber-900/80 font-medium truncate">
+                    ଆଜିର ତିଥି, ଶୁଭ ମୁହୂର୍ତ୍ତ, ରାହୁକାଳ
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-amber-800 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              {/* Option 2: Spiritual Stories & Blog */}
+              <button
+                onClick={() => {
+                  setDevotionalModalOpen(false);
+                  if (onNavigateToBlog) onNavigateToBlog();
+                }}
+                className="w-full p-3 bg-gradient-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 border border-amber-300 rounded-2xl flex items-center gap-3 text-left transition cursor-pointer group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+                  📖
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-black text-amber-950">
+                    ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ଲଗ୍ (Vedic Stories)
+                  </div>
+                  <div className="text-[10px] text-amber-900/80 font-medium truncate">
+                    ପ୍ରଭୁ ଶ୍ରୀ ଜଗନ୍ନାଥଙ୍କ ଲୀଳା ଓ ଭକ୍ତ ଚରିତାମୃତ
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-amber-800 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              {/* Option 3: Temple Shorts & Reels */}
+              <button
+                onClick={() => {
+                  setDevotionalModalOpen(false);
+                  if (onNavigateToShorts) onNavigateToShorts();
+                }}
+                className="w-full p-3 bg-gradient-to-r from-amber-50 to-amber-100 hover:from-amber-100 hover:to-amber-200 border border-amber-300 rounded-2xl flex items-center gap-3 text-left transition cursor-pointer group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-red-600 text-white flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-transform">
+                  🎬
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-black text-amber-950">
+                    ମନ୍ଦିର ପୂଜା ଭିଡିଓ (Live Shorts & Reels)
+                  </div>
+                  <div className="text-[10px] text-amber-900/80 font-medium truncate">
+                    ଦିବ୍ୟ ଆରତି ଓ ପୂଜାର ଭର୍ଟିକାଲ୍ Shorts
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-amber-800 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
