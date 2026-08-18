@@ -20,6 +20,7 @@ import {
   PujaStatusIllustration,
   DevotionalOmIllustration
 } from './AppIcons';
+import { ExploreDistrictSection } from './ExploreDistrictSection';
 
 interface HomePageProps {
   activePujari: Pujari | null;
@@ -49,7 +50,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   };
 
   return (
-    <div className="w-full max-w-lg md:max-w-3xl mx-auto px-3 sm:px-6 pt-2 pb-6 space-y-4 sm:space-y-6 box-border select-none">
+    <div className="w-full max-w-lg md:max-w-3xl mx-auto px-3 sm:px-6 pt-2 pb-2 space-y-4 sm:space-y-6 box-border select-none">
       {/* ------------------------------------------------------------- */}
       {/* 1. NATIVE MOBILE APP HEADER & TEMPLE SCENIC BACKDROP           */}
       {/* ------------------------------------------------------------- */}
@@ -298,6 +299,11 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         )}
       </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* 5. EXPLORE ODISHA BY DISTRICT (30 DISTRICTS)                   */}
+      {/* ------------------------------------------------------------- */}
+      <ExploreDistrictSection onNavigateToTemples={onNavigateToTemple} />
 
       {/* ------------------------------------------------------------- */}
       {/* DEVOTIONAL CONTENT SELECTION MODAL                            */}

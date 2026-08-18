@@ -242,7 +242,7 @@ export default function App() {
       />
 
       {/* Main View Area */}
-      <main className="flex-1 w-full max-w-full overflow-x-hidden box-border pb-20 sm:pb-24">
+      <main className="w-full max-w-full overflow-x-hidden box-border">
         <ErrorBoundary onReset={() => setViewMode('home')}>
           <Suspense
             fallback={
@@ -347,33 +347,35 @@ export default function App() {
       </main>
 
       {/* Footer Section: Privacy Policy & Terms of Use */}
-      <Footer />
+      {viewMode !== 'shorts' && <Footer />}
 
       {/* Fixed Native Mobile App Bottom Navigation Bar */}
-      <BottomNav
-        currentView={viewMode}
-        activePujari={activePujari}
-        onNavigateHome={() => {
-          setCurrentRole('pujari');
-          setViewMode('home');
-        }}
-        onNavigateBookings={() => {
-          if (activePujari) {
-            setViewMode('portal');
-          } else {
-            setViewMode('temple');
-          }
-        }}
-        onNavigateTemples={() => setViewMode('temple')}
-        onNavigateProfile={() => {
-          if (activePujari) {
-            setViewMode('portal');
-          } else {
-            setViewMode('login');
-          }
-        }}
-        onOpenAdminModal={() => setAdminModalOpen(true)}
-      />
+      {viewMode !== 'shorts' && (
+        <BottomNav
+          currentView={viewMode}
+          activePujari={activePujari}
+          onNavigateHome={() => {
+            setCurrentRole('pujari');
+            setViewMode('home');
+          }}
+          onNavigateBookings={() => {
+            if (activePujari) {
+              setViewMode('portal');
+            } else {
+              setViewMode('temple');
+            }
+          }}
+          onNavigateTemples={() => setViewMode('temple')}
+          onNavigateProfile={() => {
+            if (activePujari) {
+              setViewMode('portal');
+            } else {
+              setViewMode('login');
+            }
+          }}
+          onOpenAdminModal={() => setAdminModalOpen(true)}
+        />
+      )}
 
       {/* Admin Login Modal & SiteLock in Suspense */}
       <Suspense fallback={null}>

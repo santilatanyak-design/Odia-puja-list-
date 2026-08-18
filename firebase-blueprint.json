@@ -114,6 +114,29 @@
         "pujariId": { "type": "string" }
       },
       "required": ["deviceHash", "voterIdPin", "claimedAt"]
+    },
+    "district_item": {
+      "title": "District Content Item",
+      "description": "Temples, festivals, and spiritual stories organized by Odisha districts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "districtId": { "type": "string" },
+        "districtNameOdia": { "type": "string" },
+        "districtNameEng": { "type": "string" },
+        "category": { "type": "string", "enum": ["temple", "festival", "story"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "location": { "type": "string" },
+        "significance": { "type": "string" },
+        "famousFestivals": { "type": "string" },
+        "bestTimeToVisit": { "type": "string" },
+        "externalLink": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "districtId", "category", "title", "description"]
     }
   },
   "firestore": {
@@ -124,6 +147,10 @@
     "/pujari_lists/{listId}": {
       "schema": "pujari_list",
       "description": "Puja Samagri lists"
+    },
+    "/district_content/{itemId}": {
+      "schema": "district_item",
+      "description": "Odisha district-wise temples, festivals and spiritual stories"
     },
     "/free_claims_devices/{deviceHash}": {
       "schema": "free_claim",

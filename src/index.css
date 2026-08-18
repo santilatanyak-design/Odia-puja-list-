@@ -10,6 +10,8 @@ html, body, #root {
   overflow-x: hidden !important;
   margin: 0;
   padding: 0;
+  background-color: #FFFBF0 !important;
+  min-height: 100vh;
 }
 
 @layer base {

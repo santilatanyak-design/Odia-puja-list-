@@ -5,51 +5,62 @@ export const Footer: React.FC = () => {
 
   return (
     <>
-      <footer className="w-full bg-[#FAF5E6] border-t border-amber-200/80 text-amber-950/80 py-6 px-4 sm:px-6 lg:px-8 mt-12 text-xs leading-relaxed font-sans">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Copyright notice */}
-          <div className="text-gray-600 text-xs font-medium text-center sm:text-left">
+      <footer
+        id="app-footer"
+        className="w-full bg-[#FFFBF0] border-t border-amber-300/80 text-amber-950/90 pt-4 pb-16 sm:pb-6 px-4 text-xs sm:text-sm leading-relaxed font-sans text-center space-y-2 relative z-10"
+      >
+        <div className="max-w-4xl mx-auto space-y-2">
+          {/* Copyright notice & Branding matching the original design */}
+          <p className="text-slate-800 font-serif font-medium text-xs sm:text-sm">
             © {new Date().getFullYear()} Puja Samagri Portal. All Rights Reserved.
-          </div>
+          </p>
 
-          {/* Links: About Us, Complaint, Privacy Policies */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-semibold">
+          {/* Clean Underlined Text Links separated by pipe characters */}
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 text-xs sm:text-sm font-serif">
             <button
+              id="footer-btn-about"
               type="button"
               onClick={() => setActiveModal('about')}
-              className="text-amber-900 hover:text-amber-700 underline underline-offset-2 transition-colors cursor-pointer"
+              className="text-amber-950 hover:text-[#8B0000] underline underline-offset-4 decoration-amber-400 font-medium transition cursor-pointer flex items-center gap-1"
             >
-              ℹ️ About Us (ଆମ ବିଷୟରେ)
+              <span>ℹ️</span>
+              <span>About Us (ଆମ ବିଷୟରେ)</span>
             </button>
 
-            <span className="text-amber-300">|</span>
+            <span className="text-amber-400 font-bold select-none">|</span>
 
             <button
+              id="footer-btn-complaint"
               type="button"
               onClick={() => setActiveModal('complaint')}
-              className="text-amber-900 hover:text-amber-700 underline underline-offset-2 transition-colors cursor-pointer"
+              className="text-amber-950 hover:text-[#8B0000] underline underline-offset-4 decoration-amber-400 font-medium transition cursor-pointer flex items-center gap-1"
             >
-              📩 Complaint & Support (ଅଭିଯୋଗ)
+              <span>📩</span>
+              <span>Complaint & Support (ଅଭିଯୋଗ)</span>
             </button>
 
-            <span className="text-amber-300">|</span>
+            <span className="text-amber-400 font-bold select-none">|</span>
 
             <button
+              id="footer-btn-policy-odia"
               type="button"
               onClick={() => setActiveModal('odia')}
-              className="text-amber-900 hover:text-amber-700 underline underline-offset-2 transition-colors cursor-pointer"
+              className="text-amber-950 hover:text-[#8B0000] underline underline-offset-4 decoration-amber-400 font-medium transition cursor-pointer flex items-center gap-1"
             >
-              🔒 ଗୋପନୀୟତା ନୀତି (Odia)
+              <span>🔒</span>
+              <span>ନୀତି (Odia)</span>
             </button>
 
-            <span className="text-amber-300">|</span>
+            <span className="text-amber-400 font-bold select-none">|</span>
 
             <button
+              id="footer-btn-policy-en"
               type="button"
               onClick={() => setActiveModal('english')}
-              className="text-amber-900 hover:text-amber-700 underline underline-offset-2 transition-colors cursor-pointer"
+              className="text-amber-950 hover:text-[#8B0000] underline underline-offset-4 decoration-amber-400 font-medium transition cursor-pointer flex items-center gap-1"
             >
-              🔒 Privacy Policy (English)
+              <span>🛡️</span>
+              <span>Privacy Policy (EN)</span>
             </button>
           </div>
         </div>

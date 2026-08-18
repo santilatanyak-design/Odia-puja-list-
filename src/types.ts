@@ -285,3 +285,65 @@ export interface SpiritualStory {
   publishedAt: string;
   isFeatured?: boolean;
 }
+
+export type DistrictCategory = 'temple' | 'festival' | 'story';
+
+export interface DistrictItem {
+  id: string;
+  districtId: string;
+  districtNameOdia: string;
+  districtNameEng: string;
+  category: DistrictCategory;
+  title: string;
+  description: string;
+  imageUrl?: string;
+  location?: string;
+  significance?: string;
+  famousFestivals?: string;
+  bestTimeToVisit?: string;
+  externalLink?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface OdishaDistrictInfo {
+  id: string;
+  nameOdia: string;
+  nameEng: string;
+  tagline: string;
+  icon: string;
+}
+
+export const ODISHA_DISTRICTS: OdishaDistrictInfo[] = [
+  { id: 'puri', nameOdia: 'ପୁରୀ', nameEng: 'Puri', tagline: 'ଶ୍ରୀକ୍ଷେତ୍ର ଧାମ ଓ ଜଗନ୍ନାଥ ସଂସ୍କୃତି', icon: '🚩' },
+  { id: 'khordha', nameOdia: 'ଖୋର୍ଦ୍ଧା / ଭୁବନେଶ୍ୱର', nameEng: 'Khordha', tagline: 'ଏକାମ୍ର କ୍ଷେତ୍ର ଓ ମନ୍ଦିରମାଳିନୀ ନଗରୀ', icon: '🛕' },
+  { id: 'cuttack', nameOdia: 'କଟକ', nameEng: 'Cuttack', tagline: 'ଭାଇଚାରା ନଗରୀ ଓ ପ୍ରସିଦ୍ଧ ବାଲିଯାତ୍ରା', icon: '⛵' },
+  { id: 'ganjam', nameOdia: 'ଗଞ୍ଜାମ', nameEng: 'Ganjam', tagline: 'ମା’ ତାରାତାରିଣୀ ପୀଠ ଓ ଦଣ୍ଡନାଚ', icon: '🌺' },
+  { id: 'sambalpur', nameOdia: 'ସମ୍ବଲପୁର', nameEng: 'Sambalpur', tagline: 'ମା’ ସମଲେଶ୍ୱରୀ ଓ ଶୀତଳଷଷ୍ଠୀ ଯାତ୍ରା', icon: '🪘' },
+  { id: 'balasore', nameOdia: 'ବାଲେଶ୍ୱର', nameEng: 'Balasore', tagline: 'ଚାନ୍ଦୀପୁର ବେଳାଭୂମି ଓ ଖୀରଚୋରା ଗୋପୀନାଥ', icon: '🌊' },
+  { id: 'mayurbhanj', nameOdia: 'ମୟୂରଭଞ୍ଜ', nameEng: 'Mayurbhanj', tagline: 'ଶିମିଳିପାଳ ଅଭୟାରଣ୍ୟ ଓ ଛଉ ନୃତ୍ୟ', icon: '🦚' },
+  { id: 'bhadrak', nameOdia: 'ଭଦ୍ରକ', nameEng: 'Bhadrak', tagline: 'ମା’ ଭଦ୍ରକାଳୀ ଓ ଆଖଣ୍ଡଳମଣି ପୀଠ', icon: '🔱' },
+  { id: 'jajpur', nameOdia: 'ଯାଜପୁର', nameEng: 'Jajpur', tagline: 'ବିରଜା କ୍ଷେତ୍ର ଓ ନାଭିଗୟା ପୀଠ', icon: '🪔' },
+  { id: 'kendrapara', nameOdia: 'କେନ୍ଦ୍ରାପଡ଼ା', nameEng: 'Kendrapara', tagline: 'ତୁଳସୀ କ୍ଷେତ୍ର ଶ୍ରୀ ବଳଦେବଜୀଉ', icon: '🔔' },
+  { id: 'jagatsinghpur', nameOdia: 'ଜଗତସିଂହପୁର', nameEng: 'Jagatsinghpur', tagline: 'ମା’ ଶାରଳା ପୀଠ ଓ ପାରାଦ୍ୱୀପ ବନ୍ଦର', icon: '📜' },
+  { id: 'dhenkanal', nameOdia: 'ଢେଙ୍କାନାଳ', nameEng: 'Dhenkanal', tagline: 'ମହିମା ଗାଦି ଯୋରନ୍ଦା ଓ କପିଳାସ ପୀଠ', icon: '🏔️' },
+  { id: 'angul', nameOdia: 'ଅନୁଗୋଳ', nameEng: 'Angul', tagline: 'ତାଳଚେର ରାଜପ୍ରାସାଦ ଓ ଟିିକରପଡ଼ା', icon: '🌲' },
+  { id: 'nayagarh', nameOdia: 'ନୟାଗଡ଼', nameEng: 'Nayagarh', tagline: 'କଣ୍ଟିଲୋ ନୀଳମାଧବ ଓ ଛେନାପୋଡ଼', icon: '🍮' },
+  { id: 'koraput', nameOdia: 'କୋରାପୁଟ', nameEng: 'Koraput', tagline: 'ଜଗନ୍ନାଥ ଶାବର ଶ୍ରୀକ୍ଷେତ୍ର ଓ ଦେଓମାଳୀ', icon: '⛰️' },
+  { id: 'rayagada', nameOdia: 'ରାୟଗଡ଼ା', nameEng: 'Rayagada', tagline: 'ମା’ ମଝିଘରିଆଣୀ ମନ୍ଦିର', icon: '✨' },
+  { id: 'nabarangpur', nameOdia: 'ନବରଙ୍ଗପୁର', nameEng: 'Nabarangpur', tagline: 'ମା’ ଭଣ୍ଡାରଘରଣୀ ଓ ଆଦିବାସୀ ସଂସ୍କୃତି', icon: '🌿' },
+  { id: 'malkangiri', nameOdia: 'ମାଲକାନଗିରି', nameEng: 'Malkangiri', tagline: 'ସତୀଗୁଡ଼ା ଡ୍ୟାମ୍ ଓ ବାଲିମେଳା', icon: '🌄' },
+  { id: 'kalahandi', nameOdia: 'କଳାହାଣ୍ଡି', nameEng: 'Kalahandi', tagline: 'ମା’ ମାଣିକେଶ୍ୱରୀ ଓ ଛତର ଯାତ୍ରା', icon: '🛡️' },
+  { id: 'nuapada', nameOdia: 'ନୂଆପଡ଼ା', nameEng: 'Nuapada', tagline: 'ପାତୋରା ଡ୍ୟାମ୍ ଓ ଯୋଗୀମଠ', icon: '🦅' },
+  { id: 'balangir', nameOdia: 'ବଲାଙ୍ଗୀର', nameEng: 'Balangir', tagline: 'ହରିଶଙ୍କର ପୀଠ ଓ ଗନ୍ଧମାର୍ଦ୍ଦନ ପର୍ବତ', icon: '🍃' },
+  { id: 'bargarh', nameOdia: 'ବରଗଡ଼', nameEng: 'Bargarh', tagline: 'ବିଶ୍ୱ ପ୍ରସିଦ୍ଧ ଧନୁଯାତ୍ରା ଓ ନୃସିଂହନାଥ ପୀଠ', icon: '🎭' },
+  { id: 'subarnapur', nameOdia: 'ସୁବର୍ଣ୍ଣପୁର / ସୋନପୁର', nameEng: 'Subarnapur', tagline: 'ଦ୍ୱିତୀୟ ବାରଣାସୀ ଓ ସୁରେଶ୍ୱରୀ ମନ୍ଦିର', icon: '🏮' },
+  { id: 'boudh', nameOdia: 'ବୌଦ୍ଧ', nameEng: 'Boudh', tagline: 'ରାମନାଥ ମନ୍ଦିର ଓ ପ୍ରାଚୀନ ବୌଦ୍ଧ କୀର୍ତ୍ତି', icon: '☸️' },
+  { id: 'kandhamal', nameOdia: 'କନ୍ଧମାଳ', nameEng: 'Kandhamal', tagline: 'ଦାରିଙ୍ଗବାଡ଼ି ଓ ପ୍ରାକୃତିକ ସୌନ୍ଦର୍ଯ୍ୟ', icon: '❄️' },
+  { id: 'gajapati', nameOdia: 'ଗଜପତି', nameEng: 'Gajapati', tagline: 'ମହେନ୍ଦ୍ରଗିରି ଓ ପାରଳାଖେମୁଣ୍ଡି ପ୍ୟାଲେସ୍', icon: '🏰' },
+  { id: 'sundargarh', nameOdia: 'ସୁନ୍ଦରଗଡ଼', nameEng: 'Sundargarh', tagline: 'ବେଦବ୍ୟାସ ତ୍ରିବେଣୀ ସଙ୍ଗମ ଓ ରାଉରକେଲା', icon: '🕉️' },
+  { id: 'keonjhar', nameOdia: 'କେନ୍ଦୁଝର', nameEng: 'Keonjhar', tagline: 'ଘଟଗାଁ ମା’ ତାରିଣୀ ଓ ସଂଘାଘରା ଜଳପ୍ରପାତ', icon: '🥥' },
+  { id: 'jharsuguda', nameOdia: 'ଝାରସୁଗୁଡ଼ା', nameEng: 'Jharsuguda', tagline: 'ଝାରେଶ୍ୱର ମନ୍ଦିର ଓ କୋଇଲା ଉପତ୍ୟକା', icon: '🚂' },
+  { id: 'deogarh', nameOdia: 'ଦେବଗଡ଼', nameEng: 'Deogarh', tagline: 'ପ୍ରଧାନପାଟ ଜଳପ୍ରପାତ ଓ ରାଜବାଟୀ', icon: '🏞️' },
+];
+
