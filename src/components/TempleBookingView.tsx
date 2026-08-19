@@ -1218,28 +1218,11 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
               </div>
             </div>
 
-            <div className="pt-2 border-t border-amber-200 flex flex-col sm:flex-row gap-2">
+            <div className="pt-2 border-t border-amber-200 flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => handleShareTemple(selectedHistoryTemple)}
-                className="py-2.5 px-4 bg-amber-200 hover:bg-amber-300 active:scale-95 text-amber-950 font-black rounded-xl text-xs border border-amber-400 transition cursor-pointer flex items-center justify-center gap-2 shadow-xs"
-              >
-                {copiedTempleId === selectedHistoryTemple.id ? (
-                  <>
-                    <Check className="w-4 h-4 text-emerald-700" />
-                    <span>ଲିଙ୍କ୍ କପି ହେଲା (Copied!)</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-4 h-4 text-amber-900" />
-                    <span>ମନ୍ଦିର ସେୟାର୍ କରନ୍ତୁ (Share Temple)</span>
-                  </>
-                )}
-              </button>
-
-              <button
                 onClick={() => setSelectedHistoryTemple(null)}
-                className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold rounded-xl text-xs cursor-pointer"
+                className="py-2.5 px-4 bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold rounded-xl text-xs cursor-pointer transition"
               >
                 ବନ୍ଦ କରନ୍ତୁ (Close)
               </button>
@@ -1249,12 +1232,13 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                 </div>
               ) : (
                 <button
+                  type="button"
                   onClick={() => {
                     const target = selectedHistoryTemple;
                     setSelectedHistoryTemple(null);
                     openBookingModal(target);
                   }}
-                  className="flex-1 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-xl text-xs shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                  className="flex-1 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-xl text-xs shadow-md cursor-pointer flex items-center justify-center gap-1.5 transition"
                 >
                   <Calendar className="w-3.5 h-3.5 text-amber-300" />
                   <span>ବୁକିଂ କରନ୍ତୁ (Book Now)</span>
