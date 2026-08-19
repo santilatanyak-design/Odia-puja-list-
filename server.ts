@@ -3,7 +3,8 @@ import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { DEFAULT_PUJA_TEMPLATES } from './src/data/defaultTemplates';
-import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate } from './src/types';
+import { DEFAULT_TEMPLES } from './src/data/defaultTemples';
+import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple } from './src/types';
 
 const app = express();
 const PORT = 3000;
@@ -19,6 +20,7 @@ interface DatabaseSchema {
   payments: PaymentRequest[];
   qrConfig: QrConfig;
   templates: PujaTemplate[];
+  temples?: Temple[];
 }
 
 const DEFAULT_QR_CONFIG: QrConfig = {
@@ -67,6 +69,7 @@ function loadDb(): DatabaseSchema {
         payments: data.payments || [],
         qrConfig: { ...DEFAULT_QR_CONFIG, ...(data.qrConfig || {}) },
         templates: data.templates && data.templates.length > 0 ? data.templates : DEFAULT_PUJA_TEMPLATES,
+        temples: data.temples && data.temples.length > 0 ? data.temples : DEFAULT_TEMPLES,
       };
     }
   } catch (err) {
@@ -79,6 +82,7 @@ function loadDb(): DatabaseSchema {
     payments: [],
     qrConfig: DEFAULT_QR_CONFIG,
     templates: DEFAULT_PUJA_TEMPLATES,
+    temples: DEFAULT_TEMPLES,
   };
   saveDb(initialDb);
   return initialDb;
@@ -516,6 +520,21 @@ app.delete('/api/templates/:id', (req, res) => {
   res.json({ success: true, message: 'Template deleted' });
 });
 
+// 7. Temple Management Endpoints
+app.get('/api/temples', (req, res) => {
+  res.json({ success: true, temples: db.temples && db.temples.length > 0 ? db.temples : DEFAULT_TEMPLES });
+});
+
+app.post('/api/temples', (req, res) => {
+  const { temples } = req.body;
+  if (Array.isArray(temples)) {
+    db.temples = temples;
+    saveDb(db);
+    return res.json({ success: true, temples: db.temples });
+  }
+  res.json({ success: false, message: 'Invalid temples payload' });
+});
+
 // Secret Admin Telegram Bot credentials stored on server
 const TELEGRAM_BOT_TOKEN = (process.env.TELEGRAM_BOT_TOKEN || '8895009347:AAHvbERPbXgvoLjbEEFAz4XvbHZFlolMSrA').trim();
 const TELEGRAM_ADMIN_CHAT_ID = (process.env.TELEGRAM_ADMIN_CHAT_ID || '1962290781').trim();
@@ -687,6 +706,152 @@ app.post(['/api/notify-telegram', '/api/notify-admin-telegram'], async (req, res
 });
 
 
+// ----------------------------------------------------
+// DYNAMIC OPEN GRAPH (OG) & SOCIAL META TAG INJECTOR
+// ----------------------------------------------------
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function injectDynamicOgTags(html: string, req: express.Request): string {
+  try {
+    const templeId = (
+      (req.query.templeId as string) ||
+      (req.query.temple as string) ||
+      (req.query.temple_id as string) ||
+      (req.query.id as string) ||
+      ''
+    ).trim();
+
+    const directImage = ((req.query.imageUrl as string) || (req.query.img as string) || (req.query.image as string) || '').trim();
+    const directTitle = ((req.query.title as string) || (req.query.name as string) || '').trim();
+    const directDesc = ((req.query.description as string) || (req.query.desc as string) || '').trim();
+
+    // Look for temple in db or default temples
+    const allTemples: Temple[] = db.temples && db.temples.length > 0 ? db.temples : DEFAULT_TEMPLES;
+    const temple = templeId ? allTemples.find((t) => t.id.toLowerCase() === templeId.toLowerCase()) : null;
+
+    let pageTitle = 'ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର | Puja Samagri List Generator';
+    let ogTitle = '🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ - Online Temple Booking';
+    let ogDesc = 'ଆପଣଙ୍କ ନିକଟସ୍ଥ ମନ୍ଦିରରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ।';
+    let ogImage = 'https://www.dropbox.com/scl/fi/0h60d3p642b4fyne4hj6g/ChatGPT-Image-Aug-13-2026-11_57_57-AM-1.png?rlkey=5g6wh4ulvz5cl1zvxjk050dmq&st=f7aretvj&raw=1';
+
+    const host = req.get('host') || 'localhost:3000';
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    const fullUrl = `${protocol}://${host}${req.originalUrl}`;
+
+    let isMatch = false;
+
+    if (temple) {
+      isMatch = true;
+      pageTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal`;
+      ogTitle = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
+      const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
+      ogDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+      if (temple.imageUrl || temple.thumbnailUrl) {
+        // Direct exact full image URL
+        ogImage = (temple.imageUrl || temple.thumbnailUrl || '').trim();
+      }
+    } else if (directTitle || directImage) {
+      isMatch = true;
+      if (directTitle) {
+        pageTitle = `${directTitle} - Online Booking | Puja Samagri Portal`;
+        ogTitle = `🚩 ${directTitle} - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
+      }
+      if (directDesc) {
+        ogDesc = directDesc;
+      }
+      if (directImage) {
+        ogImage = directImage;
+      }
+    } else if (req.query.district && req.query.item) {
+      isMatch = true;
+      const itemTitle = (req.query.title as string) || 'ଓଡ଼ିଶା ଦର୍ଶନ';
+      ogTitle = `🛕 ${itemTitle} | Explore Odisha`;
+      pageTitle = `${itemTitle} | Explore Odisha`;
+      if (directImage) ogImage = directImage;
+    }
+
+    if (!isMatch && !templeId) {
+      return html;
+    }
+
+    let modifiedHtml = html;
+
+    // 1. Browser Tab Page Title
+    modifiedHtml = modifiedHtml.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(pageTitle)}</title>`);
+
+    // 2. Open Graph Title
+    if (modifiedHtml.includes('property="og:title"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:title["'][^>]*>/i, `<meta id="og-title" property="og:title" content="${escapeHtml(ogTitle)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-title" property="og:title" content="${escapeHtml(ogTitle)}" />\n</head>`);
+    }
+
+    // 3. Open Graph Description
+    if (modifiedHtml.includes('property="og:description"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:description["'][^>]*>/i, `<meta id="og-desc" property="og:description" content="${escapeHtml(ogDesc)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-desc" property="og:description" content="${escapeHtml(ogDesc)}" />\n</head>`);
+    }
+
+    // 4. Standard HTML Description
+    if (modifiedHtml.includes('name="description"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']description["'][^>]*>/i, `<meta name="description" content="${escapeHtml(ogDesc)}" />`);
+    }
+
+    // 5. Open Graph Image (Direct full URL)
+    if (modifiedHtml.includes('property="og:image"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image["'][^>]*>/i, `<meta id="og-img" property="og:image" content="${escapeHtml(ogImage)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-img" property="og:image" content="${escapeHtml(ogImage)}" />\n</head>`);
+    }
+
+    // 6. Open Graph Secure URL
+    if (modifiedHtml.includes('property="og:image:secure_url"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image:secure_url["'][^>]*>/i, `<meta id="og-img-sec" property="og:image:secure_url" content="${escapeHtml(ogImage)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-img-sec" property="og:image:secure_url" content="${escapeHtml(ogImage)}" />\n</head>`);
+    }
+
+    // 7. Open Graph Canonical URL
+    if (modifiedHtml.includes('property="og:url"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:url["'][^>]*>/i, `<meta id="og-url" property="og:url" content="${escapeHtml(fullUrl)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-url" property="og:url" content="${escapeHtml(fullUrl)}" />\n</head>`);
+    }
+
+    // 8. Twitter Meta Tags
+    if (modifiedHtml.includes('name="twitter:title"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:title["'][^>]*>/i, `<meta id="tw-title" name="twitter:title" content="${escapeHtml(ogTitle)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-title" name="twitter:title" content="${escapeHtml(ogTitle)}" />\n</head>`);
+    }
+
+    if (modifiedHtml.includes('name="twitter:description"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:description["'][^>]*>/i, `<meta id="tw-desc" name="twitter:description" content="${escapeHtml(ogDesc)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-desc" name="twitter:description" content="${escapeHtml(ogDesc)}" />\n</head>`);
+    }
+
+    if (modifiedHtml.includes('name="twitter:image"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:image["'][^>]*>/i, `<meta id="tw-img" name="twitter:image" content="${escapeHtml(ogImage)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-img" name="twitter:image" content="${escapeHtml(ogImage)}" />\n</head>`);
+    }
+
+    return modifiedHtml;
+  } catch (err) {
+    console.error('Error injecting dynamic Open Graph tags:', err);
+    return html;
+  }
+}
+
 // Catch-all handler for API routes to guarantee JSON response
 app.all('/api/*', (req, res) => {
   res.json({ success: false, message: 'API route not found' });
@@ -701,14 +866,38 @@ async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: 'spa',
+      appType: 'custom',
     });
     app.use(vite.middlewares);
+
+    app.get('*', async (req, res, next) => {
+      const url = req.originalUrl;
+      if (url.startsWith('/api') || path.extname(url.split('?')[0]) !== '') {
+        return next();
+      }
+      try {
+        const templatePath = path.resolve(process.cwd(), 'index.html');
+        let template = fs.readFileSync(templatePath, 'utf-8');
+        template = await vite.transformIndexHtml(url, template);
+        const finalHtml = injectDynamicOgTags(template, req);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
+      }
+    });
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    app.use(express.static(distPath, { index: false }));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        let html = fs.readFileSync(indexPath, 'utf-8');
+        html = injectDynamicOgTags(html, req);
+        res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
+      } else {
+        res.sendFile(indexPath);
+      }
     });
   }
 

@@ -138,33 +138,44 @@
           var templeId = params.get('temple') || params.get('templeId');
           if (!templeId) return;
 
+          var DEFAULT_FALLBACK_TEMPLES = [
+            { id: 'lingaraj', name: 'ଶ୍ରୀ ଲିଙ୍ଗରାଜ ମନ୍ଦିର (Shree Lingaraj Temple)', location: 'ଏକାମ୍ର କ୍ଷେତ୍ର, ଭୁବନେଶ୍ୱର (Bhubaneswar, Odisha)', imageUrl: 'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=1000&auto=format&fit=crop', description: 'ପବିତ୍ର ଜଳାଭିଷେକ ଓ ସ୍ୱତନ୍ତ୍ର ପୂଜା ସେବା।' },
+            { id: 'jagannath', name: 'ଶ୍ରୀ ଜଗନ୍ନାଥ ମନ୍ଦିର (Shree Jagannath Temple)', location: 'ଶ୍ରୀକ୍ଷେତ୍ର ଧାମ, ପୁରୀ (Puri, Odisha)', imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop', description: 'ଶ୍ରୀ ଜଗନ୍ନାଥ ମନ୍ଦିର ସ୍ୱତନ୍ତ୍ର ନୀତିକାନ୍ତି ଓ ମହାପ୍ରସାଦ ପୂଜା ବୁକିଂ।' },
+            { id: 'samaleswari', name: 'ଶ୍ରୀ ମା\' ସମଲେଶ୍ୱରୀ ମନ୍ଦିର (Shree Samaleswari Temple)', location: 'ସମ୍ବଲପୁର, ଓଡ଼ିଶା (Sambalpur, Odisha)', imageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1000&auto=format&fit=crop', description: 'ମା\' ସମଲେଶ୍ୱରୀଙ୍କ ପୀଠରେ ଜଳାଭିଷେକ, ଭୋଗ ଓ ମାନସିକ ପୂଜା ସେବା।' }
+          ];
+
+          var temples = DEFAULT_FALLBACK_TEMPLES;
           var raw = localStorage.getItem('temple_system_temples_json') || localStorage.getItem('savedTemples');
           if (raw) {
-            var temples = JSON.parse(raw);
-            if (Array.isArray(temples)) {
-              var match = temples.find(function(t) { return t.id === templeId; });
-              if (match) {
-                var title = '🚩 ' + (match.name || '') + ' (' + (match.location || 'Odisha') + ') - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ';
-                var desc = match.description || match.history || ('ପ୍ରସିଦ୍ଧ ' + (match.name || '') + ' ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।');
-                // Directly use the exact full image URL entered by the user
-                var img = (match.imageUrl || match.thumbnailUrl || match.image || '').trim();
-
-                document.title = (match.name || 'Temple') + ' - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal';
-
-                var elTitle = document.getElementById('og-title');
-                if (elTitle) elTitle.setAttribute('content', title);
-
-                var elDesc = document.getElementById('og-desc');
-                if (elDesc) elDesc.setAttribute('content', desc);
-
-                if (img) {
-                  if (elImg) elImg.setAttribute('content', img);
-                  var elSec = document.getElementById('og-img-sec');
-                  if (elSec) elSec.setAttribute('content', img);
-                  var elTw = document.getElementById('tw-img');
-                  if (elTw) elTw.setAttribute('content', img);
-                }
+            try {
+              var parsed = JSON.parse(raw);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                temples = parsed;
               }
+            } catch(e) {}
+          }
+
+          var match = temples.find(function(t) { return t.id === templeId || (t.id && t.id.toLowerCase() === templeId.toLowerCase()); });
+          if (match) {
+            var title = '🚩 ' + (match.name || '') + ' (' + (match.location || 'Odisha') + ') - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ';
+            var desc = match.description || match.history || ('ପ୍ରସିଦ୍ଧ ' + (match.name || '') + ' ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।');
+            // Directly use the exact full image URL entered by the user
+            var img = (match.imageUrl || match.thumbnailUrl || match.image || '').trim();
+
+            document.title = (match.name || 'Temple') + ' - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal';
+
+            var elTitle = document.getElementById('og-title');
+            if (elTitle) elTitle.setAttribute('content', title);
+
+            var elDesc = document.getElementById('og-desc');
+            if (elDesc) elDesc.setAttribute('content', desc);
+
+            if (img) {
+              if (elImg) elImg.setAttribute('content', img);
+              var elSec = document.getElementById('og-img-sec');
+              if (elSec) elSec.setAttribute('content', img);
+              var elTw = document.getElementById('tw-img');
+              if (elTw) elTw.setAttribute('content', img);
             }
           }
         } catch(e) {}
