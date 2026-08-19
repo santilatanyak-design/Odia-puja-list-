@@ -3,6 +3,7 @@ import { Temple, DistrictItem } from '../types';
 /**
  * Dynamically updates Open Graph (og:*), Twitter Card, and standard Meta Tags
  * in document.head for Facebook, WhatsApp, Twitter, and other preview scrapers.
+ * Directly inserts the exact full image URL provided for the temple into og:image.
  */
 export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
@@ -17,13 +18,13 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} (${temple.location || 'Odisha'}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
   const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   
-  // High quality image priority: custom thumbnailUrl -> imageUrl -> fallback
-  const imageUrl = (temple.thumbnailUrl || temple.imageUrl || '').trim();
+  // Directly use the exact full image URL provided by the user when adding/editing the temple without shortening or processing
+  const imageUrl = (temple.imageUrl || temple.thumbnailUrl || '').trim();
 
   // Set browser tab title
   document.title = pageTitle;
 
-  const setOrCreateMeta = (attrName: 'name' | 'property', attrValue: string, contentValue: string) => {
+  const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: string, contentValue: string) => {
     let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
     if (!el) {
       el = document.createElement('meta');
@@ -33,7 +34,7 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
     el.setAttribute('content', contentValue);
   };
 
-  const removeMetaTag = (attrName: 'name' | 'property', attrValue: string) => {
+  const removeMetaTag = (attrName: 'name' | 'property' | 'itemprop', attrValue: string) => {
     const el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
     if (el) el.remove();
   };
@@ -41,7 +42,7 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   // Standard HTML Description
   setOrCreateMeta('name', 'description', metaDescription);
 
-  // Open Graph (Facebook / WhatsApp / LinkedIn)
+  // Open Graph (Facebook / WhatsApp / LinkedIn / Telegram)
   setOrCreateMeta('property', 'og:type', 'website');
   setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV & Puja Samagri Portal');
   setOrCreateMeta('property', 'og:title', metaTitle);
@@ -49,28 +50,31 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   setOrCreateMeta('property', 'og:url', shareUrl);
 
   if (imageUrl) {
+    // Directly insert the exact full image URL without processing, shortening or alterations
     setOrCreateMeta('property', 'og:image', imageUrl);
     setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+    setOrCreateMeta('property', 'og:image:url', imageUrl);
     setOrCreateMeta('property', 'og:image:alt', temple.name);
-    setOrCreateMeta('property', 'og:image:width', '800');
-    setOrCreateMeta('property', 'og:image:height', '800');
+    
+    setOrCreateMeta('name', 'twitter:image', imageUrl);
+    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
+    setOrCreateMeta('name', 'image', imageUrl);
+    setOrCreateMeta('itemprop', 'image', imageUrl);
   } else {
     removeMetaTag('property', 'og:image');
     removeMetaTag('property', 'og:image:secure_url');
+    removeMetaTag('property', 'og:image:url');
     removeMetaTag('property', 'og:image:alt');
-    removeMetaTag('property', 'og:image:width');
-    removeMetaTag('property', 'og:image:height');
+    removeMetaTag('name', 'twitter:image');
+    removeMetaTag('name', 'twitter:image:src');
+    removeMetaTag('name', 'image');
+    removeMetaTag('itemprop', 'image');
   }
 
   // Twitter Cards
   setOrCreateMeta('name', 'twitter:card', imageUrl ? 'summary_large_image' : 'summary');
   setOrCreateMeta('name', 'twitter:title', metaTitle);
   setOrCreateMeta('name', 'twitter:description', metaDescription);
-  if (imageUrl) {
-    setOrCreateMeta('name', 'twitter:image', imageUrl);
-  } else {
-    removeMetaTag('name', 'twitter:image');
-  }
 
   // Canonical Link
   let canonicalEl = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;

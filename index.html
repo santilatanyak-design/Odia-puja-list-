@@ -25,12 +25,14 @@
     <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
     <meta name="theme-color" content="#b45309" />
     <!-- Open Graph & Social Media Previews -->
-    <meta property="og:title" content="🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ - Online Temple Booking">
-    <meta property="og:description" content="ଆପଣଙ୍କ ନିକଟସ୍ଥ ମନ୍ଦିରରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ।">
-    <meta property="og:image" content="https://www.dropbox.com/scl/fi/0h60d3p642b4fyne4hj6g/ChatGPT-Image-Aug-13-2026-11_57_57-AM-1.png?rlkey=5g6wh4ulvz5cl1zvxjk050dmq&st=f7aretvj&raw=1">
-    <meta property="og:url" content="https://main.d3jris9uwg3szb.amplifyapp.com/">
+    <meta id="og-title" property="og:title" content="🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ - Online Temple Booking">
+    <meta id="og-desc" property="og:description" content="ଆପଣଙ୍କ ନିକଟସ୍ଥ ମନ୍ଦିରରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ।">
+    <meta id="og-img" property="og:image" content="https://www.dropbox.com/scl/fi/0h60d3p642b4fyne4hj6g/ChatGPT-Image-Aug-13-2026-11_57_57-AM-1.png?rlkey=5g6wh4ulvz5cl1zvxjk050dmq&st=f7aretvj&raw=1">
+    <meta id="og-img-sec" property="og:image:secure_url" content="https://www.dropbox.com/scl/fi/0h60d3p642b4fyne4hj6g/ChatGPT-Image-Aug-13-2026-11_57_57-AM-1.png?rlkey=5g6wh4ulvz5cl1zvxjk050dmq&st=f7aretvj&raw=1">
+    <meta id="og-url" property="og:url" content="https://main.d3jris9uwg3szb.amplifyapp.com/">
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta id="tw-card" name="twitter:card" content="summary_large_image">
+    <meta id="tw-img" name="twitter:image" content="https://www.dropbox.com/scl/fi/0h60d3p642b4fyne4hj6g/ChatGPT-Image-Aug-13-2026-11_57_57-AM-1.png?rlkey=5g6wh4ulvz5cl1zvxjk050dmq&st=f7aretvj&raw=1">
 
     <!-- Early Essential Polyfills for Legacy Mobile WebViews & Old Browsers -->
     <script>
@@ -142,11 +144,12 @@
             if (Array.isArray(temples)) {
               var match = temples.find(function(t) { return t.id === templeId; });
               if (match) {
-                var title = match.name + ' - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ';
-                var desc = '🚩 ' + match.name + ' ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।';
-                var img = match.thumbnailUrl || match.imageUrl || match.image || '';
+                var title = '🚩 ' + (match.name || '') + ' (' + (match.location || 'Odisha') + ') - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ';
+                var desc = match.description || match.history || ('ପ୍ରସିଦ୍ଧ ' + (match.name || '') + ' ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।');
+                // Directly use the exact full image URL entered by the user
+                var img = (match.imageUrl || match.thumbnailUrl || match.image || '').trim();
 
-                document.title = title;
+                document.title = (match.name || 'Temple') + ' - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal';
 
                 var elTitle = document.getElementById('og-title');
                 if (elTitle) elTitle.setAttribute('content', title);
@@ -154,8 +157,12 @@
                 var elDesc = document.getElementById('og-desc');
                 if (elDesc) elDesc.setAttribute('content', desc);
 
-                if (img && elImg) {
-                  elImg.setAttribute('content', img);
+                if (img) {
+                  if (elImg) elImg.setAttribute('content', img);
+                  var elSec = document.getElementById('og-img-sec');
+                  if (elSec) elSec.setAttribute('content', img);
+                  var elTw = document.getElementById('tw-img');
+                  if (elTw) elTw.setAttribute('content', img);
                 }
               }
             }
