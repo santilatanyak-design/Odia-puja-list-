@@ -10,6 +10,7 @@ import {
   getPujaTypesFromLocal,
 } from '../lib/templeApi';
 import { generateTempleReceiptJPG } from '../lib/receiptGenerator';
+import { setDynamicTempleMeta, shareTempleNative } from '../lib/ogMetaHelper';
 import {
   Share2,
   Calendar,
@@ -39,58 +40,7 @@ interface TempleBookingViewProps {
 
 // Dynamic Open Graph & Twitter Meta Tag Injector for Temple Sharing
 export const injectSquareOpenGraphMetaTags = (temple: Temple, shareUrl?: string) => {
-  if (typeof document === 'undefined') return;
-
-  const url = shareUrl || `${window.location.origin}${window.location.pathname}?templeId=${temple.id}`;
-  const title = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
-  const description = `🚩 ${temple.name} (${temple.location || 'Odisha'}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
-  
-  // Strict Custom Thumbnail Only: Uses only Admin-saved thumbnailUrl/imageUrl for this temple
-  const customImageUrl = (temple.thumbnailUrl || temple.imageUrl || '').trim();
-
-  if (title) {
-    document.title = title;
-  }
-
-  const updateOrSetMeta = (attrName: 'name' | 'property', attrValue: string, contentValue: string) => {
-    let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-    if (!el) {
-      el = document.createElement('meta');
-      el.setAttribute(attrName, attrValue);
-      document.head.appendChild(el);
-    }
-    el.setAttribute('content', contentValue);
-  };
-
-  const removeMeta = (attrName: 'name' | 'property', attrValue: string) => {
-    const el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-    if (el) el.remove();
-  };
-
-  // Open Graph Specs
-  updateOrSetMeta('property', 'og:type', 'website');
-  updateOrSetMeta('property', 'og:title', title);
-  updateOrSetMeta('property', 'og:description', description);
-  updateOrSetMeta('property', 'og:url', url);
-
-  // Twitter Meta Specs
-  updateOrSetMeta('name', 'twitter:title', title);
-  updateOrSetMeta('name', 'twitter:description', description);
-
-  if (customImageUrl) {
-    updateOrSetMeta('property', 'og:image', customImageUrl);
-    updateOrSetMeta('property', 'og:image:width', '800');
-    updateOrSetMeta('property', 'og:image:height', '800');
-    updateOrSetMeta('name', 'twitter:card', 'summary');
-    updateOrSetMeta('name', 'twitter:image', customImageUrl);
-  } else {
-    // STRICT NO-DEFAULT RULE: If no custom thumbnail exists, clear og:image to prevent wrong previews
-    updateOrSetMeta('property', 'og:image', '');
-    removeMeta('property', 'og:image:width');
-    removeMeta('property', 'og:image:height');
-    removeMeta('name', 'twitter:image');
-    updateOrSetMeta('name', 'twitter:card', 'summary');
-  }
+  setDynamicTempleMeta(temple, shareUrl);
 };
 
 // Dynamic Meta Tag Injection (Runs immediately on page load to swap og:title & og:image)
@@ -113,7 +63,7 @@ export const swapMetaTagsOnPageLoad = () => {
 
     const matchedTemple = temples.find((t) => t.id === templeId);
     if (matchedTemple) {
-      injectSquareOpenGraphMetaTags(matchedTemple);
+      setDynamicTempleMeta(matchedTemple);
     }
   } catch (err) {
     console.warn('Dynamic meta tag swap error on page load:', err);
@@ -236,17 +186,31 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
     };
   }, []);
 
-  // Dynamic 1:1 Square Open Graph meta tag injection on deep-link load
+  // Dynamic Open Graph meta tag injection on deep-link load or temple select
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const templeParam = params.get('templeId');
+    const templeParam = params.get('templeId') || params.get('temple');
     if (templeParam && temples.length > 0) {
       const target = temples.find((t) => t.id === templeParam);
       if (target) {
-        injectSquareOpenGraphMetaTags(target);
+        setDynamicTempleMeta(target);
       }
     }
   }, [temples]);
+
+  // Update dynamic meta tags when user opens temple history/details modal
+  useEffect(() => {
+    if (selectedHistoryTemple) {
+      setDynamicTempleMeta(selectedHistoryTemple);
+    }
+  }, [selectedHistoryTemple]);
+
+  // Update dynamic meta tags when user opens booking modal
+  useEffect(() => {
+    if (selectedTemple) {
+      setDynamicTempleMeta(selectedTemple);
+    }
+  }, [selectedTemple]);
 
   // Update phone if prop changes
   useEffect(() => {
@@ -369,58 +333,10 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
   // Deep Share Handler with Mobile Priority Web Share API
   const handleShareTemple = async (temple: Temple) => {
     try {
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-      const shareUrl = `${origin}${pathname}?templeId=${temple.id}`;
-
-      const shareTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ`;
-      const shareText = `🙏 ${temple.name} ରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରନ୍ତୁ!`;
-
-      if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
-        try {
-          const shareData: ShareData = {
-            title: shareTitle,
-            text: shareText,
-            url: shareUrl,
-          };
-          if (typeof navigator.canShare === 'function') {
-            if (navigator.canShare(shareData)) {
-              await navigator.share(shareData);
-              return;
-            }
-          } else {
-            await navigator.share(shareData);
-            return;
-          }
-        } catch (err: any) {
-          if (err && (err.name === 'AbortError' || err.message?.includes('Abort'))) {
-            return;
-          }
-        }
-      }
-
-      // Fallback: Copy Link or Direct WhatsApp API
-      const fullMsg = `${shareText}\n${shareUrl}`;
-      try {
-        if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-          await navigator.clipboard.writeText(fullMsg);
-          setCopiedTempleId(temple.id);
-          setTimeout(() => setCopiedTempleId(null), 3000);
-        }
-      } catch {
-        // Silently skip clipboard error
-      }
-
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullMsg)}`;
-      try {
-        const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-        if (!opened && typeof window !== 'undefined') {
-          window.location.href = whatsappUrl;
-        }
-      } catch {
-        if (typeof window !== 'undefined') {
-          window.location.href = whatsappUrl;
-        }
+      const res = await shareTempleNative(temple);
+      if (res.success) {
+        setCopiedTempleId(temple.id);
+        setTimeout(() => setCopiedTempleId(null), 3000);
       }
     } catch (outerErr) {
       console.warn('Temple share encountered safe error:', outerErr);
@@ -497,6 +413,23 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute top-3 left-3">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShareTemple(temple);
+                      }}
+                      title="Share Temple Link"
+                      className="p-2 bg-black/50 hover:bg-black/70 active:scale-90 backdrop-blur-md text-amber-200 hover:text-white rounded-full border border-amber-400/60 transition cursor-pointer shadow-md flex items-center justify-center"
+                    >
+                      {copiedTempleId === temple.id ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Share2 className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
                   <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
                     {temple.isJalAbhishekAvailable !== false && (
                       <span className="bg-amber-500 text-amber-950 font-black text-[10px] px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 border border-amber-300">
@@ -581,17 +514,18 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                     <button
                       onClick={() => handleShareTemple(temple)}
                       title="Share Temple"
-                      className="px-3 py-2.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-black rounded-2xl text-xs border border-amber-400 transition cursor-pointer flex items-center gap-1 shrink-0"
+                      className="px-3 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-black rounded-2xl text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 shadow-md"
+                      style={{ display: 'inline-flex', zIndex: 30 }}
                     >
                       {copiedTempleId === temple.id ? (
                         <>
-                          <Check className="w-3.5 h-3.5 text-emerald-700" />
-                          <span className="text-[10px]">Copied</span>
+                          <Check className="w-3.5 h-3.5 text-white" />
+                          <span className="text-[11px] font-bold">Copied!</span>
                         </>
                       ) : (
                         <>
-                          <Share2 className="w-3.5 h-3.5 text-amber-900" />
-                          <span className="hidden sm:inline text-[10px]">Share</span>
+                          <Share2 className="w-3.5 h-3.5 text-white" />
+                          <span className="text-[11px] font-bold">Share</span>
                         </>
                       )}
                     </button>
@@ -1144,19 +1078,40 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
           <div className="bg-white rounded-3xl border-2 border-amber-500 shadow-2xl p-5 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto space-y-4 animate-in fade-in zoom-in-95 duration-200 font-sans">
             <div className="flex items-center justify-between border-b border-amber-200 pb-3">
               <h3 className="text-base font-black text-amber-950 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-amber-700" />
-                <span>ମନ୍ଦିର ଇତିହାସ ଓ ମାହାତ୍ମ୍ୟ (Temple History)</span>
+                <BookOpen className="w-5 h-5 text-amber-700 shrink-0" />
+                <span>ମନ୍ଦିର ଇତିହାସ ଓ ବିବରଣୀ (Temple Details)</span>
               </h3>
-              <button
-                onClick={() => setSelectedHistoryTemple(null)}
-                className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full cursor-pointer"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleShareTemple(selectedHistoryTemple)}
+                  title="Share Temple Link"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5 shadow-md"
+                  style={{ display: 'inline-flex', zIndex: 50 }}
+                >
+                  {copiedTempleId === selectedHistoryTemple.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span className="text-[11px] text-white font-bold">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-3.5 h-3.5 text-white" />
+                      <span className="text-[11px] text-white font-bold">Share</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setSelectedHistoryTemple(null)}
+                  className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3.5 text-xs">
-              <div className="w-full aspect-square bg-amber-50 rounded-2xl overflow-hidden border-2 border-amber-300 max-h-60 shadow-inner">
+              <div className="w-full aspect-square bg-amber-50 rounded-2xl overflow-hidden border-2 border-amber-300 max-h-60 shadow-inner relative group">
                 {selectedHistoryTemple.imageUrl && selectedHistoryTemple.imageUrl.trim() ? (
                   <img
                     src={selectedHistoryTemple.imageUrl}
@@ -1173,14 +1128,56 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                     <span>{selectedHistoryTemple.name || 'ମନ୍ଦିର ବିବରଣୀ'}</span>
                   </div>
                 )}
+                <div className="absolute top-3 right-3">
+                  <button
+                    type="button"
+                    onClick={() => handleShareTemple(selectedHistoryTemple)}
+                    title="Share Temple Link"
+                    className="px-3 py-1.5 bg-blue-600/90 hover:bg-blue-700 active:scale-95 text-white backdrop-blur-md font-black rounded-full text-xs border border-white/40 transition cursor-pointer flex items-center gap-1.5 shadow-lg"
+                    style={{ display: 'inline-flex', zIndex: 50 }}
+                  >
+                    {copiedTempleId === selectedHistoryTemple.id ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-white" />
+                        <span className="text-[11px] text-white font-bold">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-3.5 h-3.5 text-white" />
+                        <span className="text-[11px] font-bold">Share Link</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
-              <div>
-                <h4 className="text-lg font-extrabold text-amber-950">{selectedHistoryTemple.name}</h4>
-                <p className="text-slate-700 font-bold flex items-center gap-1.5 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-amber-700" />
-                  <span>{selectedHistoryTemple.location}</span>
-                </p>
+              <div className="flex items-start justify-between gap-3 bg-amber-50/70 p-3 rounded-2xl border border-amber-200">
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-lg font-extrabold text-amber-950 leading-snug">{selectedHistoryTemple.name}</h4>
+                  <p className="text-slate-700 font-bold flex items-center gap-1.5 mt-1">
+                    <MapPin className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    <span>{selectedHistoryTemple.location}</span>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleShareTemple(selectedHistoryTemple)}
+                  title="Share Temple Link"
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5 shrink-0 shadow-md"
+                  style={{ display: 'inline-flex', zIndex: 50 }}
+                >
+                  {copiedTempleId === selectedHistoryTemple.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span className="text-[11px] text-white">Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-3.5 h-3.5 text-white" />
+                      <span className="text-[11px]">Share</span>
+                    </>
+                  )}
+                </button>
               </div>
 
               <div className="p-4 bg-amber-50/90 border-2 border-amber-200 rounded-2xl text-xs sm:text-sm text-amber-950 font-medium leading-relaxed space-y-2 whitespace-pre-line shadow-xs">
@@ -1193,6 +1190,28 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                 </div>
               </div>
 
+              {/* Large Full-width Bright BLUE Share Temple Button at the very BOTTOM of the text */}
+              <div className="pt-1 w-full" style={{ display: 'block', zIndex: 50 }}>
+                <button
+                  type="button"
+                  onClick={() => handleShareTemple(selectedHistoryTemple)}
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-black rounded-2xl text-sm sm:text-base shadow-xl transition cursor-pointer flex items-center justify-center gap-2 border-2 border-blue-400/40"
+                  style={{ display: 'flex', zIndex: 50 }}
+                >
+                  {copiedTempleId === selectedHistoryTemple.id ? (
+                    <>
+                      <Check className="w-5 h-5 text-white" />
+                      <span className="font-black tracking-wide">ଲିଙ୍କ୍ କପି ହେଲା (Link Copied!)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-5 h-5 text-white" />
+                      <span className="font-black tracking-wide">ମନ୍ଦିର ସେୟାର୍ କରନ୍ତୁ (Share Temple)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
               <div className="flex items-center gap-2 text-slate-700 font-semibold bg-white p-2.5 rounded-xl border border-amber-200">
                 <Phone className="w-4 h-4 text-amber-700 shrink-0" />
                 <span>ପୂଜାରୀ ଯୋଗାଯୋଗ ନମ୍ବର: <strong className="font-mono text-amber-950">{selectedHistoryTemple.pujariPhone}</strong></span>
@@ -1200,6 +1219,24 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
             </div>
 
             <div className="pt-2 border-t border-amber-200 flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={() => handleShareTemple(selectedHistoryTemple)}
+                className="py-2.5 px-4 bg-amber-200 hover:bg-amber-300 active:scale-95 text-amber-950 font-black rounded-xl text-xs border border-amber-400 transition cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+              >
+                {copiedTempleId === selectedHistoryTemple.id ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-700" />
+                    <span>ଲିଙ୍କ୍ କପି ହେଲା (Copied!)</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 text-amber-900" />
+                    <span>ମନ୍ଦିର ସେୟାର୍ କରନ୍ତୁ (Share Temple)</span>
+                  </>
+                )}
+              </button>
+
               <button
                 onClick={() => setSelectedHistoryTemple(null)}
                 className="flex-1 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold rounded-xl text-xs cursor-pointer"

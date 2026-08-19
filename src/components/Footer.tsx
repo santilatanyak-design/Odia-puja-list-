@@ -7,9 +7,9 @@ export const Footer: React.FC = () => {
     <>
       <footer
         id="app-footer"
-        className="w-full bg-[#FFFBF0] border-t border-amber-300/80 text-amber-950/90 pt-4 pb-16 sm:pb-6 px-4 text-xs sm:text-sm leading-relaxed font-sans text-center space-y-2 relative z-10"
+        className="w-full bg-[#FFFBF0] border-t border-amber-300/80 text-amber-950/90 pt-3 pb-16 px-4 text-xs sm:text-sm leading-relaxed font-sans text-center space-y-1.5 relative z-10"
       >
-        <div className="max-w-4xl mx-auto space-y-2">
+        <div className="max-w-4xl mx-auto space-y-1.5">
           {/* Copyright notice & Branding matching the original design */}
           <p className="text-slate-800 font-serif font-medium text-xs sm:text-sm">
             © {new Date().getFullYear()} Puja Samagri Portal. All Rights Reserved.

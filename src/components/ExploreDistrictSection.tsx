@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DistrictItem, DistrictCategory, ODISHA_DISTRICTS, OdishaDistrictInfo } from '../types';
 import { subscribeDistrictItems } from '../lib/districtApi';
+import { shareDistrictItemNative, setDynamicDistrictItemMeta } from '../lib/ogMetaHelper';
 import {
   MapPin,
   Calendar,
@@ -12,6 +13,8 @@ import {
   Compass,
   Flame,
   Info,
+  Share2,
+  Check,
 } from 'lucide-react';
 
 interface ExploreDistrictSectionProps {
@@ -25,6 +28,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>('puri');
   const [selectedCategory, setSelectedCategory] = useState<'all' | DistrictCategory>('all');
   const [selectedDetailItem, setSelectedDetailItem] = useState<DistrictItem | null>(null);
+  const [copiedItemId, setCopiedItemId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +38,25 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
     });
     return () => unsub();
   }, []);
+
+  // Update dynamic meta tags when modal opens
+  useEffect(() => {
+    if (selectedDetailItem) {
+      setDynamicDistrictItemMeta(selectedDetailItem);
+    }
+  }, [selectedDetailItem]);
+
+  const handleShareItem = async (item: DistrictItem) => {
+    try {
+      const res = await shareDistrictItemNative(item);
+      if (res.success && res.method === 'clipboard') {
+        setCopiedItemId(item.id);
+        setTimeout(() => setCopiedItemId(null), 2500);
+      }
+    } catch (e) {
+      console.error('Error sharing district item:', e);
+    }
+  };
 
   const selectedDistrictInfo =
     ODISHA_DISTRICTS.find((d) => d.id === selectedDistrictId) || ODISHA_DISTRICTS[0];
@@ -301,11 +324,37 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
               </div>
 
               {/* Card Footer Action */}
-              <div className="px-4 py-3 bg-amber-50/40 border-t border-amber-100 flex items-center justify-between">
-                <span className="text-[11px] text-amber-900 font-extrabold flex items-center gap-1 group-hover:text-[#8B0000]">
-                  <span>ସମ୍ପୂର୍ଣ୍ଣ ପଢ଼ନ୍ତୁ (Read Details)</span>
-                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </span>
+              <div className="px-4 py-3 bg-amber-50/40 border-t border-amber-100 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-amber-900 font-extrabold flex items-center gap-1 group-hover:text-[#8B0000]">
+                    <span>ସମ୍ପୂର୍ଣ୍ଣ ପଢ଼ନ୍ତୁ (Read Details)</span>
+                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+
+                  {/* Bright BLUE Share button directly next to Read Details */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShareItem(item);
+                    }}
+                    title="Share"
+                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black rounded-lg text-xs transition cursor-pointer flex items-center gap-1 shadow-md"
+                    style={{ display: 'inline-flex', zIndex: 30 }}
+                  >
+                    {copiedItemId === item.id ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-white" />
+                        <span>Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-3.5 h-3.5 text-white" />
+                        <span>Share</span>
+                      </>
+                    )}
+                  </button>
+                </div>
 
                 {item.bestTimeToVisit && (
                   <span className="text-[10px] text-slate-500 font-medium truncate max-w-[120px]">
@@ -348,13 +397,34 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                 </span>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setSelectedDetailItem(null)}
-                className="p-1.5 text-gray-500 hover:text-gray-900 rounded-full hover:bg-gray-100 transition cursor-pointer"
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleShareItem(selectedDetailItem)}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black rounded-xl text-xs transition cursor-pointer flex items-center gap-1 shadow-md"
+                  style={{ display: 'inline-flex', zIndex: 50 }}
+                >
+                  {copiedItemId === selectedDetailItem.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-white" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-3.5 h-3.5 text-white" />
+                      <span>Share</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedDetailItem(null)}
+                  className="p-1.5 text-gray-500 hover:text-gray-900 rounded-full hover:bg-gray-100 transition cursor-pointer"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
             {/* Modal Image */}
@@ -422,6 +492,28 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Large Full-width Bright BLUE Share Temple Button at the very BOTTOM of the text */}
+              <div className="pt-2 w-full" style={{ display: 'block', zIndex: 50 }}>
+                <button
+                  type="button"
+                  onClick={() => handleShareItem(selectedDetailItem)}
+                  className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-black rounded-2xl text-sm sm:text-base shadow-xl transition cursor-pointer flex items-center justify-center gap-2 border-2 border-blue-400/40"
+                  style={{ display: 'flex', zIndex: 50 }}
+                >
+                  {copiedItemId === selectedDetailItem.id ? (
+                    <>
+                      <Check className="w-5 h-5 text-white" />
+                      <span className="font-black tracking-wide">ଲିଙ୍କ୍ କପି ହେଲା (Link Copied!)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-5 h-5 text-white" />
+                      <span className="font-black tracking-wide">ମନ୍ଦିର ସେୟାର୍ କରନ୍ତୁ (Share Temple)</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Modal Bottom Actions */}
