@@ -90,15 +90,13 @@ export const HomePage: React.FC<HomePageProps> = ({
     setDevotionalModalOpen(true);
   };
 
-  const currentItem = validSlides[currentSlide] || validSlides[0];
-
   return (
     <div className="w-full max-w-lg md:max-w-3xl mx-auto px-3 sm:px-6 pt-2 pb-2 space-y-4 sm:space-y-6 box-border select-none">
       {/* ------------------------------------------------------------- */}
       {/* 1. TOP BANNER: CONDITIONAL RENDERING (SLIDER OR STATIC BANNER) */}
       {/* ------------------------------------------------------------- */}
       {hasCustomSlides ? (
-        /* Real Custom 3-Image Auto Slider (When data exists in Firebase) */
+        /* Real Custom Auto Slider - Clean banner image only, no text overlays */
         <div
           id="home-auto-sliding-banner"
           onMouseEnter={() => setIsHovered(true)}
@@ -115,46 +113,19 @@ export const HomePage: React.FC<HomePageProps> = ({
             >
               <img
                 src={slide.url}
-                alt={slide.title || `Slide ${idx + 1}`}
+                alt={slide.title || `Banner Slide ${idx + 1}`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.opacity = '0.3';
                 }}
               />
-              {/* Rich Gradient Overlay for High Contrast & Legibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30" />
             </div>
           ))}
 
-          {/* Top Header Watermark Badge */}
-          <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
-            <TempleAppLogo size={34} className="shrink-0 shadow-md ring-2 ring-amber-300/60" />
-            <span className="px-2.5 py-0.5 bg-black/60 backdrop-blur-md text-amber-200 font-serif font-black text-[11px] sm:text-xs rounded-full border border-amber-400/40">
-              Bhakti Ananda • Odia TV
-            </span>
-          </div>
-
-          {/* Slide Counter Badge */}
-          <div className="absolute top-3 right-3 z-20">
-            <span className="px-2 py-0.5 bg-black/60 backdrop-blur-md text-amber-200 font-mono font-bold text-[10px] sm:text-[11px] rounded-full border border-amber-400/30">
-              {currentSlide + 1} / {validSlides.length}
-            </span>
-          </div>
-
-          {/* Slide Content Caption (Title & Subtitle) */}
-          <div className="absolute bottom-3 left-3 right-3 z-20 flex flex-col justify-end">
-            <div className="space-y-0.5 sm:space-y-1">
-              <h2 className="text-base sm:text-xl font-black text-amber-100 drop-shadow-md leading-tight font-serif">
-                {currentItem?.title || 'Bhakti Ananda Odia TV'}
-              </h2>
-              <p className="text-[11px] sm:text-xs font-semibold text-amber-200/90 drop-shadow-sm line-clamp-1">
-                {currentItem?.subtitle || 'Your Devotion, Our Service • ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ'}
-              </p>
-            </div>
-
-            {/* Dots Indicator */}
-            {validSlides.length > 1 && (
-              <div className="flex items-center justify-center gap-1.5 mt-2 pt-1">
+          {/* Dots Indicator (Subtle bottom-center positioning) */}
+          {validSlides.length > 1 && (
+            <div className="absolute bottom-3 inset-x-0 z-20 flex items-center justify-center gap-1.5 pointer-events-none">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-black/40 backdrop-blur-xs rounded-full border border-white/10 pointer-events-auto">
                 {validSlides.map((_, idx) => (
                   <button
                     key={idx}
@@ -165,15 +136,15 @@ export const HomePage: React.FC<HomePageProps> = ({
                     }}
                     className={`transition-all duration-300 rounded-full cursor-pointer ${
                       idx === currentSlide
-                        ? 'w-6 h-1.5 bg-amber-400 shadow-sm'
-                        : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'
+                        ? 'w-6 h-1.5 bg-amber-400 shadow-xs'
+                        : 'w-1.5 h-1.5 bg-white/60 hover:bg-white/90'
                     }`}
                     aria-label={`Go to slide ${idx + 1}`}
                   />
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Left & Right Navigation Buttons (Hover/Touch) */}
           {validSlides.length > 1 && (
@@ -181,7 +152,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <button
                 type="button"
                 onClick={handlePrevSlide}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-amber-200 flex items-center justify-center backdrop-blur-xs border border-white/20 transition-all opacity-80 group-hover:opacity-100 cursor-pointer"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs border border-white/20 transition-all opacity-80 group-hover:opacity-100 cursor-pointer shadow-sm"
                 aria-label="Previous Slide"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -189,7 +160,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <button
                 type="button"
                 onClick={handleNextSlide}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-amber-200 flex items-center justify-center backdrop-blur-xs border border-white/20 transition-all opacity-80 group-hover:opacity-100 cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs border border-white/20 transition-all opacity-80 group-hover:opacity-100 cursor-pointer shadow-sm"
                 aria-label="Next Slide"
               >
                 <ChevronRight className="w-5 h-5" />
