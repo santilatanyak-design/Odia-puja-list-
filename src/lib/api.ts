@@ -1,4 +1,4 @@
-import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, PasswordResetRequest } from '../types';
+import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, PasswordResetRequest, HomeSliderConfig, SliderImage, PuriStoreConfig, PuriStoreProduct } from '../types';
 import {
   seedInitialFirestoreData,
   fsLoginPujari,
@@ -29,6 +29,14 @@ import {
   fsGetQrConfig,
   fsSubscribeQrConfig,
   fsUpdateQrConfig,
+  fsGetHomeSliderConfig,
+  fsSubscribeHomeSliderConfig,
+  fsUpdateHomeSliderConfig,
+  DEFAULT_HOME_SLIDER_CONFIG,
+  fsGetPuriStoreConfig,
+  fsSubscribePuriStoreConfig,
+  fsUpdatePuriStoreConfig,
+  DEFAULT_PURI_STORE_CONFIG,
   fsGetTemplates,
   fsCreateTemplate,
   fsDeleteTemplate,
@@ -247,6 +255,34 @@ export { fsSubscribeQrConfig as subscribeQrConfig };
 
 export async function updateQrConfig(config: Partial<QrConfig>): Promise<QrConfig> {
   return fsUpdateQrConfig(config);
+}
+
+// ----------------------------------------------------------------------
+// HOME SLIDER BANNER CONFIG (FIRESTORE REAL-TIME)
+// ----------------------------------------------------------------------
+
+export async function getHomeSliderConfig(): Promise<HomeSliderConfig> {
+  return fsGetHomeSliderConfig();
+}
+
+export { fsSubscribeHomeSliderConfig as subscribeHomeSliderConfig, DEFAULT_HOME_SLIDER_CONFIG };
+
+export async function updateHomeSliderConfig(config: Partial<HomeSliderConfig>): Promise<HomeSliderConfig> {
+  return fsUpdateHomeSliderConfig(config);
+}
+
+// ----------------------------------------------------------------------
+// PURI STORE CONFIG (FIRESTORE REAL-TIME WHITE-LABEL)
+// ----------------------------------------------------------------------
+
+export async function getPuriStoreConfig(): Promise<PuriStoreConfig> {
+  return fsGetPuriStoreConfig();
+}
+
+export { fsSubscribePuriStoreConfig as subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG };
+
+export async function updatePuriStoreConfig(config: Partial<PuriStoreConfig>): Promise<PuriStoreConfig> {
+  return fsUpdatePuriStoreConfig(config);
 }
 
 // ----------------------------------------------------------------------

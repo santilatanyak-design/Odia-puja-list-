@@ -121,6 +121,35 @@ export interface QrConfig {
   reDownloadAmount: number;
 }
 
+export interface SliderImage {
+  id: string;
+  url: string;
+  title?: string;
+  subtitle?: string;
+  linkUrl?: string;
+}
+
+export interface HomeSliderConfig {
+  autoSlideIntervalSeconds?: number;
+  images: SliderImage[];
+}
+
+export interface PuriStoreProduct {
+  id: string;
+  name: string;
+  nameEng?: string;
+  photoUrl: string;
+  buyLink: string;
+  tag?: string;
+}
+
+export interface PuriStoreConfig {
+  enabled?: boolean;
+  title?: string;
+  subtitle?: string;
+  products: PuriStoreProduct[];
+}
+
 export interface PujaTemplate {
   id: string;
   name: string;

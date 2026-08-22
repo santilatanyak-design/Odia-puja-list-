@@ -38,6 +38,7 @@ import { AdminTempleManagement } from './AdminTempleManagement';
 import { AdminShortsManagement } from './AdminShortsManagement';
 import { AdminContent } from './AdminContent';
 import { AdminDistrictManagement } from './AdminDistrictManagement';
+import { AdminSliderManagement } from './AdminSliderManagement';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -103,7 +104,7 @@ export function getDisplayUtr(pmt?: PaymentRequest | null, list?: PujaList | nul
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
-  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'qr' | 'templates' | 'store' | 'temple' | 'shorts' | 'content' | 'district'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'qr' | 'templates' | 'slider' | 'store' | 'temple' | 'shorts' | 'content' | 'district'>('payments');
 
   // Data States
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
@@ -852,7 +853,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
           <span className="text-sm">🗺️</span>
           <span>ଜିଲ୍ଲା ସୂଚନା (District Content)</span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('slider')}
+          className={`px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 ${
+            activeTab === 'slider'
+              ? 'bg-gradient-to-r from-amber-700 to-amber-900 text-white font-extrabold shadow-xs border border-amber-400'
+              : 'text-slate-800 hover:bg-amber-50'
+          }`}
+        >
+          <span className="text-sm">🖼️</span>
+          <span>ବ୍ୟାନର୍ ଓ ଷ୍ଟୋର୍ (Banner & Store)</span>
+        </button>
       </div>
+
+      {/* TAB: HOME BANNER SLIDER */}
+      {activeTab === 'slider' && <AdminSliderManagement />}
 
       {/* TAB: DISTRICT CONTENT MANAGER */}
       {activeTab === 'district' && <AdminDistrictManagement />}

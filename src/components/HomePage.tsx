@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Pujari } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Pujari, HomeSliderConfig, SliderImage } from '../types';
+import { subscribeHomeSliderConfig, DEFAULT_HOME_SLIDER_CONFIG } from '../lib/api';
 import {
   Sparkles,
   ShieldCheck,
@@ -8,6 +9,8 @@ import {
   BookOpen,
   Video,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   X
 } from 'lucide-react';
 import {
@@ -44,62 +47,221 @@ export const HomePage: React.FC<HomePageProps> = ({
   onNavigateToLogin,
 }) => {
   const [devotionalModalOpen, setDevotionalModalOpen] = useState(false);
+  const [sliderConfig, setSliderConfig] = useState<HomeSliderConfig>(DEFAULT_HOME_SLIDER_CONFIG);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Subscribe to real-time Home Slider config from Firebase
+  useEffect(() => {
+    const unsub = subscribeHomeSliderConfig((config) => {
+      setSliderConfig(config);
+    });
+    return () => unsub();
+  }, []);
+
+  const validSlides = (sliderConfig.images || []).filter(
+    (slide) => slide && typeof slide.url === 'string' && slide.url.trim().length > 0
+  );
+  const hasCustomSlides = validSlides.length > 0;
+  const intervalSeconds = sliderConfig.autoSlideIntervalSeconds || 5;
+
+  // Auto-slide effect every 5 seconds (only when real custom slides exist)
+  useEffect(() => {
+    if (validSlides.length <= 1 || isHovered) return;
+
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % validSlides.length);
+    }, intervalSeconds * 1000);
+
+    return () => clearInterval(timer);
+  }, [validSlides.length, intervalSeconds, isHovered]);
+
+  const handlePrevSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev - 1 + validSlides.length) % validSlides.length);
+  };
+
+  const handleNextSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev + 1) % validSlides.length);
+  };
 
   const handleDevotionalClick = () => {
     setDevotionalModalOpen(true);
   };
 
+  const currentItem = validSlides[currentSlide] || validSlides[0];
+
   return (
     <div className="w-full max-w-lg md:max-w-3xl mx-auto px-3 sm:px-6 pt-2 pb-2 space-y-4 sm:space-y-6 box-border select-none">
       {/* ------------------------------------------------------------- */}
-      {/* 1. NATIVE MOBILE APP HEADER & TEMPLE SCENIC BACKDROP           */}
+      {/* 1. TOP BANNER: CONDITIONAL RENDERING (SLIDER OR STATIC BANNER) */}
       {/* ------------------------------------------------------------- */}
-      <div className="relative bg-gradient-to-b from-[#FFFDF5] via-[#FFF8E7] to-[#FFF4D6] rounded-3xl p-4 sm:p-6 shadow-sm border border-amber-200/70 overflow-hidden">
-        {/* Scenic Odisha Temple Silhouette Panorama Background */}
-        <div className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none">
-          <OdishaTempleBackdrop className="w-full h-full" />
+      {hasCustomSlides ? (
+        /* Real Custom 3-Image Auto Slider (When data exists in Firebase) */
+        <div
+          id="home-auto-sliding-banner"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="relative h-48 sm:h-56 w-full rounded-3xl overflow-hidden shadow-md border border-amber-300/80 bg-slate-950 select-none group"
+        >
+          {/* Slide Background Images with smooth fade */}
+          {validSlides.map((slide, idx) => (
+            <div
+              key={slide.id || idx}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+              }`}
+            >
+              <img
+                src={slide.url}
+                alt={slide.title || `Slide ${idx + 1}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.opacity = '0.3';
+                }}
+              />
+              {/* Rich Gradient Overlay for High Contrast & Legibility */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30" />
+            </div>
+          ))}
+
+          {/* Top Header Watermark Badge */}
+          <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
+            <TempleAppLogo size={34} className="shrink-0 shadow-md ring-2 ring-amber-300/60" />
+            <span className="px-2.5 py-0.5 bg-black/60 backdrop-blur-md text-amber-200 font-serif font-black text-[11px] sm:text-xs rounded-full border border-amber-400/40">
+              Bhakti Ananda • Odia TV
+            </span>
+          </div>
+
+          {/* Slide Counter Badge */}
+          <div className="absolute top-3 right-3 z-20">
+            <span className="px-2 py-0.5 bg-black/60 backdrop-blur-md text-amber-200 font-mono font-bold text-[10px] sm:text-[11px] rounded-full border border-amber-400/30">
+              {currentSlide + 1} / {validSlides.length}
+            </span>
+          </div>
+
+          {/* Slide Content Caption (Title & Subtitle) */}
+          <div className="absolute bottom-3 left-3 right-3 z-20 flex flex-col justify-end">
+            <div className="space-y-0.5 sm:space-y-1">
+              <h2 className="text-base sm:text-xl font-black text-amber-100 drop-shadow-md leading-tight font-serif">
+                {currentItem?.title || 'Bhakti Ananda Odia TV'}
+              </h2>
+              <p className="text-[11px] sm:text-xs font-semibold text-amber-200/90 drop-shadow-sm line-clamp-1">
+                {currentItem?.subtitle || 'Your Devotion, Our Service • ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ'}
+              </p>
+            </div>
+
+            {/* Dots Indicator */}
+            {validSlides.length > 1 && (
+              <div className="flex items-center justify-center gap-1.5 mt-2 pt-1">
+                {validSlides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentSlide(idx);
+                    }}
+                    className={`transition-all duration-300 rounded-full cursor-pointer ${
+                      idx === currentSlide
+                        ? 'w-6 h-1.5 bg-amber-400 shadow-sm'
+                        : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Left & Right Navigation Buttons (Hover/Touch) */}
+          {validSlides.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePrevSlide}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-amber-200 flex items-center justify-center backdrop-blur-xs border border-white/20 transition-all opacity-80 group-hover:opacity-100 cursor-pointer"
+                aria-label="Previous Slide"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNextSlide}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-amber-200 flex items-center justify-center backdrop-blur-xs border border-white/20 transition-all opacity-80 group-hover:opacity-100 cursor-pointer"
+                aria-label="Next Slide"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
+      ) : (
+        /* Original Default Static TV Banner (When Firebase is empty) */
+        <div className="relative bg-gradient-to-b from-[#FFFDF5] via-[#FFF8E7] to-[#FFF4D6] rounded-3xl p-4 sm:p-6 shadow-sm border border-amber-200/70 overflow-hidden">
+          {/* Scenic Odisha Temple Silhouette Panorama Background */}
+          <div className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none">
+            <OdishaTempleBackdrop className="w-full h-full" />
+          </div>
 
-        {/* Header Content on Top of Backdrop */}
-        <div className="relative z-10 flex items-center gap-3.5 sm:gap-5">
-          {/* Circular Temple Brand Logo */}
-          <TempleAppLogo size={78} className="shrink-0 shadow-md ring-4 ring-amber-300/40" />
+          {/* Header Content on Top of Backdrop */}
+          <div className="relative z-10 flex items-center gap-3.5 sm:gap-5">
+            {/* Circular Temple Brand Logo */}
+            <TempleAppLogo size={78} className="shrink-0 shadow-md ring-4 ring-amber-300/40" />
 
-          {/* Title & Tagline */}
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl sm:text-3xl font-black text-[#8B0000] tracking-tight leading-tight font-serif drop-shadow-2xs">
-              Bhakti Ananda <br className="hidden xs:inline sm:hidden" />
-              <span>Odia TV</span>
-            </h1>
-            <p className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight mt-0.5 sm:mt-1">
-              Your Devotion, Our Service
-            </p>
-            <div className="flex items-center gap-1.5 mt-1.5">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-400/30 border border-amber-500/40 text-amber-950 font-black rounded-full text-[10px] sm:text-xs">
-                <span>🚩 ଜୟ ଜଗନ୍ନାଥ</span>
-                <span>•</span>
-                <span>ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ</span>
-              </span>
+            {/* Title & Tagline */}
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-3xl font-black text-[#8B0000] tracking-tight leading-tight font-serif drop-shadow-2xs">
+                Bhakti Ananda <br className="hidden xs:inline sm:hidden" />
+                <span>Odia TV</span>
+              </h1>
+              <p className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight mt-0.5 sm:mt-1">
+                Your Devotion, Our Service
+              </p>
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-400/30 border border-amber-500/40 text-amber-950 font-black rounded-full text-[10px] sm:text-xs">
+                  <span>🚩 ଜୟ ଜଗନ୍ନାଥ</span>
+                  <span>•</span>
+                  <span>ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ</span>
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Active Pujari Logged-in Notice (If authenticated) */}
-        {activePujari && (
-          <div className="relative z-10 mt-3 pt-2.5 border-t border-amber-300/50 flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
-              <UserCheck className="w-4 h-4 text-emerald-700" />
-              <span>ସ୍ୱାଗତମ୍: {activePujari.name} ({activePujari.id})</span>
-            </span>
-            <button
-              onClick={onNavigateToCreateList}
-              className="text-[11px] font-black text-[#8B0000] underline underline-offset-2 hover:text-amber-900 cursor-pointer"
-            >
-              ଡାସବୋର୍ଡକୁ ଯାଆନ୍ତୁ →
-            </button>
-          </div>
-        )}
-      </div>
+          {/* Active Pujari Logged-in Notice (If authenticated) */}
+          {activePujari && (
+            <div className="relative z-10 mt-3 pt-2.5 border-t border-amber-300/50 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
+                <UserCheck className="w-4 h-4 text-emerald-700" />
+                <span>ସ୍ୱାଗତମ୍: {activePujari.name} ({activePujari.id})</span>
+              </span>
+              <button
+                onClick={onNavigateToCreateList}
+                className="text-[11px] font-black text-[#8B0000] underline underline-offset-2 hover:text-amber-900 cursor-pointer"
+              >
+                ଡାସବୋର୍ଡକୁ ଯାଆନ୍ତୁ →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Active Pujari Notice (When logged in and slider is active) */}
+      {activePujari && hasCustomSlides && (
+        <div className="bg-amber-50/90 border border-amber-300 rounded-2xl px-4 py-2 flex items-center justify-between shadow-2xs">
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
+            <UserCheck className="w-4 h-4 text-emerald-700" />
+            <span>ସ୍ୱାଗତମ୍: {activePujari.name} ({activePujari.id})</span>
+          </span>
+          <button
+            onClick={onNavigateToCreateList}
+            className="text-[11px] font-black text-[#8B0000] underline underline-offset-2 hover:text-amber-900 cursor-pointer"
+          >
+            ଡାସବୋର୍ଡକୁ ଯାଆନ୍ତୁ →
+          </button>
+        </div>
+      )}
 
       {/* ------------------------------------------------------------- */}
       {/* 2. NATIVE 6 FEATURE APP CARDS (Matching Reference Screenshot) */}

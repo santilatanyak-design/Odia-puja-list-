@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { DistrictItem, DistrictCategory, ODISHA_DISTRICTS, OdishaDistrictInfo } from '../types';
+import { DistrictItem, DistrictCategory, ODISHA_DISTRICTS, OdishaDistrictInfo, PuriStoreConfig } from '../types';
 import { subscribeDistrictItems } from '../lib/districtApi';
+import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
 import { shareDistrictItemNative, setDynamicDistrictItemMeta } from '../lib/ogMetaHelper';
+import { PuriOnlineStoreModal } from './PuriOnlineStoreModal';
 import {
   MapPin,
   Calendar,
@@ -15,6 +17,7 @@ import {
   Info,
   Share2,
   Check,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface ExploreDistrictSectionProps {
@@ -29,6 +32,8 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<'all' | DistrictCategory>('all');
   const [selectedDetailItem, setSelectedDetailItem] = useState<DistrictItem | null>(null);
   const [copiedItemId, setCopiedItemId] = useState<string | null>(null);
+  const [puriStoreModalOpen, setPuriStoreModalOpen] = useState(false);
+  const [puriStoreConfig, setPuriStoreConfig] = useState<PuriStoreConfig>(DEFAULT_PURI_STORE_CONFIG);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,8 +41,19 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
       setDistrictItems(items);
       setLoading(false);
     });
-    return () => unsub();
+    const unsubStore = subscribePuriStoreConfig((cfg) => {
+      setPuriStoreConfig(cfg);
+    });
+    return () => {
+      unsub();
+      unsubStore();
+    };
   }, []);
+
+  const validStoreProducts = (puriStoreConfig.products || []).filter(
+    (p) => p && p.photoUrl && p.buyLink && p.photoUrl.trim().length > 0 && p.buyLink.trim().length > 0
+  );
+  const hasStoreProducts = puriStoreConfig.enabled !== false && validStoreProducts.length > 0;
 
   // Update dynamic meta tags when modal opens
   useEffect(() => {
@@ -205,6 +221,42 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
           ))}
         </div>
       </div>
+
+      {/* ------------------------------------------------------------- */}
+      {/* PURI (ପୁରୀ) ONLINE STORE / ପୂଜା ସାମଗ୍ରୀ INLINE CARD (White-Label) */}
+      {/* ONLY rendered when real products exist in Firebase            */}
+      {/* ------------------------------------------------------------- */}
+      {selectedDistrictId === 'puri' && hasStoreProducts && (
+        <div className="bg-gradient-to-r from-amber-900 via-[#8B0000] to-amber-950 text-white rounded-2xl p-3.5 sm:p-4 border-2 border-amber-400/60 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="w-11 h-11 rounded-2xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-amber-200 shrink-0 shadow-inner">
+              <ShoppingBag className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-black text-amber-200">
+                  {puriStoreConfig.title || 'Online Store / ପୂଜା ସାମଗ୍ରୀ (Puri)'}
+                </span>
+                <span className="px-2 py-0.5 bg-amber-400/30 text-amber-200 font-bold rounded-md text-[9px] uppercase tracking-wider border border-amber-400/40">
+                  ସ୍ୱତନ୍ତ୍ର ସେବା
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-xs text-amber-100/90 font-medium">
+                {puriStoreConfig.subtitle || 'ପ୍ରଭୁ ଶ୍ରୀ ଜଗନ୍ନାଥ କାଠ ମୂର୍ତ୍ତି, ପିତ୍ତଳ ପୂଜା ଥାଳି, ଶୁଦ୍ଧ ଚନ୍ଦନ ଓ ଦିବ୍ୟ ପୂଜା ସାମଗ୍ରୀ'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setPuriStoreModalOpen(true)}
+            type="button"
+            className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-slate-950 font-black rounded-xl text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+          >
+            <ShoppingBag className="w-3.5 h-3.5 text-[#8B0000]" />
+            <span>ଷ୍ଟୋର୍ ଦେଖନ୍ତୁ (View Store)</span>
+          </button>
+        </div>
+      )}
 
       {/* Content Grid / Empty State */}
       {loading ? (
@@ -543,6 +595,12 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
           </div>
         </div>
       )}
+
+      {/* Puri Online Store Modal */}
+      <PuriOnlineStoreModal
+        isOpen={puriStoreModalOpen}
+        onClose={() => setPuriStoreModalOpen(false)}
+      />
     </section>
   );
 };

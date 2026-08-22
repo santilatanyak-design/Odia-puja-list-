@@ -15,7 +15,7 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import firebaseConfigFile from '../../firebase-applet-config.json';
-import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, PasswordResetRequest } from '../types';
+import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, PasswordResetRequest, HomeSliderConfig, SliderImage, PuriStoreConfig, PuriStoreProduct } from '../types';
 import { DEFAULT_PUJA_TEMPLATES } from '../data/defaultTemplates';
 import { isOfficeOpen } from './officeHours';
 
@@ -1280,6 +1280,138 @@ export async function fsUpdateQrConfig(config: Partial<QrConfig>): Promise<QrCon
     return updated;
   } catch (err) {
     console.error('fsUpdateQrConfig Error:', err);
+    throw err;
+  }
+}
+
+// 4B. HOME SLIDER BANNER CONFIGURATION
+export const DEFAULT_HOME_SLIDER_CONFIG: HomeSliderConfig = {
+  autoSlideIntervalSeconds: 5,
+  images: [],
+};
+
+export function fsSubscribeHomeSliderConfig(callback: (config: HomeSliderConfig) => void): Unsubscribe {
+  const docRef = doc(db, COLLECTIONS.CONFIG, 'homeSlider');
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data() as HomeSliderConfig;
+        callback({
+          autoSlideIntervalSeconds: data.autoSlideIntervalSeconds || 5,
+          images: Array.isArray(data.images) ? data.images : [],
+        });
+      } else {
+        callback(DEFAULT_HOME_SLIDER_CONFIG);
+      }
+    },
+    (err) => console.error('fsSubscribeHomeSliderConfig Error:', err)
+  );
+}
+
+export async function fsGetHomeSliderConfig(): Promise<HomeSliderConfig> {
+  try {
+    const docRef = doc(db, COLLECTIONS.CONFIG, 'homeSlider');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const data = snap.data() as HomeSliderConfig;
+      return {
+        autoSlideIntervalSeconds: data.autoSlideIntervalSeconds || 5,
+        images: Array.isArray(data.images) ? data.images : [],
+      };
+    }
+    return DEFAULT_HOME_SLIDER_CONFIG;
+  } catch (err) {
+    console.error('fsGetHomeSliderConfig Error:', err);
+    return DEFAULT_HOME_SLIDER_CONFIG;
+  }
+}
+
+export async function fsUpdateHomeSliderConfig(config: Partial<HomeSliderConfig>): Promise<HomeSliderConfig> {
+  try {
+    const docRef = doc(db, COLLECTIONS.CONFIG, 'homeSlider');
+    const snap = await getDoc(docRef);
+    const current = snap.exists() ? (snap.data() as HomeSliderConfig) : DEFAULT_HOME_SLIDER_CONFIG;
+
+    const updated: HomeSliderConfig = {
+      autoSlideIntervalSeconds: config.autoSlideIntervalSeconds ?? current.autoSlideIntervalSeconds ?? 5,
+      images: Array.isArray(config.images) ? config.images : [],
+    };
+
+    await safeSetDoc(docRef, updated);
+    return updated;
+  } catch (err) {
+    console.error('fsUpdateHomeSliderConfig Error:', err);
+    throw err;
+  }
+}
+
+// 4C. PURI ONLINE STORE CONFIGURATION (WHITE-LABEL PRODUCTS)
+export const DEFAULT_PURI_STORE_CONFIG: PuriStoreConfig = {
+  enabled: true,
+  title: 'ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ ଅନଲାଇନ୍ ଷ୍ଟୋର୍ (Online Store)',
+  subtitle: 'ପ୍ରଭୁ ଶ୍ରୀ ଜଗନ୍ନାଥଙ୍କ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ଓ ଆଧ୍ୟାତ୍ମିକ ଉପହାର',
+  products: [],
+};
+
+export function fsSubscribePuriStoreConfig(callback: (config: PuriStoreConfig) => void): Unsubscribe {
+  const docRef = doc(db, COLLECTIONS.CONFIG, 'puriStore');
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        const data = snap.data() as PuriStoreConfig;
+        callback({
+          enabled: data.enabled ?? true,
+          title: data.title || DEFAULT_PURI_STORE_CONFIG.title,
+          subtitle: data.subtitle || DEFAULT_PURI_STORE_CONFIG.subtitle,
+          products: Array.isArray(data.products) ? data.products : [],
+        });
+      } else {
+        callback(DEFAULT_PURI_STORE_CONFIG);
+      }
+    },
+    (err) => console.error('fsSubscribePuriStoreConfig Error:', err)
+  );
+}
+
+export async function fsGetPuriStoreConfig(): Promise<PuriStoreConfig> {
+  try {
+    const docRef = doc(db, COLLECTIONS.CONFIG, 'puriStore');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      const data = snap.data() as PuriStoreConfig;
+      return {
+        enabled: data.enabled ?? true,
+        title: data.title || DEFAULT_PURI_STORE_CONFIG.title,
+        subtitle: data.subtitle || DEFAULT_PURI_STORE_CONFIG.subtitle,
+        products: Array.isArray(data.products) ? data.products : [],
+      };
+    }
+    return DEFAULT_PURI_STORE_CONFIG;
+  } catch (err) {
+    console.error('fsGetPuriStoreConfig Error:', err);
+    return DEFAULT_PURI_STORE_CONFIG;
+  }
+}
+
+export async function fsUpdatePuriStoreConfig(config: Partial<PuriStoreConfig>): Promise<PuriStoreConfig> {
+  try {
+    const docRef = doc(db, COLLECTIONS.CONFIG, 'puriStore');
+    const snap = await getDoc(docRef);
+    const current = snap.exists() ? (snap.data() as PuriStoreConfig) : DEFAULT_PURI_STORE_CONFIG;
+
+    const updated: PuriStoreConfig = {
+      enabled: config.enabled ?? current.enabled ?? true,
+      title: config.title ?? current.title ?? DEFAULT_PURI_STORE_CONFIG.title,
+      subtitle: config.subtitle ?? current.subtitle ?? DEFAULT_PURI_STORE_CONFIG.subtitle,
+      products: config.products ? config.products : current.products,
+    };
+
+    await safeSetDoc(docRef, updated);
+    return updated;
+  } catch (err) {
+    console.error('fsUpdatePuriStoreConfig Error:', err);
     throw err;
   }
 }
