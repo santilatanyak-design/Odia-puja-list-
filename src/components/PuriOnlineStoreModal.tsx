@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ExternalLink, ShoppingBag, Sparkles } from 'lucide-react';
+import { X, ExternalLink, ShoppingBag, Sparkles, ChevronDown } from 'lucide-react';
 import { PuriStoreConfig, PuriStoreProduct } from '../types';
 import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
 
@@ -10,6 +10,7 @@ interface PuriOnlineStoreModalProps {
 
 export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOpen, onClose }) => {
   const [storeConfig, setStoreConfig] = useState<PuriStoreConfig>(DEFAULT_PURI_STORE_CONFIG);
+  const [visibleCount, setVisibleCount] = useState<number>(4);
 
   useEffect(() => {
     const unsub = subscribePuriStoreConfig((config) => {
@@ -18,11 +19,25 @@ export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOp
     return () => unsub();
   }, []);
 
+  // Reset pagination when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setVisibleCount(4);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const products = (storeConfig.products || []).filter(
     (p) => p && p.name && p.photoUrl && p.buyLink && p.photoUrl.trim().length > 0 && p.buyLink.trim().length > 0
   );
+
+  const visibleProducts = products.slice(0, visibleCount);
+  const hasMore = products.length > visibleCount;
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + 4);
+  };
 
   return (
     <div className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
@@ -61,7 +76,7 @@ export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOp
             <span>ଶୁଦ୍ଧ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ଓ ଆଧ୍ୟାତ୍ମିକ ବସ୍ତୁ ସଂଗ୍ରହ କରନ୍ତୁ</span>
           </span>
           <span className="text-[11px] font-bold text-amber-800">
-            {products.length} ଟି ଉପଲବ୍ଧ ସାମଗ୍ରୀ
+            {visibleProducts.length} / {products.length} ଟି ସାମଗ୍ରୀ
           </span>
         </div>
 
@@ -75,59 +90,77 @@ export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOp
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {products.map((prod) => (
-                <div
-                  key={prod.id}
-                  className="bg-white rounded-2xl border border-amber-200/90 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between group hover:border-amber-400"
-                >
-                  <div>
-                    {/* Photo Container */}
-                    <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
-                      <img
-                        src={prod.photoUrl}
-                        alt={prod.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.opacity = '0.3';
-                        }}
-                      />
-                      {prod.tag && (
-                        <span className="absolute top-2 left-2 px-2.5 py-0.5 bg-black/75 backdrop-blur-xs text-amber-200 text-[10px] font-black rounded-lg border border-amber-400/30">
-                          {prod.tag}
-                        </span>
-                      )}
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {visibleProducts.map((prod) => (
+                  <div
+                    key={prod.id}
+                    className="bg-white rounded-2xl border border-amber-200/90 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between group hover:border-amber-400"
+                  >
+                    <div>
+                      {/* Photo Container */}
+                      <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
+                        <img
+                          src={prod.photoUrl}
+                          alt={prod.name}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.opacity = '0.3';
+                          }}
+                        />
+                        {prod.tag && (
+                          <span className="absolute top-2 left-2 px-2.5 py-0.5 bg-black/75 backdrop-blur-xs text-amber-200 text-[10px] font-black rounded-lg border border-amber-400/30">
+                            {prod.tag}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Title & Info */}
+                      <div className="p-3.5 space-y-1">
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
+                          {prod.name}
+                        </h4>
+                        {prod.nameEng && (
+                          <p className="text-[11px] text-slate-600 font-medium line-clamp-2 leading-relaxed">
+                            {prod.nameEng}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Title & Info */}
-                    <div className="p-3.5 space-y-1">
-                      <h4 className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
-                        {prod.name}
-                      </h4>
-                      {prod.nameEng && (
-                        <p className="text-[11px] text-slate-600 font-medium line-clamp-2 leading-relaxed">
-                          {prod.nameEng}
-                        </p>
-                      )}
+                    {/* White-Label Buy Button: "ଅର୍ଡର୍ କରନ୍ତୁ (Order Now)" */}
+                    <div className="p-3.5 pt-0">
+                      <a
+                        href={prod.buyLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2.5 px-3 bg-gradient-to-r from-[#8B0000] to-[#701a1e] hover:from-[#a00000] hover:to-[#8B0000] text-amber-100 hover:text-white font-extrabold rounded-xl text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer group/btn"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />
+                        <span>ଅର୍ଡର୍ କରନ୍ତୁ (Order Now)</span>
+                        <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform text-amber-200" />
+                      </a>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  {/* White-Label Buy Button: "ଅର୍ଡର୍ କରନ୍ତୁ (Order Now)" */}
-                  <div className="p-3.5 pt-0">
-                    <a
-                      href={prod.buyLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-2.5 px-3 bg-gradient-to-r from-[#8B0000] to-[#701a1e] hover:from-[#a00000] hover:to-[#8B0000] text-amber-100 hover:text-white font-extrabold rounded-xl text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer group/btn"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />
-                      <span>ଅର୍ଡର୍ କରନ୍ତୁ (Order Now)</span>
-                      <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform text-amber-200" />
-                    </a>
-                  </div>
+              {/* 'Load More' (ଆହୁରି ଦେଖନ୍ତୁ) Button */}
+              {hasMore && (
+                <div className="pt-3 pb-1 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleLoadMore}
+                    className="px-6 py-2.5 bg-gradient-to-r from-[#8B0000] to-[#701a1e] hover:from-[#a00000] hover:to-[#8B0000] text-amber-100 hover:text-white font-black rounded-xl text-xs shadow-sm hover:shadow transition flex items-center gap-2 cursor-pointer border border-amber-400/40 active:scale-95"
+                  >
+                    <span>ଆହୁରି ଦେଖନ୍ତୁ (Load More)</span>
+                    <ChevronDown className="w-4 h-4 text-amber-300" />
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
 
