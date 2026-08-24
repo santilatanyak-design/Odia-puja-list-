@@ -206,6 +206,15 @@ export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) 
         if (!snap.empty) {
           const stories = sanitizeStoryList(snap.docs.map((d) => d.data() as SpiritualStory));
           localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(stories));
+          if (stories.length > 0) {
+            try {
+              fetch('/api/stories', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stories }),
+              }).catch(() => {});
+            } catch {}
+          }
           callback(stories);
         } else {
           localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify([]));
@@ -266,6 +275,14 @@ export async function saveSpiritualStory(story: Partial<SpiritualStory>): Promis
   localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(newStories));
 
   try {
+    fetch('/api/stories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ story: updatedStory }),
+    }).catch(() => {});
+  } catch {}
+
+  try {
     await setDoc(doc(db, 'spiritual_stories', updatedStory.id), sanitizeFirestoreData(updatedStory));
   } catch (err) {
     console.warn('Firestore save story error:', err);
@@ -278,6 +295,12 @@ export async function deleteSpiritualStory(storyId: string): Promise<boolean> {
   const existing = await getSpiritualStories();
   const filtered = existing.filter((s) => s.id !== storyId);
   localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(filtered));
+
+  try {
+    fetch(`/api/stories/${encodeURIComponent(storyId)}`, {
+      method: 'DELETE',
+    }).catch(() => {});
+  } catch {}
 
   try {
     await deleteDoc(doc(db, 'spiritual_stories', storyId));

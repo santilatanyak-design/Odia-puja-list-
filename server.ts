@@ -4,7 +4,7 @@ import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { DEFAULT_PUJA_TEMPLATES } from './src/data/defaultTemplates';
 import { DEFAULT_TEMPLES } from './src/data/defaultTemples';
-import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple } from './src/types';
+import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory } from './src/types';
 
 const app = express();
 const PORT = 3000;
@@ -21,6 +21,7 @@ interface DatabaseSchema {
   qrConfig: QrConfig;
   templates: PujaTemplate[];
   temples?: Temple[];
+  stories?: SpiritualStory[];
 }
 
 const DEFAULT_QR_CONFIG: QrConfig = {
@@ -70,6 +71,7 @@ function loadDb(): DatabaseSchema {
         qrConfig: { ...DEFAULT_QR_CONFIG, ...(data.qrConfig || {}) },
         templates: data.templates && data.templates.length > 0 ? data.templates : DEFAULT_PUJA_TEMPLATES,
         temples: data.temples && data.temples.length > 0 ? data.temples : DEFAULT_TEMPLES,
+        stories: data.stories || [],
       };
     }
   } catch (err) {
@@ -83,6 +85,7 @@ function loadDb(): DatabaseSchema {
     qrConfig: DEFAULT_QR_CONFIG,
     templates: DEFAULT_PUJA_TEMPLATES,
     temples: DEFAULT_TEMPLES,
+    stories: [],
   };
   saveDb(initialDb);
   return initialDb;
@@ -535,6 +538,41 @@ app.post('/api/temples', (req, res) => {
   res.json({ success: false, message: 'Invalid temples payload' });
 });
 
+// 8. Spiritual Stories Endpoints
+app.get('/api/stories', (req, res) => {
+  res.json({ success: true, stories: db.stories || [] });
+});
+
+app.post('/api/stories', (req, res) => {
+  const { story, stories } = req.body;
+  if (!db.stories) db.stories = [];
+  if (Array.isArray(stories)) {
+    db.stories = stories;
+    saveDb(db);
+    return res.json({ success: true, stories: db.stories });
+  }
+  if (story && story.id) {
+    const idx = db.stories.findIndex((s) => s.id === story.id);
+    if (idx >= 0) {
+      db.stories[idx] = story;
+    } else {
+      db.stories.unshift(story);
+    }
+    saveDb(db);
+    return res.json({ success: true, story, stories: db.stories });
+  }
+  res.json({ success: false, message: 'Invalid story payload' });
+});
+
+app.delete('/api/stories/:id', (req, res) => {
+  const { id } = req.params;
+  if (db.stories) {
+    db.stories = db.stories.filter((s) => s.id !== id);
+    saveDb(db);
+  }
+  res.json({ success: true, message: 'Story deleted' });
+});
+
 // Secret Admin Telegram Bot credentials stored on server
 const TELEGRAM_BOT_TOKEN = (process.env.TELEGRAM_BOT_TOKEN || '8895009347:AAHvbERPbXgvoLjbEEFAz4XvbHZFlolMSrA').trim();
 const TELEGRAM_ADMIN_CHAT_ID = (process.env.TELEGRAM_ADMIN_CHAT_ID || '1962290781').trim();
@@ -707,7 +745,7 @@ app.post(['/api/notify-telegram', '/api/notify-admin-telegram'], async (req, res
 
 
 // ----------------------------------------------------
-// DYNAMIC OPEN GRAPH (OG) & SOCIAL META TAG INJECTOR
+// DYNAMIC OPEN GRAPH (OG), TWITTER & SOCIAL META TAG INJECTOR
 // ----------------------------------------------------
 function escapeHtml(str: string): string {
   return str
@@ -718,66 +756,212 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#039;');
 }
 
-function injectDynamicOgTags(html: string, req: express.Request): string {
+// Fetch story directly from Firestore REST API if not found in memory cache
+async function fetchStoryFromFirestore(storyId: string): Promise<SpiritualStory | null> {
   try {
-    const templeId = (
-      (req.query.templeId as string) ||
-      (req.query.temple as string) ||
-      (req.query.temple_id as string) ||
-      (req.query.id as string) ||
+    const projectId = 'ai-studio-remixpujasamagri-17b24a13-3233-4aaf-aaee-fb51d8caed6b';
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/spiritual_stories/${encodeURIComponent(storyId)}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) return null;
+    const json: any = await res.json();
+    if (!json || !json.fields) return null;
+
+    const f = json.fields;
+    const id = json.name ? json.name.split('/').pop() : storyId;
+    return {
+      id: f.id?.stringValue || id || storyId,
+      title: f.title?.stringValue || 'ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ',
+      category: f.category?.stringValue || 'ଜଗନ୍ନାଥ ଲୀଳା',
+      summary: f.summary?.stringValue || '',
+      content: f.content?.stringValue || '',
+      imageUrl: f.imageUrl?.stringValue || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop',
+      author: f.author?.stringValue || 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV',
+      readTimeMinutes: Number(f.readTimeMinutes?.integerValue || f.readTimeMinutes?.doubleValue || 4),
+      likesCount: Number(f.likesCount?.integerValue || 0),
+      publishedAt: f.publishedAt?.stringValue || new Date().toISOString().split('T')[0],
+      isFeatured: f.isFeatured?.booleanValue || false,
+    };
+  } catch (err) {
+    console.warn('[Firestore REST Fetch Story Warning]:', err);
+    return null;
+  }
+}
+
+async function injectDynamicOgTags(html: string, req: express.Request): Promise<string> {
+  try {
+    const query = req.query;
+    const storyId = (
+      (query.storyId as string) ||
+      (query.story as string) ||
+      (query.story_id as string) ||
+      (query.view === 'blog' ? (query.id as string) : '') ||
       ''
     ).trim();
 
-    const directImage = ((req.query.imageUrl as string) || (req.query.img as string) || (req.query.image as string) || '').trim();
-    const directTitle = ((req.query.title as string) || (req.query.name as string) || '').trim();
-    const directDesc = ((req.query.description as string) || (req.query.desc as string) || '').trim();
+    const templeId = (
+      (query.templeId as string) ||
+      (query.temple as string) ||
+      (query.temple_id as string) ||
+      (query.view === 'temple' ? (query.id as string) : '') ||
+      ''
+    ).trim();
 
-    // Look for temple in db or default temples
-    const allTemples: Temple[] = db.temples && db.temples.length > 0 ? db.temples : DEFAULT_TEMPLES;
-    const temple = templeId ? allTemples.find((t) => t.id.toLowerCase() === templeId.toLowerCase()) : null;
+    const directImage = ((query.imageUrl as string) || (query.img as string) || (query.image as string) || '').trim();
+    const directTitle = ((query.title as string) || (query.name as string) || '').trim();
+    const directDesc = ((query.description as string) || (query.desc as string) || '').trim();
+
+    const host = req.get('host') || 'www.bhaktianandaodiatvofficial.blog';
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    const origin = `${protocol}://${host}`;
+    let canonicalUrl = `${origin}${req.originalUrl}`;
 
     let pageTitle = 'ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର | Puja Samagri List Generator';
     let ogTitle = '🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ - Online Temple Booking';
     let ogDesc = 'ଆପଣଙ୍କ ନିକଟସ୍ଥ ମନ୍ଦିରରେ ଦର୍ଶନ ଏବଂ ପୂଜା ବୁକିଂ କରିବା ପାଇଁ ଏଠାରେ କ୍ଲିକ୍ କରନ୍ତୁ।';
     let ogImage = 'https://www.dropbox.com/scl/fi/0h60d3p642b4fyne4hj6g/ChatGPT-Image-Aug-13-2026-11_57_57-AM-1.png?rlkey=5g6wh4ulvz5cl1zvxjk050dmq&st=f7aretvj&raw=1';
-
-    const host = req.get('host') || 'localhost:3000';
-    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
-    const fullUrl = `${protocol}://${host}${req.originalUrl}`;
+    let ogType = 'website';
+    let jsonLdSchema: any = null;
 
     let isMatch = false;
 
-    if (temple) {
+    // 1. Check for Specific Spiritual Story
+    if (storyId) {
       isMatch = true;
-      pageTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal`;
-      ogTitle = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
-      const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
-      ogDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-      if (temple.imageUrl || temple.thumbnailUrl) {
-        // Direct exact full image URL
-        ogImage = (temple.imageUrl || temple.thumbnailUrl || '').trim();
+      let matchedStory: SpiritualStory | null = null;
+      if (db.stories && db.stories.length > 0) {
+        matchedStory = db.stories.find((s) => s.id.toLowerCase() === storyId.toLowerCase()) || null;
       }
-    } else if (directTitle || directImage) {
+      if (!matchedStory) {
+        matchedStory = await fetchStoryFromFirestore(storyId);
+        if (matchedStory) {
+          if (!db.stories) db.stories = [];
+          const existsIdx = db.stories.findIndex((s) => s.id === matchedStory!.id);
+          if (existsIdx >= 0) db.stories[existsIdx] = matchedStory;
+          else db.stories.unshift(matchedStory);
+          saveDb(db);
+        }
+      }
+
+      if (matchedStory) {
+        pageTitle = `${matchedStory.title} | Bhakti Ananda Odia TV`;
+        ogTitle = `📖 ${matchedStory.title} - ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV`;
+        const rawExcerpt = (matchedStory.summary || matchedStory.content || '').replace(/\s+/g, ' ').trim();
+        ogDesc = rawExcerpt.length > 150 ? `${rawExcerpt.slice(0, 147)}...` : rawExcerpt || 'ପବିତ୍ର ଓଡ଼ିଆ ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ ପଢ଼ନ୍ତୁ।';
+        if (matchedStory.imageUrl) {
+          ogImage = matchedStory.imageUrl.trim();
+        }
+        ogType = 'article';
+        canonicalUrl = `${origin}/?view=blog&storyId=${encodeURIComponent(matchedStory.id)}`;
+
+        jsonLdSchema = {
+          '@context': 'https://schema.org',
+          '@type': 'BlogPosting',
+          mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': canonicalUrl,
+          },
+          headline: matchedStory.title,
+          description: ogDesc,
+          image: matchedStory.imageUrl ? [matchedStory.imageUrl] : undefined,
+          datePublished: matchedStory.publishedAt || new Date().toISOString(),
+          dateModified: matchedStory.publishedAt || new Date().toISOString(),
+          author: {
+            '@type': 'Person',
+            name: matchedStory.author || 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV',
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'Bhakti Ananda Odia TV',
+            url: origin,
+            logo: {
+              '@type': 'ImageObject',
+              url: `${origin}/favicon.ico`,
+            },
+          },
+          articleSection: matchedStory.category || 'ଜଗନ୍ନାଥ ଲୀଳା',
+          inLanguage: 'or',
+        };
+      }
+    } else if (templeId) {
+      // 2. Check for Specific Temple
+      const allTemples: Temple[] = db.temples && db.temples.length > 0 ? db.temples : DEFAULT_TEMPLES;
+      const temple = allTemples.find((t) => t.id.toLowerCase() === templeId.toLowerCase());
+      if (temple) {
+        isMatch = true;
+        pageTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal`;
+        ogTitle = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
+        const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
+        ogDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+        if (temple.imageUrl || temple.thumbnailUrl) {
+          ogImage = (temple.imageUrl || temple.thumbnailUrl || '').trim();
+        }
+        canonicalUrl = `${origin}/?templeId=${encodeURIComponent(temple.id)}`;
+      }
+    } else if (query.view === 'blog' || query.blog) {
+      // 3. Blog Overview
       isMatch = true;
-      if (directTitle) {
-        pageTitle = `${directTitle} - Online Booking | Puja Samagri Portal`;
-        ogTitle = `🚩 ${directTitle} - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
-      }
-      if (directDesc) {
-        ogDesc = directDesc;
-      }
-      if (directImage) {
-        ogImage = directImage;
-      }
-    } else if (req.query.district && req.query.item) {
+      pageTitle = 'ଆଧ୍ୟାତ୍ମିକ କଥା, ବ୍ରତ ଓ ପର୍ବପର୍ବାଣୀ ବିବରଣୀ (Spiritual Blog) | Bhakti Ananda Odia TV';
+      ogTitle = '📖 ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ରତ ମାହାତ୍ମ୍ୟ - ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV';
+      ogDesc = 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ, ସନାତନ ଧର୍ମ ନୀତି ଓ ଉତ୍ସବ ସମ୍ପର୍କିତ ବିଶେଷ ଆଧ୍ୟାତ୍ମିକ ଲେଖା।';
+      canonicalUrl = `${origin}/?view=blog`;
+    } else if (query.view === 'store' || query.product_id) {
+      // 4. Store / Products
       isMatch = true;
-      const itemTitle = (req.query.title as string) || 'ଓଡ଼ିଶା ଦର୍ଶନ';
+      const productId = query.product_id as string;
+      pageTitle = productId
+        ? 'ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର - ଉତ୍ପାଦ ବିବରଣୀ | Puja Samagri Store'
+        : 'ଅନଲାଇନ୍ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର - ଶୁଦ୍ଧ ଓ ପ୍ରାମାଣିକ ସାମଗ୍ରୀ | Puja Store';
+      ogTitle = '🛒 ଅନଲାଇନ୍ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର - Puja Samagri Store';
+      ogDesc = 'ଘରେ ବସି ଅର୍ଡର କରନ୍ତୁ ଶୁଦ୍ଧ ଗଙ୍ଗାଜଳ, କସ୍ତୁରୀ, ଅଗରବତୀ, ଚନ୍ଦନ ଓ ସମସ୍ତ ପୂଜା ଉପକରଣ। କ୍ୟାଶ ଅନ ଡେଲିଭରୀ ଉପଲବ୍ଧ।';
+      canonicalUrl = productId ? `${origin}/?product_id=${encodeURIComponent(productId)}` : `${origin}/?view=store`;
+    } else if (query.panchang || query.view === 'panchang') {
+      // 5. Panchang
+      isMatch = true;
+      pageTitle = 'ଓଡ଼ିଆ କୋହେନୂର ପଞ୍ଜିକା ଓ ଦୈନିକ ରାଶିଫଳ (Odia Panchang) | Bhakti Ananda Odia TV';
+      ogTitle = '📅 ଆଜିର ଓଡ଼ିଆ ପଞ୍ଜିକା, ତିଥି ଓ ଶୁଭ ବେଳା | Odia Panchang';
+      ogDesc = 'ଦୈନିକ ସୂର୍ଯ୍ୟୋଦୟ, ସୂର୍ଯ୍ୟାସ୍ତ, ତିଥି, ନକ୍ଷତ୍ର, ରାହୁକାଳ, ଅମୃତବେଳା ଓ ଶୁଭ କାର୍ଯ୍ୟ ସମୟ ସୂଚୀ।';
+      canonicalUrl = `${origin}/?panchang=true`;
+    } else if (query.shorts || query.view === 'shorts') {
+      // 6. Shorts
+      isMatch = true;
+      pageTitle = 'ମନ୍ଦିର ଦର୍ଶନ ଓ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ (Temple Shorts) | Bhakti Ananda Odia TV';
+      ogTitle = '🎥 ଶ୍ରୀକ୍ଷେତ୍ର ଓ ପ୍ରସିଦ୍ଧ ମନ୍ଦିର ଭିଡିଓ ଦର୍ଶନ - Temple Shorts';
+      ogDesc = 'ପ୍ରତ୍ୟକ୍ଷ ଦେଖନ୍ତୁ ଓଡ଼ିଶାର ପ୍ରମୁଖ ମନ୍ଦିରଗୁଡ଼ିକର ଦୈନିକ ନୀତିକାନ୍ତି, ଆଳତି ଓ ଆଧ୍ୟାତ୍ମିକ ଦର୍ଶନ ଭିଡିଓ।';
+      canonicalUrl = `${origin}/?shorts=true`;
+    } else if (query.district && query.item) {
+      // 7. District Item
+      isMatch = true;
+      const itemTitle = (query.title as string) || 'ଓଡ଼ିଶା ଦର୍ଶନ';
       ogTitle = `🛕 ${itemTitle} | Explore Odisha`;
       pageTitle = `${itemTitle} | Explore Odisha`;
       if (directImage) ogImage = directImage;
+      canonicalUrl = `${origin}/?district=${encodeURIComponent(query.district as string)}&item=${encodeURIComponent(query.item as string)}`;
     }
 
-    if (!isMatch && !templeId) {
+    // Direct Param Overrides
+    if (directTitle) {
+      isMatch = true;
+      pageTitle = `${directTitle} | Bhakti Ananda Odia TV`;
+      ogTitle = directTitle;
+    }
+    if (directDesc) {
+      isMatch = true;
+      ogDesc = directDesc;
+    }
+    if (directImage) {
+      isMatch = true;
+      ogImage = directImage;
+    }
+
+    if (!isMatch && !storyId && !templeId) {
       return html;
     }
 
@@ -786,47 +970,70 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     // 1. Browser Tab Page Title
     modifiedHtml = modifiedHtml.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(pageTitle)}</title>`);
 
-    // 2. Open Graph Title
+    // 2. Canonical Link Tag
+    if (modifiedHtml.includes('rel="canonical"') || modifiedHtml.includes("rel='canonical'")) {
+      modifiedHtml = modifiedHtml.replace(/<link[^>]*rel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />\n</head>`);
+    }
+
+    // 3. Open Graph Title
     if (modifiedHtml.includes('property="og:title"')) {
       modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:title["'][^>]*>/i, `<meta id="og-title" property="og:title" content="${escapeHtml(ogTitle)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-title" property="og:title" content="${escapeHtml(ogTitle)}" />\n</head>`);
     }
 
-    // 3. Open Graph Description
+    // 4. Open Graph Description
     if (modifiedHtml.includes('property="og:description"')) {
       modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:description["'][^>]*>/i, `<meta id="og-desc" property="og:description" content="${escapeHtml(ogDesc)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-desc" property="og:description" content="${escapeHtml(ogDesc)}" />\n</head>`);
     }
 
-    // 4. Standard HTML Description
+    // 5. Standard HTML Description
     if (modifiedHtml.includes('name="description"')) {
       modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']description["'][^>]*>/i, `<meta name="description" content="${escapeHtml(ogDesc)}" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta name="description" content="${escapeHtml(ogDesc)}" />\n</head>`);
     }
 
-    // 5. Open Graph Image (Direct full URL)
+    // 6. Open Graph Image (Direct full URL)
     if (modifiedHtml.includes('property="og:image"')) {
       modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image["'][^>]*>/i, `<meta id="og-img" property="og:image" content="${escapeHtml(ogImage)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-img" property="og:image" content="${escapeHtml(ogImage)}" />\n</head>`);
     }
 
-    // 6. Open Graph Secure URL
+    // 7. Open Graph Secure URL
     if (modifiedHtml.includes('property="og:image:secure_url"')) {
       modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image:secure_url["'][^>]*>/i, `<meta id="og-img-sec" property="og:image:secure_url" content="${escapeHtml(ogImage)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-img-sec" property="og:image:secure_url" content="${escapeHtml(ogImage)}" />\n</head>`);
     }
 
-    // 7. Open Graph Canonical URL
+    // 8. Open Graph Canonical URL
     if (modifiedHtml.includes('property="og:url"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:url["'][^>]*>/i, `<meta id="og-url" property="og:url" content="${escapeHtml(fullUrl)}" />`);
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:url["'][^>]*>/i, `<meta id="og-url" property="og:url" content="${escapeHtml(canonicalUrl)}" />`);
     } else {
-      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-url" property="og:url" content="${escapeHtml(fullUrl)}" />\n</head>`);
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-url" property="og:url" content="${escapeHtml(canonicalUrl)}" />\n</head>`);
     }
 
-    // 8. Twitter Meta Tags
+    // 9. Open Graph Type & Site Name
+    if (modifiedHtml.includes('property="og:type"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:type["'][^>]*>/i, `<meta property="og:type" content="${escapeHtml(ogType)}" />`);
+    }
+    if (!modifiedHtml.includes('property="og:site_name"')) {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta property="og:site_name" content="Bhakti Ananda Odia TV" />\n</head>`);
+    }
+
+    // 10. Twitter Meta Tags
+    if (modifiedHtml.includes('name="twitter:card"')) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:card["'][^>]*>/i, `<meta id="tw-card" name="twitter:card" content="summary_large_image" />`);
+    } else {
+      modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-card" name="twitter:card" content="summary_large_image" />\n</head>`);
+    }
+
     if (modifiedHtml.includes('name="twitter:title"')) {
       modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:title["'][^>]*>/i, `<meta id="tw-title" name="twitter:title" content="${escapeHtml(ogTitle)}" />`);
     } else {
@@ -843,6 +1050,16 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
       modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:image["'][^>]*>/i, `<meta id="tw-img" name="twitter:image" content="${escapeHtml(ogImage)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-img" name="twitter:image" content="${escapeHtml(ogImage)}" />\n</head>`);
+    }
+
+    // 11. Structured JSON-LD Schema
+    if (jsonLdSchema) {
+      const jsonLdTag = `  <script type="application/ld+json" id="story-jsonld-schema">\n${JSON.stringify(jsonLdSchema, null, 2)}\n  </script>\n`;
+      if (modifiedHtml.includes('id="story-jsonld-schema"')) {
+        modifiedHtml = modifiedHtml.replace(/<script[^>]*id=["']story-jsonld-schema["'][^>]*>[\s\S]*?<\/script>/i, jsonLdTag.trim());
+      } else {
+        modifiedHtml = modifiedHtml.replace('</head>', `${jsonLdTag}</head>`);
+      }
     }
 
     return modifiedHtml;
@@ -879,7 +1096,7 @@ async function startServer() {
         const templatePath = path.resolve(process.cwd(), 'index.html');
         let template = fs.readFileSync(templatePath, 'utf-8');
         template = await vite.transformIndexHtml(url, template);
-        const finalHtml = injectDynamicOgTags(template, req);
+        const finalHtml = await injectDynamicOgTags(template, req);
         res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
       } catch (e) {
         vite.ssrFixStacktrace(e as Error);
@@ -889,11 +1106,11 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath, { index: false }));
-    app.get('*', (req, res) => {
+    app.get('*', async (req, res) => {
       const indexPath = path.join(distPath, 'index.html');
       if (fs.existsSync(indexPath)) {
         let html = fs.readFileSync(indexPath, 'utf-8');
-        html = injectDynamicOgTags(html, req);
+        html = await injectDynamicOgTags(html, req);
         res.status(200).set({ 'Content-Type': 'text/html' }).send(html);
       } else {
         res.sendFile(indexPath);
