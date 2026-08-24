@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { SpiritualStory } from '../types';
 import { subscribeSpiritualStories, likeSpiritualStory, DEFAULT_STORIES } from '../lib/contentApi';
 import {
+  updateStorySeoAndJsonLd,
+  clearStoryJsonLd,
+  updateDocumentSeoAndCanonical,
+  getSeoConfigForView,
+  getBaseOrigin,
+} from '../lib/seoHelper';
+import {
   BookOpen,
   Search,
   Heart,
@@ -29,14 +36,64 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
   const [copiedStoryId, setCopiedStoryId] = useState<string | null>(null);
   const [likedStories, setLikedStories] = useState<Record<string, boolean>>({});
 
+  // 1. Subscribe to spiritual stories
   useEffect(() => {
     const unsub = subscribeSpiritualStories((data) => {
       if (Array.isArray(data)) {
         setStories(data);
+
+        // Check if there's a deep-linked storyId in the URL parameters
+        try {
+          if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const targetStoryId = params.get('storyId') || params.get('story');
+            if (targetStoryId) {
+              const matched = data.find((s) => s.id === targetStoryId);
+              if (matched) {
+                setSelectedStory(matched);
+              }
+            }
+          }
+        } catch {
+          // Safe skip
+        }
       }
     });
-    return () => unsub();
+    return () => {
+      unsub();
+      clearStoryJsonLd();
+    };
   }, []);
+
+  // 2. Dynamic SEO, Canonical Link & JSON-LD Schema Synchronizer
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+
+      if (selectedStory) {
+        // Inject Article/BlogPosting Schema and meta tags for the active story
+        updateStorySeoAndJsonLd(selectedStory);
+
+        // Sync URL search parameter to exact canonical story URL
+        const targetUrl = `${window.location.pathname}?view=blog&storyId=${encodeURIComponent(selectedStory.id)}`;
+        if (window.location.search !== `?view=blog&storyId=${encodeURIComponent(selectedStory.id)}`) {
+          window.history.replaceState({ viewMode: 'blog', storyId: selectedStory.id }, '', targetUrl);
+        }
+      } else {
+        // Clear schema and restore standard blog category SEO
+        clearStoryJsonLd();
+        updateDocumentSeoAndCanonical(getSeoConfigForView('blog'));
+
+        // Reset URL search parameter to standard blog view
+        const targetUrl = `${window.location.pathname}?view=blog`;
+        if (window.location.search !== '?view=blog') {
+          window.history.replaceState({ viewMode: 'blog' }, '', targetUrl);
+        }
+      }
+    } catch (err) {
+      console.warn('Story SEO synchronization error:', err);
+    }
+  }, [selectedStory]);
 
   const categories = [
     { id: 'all', label: 'ସମସ୍ତ କାହାଣୀ (All)' },
@@ -75,16 +132,19 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
 
   const handleShareStory = (e: React.MouseEvent, story: SpiritualStory) => {
     e.stopPropagation();
+    const origin = getBaseOrigin();
+    const storyCanonicalLink = `${origin}/?view=blog&storyId=${encodeURIComponent(story.id)}`;
     const shareText = `📖 *${story.title}*
 ${story.summary}
 
 ✍️ ଲେଖକ: ${story.author}
-ପଢ଼ନ୍ତୁ ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପୂଜା ସାମଗ୍ରୀ ପୋର୍ଟାଲରେ: ${typeof window !== 'undefined' ? window.location.origin : ''}`;
+ପଢ଼ନ୍ତୁ ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପୂଜା ସାମଗ୍ରୀ ପୋର୍ଟାଲରେ: ${storyCanonicalLink}`;
 
     if (navigator.share) {
       navigator.share({
         title: story.title,
         text: shareText,
+        url: storyCanonicalLink,
       }).catch(() => {});
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(shareText);

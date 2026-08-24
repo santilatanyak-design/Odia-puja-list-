@@ -7,6 +7,7 @@ import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
 import { HomePage } from './components/HomePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { getSeoConfigForView, updateDocumentSeoAndCanonical } from './lib/seoHelper';
 
 // Safe lazy loading wrapper with automatic dynamic import recovery
 const lazyWithRetry = (componentImport: () => Promise<{ default: React.ComponentType<any> }>) =>
@@ -57,27 +58,123 @@ export default function App() {
   const [activePujari, setActivePujari] = useState<Pujari | null>(null);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
 
-  // View Navigation State: Default view is ALWAYS 'home' on initial page load
-  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog'>('home');
-
-  // Deep-link check for Temple Share URLs, Shorts, Panchang, and Blog
-  useEffect(() => {
+  // View Navigation State: Resolved from search parameters or default 'home'
+  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog'>(() => {
     try {
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search);
-        if (params.get('templeId')) {
-          setViewMode('temple');
-        } else if (params.get('shorts') || params.get('feed')) {
-          setViewMode('shorts');
-        } else if (params.get('panchang')) {
-          setViewMode('panchang');
-        } else if (params.get('blog') || params.get('stories')) {
-          setViewMode('blog');
+        const view = params.get('view');
+        if (view === 'store' || params.get('store') || params.get('product_id') || params.get('product')) {
+          return 'store';
+        }
+        if (view === 'temple' || params.get('templeId') || params.get('temple')) {
+          return 'temple';
+        }
+        if (view === 'panchang' || params.get('panchang')) {
+          return 'panchang';
+        }
+        if (view === 'blog' || params.get('blog') || params.get('stories') || params.get('storyId') || params.get('story')) {
+          return 'blog';
+        }
+        if (view === 'shorts' || params.get('shorts') || params.get('feed')) {
+          return 'shorts';
+        }
+        if (view === 'login' || params.get('login')) {
+          return 'login';
+        }
+        if (view === 'portal' || params.get('portal')) {
+          return 'portal';
         }
       }
     } catch {
-      // Ignore URL parsing errors on old browsers
+      // Fallback to home
     }
+    return 'home';
+  });
+
+  // Dynamic SEO, Canonical Link, & Search Parameter Synchronizer
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+
+      // 1. Determine the appropriate query parameter string for the active view
+      const currentParams = new URLSearchParams(window.location.search);
+      let targetQuery = '';
+
+      if (viewMode === 'store') {
+        const productId = currentParams.get('product_id') || currentParams.get('product');
+        targetQuery = productId ? `?view=store&product_id=${encodeURIComponent(productId)}` : '?view=store';
+      } else if (viewMode === 'temple') {
+        const templeId = currentParams.get('templeId') || currentParams.get('temple');
+        targetQuery = templeId ? `?templeId=${encodeURIComponent(templeId)}` : '?view=temple';
+      } else if (viewMode === 'panchang') {
+        targetQuery = '?panchang=true';
+      } else if (viewMode === 'blog') {
+        const storyId = currentParams.get('storyId') || currentParams.get('story');
+        targetQuery = storyId ? `?view=blog&storyId=${encodeURIComponent(storyId)}` : '?view=blog';
+      } else if (viewMode === 'shorts') {
+        targetQuery = '?shorts=true';
+      } else if (viewMode === 'login') {
+        targetQuery = '?view=login';
+      } else if (viewMode === 'portal') {
+        targetQuery = '?view=portal';
+      } else {
+        // 'home' - preserve district item if present, otherwise clean root URL
+        const districtId = currentParams.get('district');
+        const itemId = currentParams.get('item');
+        if (districtId && itemId) {
+          targetQuery = `?district=${encodeURIComponent(districtId)}&item=${encodeURIComponent(itemId)}`;
+        } else {
+          targetQuery = '';
+        }
+      }
+
+      // 2. Synchronize URL search parameters in the browser address bar without reload
+      const newUrl = `${window.location.pathname}${targetQuery}`;
+      if (window.location.search !== targetQuery) {
+        window.history.replaceState({ viewMode }, '', newUrl);
+      }
+
+      // 3. Dynamically update <title>, <meta name="description">, <link rel="canonical"> and OG tags
+      const seoConfig = getSeoConfigForView(viewMode, targetQuery);
+      updateDocumentSeoAndCanonical(seoConfig);
+    } catch (err) {
+      console.warn('SEO & Canonical synchronization error:', err);
+    }
+  }, [viewMode]);
+
+  // Listen to browser Back / Forward (popstate) buttons for seamless navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      try {
+        if (typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search);
+          const view = params.get('view');
+          if (view === 'store' || params.get('store') || params.get('product_id') || params.get('product')) {
+            setViewMode('store');
+          } else if (view === 'temple' || params.get('templeId') || params.get('temple')) {
+            setViewMode('temple');
+          } else if (view === 'panchang' || params.get('panchang')) {
+            setViewMode('panchang');
+          } else if (view === 'blog' || params.get('blog') || params.get('stories') || params.get('storyId') || params.get('story')) {
+            setViewMode('blog');
+          } else if (view === 'shorts' || params.get('shorts') || params.get('feed')) {
+            setViewMode('shorts');
+          } else if (view === 'login' || params.get('login')) {
+            setViewMode('login');
+          } else if (view === 'portal' || params.get('portal')) {
+            setViewMode('portal');
+          } else {
+            setViewMode('home');
+          }
+        }
+      } catch {
+        // Safe skip
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   // Global Emergency Site Lock State
