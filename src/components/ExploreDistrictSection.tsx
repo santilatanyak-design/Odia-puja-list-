@@ -40,6 +40,39 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
     const unsub = subscribeDistrictItems((items) => {
       setDistrictItems(items);
       setLoading(false);
+
+      // Deep link resolution for district & items
+      try {
+        if (typeof window !== 'undefined') {
+          const preloaded = (window as any).__PRELOADED_STATE__;
+          const params = new URLSearchParams(window.location.search);
+          const pathParts = window.location.pathname.split('/').filter(Boolean);
+          
+          let targetDist = preloaded?.districtId || params.get('district') || '';
+          let targetItem = preloaded?.itemId || params.get('item') || '';
+
+          if (pathParts[0] === 'district' || pathParts[0] === 'districts') {
+            if (pathParts[1]) targetDist = pathParts[1];
+            if (pathParts[2]) targetItem = pathParts[2];
+          } else if (pathParts[0] === 'place' || pathParts[0] === 'item') {
+            if (pathParts[1]) targetItem = pathParts[1];
+          }
+
+          if (targetDist && ODISHA_DISTRICTS.some((d) => d.id.toLowerCase() === targetDist.toLowerCase())) {
+            setSelectedDistrictId(targetDist.toLowerCase());
+          }
+
+          if (targetItem && items.length > 0) {
+            const matched = items.find((i) => i.id === targetItem);
+            if (matched) {
+              setSelectedDetailItem(matched);
+              if (matched.districtId) {
+                setSelectedDistrictId(matched.districtId.toLowerCase());
+              }
+            }
+          }
+        }
+      } catch {}
     });
     const unsubStore = subscribePuriStoreConfig((cfg) => {
       setPuriStoreConfig(cfg);

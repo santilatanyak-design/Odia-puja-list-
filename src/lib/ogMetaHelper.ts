@@ -9,8 +9,7 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
   const origin = window.location.origin || '';
-  const pathname = window.location.pathname || '';
-  const shareUrl = customUrl || `${origin}${pathname}?templeId=${encodeURIComponent(temple.id)}`;
+  const shareUrl = customUrl || `${origin}/temple/${encodeURIComponent(temple.id)}`;
   
   const pageTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal`;
   const metaTitle = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
@@ -93,8 +92,7 @@ export const setDynamicDistrictItemMeta = (item: DistrictItem, customUrl?: strin
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
   const origin = window.location.origin || '';
-  const pathname = window.location.pathname || '';
-  const shareUrl = customUrl || `${origin}${pathname}?district=${encodeURIComponent(item.districtId)}&item=${encodeURIComponent(item.id)}`;
+  const shareUrl = customUrl || `${origin}/district/${encodeURIComponent(item.districtId)}/${encodeURIComponent(item.id)}`;
 
   const pageTitle = `${item.title} (${item.location || 'Odisha'}) | Explore Odisha`;
   const metaTitle = `🛕 ${item.title} - ${item.districtNameOdia || ''} | ଓଡ଼ିଶା ଦର୍ଶନ`;
@@ -143,8 +141,7 @@ export const shareDistrictItemNative = async (
   }
 
   const origin = window.location.origin || '';
-  const pathname = window.location.pathname || '';
-  const shareUrl = `${origin}${pathname}?district=${encodeURIComponent(item.districtId)}&item=${encodeURIComponent(item.id)}`;
+  const shareUrl = `${origin}/district/${encodeURIComponent(item.districtId)}/${encodeURIComponent(item.id)}`;
 
   const shareTitle = `🛕 ${item.title} - ${item.location || 'Odisha'}`;
   const shareText = `🚩 ${item.title} (${item.location || 'Odisha'})\n\n${item.description.slice(0, 140)}...\n\n👇 ଏହି ଲିଙ୍କ୍ ରେ ଦେଖନ୍ତୁ:\n${shareUrl}`;
@@ -212,8 +209,7 @@ export const shareTempleNative = async (
   }
 
   const origin = window.location.origin || '';
-  const pathname = window.location.pathname || '';
-  const shareUrl = `${origin}${pathname}?templeId=${encodeURIComponent(temple.id)}`;
+  const shareUrl = `${origin}/temple/${encodeURIComponent(temple.id)}`;
 
   const shareTitle = `🚩 ${temple.name} - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
   const shareText = `🙏 ${temple.name} (${temple.location || 'Odisha'}) ରେ ଦର୍ଶନ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା / ଜଳାଭିଷେକ ବୁକିଂ କରନ୍ତୁ!\n\n👇 ଏହି ଲିଙ୍କ୍ ରେ କ୍ଲିକ୍ କରି ବୁକିଂ କରନ୍ତୁ:\n${shareUrl}`;

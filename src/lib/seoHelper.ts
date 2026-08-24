@@ -201,7 +201,7 @@ export const updateStorySeoAndJsonLd = (story: SpiritualStory) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
   const origin = getBaseOrigin();
-  const canonicalUrl = `${origin}/?view=blog&storyId=${encodeURIComponent(story.id)}`;
+  const canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
   const excerpt = createStoryExcerpt(story.summary || story.content || '', 150);
   const title = `${story.title} | Bhakti Ananda Odia TV`;
 

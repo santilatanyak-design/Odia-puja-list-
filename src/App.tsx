@@ -58,10 +58,38 @@ export default function App() {
   const [activePujari, setActivePujari] = useState<Pujari | null>(null);
   const [adminModalOpen, setAdminModalOpen] = useState(false);
 
-  // View Navigation State: Resolved from search parameters or default 'home'
+  // View Navigation State: Resolved from preloaded state, pathname, search parameters, or default 'home'
   const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog'>(() => {
     try {
       if (typeof window !== 'undefined') {
+        const preloaded = (window as any).__PRELOADED_STATE__;
+        if (preloaded && preloaded.viewMode) {
+          return preloaded.viewMode;
+        }
+
+        const pathname = window.location.pathname.toLowerCase();
+        if (pathname.startsWith('/story/') || pathname.startsWith('/blog/') || pathname.startsWith('/stories/')) {
+          return 'blog';
+        }
+        if (pathname.startsWith('/temple/') || pathname.startsWith('/temples/')) {
+          return 'temple';
+        }
+        if (pathname === '/shorts' || pathname === '/shorts/') {
+          return 'shorts';
+        }
+        if (pathname === '/panchang' || pathname === '/panchang/') {
+          return 'panchang';
+        }
+        if (pathname === '/store' || pathname === '/store/') {
+          return 'store';
+        }
+        if (pathname === '/login' || pathname === '/login/') {
+          return 'login';
+        }
+        if (pathname === '/portal' || pathname === '/portal/') {
+          return 'portal';
+        }
+
         const params = new URLSearchParams(window.location.search);
         const view = params.get('view');
         if (view === 'store' || params.get('store') || params.get('product_id') || params.get('product')) {

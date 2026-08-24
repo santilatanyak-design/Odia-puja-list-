@@ -42,11 +42,17 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
       if (Array.isArray(data)) {
         setStories(data);
 
-        // Check if there's a deep-linked storyId in the URL parameters
+        // Check if there's a deep-linked storyId in preloaded state, pathname, or URL search parameters
         try {
           if (typeof window !== 'undefined') {
+            const preloadedId = (window as any).__PRELOADED_STATE__?.storyId;
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            let pathStoryId = '';
+            if (pathParts[0] === 'story' || pathParts[0] === 'blog' || pathParts[0] === 'stories') {
+              pathStoryId = pathParts[1] || '';
+            }
             const params = new URLSearchParams(window.location.search);
-            const targetStoryId = params.get('storyId') || params.get('story');
+            const targetStoryId = preloadedId || pathStoryId || params.get('storyId') || params.get('story');
             if (targetStoryId) {
               const matched = data.find((s) => s.id === targetStoryId);
               if (matched) {
@@ -74,9 +80,9 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
         // Inject Article/BlogPosting Schema and meta tags for the active story
         updateStorySeoAndJsonLd(selectedStory);
 
-        // Sync URL search parameter to exact canonical story URL
-        const targetUrl = `${window.location.pathname}?view=blog&storyId=${encodeURIComponent(selectedStory.id)}`;
-        if (window.location.search !== `?view=blog&storyId=${encodeURIComponent(selectedStory.id)}`) {
+        // Sync URL to exact canonical story URL
+        const targetUrl = `/story/${encodeURIComponent(selectedStory.id)}`;
+        if (window.location.pathname !== targetUrl && window.location.search !== `?view=blog&storyId=${encodeURIComponent(selectedStory.id)}`) {
           window.history.replaceState({ viewMode: 'blog', storyId: selectedStory.id }, '', targetUrl);
         }
       } else {
@@ -133,7 +139,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
   const handleShareStory = (e: React.MouseEvent, story: SpiritualStory) => {
     e.stopPropagation();
     const origin = getBaseOrigin();
-    const storyCanonicalLink = `${origin}/?view=blog&storyId=${encodeURIComponent(story.id)}`;
+    const storyCanonicalLink = `${origin}/story/${encodeURIComponent(story.id)}`;
     const shareText = `📖 *${story.title}*
 ${story.summary}
 
