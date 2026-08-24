@@ -1,5 +1,6 @@
 import { DistrictItem, DistrictCategory } from '../types';
 import { db, sanitizeFirestoreData } from './firebase';
+import { DEFAULT_DISTRICT_ITEMS } from '../data/defaultDistrictItems';
 import {
   collection,
   doc,
@@ -35,7 +36,11 @@ export async function getDistrictItems(districtId?: string): Promise<DistrictIte
       })) as DistrictItem[];
       return items;
     }
-    return [];
+    // If empty, return defaults
+    if (districtId && districtId !== 'all') {
+      return DEFAULT_DISTRICT_ITEMS.filter((i) => i.districtId === districtId);
+    }
+    return DEFAULT_DISTRICT_ITEMS;
   } catch (err) {
     console.warn('Firestore getDistrictItems error:', err);
     // Fallback to local cache if offline
@@ -49,7 +54,10 @@ export async function getDistrictItems(districtId?: string): Promise<DistrictIte
         return allItems;
       }
     } catch {}
-    return [];
+    if (districtId && districtId !== 'all') {
+      return DEFAULT_DISTRICT_ITEMS.filter((i) => i.districtId === districtId);
+    }
+    return DEFAULT_DISTRICT_ITEMS;
   }
 }
 
@@ -70,15 +78,25 @@ export function subscribeDistrictItems(
     return onSnapshot(
       q,
       (snap) => {
-        const items = snap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        })) as DistrictItem[];
+        let items: DistrictItem[] = [];
+        if (!snap.empty) {
+          items = snap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          })) as DistrictItem[];
+        } else {
+          items = DEFAULT_DISTRICT_ITEMS;
+        }
         
         // Cache locally for offline resiliency
         if (!districtId || districtId === 'all') {
           try {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+            fetch('/api/district-items', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ items }),
+            }).catch(() => {});
           } catch {}
         }
         callback(items);
@@ -86,12 +104,12 @@ export function subscribeDistrictItems(
       (err) => {
         console.warn('subscribeDistrictItems warning:', err);
         // Fallback to initial get
-        getDistrictItems(districtId).then(callback).catch(() => callback([]));
+        getDistrictItems(districtId).then(callback).catch(() => callback(DEFAULT_DISTRICT_ITEMS));
       }
     );
   } catch (err) {
     console.warn('subscribeDistrictItems setup error:', err);
-    getDistrictItems(districtId).then(callback).catch(() => callback([]));
+    getDistrictItems(districtId).then(callback).catch(() => callback(DEFAULT_DISTRICT_ITEMS));
     return () => {};
   }
 }
@@ -130,6 +148,11 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
     const existing: DistrictItem[] = cached ? JSON.parse(cached) : [];
     const updated = [fullItem, ...existing.filter((i) => i.id !== id)];
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    fetch('/api/district-items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item: fullItem }),
+    }).catch(() => {});
   } catch {}
 
   return fullItem;
@@ -151,6 +174,9 @@ export async function deleteDistrictItem(itemId: string): Promise<boolean> {
         const filtered = existing.filter((i) => i.id !== itemId);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filtered));
       }
+      fetch(`/api/district-items/${encodeURIComponent(itemId)}`, {
+        method: 'DELETE',
+      }).catch(() => {});
     } catch {}
 
     return true;

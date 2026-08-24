@@ -4,7 +4,8 @@ import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import { DEFAULT_PUJA_TEMPLATES } from './src/data/defaultTemplates';
 import { DEFAULT_TEMPLES } from './src/data/defaultTemples';
-import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory } from './src/types';
+import { DEFAULT_DISTRICT_ITEMS } from './src/data/defaultDistrictItems';
+import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory, DistrictItem, ODISHA_DISTRICTS } from './src/types';
 
 const app = express();
 const PORT = 3000;
@@ -22,6 +23,7 @@ interface DatabaseSchema {
   templates: PujaTemplate[];
   temples?: Temple[];
   stories?: SpiritualStory[];
+  districtItems?: DistrictItem[];
 }
 
 const DEFAULT_QR_CONFIG: QrConfig = {
@@ -72,6 +74,7 @@ function loadDb(): DatabaseSchema {
         templates: data.templates && data.templates.length > 0 ? data.templates : DEFAULT_PUJA_TEMPLATES,
         temples: data.temples && data.temples.length > 0 ? data.temples : DEFAULT_TEMPLES,
         stories: data.stories || [],
+        districtItems: data.districtItems && data.districtItems.length > 0 ? data.districtItems : DEFAULT_DISTRICT_ITEMS,
       };
     }
   } catch (err) {
@@ -86,6 +89,7 @@ function loadDb(): DatabaseSchema {
     templates: DEFAULT_PUJA_TEMPLATES,
     temples: DEFAULT_TEMPLES,
     stories: [],
+    districtItems: DEFAULT_DISTRICT_ITEMS,
   };
   saveDb(initialDb);
   return initialDb;
@@ -573,6 +577,46 @@ app.delete('/api/stories/:id', (req, res) => {
   res.json({ success: true, message: 'Story deleted' });
 });
 
+// District Items Endpoints
+app.get('/api/district-items', (req, res) => {
+  const { districtId } = req.query;
+  const items = db.districtItems && db.districtItems.length > 0 ? db.districtItems : DEFAULT_DISTRICT_ITEMS;
+  if (districtId && districtId !== 'all') {
+    return res.json({ success: true, items: items.filter((i) => i.districtId === districtId) });
+  }
+  res.json({ success: true, items });
+});
+
+app.post('/api/district-items', (req, res) => {
+  const { item, items } = req.body;
+  if (Array.isArray(items) && items.length > 0) {
+    db.districtItems = items;
+    saveDb(db);
+    return res.json({ success: true, items: db.districtItems });
+  }
+  if (item && item.id) {
+    if (!db.districtItems) db.districtItems = [...DEFAULT_DISTRICT_ITEMS];
+    const idx = db.districtItems.findIndex((i) => i.id === item.id);
+    if (idx >= 0) {
+      db.districtItems[idx] = item;
+    } else {
+      db.districtItems.unshift(item);
+    }
+    saveDb(db);
+    return res.json({ success: true, item, items: db.districtItems });
+  }
+  res.json({ success: false, message: 'Invalid district item payload' });
+});
+
+app.delete('/api/district-items/:id', (req, res) => {
+  const { id } = req.params;
+  if (db.districtItems) {
+    db.districtItems = db.districtItems.filter((i) => i.id !== id);
+    saveDb(db);
+  }
+  res.json({ success: true, message: 'District item deleted' });
+});
+
 // Secret Admin Telegram Bot credentials stored on server
 const TELEGRAM_BOT_TOKEN = (process.env.TELEGRAM_BOT_TOKEN || '8895009347:AAHvbERPbXgvoLjbEEFAz4XvbHZFlolMSrA').trim();
 const TELEGRAM_ADMIN_CHAT_ID = (process.env.TELEGRAM_ADMIN_CHAT_ID || '1962290781').trim();
@@ -743,7 +787,6 @@ app.post(['/api/notify-telegram', '/api/notify-admin-telegram'], async (req, res
   }
 });
 
-
 // ----------------------------------------------------
 // DYNAMIC OPEN GRAPH (OG), TWITTER & SOCIAL META TAG INJECTOR
 // ----------------------------------------------------
@@ -782,15 +825,12 @@ async function fetchStoryFromFirestore(storyId: string): Promise<SpiritualStory 
       category: f.category?.stringValue || 'ଜଗନ୍ନାଥ ଲୀଳା',
       summary: f.summary?.stringValue || '',
       content: f.content?.stringValue || '',
-      imageUrl: f.imageUrl?.stringValue || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop',
+      imageUrl: f.imageUrl?.stringValue || '',
       author: f.author?.stringValue || 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV',
-      readTimeMinutes: Number(f.readTimeMinutes?.integerValue || f.readTimeMinutes?.doubleValue || 4),
-      likesCount: Number(f.likesCount?.integerValue || 0),
-      publishedAt: f.publishedAt?.stringValue || new Date().toISOString().split('T')[0],
-      isFeatured: f.isFeatured?.booleanValue || false,
+      readTimeMinutes: Number(f.readTimeMinutes?.integerValue || 3),
+      publishedAt: f.publishedAt?.stringValue || f.createdAt?.stringValue || new Date().toISOString(),
     };
-  } catch (err) {
-    console.warn('[Firestore REST Fetch Story Warning]:', err);
+  } catch {
     return null;
   }
 }
@@ -811,6 +851,15 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
       (query.temple as string) ||
       (query.temple_id as string) ||
       (query.view === 'temple' ? (query.id as string) : '') ||
+      ''
+    ).trim();
+
+    const districtParam = ((query.district as string) || (query.districtId as string) || '').trim();
+    const itemParam = (
+      (query.item as string) ||
+      (query.itemId as string) ||
+      (query.item_id as string) ||
+      (query.view === 'district' ? (query.id as string) : '') ||
       ''
     ).trim();
 
@@ -890,8 +939,83 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
           inLanguage: 'or',
         };
       }
+    } else if (itemParam || (districtParam && itemParam)) {
+      // 2. Check for Specific District Item / Temple / Place
+      isMatch = true;
+      const allDistrictItems: DistrictItem[] =
+        db.districtItems && db.districtItems.length > 0 ? db.districtItems : DEFAULT_DISTRICT_ITEMS;
+      
+      let matchedItem = allDistrictItems.find(
+        (i) => i.id.toLowerCase() === itemParam.toLowerCase()
+      );
+
+      if (!matchedItem && districtParam) {
+        matchedItem = allDistrictItems.find(
+          (i) =>
+            i.districtId.toLowerCase() === districtParam.toLowerCase() &&
+            (i.id.toLowerCase().includes(itemParam.toLowerCase()) || itemParam.toLowerCase().includes(i.id.toLowerCase()))
+        );
+      }
+
+      if (matchedItem) {
+        pageTitle = `${matchedItem.title} (${matchedItem.districtNameEng || 'Odisha'}) | Explore Odisha`;
+        ogTitle = `🛕 ${matchedItem.title} (${matchedItem.districtNameOdia || matchedItem.districtNameEng}) - ଓଡ଼ିଶା ଦର୍ଶନ`;
+        const rawDesc = (matchedItem.description || matchedItem.significance || '').replace(/\s+/g, ' ').trim();
+        ogDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc || 'ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର ଓ ଐତିହ୍ୟ ବିବରଣୀ।';
+        if (matchedItem.imageUrl) {
+          ogImage = matchedItem.imageUrl.trim();
+        }
+        ogType = 'article';
+        canonicalUrl = `${origin}/?district=${encodeURIComponent(matchedItem.districtId)}&item=${encodeURIComponent(matchedItem.id)}`;
+
+        jsonLdSchema = {
+          '@context': 'https://schema.org',
+          '@type': 'TouristAttraction',
+          name: matchedItem.title,
+          description: ogDesc,
+          image: ogImage ? [ogImage] : undefined,
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: matchedItem.districtNameEng || 'Odisha',
+            addressRegion: 'Odisha',
+            addressCountry: 'IN',
+          },
+        };
+      } else {
+        const itemTitle = directTitle || itemParam.replace(/[-_]/g, ' ');
+        pageTitle = `${itemTitle} | Explore Odisha`;
+        ogTitle = `🛕 ${itemTitle} | Explore Odisha`;
+        if (directImage) ogImage = directImage;
+        canonicalUrl = districtParam
+          ? `${origin}/?district=${encodeURIComponent(districtParam)}&item=${encodeURIComponent(itemParam)}`
+          : `${origin}/?item=${encodeURIComponent(itemParam)}`;
+      }
+    } else if (districtParam) {
+      // 3. District Overview (e.g. ?district=puri)
+      isMatch = true;
+      const matchedDist = ODISHA_DISTRICTS.find(
+        (d) => d.id.toLowerCase() === districtParam.toLowerCase() || d.nameEng.toLowerCase() === districtParam.toLowerCase()
+      );
+      const allDistrictItems: DistrictItem[] =
+        db.districtItems && db.districtItems.length > 0 ? db.districtItems : DEFAULT_DISTRICT_ITEMS;
+      const distItems = allDistrictItems.filter((i) => i.districtId.toLowerCase() === districtParam.toLowerCase());
+      const sampleImg = distItems.find((i) => i.imageUrl)?.imageUrl;
+
+      if (matchedDist) {
+        pageTitle = `${matchedDist.nameOdia} (${matchedDist.nameEng}) ଜିଲ୍ଲା ଦର୍ଶନ | Explore Odisha`;
+        ogTitle = `🚩 ${matchedDist.nameOdia} (${matchedDist.nameEng}) - ${matchedDist.tagline} | ଓଡ଼ିଶା ଦର୍ଶନ`;
+        ogDesc = `${matchedDist.nameOdia} ଜିଲ୍ଲାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର, ଧାର୍ମିକ ପୀଠ, ଉତ୍ସବ, ପର୍ଯ୍ୟଟନ ଓ ଐତିହ୍ୟ ସମ୍ପର୍କିତ ସମ୍ପୂର୍ଣ୍ଣ ବିବରଣୀ।`;
+        if (sampleImg) {
+          ogImage = sampleImg.trim();
+        }
+        canonicalUrl = `${origin}/?district=${encodeURIComponent(matchedDist.id)}`;
+      } else {
+        pageTitle = `${districtParam} District | Explore Odisha`;
+        ogTitle = `🚩 ${districtParam} District | Explore Odisha`;
+        canonicalUrl = `${origin}/?district=${encodeURIComponent(districtParam)}`;
+      }
     } else if (templeId) {
-      // 2. Check for Specific Temple
+      // 4. Check for Specific Temple
       const allTemples: Temple[] = db.temples && db.temples.length > 0 ? db.temples : DEFAULT_TEMPLES;
       const temple = allTemples.find((t) => t.id.toLowerCase() === templeId.toLowerCase());
       if (temple) {
@@ -906,14 +1030,14 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
         canonicalUrl = `${origin}/?templeId=${encodeURIComponent(temple.id)}`;
       }
     } else if (query.view === 'blog' || query.blog) {
-      // 3. Blog Overview
+      // 5. Blog Overview
       isMatch = true;
       pageTitle = 'ଆଧ୍ୟାତ୍ମିକ କଥା, ବ୍ରତ ଓ ପର୍ବପର୍ବାଣୀ ବିବରଣୀ (Spiritual Blog) | Bhakti Ananda Odia TV';
       ogTitle = '📖 ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ରତ ମାହାତ୍ମ୍ୟ - ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV';
       ogDesc = 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ, ସନାତନ ଧର୍ମ ନୀତି ଓ ଉତ୍ସବ ସମ୍ପର୍କିତ ବିଶେଷ ଆଧ୍ୟାତ୍ମିକ ଲେଖା।';
       canonicalUrl = `${origin}/?view=blog`;
     } else if (query.view === 'store' || query.product_id) {
-      // 4. Store / Products
+      // 6. Store / Products
       isMatch = true;
       const productId = query.product_id as string;
       pageTitle = productId
@@ -923,27 +1047,19 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
       ogDesc = 'ଘରେ ବସି ଅର୍ଡର କରନ୍ତୁ ଶୁଦ୍ଧ ଗଙ୍ଗାଜଳ, କସ୍ତୁରୀ, ଅଗରବତୀ, ଚନ୍ଦନ ଓ ସମସ୍ତ ପୂଜା ଉପକରଣ। କ୍ୟାଶ ଅନ ଡେଲିଭରୀ ଉପଲବ୍ଧ।';
       canonicalUrl = productId ? `${origin}/?product_id=${encodeURIComponent(productId)}` : `${origin}/?view=store`;
     } else if (query.panchang || query.view === 'panchang') {
-      // 5. Panchang
+      // 7. Panchang
       isMatch = true;
       pageTitle = 'ଓଡ଼ିଆ କୋହେନୂର ପଞ୍ଜିକା ଓ ଦୈନିକ ରାଶିଫଳ (Odia Panchang) | Bhakti Ananda Odia TV';
       ogTitle = '📅 ଆଜିର ଓଡ଼ିଆ ପଞ୍ଜିକା, ତିଥି ଓ ଶୁଭ ବେଳା | Odia Panchang';
       ogDesc = 'ଦୈନିକ ସୂର୍ଯ୍ୟୋଦୟ, ସୂର୍ଯ୍ୟାସ୍ତ, ତିଥି, ନକ୍ଷତ୍ର, ରାହୁକାଳ, ଅମୃତବେଳା ଓ ଶୁଭ କାର୍ଯ୍ୟ ସମୟ ସୂଚୀ।';
       canonicalUrl = `${origin}/?panchang=true`;
     } else if (query.shorts || query.view === 'shorts') {
-      // 6. Shorts
+      // 8. Shorts
       isMatch = true;
       pageTitle = 'ମନ୍ଦିର ଦର୍ଶନ ଓ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ (Temple Shorts) | Bhakti Ananda Odia TV';
       ogTitle = '🎥 ଶ୍ରୀକ୍ଷେତ୍ର ଓ ପ୍ରସିଦ୍ଧ ମନ୍ଦିର ଭିଡିଓ ଦର୍ଶନ - Temple Shorts';
       ogDesc = 'ପ୍ରତ୍ୟକ୍ଷ ଦେଖନ୍ତୁ ଓଡ଼ିଶାର ପ୍ରମୁଖ ମନ୍ଦିରଗୁଡ଼ିକର ଦୈନିକ ନୀତିକାନ୍ତି, ଆଳତି ଓ ଆଧ୍ୟାତ୍ମିକ ଦର୍ଶନ ଭିଡିଓ।';
       canonicalUrl = `${origin}/?shorts=true`;
-    } else if (query.district && query.item) {
-      // 7. District Item
-      isMatch = true;
-      const itemTitle = (query.title as string) || 'ଓଡ଼ିଶା ଦର୍ଶନ';
-      ogTitle = `🛕 ${itemTitle} | Explore Odisha`;
-      pageTitle = `${itemTitle} | Explore Odisha`;
-      if (directImage) ogImage = directImage;
-      canonicalUrl = `${origin}/?district=${encodeURIComponent(query.district as string)}&item=${encodeURIComponent(query.item as string)}`;
     }
 
     // Direct Param Overrides
@@ -961,93 +1077,93 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
       ogImage = directImage;
     }
 
-    if (!isMatch && !storyId && !templeId) {
+    if (!isMatch && !storyId && !templeId && !districtParam && !itemParam) {
       return html;
     }
 
     let modifiedHtml = html;
 
     // 1. Browser Tab Page Title
-    modifiedHtml = modifiedHtml.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(pageTitle)}</title>`);
+    modifiedHtml = modifiedHtml.replace(/<title>[\s\S]*?<\/title>/gi, `<title>${escapeHtml(pageTitle)}</title>`);
 
     // 2. Canonical Link Tag
     if (modifiedHtml.includes('rel="canonical"') || modifiedHtml.includes("rel='canonical'")) {
-      modifiedHtml = modifiedHtml.replace(/<link[^>]*rel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`);
+      modifiedHtml = modifiedHtml.replace(/<link[^>]*rel=["']canonical["'][^>]*>/gi, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />\n</head>`);
     }
 
     // 3. Open Graph Title
-    if (modifiedHtml.includes('property="og:title"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:title["'][^>]*>/i, `<meta id="og-title" property="og:title" content="${escapeHtml(ogTitle)}" />`);
+    if (modifiedHtml.includes('property="og:title"') || modifiedHtml.includes("property='og:title'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:title["'][^>]*>/gi, `<meta id="og-title" property="og:title" content="${escapeHtml(ogTitle)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-title" property="og:title" content="${escapeHtml(ogTitle)}" />\n</head>`);
     }
 
     // 4. Open Graph Description
-    if (modifiedHtml.includes('property="og:description"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:description["'][^>]*>/i, `<meta id="og-desc" property="og:description" content="${escapeHtml(ogDesc)}" />`);
+    if (modifiedHtml.includes('property="og:description"') || modifiedHtml.includes("property='og:description'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:description["'][^>]*>/gi, `<meta id="og-desc" property="og:description" content="${escapeHtml(ogDesc)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-desc" property="og:description" content="${escapeHtml(ogDesc)}" />\n</head>`);
     }
 
     // 5. Standard HTML Description
-    if (modifiedHtml.includes('name="description"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']description["'][^>]*>/i, `<meta name="description" content="${escapeHtml(ogDesc)}" />`);
+    if (modifiedHtml.includes('name="description"') || modifiedHtml.includes("name='description'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']description["'][^>]*>/gi, `<meta name="description" content="${escapeHtml(ogDesc)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta name="description" content="${escapeHtml(ogDesc)}" />\n</head>`);
     }
 
     // 6. Open Graph Image (Direct full URL)
-    if (modifiedHtml.includes('property="og:image"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image["'][^>]*>/i, `<meta id="og-img" property="og:image" content="${escapeHtml(ogImage)}" />`);
+    if (modifiedHtml.includes('property="og:image"') || modifiedHtml.includes("property='og:image'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image["'][^>]*>/gi, `<meta id="og-img" property="og:image" content="${escapeHtml(ogImage)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-img" property="og:image" content="${escapeHtml(ogImage)}" />\n</head>`);
     }
 
     // 7. Open Graph Secure URL
-    if (modifiedHtml.includes('property="og:image:secure_url"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image:secure_url["'][^>]*>/i, `<meta id="og-img-sec" property="og:image:secure_url" content="${escapeHtml(ogImage)}" />`);
+    if (modifiedHtml.includes('property="og:image:secure_url"') || modifiedHtml.includes("property='og:image:secure_url'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:image:secure_url["'][^>]*>/gi, `<meta id="og-img-sec" property="og:image:secure_url" content="${escapeHtml(ogImage)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-img-sec" property="og:image:secure_url" content="${escapeHtml(ogImage)}" />\n</head>`);
     }
 
     // 8. Open Graph Canonical URL
-    if (modifiedHtml.includes('property="og:url"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:url["'][^>]*>/i, `<meta id="og-url" property="og:url" content="${escapeHtml(canonicalUrl)}" />`);
+    if (modifiedHtml.includes('property="og:url"') || modifiedHtml.includes("property='og:url'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:url["'][^>]*>/gi, `<meta id="og-url" property="og:url" content="${escapeHtml(canonicalUrl)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="og-url" property="og:url" content="${escapeHtml(canonicalUrl)}" />\n</head>`);
     }
 
     // 9. Open Graph Type & Site Name
-    if (modifiedHtml.includes('property="og:type"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:type["'][^>]*>/i, `<meta property="og:type" content="${escapeHtml(ogType)}" />`);
+    if (modifiedHtml.includes('property="og:type"') || modifiedHtml.includes("property='og:type'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*property=["']og:type["'][^>]*>/gi, `<meta property="og:type" content="${escapeHtml(ogType)}" />`);
     }
     if (!modifiedHtml.includes('property="og:site_name"')) {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta property="og:site_name" content="Bhakti Ananda Odia TV" />\n</head>`);
     }
 
     // 10. Twitter Meta Tags
-    if (modifiedHtml.includes('name="twitter:card"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:card["'][^>]*>/i, `<meta id="tw-card" name="twitter:card" content="summary_large_image" />`);
+    if (modifiedHtml.includes('name="twitter:card"') || modifiedHtml.includes("name='twitter:card'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:card["'][^>]*>/gi, `<meta id="tw-card" name="twitter:card" content="summary_large_image" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-card" name="twitter:card" content="summary_large_image" />\n</head>`);
     }
 
-    if (modifiedHtml.includes('name="twitter:title"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:title["'][^>]*>/i, `<meta id="tw-title" name="twitter:title" content="${escapeHtml(ogTitle)}" />`);
+    if (modifiedHtml.includes('name="twitter:title"') || modifiedHtml.includes("name='twitter:title'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:title["'][^>]*>/gi, `<meta id="tw-title" name="twitter:title" content="${escapeHtml(ogTitle)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-title" name="twitter:title" content="${escapeHtml(ogTitle)}" />\n</head>`);
     }
 
-    if (modifiedHtml.includes('name="twitter:description"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:description["'][^>]*>/i, `<meta id="tw-desc" name="twitter:description" content="${escapeHtml(ogDesc)}" />`);
+    if (modifiedHtml.includes('name="twitter:description"') || modifiedHtml.includes("name='twitter:description'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:description["'][^>]*>/gi, `<meta id="tw-desc" name="twitter:description" content="${escapeHtml(ogDesc)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-desc" name="twitter:description" content="${escapeHtml(ogDesc)}" />\n</head>`);
     }
 
-    if (modifiedHtml.includes('name="twitter:image"')) {
-      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:image["'][^>]*>/i, `<meta id="tw-img" name="twitter:image" content="${escapeHtml(ogImage)}" />`);
+    if (modifiedHtml.includes('name="twitter:image"') || modifiedHtml.includes("name='twitter:image'")) {
+      modifiedHtml = modifiedHtml.replace(/<meta[^>]*name=["']twitter:image["'][^>]*>/gi, `<meta id="tw-img" name="twitter:image" content="${escapeHtml(ogImage)}" />`);
     } else {
       modifiedHtml = modifiedHtml.replace('</head>', `  <meta id="tw-img" name="twitter:image" content="${escapeHtml(ogImage)}" />\n</head>`);
     }
@@ -1056,7 +1172,7 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
     if (jsonLdSchema) {
       const jsonLdTag = `  <script type="application/ld+json" id="story-jsonld-schema">\n${JSON.stringify(jsonLdSchema, null, 2)}\n  </script>\n`;
       if (modifiedHtml.includes('id="story-jsonld-schema"')) {
-        modifiedHtml = modifiedHtml.replace(/<script[^>]*id=["']story-jsonld-schema["'][^>]*>[\s\S]*?<\/script>/i, jsonLdTag.trim());
+        modifiedHtml = modifiedHtml.replace(/<script[^>]*id=["']story-jsonld-schema["'][^>]*>[\s\S]*?<\/script>/gi, jsonLdTag.trim());
       } else {
         modifiedHtml = modifiedHtml.replace('</head>', `${jsonLdTag}</head>`);
       }
