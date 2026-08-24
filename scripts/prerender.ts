@@ -151,18 +151,29 @@ function generateStaticHtml(templateHtml: string, seo: SeoPayload): string {
 function writeStaticRoute(distDir: string, routePath: string, htmlContent: string) {
   // Normalize routePath e.g. "/story/story-529058"
   const cleanRoute = routePath.replace(/^\/+|\/+$/g, '');
+  if (!cleanRoute) return;
+
+  // 1. Directory format: dist/story/story-529058/index.html (matches /story/story-529058/)
   const targetDir = path.join(distDir, cleanRoute);
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
   }
-  const targetFile = path.join(targetDir, 'index.html');
-  fs.writeFileSync(targetFile, htmlContent, 'utf8');
+  const targetIndexFile = path.join(targetDir, 'index.html');
+  fs.writeFileSync(targetIndexFile, htmlContent, 'utf8');
+
+  // 2. Clean URL file format: dist/story/story-529058.html (matches /story/story-529058 directly on AWS Amplify)
+  const targetHtmlFile = path.join(distDir, `${cleanRoute}.html`);
+  const parentDir = path.dirname(targetHtmlFile);
+  if (!fs.existsSync(parentDir)) {
+    fs.mkdirSync(parentDir, { recursive: true });
+  }
+  fs.writeFileSync(targetHtmlFile, htmlContent, 'utf8');
 }
 
 async function fetchFirestoreStories(): Promise<SpiritualStory[]> {
   try {
     if (!firebaseConfigFile.projectId) return [];
-    const app = initializeApp(firebaseConfigFile, `prerender-${Date.now()}`);
+    const app = initializeApp(firebaseConfigFile, `prerender-stories-${Date.now()}`);
     const db =
       firebaseConfigFile.firestoreDatabaseId && firebaseConfigFile.firestoreDatabaseId !== '(default)'
         ? getFirestore(app, firebaseConfigFile.firestoreDatabaseId)
@@ -181,7 +192,59 @@ async function fetchFirestoreStories(): Promise<SpiritualStory[]> {
     });
     return stories;
   } catch (err) {
-    console.warn('Firestore prerender fetch notice (using fallbacks):', err);
+    console.warn('Firestore spiritual_stories prerender notice:', err);
+    return [];
+  }
+}
+
+async function fetchFirestoreTemples(): Promise<Temple[]> {
+  try {
+    if (!firebaseConfigFile.projectId) return [];
+    const app = initializeApp(firebaseConfigFile, `prerender-temples-${Date.now()}`);
+    const db =
+      firebaseConfigFile.firestoreDatabaseId && firebaseConfigFile.firestoreDatabaseId !== '(default)'
+        ? getFirestore(app, firebaseConfigFile.firestoreDatabaseId)
+        : getFirestore(app);
+
+    const snap = await getDocs(collection(db, 'temples'));
+    const temples: Temple[] = [];
+    snap.docs.forEach((doc) => {
+      const data = doc.data() as Temple;
+      if (data && data.name) {
+        temples.push({
+          ...data,
+          id: doc.id || data.id,
+        });
+      }
+    });
+    return temples;
+  } catch (err) {
+    return [];
+  }
+}
+
+async function fetchFirestoreDistrictItems(): Promise<DistrictItem[]> {
+  try {
+    if (!firebaseConfigFile.projectId) return [];
+    const app = initializeApp(firebaseConfigFile, `prerender-district-items-${Date.now()}`);
+    const db =
+      firebaseConfigFile.firestoreDatabaseId && firebaseConfigFile.firestoreDatabaseId !== '(default)'
+        ? getFirestore(app, firebaseConfigFile.firestoreDatabaseId)
+        : getFirestore(app);
+
+    const snap = await getDocs(collection(db, 'district_items'));
+    const items: DistrictItem[] = [];
+    snap.docs.forEach((doc) => {
+      const data = doc.data() as DistrictItem;
+      if (data && data.title) {
+        items.push({
+          ...data,
+          id: doc.id || data.id,
+        });
+      }
+    });
+    return items;
+  } catch (err) {
     return [];
   }
 }
@@ -279,7 +342,15 @@ async function runPrerender() {
   }
 
   // 3. Generate Static HTML for Temples
-  for (const temple of DEFAULT_TEMPLES) {
+  const firestoreTemples = await fetchFirestoreTemples();
+  const allTemples: Temple[] = [...DEFAULT_TEMPLES];
+  for (const t of firestoreTemples) {
+    if (!allTemples.some((x) => x.id === t.id)) {
+      allTemples.push(t);
+    }
+  }
+
+  for (const temple of allTemples) {
     const templeTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal`;
     const ogTitle = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
     const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
@@ -321,11 +392,19 @@ async function runPrerender() {
   }
 
   // 4. Generate Static HTML for Odisha Districts
+  const firestoreItems = await fetchFirestoreDistrictItems();
+  const allDistrictItems: DistrictItem[] = [...DEFAULT_DISTRICT_ITEMS];
+  for (const item of firestoreItems) {
+    if (!allDistrictItems.some((x) => x.id === item.id)) {
+      allDistrictItems.push(item);
+    }
+  }
+
   for (const district of ODISHA_DISTRICTS) {
     const distTitle = `${district.nameOdia} (${district.nameEng}) ଜିଲ୍ଲା ଦର୍ଶନ | Explore Odisha`;
     const ogTitle = `🚩 ${district.nameOdia} (${district.nameEng}) - ${district.tagline} | ଓଡ଼ିଶା ଦର୍ଶନ`;
     const ogDesc = `${district.nameOdia} ଜିଲ୍ଲାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର, ଧାର୍ମିକ ପୀଠ, ଉତ୍ସବ, ପର୍ଯ୍ୟଟନ ଓ ଐତିହ୍ୟ ସମ୍ପର୍କିତ ସମ୍ପୂର୍ଣ୍ଣ ବିବରଣୀ।`;
-    const distItems = DEFAULT_DISTRICT_ITEMS.filter((i) => i.districtId.toLowerCase() === district.id.toLowerCase());
+    const distItems = allDistrictItems.filter((i) => i.districtId.toLowerCase() === district.id.toLowerCase());
     const sampleImg = distItems.find((i) => i.imageUrl)?.imageUrl || FALLBACK_DEFAULT_IMAGE;
     const canonicalUrl = `${DEFAULT_ORIGIN}/district/${encodeURIComponent(district.id)}`;
 
@@ -343,12 +422,14 @@ async function runPrerender() {
     });
 
     writeStaticRoute(distDir, `/district/${district.id}`, distHtml);
+    writeStaticRoute(distDir, `/district/${district.id.toLowerCase()}`, distHtml);
     writeStaticRoute(distDir, `/districts/${district.id}`, distHtml);
-    generatedCount += 2;
+    writeStaticRoute(distDir, `/districts/${district.id.toLowerCase()}`, distHtml);
+    generatedCount += 4;
   }
 
   // 5. Generate Static HTML for District Items (Places / Heritage)
-  for (const item of DEFAULT_DISTRICT_ITEMS) {
+  for (const item of allDistrictItems) {
     const itemTitle = `${item.title} (${item.districtNameEng || 'Odisha'}) | Explore Odisha`;
     const ogTitle = `🛕 ${item.title} (${item.districtNameOdia || item.districtNameEng}) - ଓଡ଼ିଶା ଦର୍ଶନ`;
     const rawDesc = (item.description || item.significance || '').replace(/\s+/g, ' ').trim();
@@ -386,9 +467,12 @@ async function runPrerender() {
     });
 
     writeStaticRoute(distDir, `/district/${item.districtId}/${item.id}`, itemHtml);
+    writeStaticRoute(distDir, `/district/${item.districtId.toLowerCase()}/${item.id}`, itemHtml);
+    writeStaticRoute(distDir, `/districts/${item.districtId}/${item.id}`, itemHtml);
+    writeStaticRoute(distDir, `/districts/${item.districtId.toLowerCase()}/${item.id}`, itemHtml);
     writeStaticRoute(distDir, `/place/${item.id}`, itemHtml);
     writeStaticRoute(distDir, `/item/${item.id}`, itemHtml);
-    generatedCount += 3;
+    generatedCount += 6;
   }
 
   // 6. Core Static App Views
