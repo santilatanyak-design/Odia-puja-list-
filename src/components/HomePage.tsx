@@ -101,9 +101,17 @@ export const HomePage: React.FC<HomePageProps> = ({
           id="home-auto-sliding-banner"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="relative h-48 sm:h-56 w-full rounded-3xl overflow-hidden shadow-md border border-amber-300/80 bg-slate-950 select-none group"
+          className="relative w-full rounded-3xl overflow-hidden shadow-md border border-amber-300/80 bg-slate-900 select-none group"
         >
-          {/* Slide Background Images with smooth fade */}
+          {/* Base Flow Image to automatically establish the container's exact natural aspect ratio */}
+          <img
+            src={validSlides[currentSlide]?.url || validSlides[0]?.url}
+            alt="Banner Flow"
+            className="w-full h-auto block opacity-0 pointer-events-none select-none invisible"
+            aria-hidden="true"
+          />
+
+          {/* Slide Background Images with smooth fade filling the full dynamic container */}
           {validSlides.map((slide, idx) => (
             <div
               key={slide.id || idx}
@@ -114,7 +122,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <img
                 src={slide.url}
                 alt={slide.title || `Banner Slide ${idx + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-fill"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.opacity = '0.3';
                 }}
