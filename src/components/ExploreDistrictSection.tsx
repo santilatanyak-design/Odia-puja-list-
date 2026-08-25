@@ -4,6 +4,7 @@ import { subscribeDistrictItems } from '../lib/districtApi';
 import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
 import { shareDistrictItemNative, setDynamicDistrictItemMeta } from '../lib/ogMetaHelper';
 import { PuriOnlineStoreModal } from './PuriOnlineStoreModal';
+import { SmartImage } from './SmartImage';
 import {
   MapPin,
   Calendar,
@@ -305,7 +306,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredItems.map((item) => (
+          {filteredItems.map((item, itemIdx) => (
             <div
               key={item.id}
               onClick={() => setSelectedDetailItem(item)}
@@ -315,16 +316,14 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                 {/* Image / Banner */}
                 {item.imageUrl ? (
                   <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
-                    <img
+                    <SmartImage
                       src={item.imageUrl}
                       alt={item.title}
+                      priority={itemIdx < 3}
+                      containerClassName="w-full h-full"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop';
-                      }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
                     
                     {/* Top Badges */}
                     <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
@@ -515,9 +514,11 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
             {/* Modal Image */}
             {selectedDetailItem.imageUrl && (
               <div className="w-full h-56 sm:h-72 rounded-2xl overflow-hidden bg-slate-100 border border-amber-200 shadow-inner">
-                <img
+                <SmartImage
                   src={selectedDetailItem.imageUrl}
                   alt={selectedDetailItem.title}
+                  priority={true}
+                  containerClassName="w-full h-full"
                   className="w-full h-full object-cover"
                 />
               </div>

@@ -37,6 +37,7 @@ import {
   Check,
   AlertTriangle,
 } from 'lucide-react';
+import { SmartImage } from './SmartImage';
 
 interface StoreViewProps {
   userPhone?: string;
@@ -530,15 +531,15 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
       {/* Dynamic Festival Offer Banner */}
       {config.enableFestivalBanner !== false && (
         <div className="w-full h-36 sm:h-48 rounded-2xl overflow-hidden shadow-lg mb-6 border border-amber-300/80 relative group">
-          <img
+          <SmartImage
             src={config.festivalBannerUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop'}
             alt="Festival Special Offer Banner"
+            priority={true}
+            containerClassName="w-full h-full"
             className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-            onError={(e) => {
-              (e.target as HTMLElement).setAttribute('src', DEFAULT_BANNER_IMAGE);
-            }}
+            fallbackSrc={DEFAULT_BANNER_IMAGE}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent p-4 sm:p-6 flex flex-col justify-center text-white">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent p-4 sm:p-6 flex flex-col justify-center text-white pointer-events-none">
             <span className="bg-amber-500 text-amber-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full w-fit mb-1.5 shadow-sm">
               🎉 ବିଶେଷ ସ୍ୱତନ୍ତ୍ର ଅଫର୍ (Festival Offer)
             </span>
@@ -672,7 +673,7 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                   : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6'
               }
             >
-              {filteredProducts.map((product) => {
+              {filteredProducts.map((product, productIdx) => {
                 const cartItem = cart.find((ci) => ci.product.id === product.id);
                 const itemQty = cartItem ? cartItem.quantity : 0;
 
@@ -729,19 +730,16 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                           : 'w-full h-44 bg-amber-50 overflow-hidden relative'
                       }
                     >
-                      <img
+                      <SmartImage
                         src={
                           product.imageUrl ||
                           'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
                         }
                         alt={product.name}
+                        priority={productIdx < 4}
+                        containerClassName="w-full h-full"
                         className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                        onError={(e) => {
-                          (e.target as HTMLElement).setAttribute(
-                            'src',
-                            'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
-                          );
-                        }}
+                        fallbackSrc="https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop"
                       />
                     </div>
 

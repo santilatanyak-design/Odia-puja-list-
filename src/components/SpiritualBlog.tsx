@@ -22,6 +22,7 @@ import {
   Flame,
   Tag,
 } from 'lucide-react';
+import { SmartImage } from './SmartImage';
 
 interface SpiritualBlogProps {
   onBack: () => void;
@@ -249,12 +250,14 @@ ${story.summary}
           className="bg-white rounded-3xl border-2 border-amber-400 shadow-xl overflow-hidden cursor-pointer hover:shadow-2xl transition group grid grid-cols-1 md:grid-cols-12"
         >
           <div className="md:col-span-5 h-56 md:h-full relative overflow-hidden bg-slate-900">
-            <img
+            <SmartImage
               src={featuredStory.imageUrl}
               alt={featuredStory.title}
+              priority={true}
+              containerClassName="w-full h-full"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <span className="absolute top-3 left-3 px-3 py-1 bg-amber-500 text-amber-950 rounded-full text-[11px] font-black shadow-md flex items-center gap-1">
+            <span className="absolute top-3 left-3 px-3 py-1 bg-amber-500 text-amber-950 rounded-full text-[11px] font-black shadow-md flex items-center gap-1 z-10">
               <Sparkles className="w-3.5 h-3.5" />
               <span>ବିଶେଷ କାହାଣୀ (Featured)</span>
             </span>
@@ -322,7 +325,7 @@ ${story.summary}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredStories.map((story) => (
+            {filteredStories.map((story, storyIdx) => (
               <div
                 key={story.id}
                 onClick={() => setSelectedStory(story)}
@@ -330,12 +333,14 @@ ${story.summary}
               >
                 <div>
                   <div className="h-44 w-full relative overflow-hidden bg-slate-900">
-                    <img
+                    <SmartImage
                       src={story.imageUrl}
                       alt={story.title}
+                      priority={storyIdx < 3}
+                      containerClassName="w-full h-full"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <span className="absolute top-3 left-3 px-2.5 py-0.5 bg-amber-950/80 text-amber-200 rounded-full text-[10px] font-black backdrop-blur-xs border border-amber-400/40">
+                    <span className="absolute top-3 left-3 px-2.5 py-0.5 bg-amber-950/80 text-amber-200 rounded-full text-[10px] font-black backdrop-blur-xs border border-amber-400/40 z-10">
                       {story.category}
                     </span>
                   </div>
@@ -416,9 +421,11 @@ ${story.summary}
               {/* Image banner if present */}
               {selectedStory.imageUrl && (
                 <div className="h-56 sm:h-72 w-full rounded-2xl overflow-hidden bg-slate-900 shadow-md">
-                  <img
+                  <SmartImage
                     src={selectedStory.imageUrl}
                     alt={selectedStory.title}
+                    priority={true}
+                    containerClassName="w-full h-full"
                     className="w-full h-full object-cover"
                   />
                 </div>

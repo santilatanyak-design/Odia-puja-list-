@@ -33,6 +33,7 @@ import {
   FileText,
   ShoppingBag,
 } from 'lucide-react';
+import { SmartImage } from './SmartImage';
 
 interface TempleBookingViewProps {
   userPhone?: string;
@@ -387,7 +388,7 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {temples.map((temple) => (
+          {temples.map((temple, templeIdx) => (
             <div
               key={temple.id}
               id={`temple-card-${temple.id}`}
@@ -397,14 +398,13 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                 {/* Temple Image & Badges (1:1 Aspect Ratio) */}
                 <div className="w-full aspect-square bg-amber-100 relative overflow-hidden">
                   {temple.imageUrl && temple.imageUrl.trim() ? (
-                    <img
+                    <SmartImage
                       src={temple.imageUrl}
                       alt={temple.name || 'Temple'}
+                      priority={templeIdx < 3}
+                      containerClassName="w-full h-full"
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
-                      }}
+                      fallbackSrc="https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop"
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-amber-700 via-amber-800 to-amber-950 flex flex-col items-center justify-center text-amber-100 p-4 text-center">
@@ -857,13 +857,15 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
 
                   {/* QR Code Display */}
                   <div className="bg-white border-2 border-amber-400 rounded-2xl p-4 shadow-md inline-block mx-auto max-w-xs">
-                    <img
+                    <SmartImage
                       src={
                         selectedTemple.qrCodeUrl ||
                         'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=400&auto=format&fit=crop'
                       }
                       alt="Paytm QR Code"
-                      className="w-48 h-48 object-cover mx-auto rounded-xl border border-amber-200"
+                      priority={true}
+                      containerClassName="w-48 h-48 mx-auto rounded-xl border border-amber-200"
+                      className="w-full h-full object-cover"
                     />
                     <div className="mt-2 text-[11px] font-black text-amber-950">
                       Scan QR Code with Paytm / PhonePe / Google Pay
@@ -1113,14 +1115,13 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
             <div className="space-y-3.5 text-xs">
               <div className="w-full aspect-square bg-amber-50 rounded-2xl overflow-hidden border-2 border-amber-300 max-h-60 shadow-inner relative group">
                 {selectedHistoryTemple.imageUrl && selectedHistoryTemple.imageUrl.trim() ? (
-                  <img
+                  <SmartImage
                     src={selectedHistoryTemple.imageUrl}
                     alt={selectedHistoryTemple.name || 'Temple'}
+                    priority={true}
+                    containerClassName="w-full h-full"
                     className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
-                    }}
+                    fallbackSrc="https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop"
                   />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center bg-amber-100 text-amber-900 font-bold p-4 text-center">

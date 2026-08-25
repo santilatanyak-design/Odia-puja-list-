@@ -175,6 +175,9 @@ export const HomePage: React.FC<HomePageProps> = ({
               <img
                 src={slide.url}
                 alt={slide.title || `Banner Slide ${idx + 1}`}
+                loading={idx === 0 ? 'eager' : 'lazy'}
+                fetchPriority={idx === 0 ? 'high' : 'auto'}
+                decoding="async"
                 className="w-full h-full object-fill"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.opacity = '0.3';

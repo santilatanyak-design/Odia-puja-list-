@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ExternalLink, ShoppingBag, Sparkles, ChevronDown } from 'lucide-react';
 import { PuriStoreConfig, PuriStoreProduct } from '../types';
 import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
+import { SmartImage } from './SmartImage';
 
 interface PuriOnlineStoreModalProps {
   isOpen: boolean;
@@ -92,7 +93,7 @@ export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOp
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {visibleProducts.map((prod) => (
+                {visibleProducts.map((prod, prodIdx) => (
                   <div
                     key={prod.id}
                     className="bg-white rounded-2xl border border-amber-200/90 shadow-xs hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between group hover:border-amber-400"
@@ -100,18 +101,15 @@ export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOp
                     <div>
                       {/* Photo Container */}
                       <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
-                        <img
+                        <SmartImage
                           src={prod.photoUrl}
                           alt={prod.name}
-                          loading="lazy"
-                          decoding="async"
+                          priority={prodIdx < 2}
+                          containerClassName="w-full h-full"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.opacity = '0.3';
-                          }}
                         />
                         {prod.tag && (
-                          <span className="absolute top-2 left-2 px-2.5 py-0.5 bg-black/75 backdrop-blur-xs text-amber-200 text-[10px] font-black rounded-lg border border-amber-400/30">
+                          <span className="absolute top-2 left-2 px-2.5 py-0.5 bg-black/75 backdrop-blur-xs text-amber-200 text-[10px] font-black rounded-lg border border-amber-400/30 z-10">
                             {prod.tag}
                           </span>
                         )}
