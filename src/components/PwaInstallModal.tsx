@@ -55,8 +55,8 @@ export const PwaInstallModal: React.FC<PwaInstallModalProps> = ({
           <div className="space-y-4">
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 text-xs text-amber-200 leading-relaxed">
               {lang === 'OD'
-                ? 'ଆପଣ Facebook/Instagram ଭିତରେ ଅଛନ୍ତି। ନିମ୍ନ ବଟନ୍ ଦବାଇ Chrome ବ୍ରାଉଜର୍‌ରେ ଖୋଲନ୍ତୁ, ଯାହାଦ୍ୱାରା ତୁରନ୍ତ ଆପ୍ ଡାଉନଲୋଡ୍ ହୋଇପାରିବ।'
-                : 'You are viewing inside an In-App browser (Facebook/Instagram). Tap below to open in Google Chrome for 1-click install.'}
+                ? 'ଆପଣ ସୋସିଆଲ୍ ମିଡିଆ (WhatsApp/Instagram/Facebook/X/Telegram) ଭିତରେ ଅଛନ୍ତି। ନିମ୍ନ ବଟନ୍ ଦବାଇ Chrome ବ୍ରାଉଜର୍‌ରେ ଖୋଲନ୍ତୁ, ଯାହାଦ୍ୱାରା ତୁରନ୍ତ ୧-କ୍ଲିକ୍‌ରେ ଆପ୍ ଡାଉନଲୋଡ୍ ହୋଇପାରିବ।'
+                : 'You are viewing inside a Social Media / In-App browser. Tap below to open in Google Chrome for 1-click installation.'}
             </div>
 
             <button

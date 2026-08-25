@@ -67,14 +67,15 @@ export const AdminInstallSection: React.FC<AdminInstallSectionProps> = ({ onInst
       }
     }
 
-    // Check if inside in-app browser on Android
-    if (isInAppBrowser() && isAndroid()) {
+    const prompt = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_ADMIN_PROMPT__ || (window as any).__PWA_INSTALL_PROMPT__ : null);
+
+    // Check if inside in-app browser or on Android without prompt - auto breakout to Chrome!
+    if (isAndroid() && (isInAppBrowser() || !prompt)) {
       const currentAdminUrl = `${window.location.origin}/admin?pwa=admin`;
       const redirected = openInNativeChrome(currentAdminUrl);
       if (redirected) return;
     }
 
-    const prompt = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_ADMIN_PROMPT__ || (window as any).__PWA_INSTALL_PROMPT__ : null);
     if (prompt) {
       try {
         prompt.prompt();
