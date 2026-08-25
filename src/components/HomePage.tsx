@@ -11,7 +11,10 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Download,
+  Smartphone,
+  CheckCircle2
 } from 'lucide-react';
 import {
   TempleAppLogo,
@@ -50,6 +53,57 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [sliderConfig, setSliderConfig] = useState<HomeSliderConfig>(DEFAULT_HOME_SLIDER_CONFIG);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [pwaPrompt, setPwaPrompt] = useState<any>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true) {
+        setIsAppInstalled(true);
+      }
+      if ((window as any).__PWA_INSTALL_PROMPT__) {
+        setPwaPrompt((window as any).__PWA_INSTALL_PROMPT__);
+      }
+    }
+
+    const handlePrompt = (e: any) => {
+      e.preventDefault();
+      setPwaPrompt(e);
+      if (typeof window !== 'undefined') {
+        (window as any).__PWA_INSTALL_PROMPT__ = e;
+      }
+    };
+
+    const handleInstalled = () => {
+      setIsAppInstalled(true);
+      setPwaPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handlePrompt);
+    window.addEventListener('appinstalled', handleInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handlePrompt);
+      window.removeEventListener('appinstalled', handleInstalled);
+    };
+  }, []);
+
+  const handleInstallPublicApp = async () => {
+    if (pwaPrompt) {
+      try {
+        pwaPrompt.prompt();
+        const { outcome } = await pwaPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setIsAppInstalled(true);
+          setPwaPrompt(null);
+        }
+      } catch (err) {
+        console.error('PWA install prompt error:', err);
+      }
+    } else {
+      alert('ମୋବାଇଲ୍ ବ୍ରାଉଜର୍ (Chrome) ମେନୁ (⋮) ଖୋଲନ୍ତୁ ଏବଂ "Install App" କିମ୍ବା "Add to Home screen" ଉପରେ କ୍ଲିକ୍ କରନ୍ତୁ।');
+    }
+  };
 
   // Subscribe to real-time Home Slider config from Firebase
   useEffect(() => {
@@ -404,7 +458,38 @@ export const HomePage: React.FC<HomePageProps> = ({
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 4. PUJARI LOGIN / ACCOUNT ACCESS BANNER                       */}
+      {/* 4. PUBLIC PWA MOBILE APP DOWNLOAD BANNER                     */}
+      {/* ------------------------------------------------------------- */}
+      {!isAppInstalled && (
+        <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 border-2 border-amber-600/40 rounded-2xl p-3.5 sm:p-4 text-slate-950 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-left w-full sm:w-auto">
+            <div className="p-2.5 bg-slate-950 text-amber-400 rounded-xl shrink-0 shadow-xs">
+              <Smartphone className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-black text-slate-950 flex items-center gap-1.5">
+                <span>ମୋବାଇଲ୍ ଆପ୍ ଡାଉନଲୋଡ୍ କରନ୍ତୁ (Download App)</span>
+                <span className="px-1.5 py-0.5 bg-slate-950 text-amber-300 text-[9px] font-black rounded-md">PWA</span>
+              </div>
+              <div className="text-[10px] sm:text-xs text-slate-900 font-bold mt-0.5">
+                ଦୈନିକ ପଞ୍ଜିକା, ପୂଜା ବୁକିଂ ଓ ଓଡ଼ିଶା ଦର୍ଶନ ପାଇଁ ଆପ୍ ଇନଷ୍ଟଲ୍ କରନ୍ତୁ।
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleInstallPublicApp}
+            className="w-full sm:w-auto px-4 py-2 bg-slate-950 hover:bg-slate-900 text-amber-300 hover:text-amber-200 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shrink-0"
+          >
+            <Download className="w-4 h-4 stroke-[2.5]" />
+            <span>Install App (ଡାଉନଲୋଡ୍)</span>
+          </button>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* 5. PUJARI LOGIN / ACCOUNT ACCESS BANNER                       */}
       {/* ------------------------------------------------------------- */}
       <div id="home-pujari-portal-banner">
         {!activePujari ? (

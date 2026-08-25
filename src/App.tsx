@@ -514,23 +514,25 @@ export default function App() {
             }
           >
             {viewMode === 'admin' ? (
-              isAdminAuthenticated ? (
-                <AdminPanel onLogoutAdmin={handleAdminLogout} />
-              ) : (
-                <AdminRouteLogin
-                  onSuccess={() => {
-                    setIsAdminAuthenticated(true);
-                    try {
-                      sessionStorage.setItem('puja_app_admin_auth', 'true');
-                    } catch {
-                      // Safe skip
-                    }
-                  }}
-                  onBackToHome={() => {
-                    setViewMode('home');
-                  }}
-                />
-              )
+              <ErrorBoundary fallbackTitle="ଆଡମିନ୍ ପ୍ୟାନେଲ୍ ଲୋଡ୍ କରିବାରେ ସମସ୍ୟା (Admin Panel Error)" onReset={() => setViewMode('home')}>
+                {isAdminAuthenticated ? (
+                  <AdminPanel onLogoutAdmin={handleAdminLogout} />
+                ) : (
+                  <AdminRouteLogin
+                    onSuccess={() => {
+                      setIsAdminAuthenticated(true);
+                      try {
+                        sessionStorage.setItem('puja_app_admin_auth', 'true');
+                      } catch {
+                        // Safe skip
+                      }
+                    }}
+                    onBackToHome={() => {
+                      setViewMode('home');
+                    }}
+                  />
+                )}
+              </ErrorBoundary>
             ) : viewMode === 'store' ? (
               <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
                 <button

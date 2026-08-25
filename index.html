@@ -25,33 +25,58 @@
     <!-- Dynamic Manifest Linking (Admin vs Public) and Global Prompt Capture -->
     <script>
       (function() {
-        var isStandAlone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-        var pathname = window.location.pathname.toLowerCase();
-        var searchParams = new URLSearchParams(window.location.search);
-        var isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/') || searchParams.get('pwa') === 'admin' || searchParams.get('view') === 'admin';
+        try {
+          var isStandAlone = false;
+          if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+            isStandAlone = true;
+          } else if (window.navigator && window.navigator.standalone === true) {
+            isStandAlone = true;
+          }
+          
+          var pathname = (window.location.pathname || '/').toLowerCase();
+          var searchParams = new URLSearchParams(window.location.search || '');
+          var isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/') || searchParams.get('pwa') === 'admin' || searchParams.get('view') === 'admin';
 
-        // Capture beforeinstallprompt globally
-        window.addEventListener('beforeinstallprompt', function(e) {
-          e.preventDefault();
-          window.__PWA_ADMIN_PROMPT__ = e;
-        });
+          // Capture beforeinstallprompt globally
+          window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window.__PWA_INSTALL_PROMPT__ = e;
+            window.__PWA_ADMIN_PROMPT__ = e;
+          });
 
-        // If standalone and was installed as admin or query has pwa=admin, route immediately to /admin
-        if (isStandAlone) {
-          try {
-            var isInstalledAdmin = localStorage.getItem('pwa_admin_installed') === 'true';
-            if (isInstalledAdmin && pathname !== '/admin') {
-              window.location.replace('/admin?pwa=admin');
+          // If standalone and was installed as admin, ensure path has /admin
+          if (isStandAlone) {
+            var isInstalledAdmin = false;
+            try {
+              isInstalledAdmin = localStorage.getItem('pwa_admin_installed') === 'true';
+            } catch(e) {}
+
+            if (isInstalledAdmin && pathname !== '/admin' && !pathname.startsWith('/admin')) {
+              // Update state without full page crash loop
+              window.history.replaceState({ viewMode: 'admin' }, '', '/admin?pwa=admin');
             }
-          } catch(e) {}
-        }
+          }
 
-        // Set appropriate manifest link
-        var manifestLink = document.createElement('link');
-        manifestLink.rel = 'manifest';
-        manifestLink.id = 'dynamic-pwa-manifest';
-        manifestLink.href = isAdminRoute ? '/manifest-admin.json' : '/manifest.json';
-        document.head.appendChild(manifestLink);
+          // Register or update Service Worker to flush stale bundles
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js?v=2').then(function(reg) {
+              if (reg && reg.update) {
+                reg.update();
+              }
+            }).catch(function(err) {
+              console.warn('SW registration warning:', err);
+            });
+          }
+
+          // Set appropriate manifest link dynamically
+          var manifestLink = document.createElement('link');
+          manifestLink.rel = 'manifest';
+          manifestLink.id = 'dynamic-pwa-manifest';
+          manifestLink.href = isAdminRoute ? '/manifest-admin.json' : '/manifest.json';
+          document.head.appendChild(manifestLink);
+        } catch(err) {
+          console.error('PWA bootstrap error:', err);
+        }
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
