@@ -28,13 +28,12 @@ import {
 
 interface PujariLoginProps {
   onLoginSuccess: (pujari: Pujari) => void;
-  onOpenAdminModal: () => void;
+  onOpenAdminModal?: () => void;
   lang?: Language;
 }
 
 export const PujariLogin: React.FC<PujariLoginProps> = ({
   onLoginSuccess,
-  onOpenAdminModal,
   lang = 'OD',
 }) => {
   const t = translations[lang];
@@ -619,17 +618,6 @@ export const PujariLogin: React.FC<PujariLoginProps> = ({
             )}
           </>
         )}
-
-        {/* Admin Login Link at Bottom */}
-        <div className="mt-6 pt-4 border-t border-slate-200 text-center flex items-center justify-between text-xs font-bold">
-          <span className="text-slate-600">{t.areYouAdmin}</span>
-          <button
-            onClick={onOpenAdminModal}
-            className="px-3.5 py-2 bg-slate-950 hover:bg-slate-800 text-white font-extrabold rounded-xl text-xs transition cursor-pointer flex items-center gap-1.5"
-          >
-            <span>{t.adminPortalBtn}</span>
-          </button>
-        </div>
       </div>
 
       {/* Auto-Generated Pujari ID Registration Success Modal */}

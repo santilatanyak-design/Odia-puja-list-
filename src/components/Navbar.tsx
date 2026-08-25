@@ -88,24 +88,27 @@ export const handleHeaderAppShare = async () => {
 };
 
 interface NavbarProps {
-  currentRole: 'pujari' | 'admin';
+  currentRole?: 'pujari' | 'admin';
+  currentView?: string;
+  isAdminAuthenticated?: boolean;
   activePujari: Pujari | null;
   lang: Language;
   onToggleLang: () => void;
-  onSwitchRole: (role: 'pujari' | 'admin') => void;
+  onSwitchRole?: (role: 'pujari' | 'admin') => void;
   onLogoutPujari: () => void;
-  onOpenAdminModal: () => void;
+  onLogoutAdmin?: () => void;
+  onOpenAdminModal?: () => void;
   onGoHome?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  currentRole,
+  currentView = 'home',
+  isAdminAuthenticated = false,
   activePujari,
   lang,
   onToggleLang,
-  onSwitchRole,
   onLogoutPujari,
-  onOpenAdminModal,
+  onLogoutAdmin,
   onGoHome,
 }) => {
   const t = translations[lang];
@@ -162,6 +165,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
+  const isAdminView = currentView === 'admin';
+
   return (
     <header className="sticky top-0 z-40 bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#701a1e] text-white border-b-2 border-amber-400 shadow-lg w-full max-w-full overflow-hidden box-border">
       <div className="max-w-7xl mx-auto px-2 sm:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2.5 w-full box-border">
@@ -179,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Right Section / Controls */}
-        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* PWA 1-Click App Install Button */}
           {!isInstalled && deferredPrompt ? (
             <button
@@ -218,64 +223,38 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="hidden xs:inline">{lang === 'OD' ? 'ଶେୟାର୍' : 'Share'}</span>
           </button>
 
-          {currentRole === 'pujari' && activePujari && (
-            <div className="hidden md:flex items-center gap-2 bg-amber-950/60 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs">
-              <User className="w-4 h-4 text-amber-300 shrink-0" />
-              <div>
-                <div className="font-black text-amber-100 leading-none">
-                  {activePujari.name}{' '}
-                  <span className="font-mono text-[10px] text-amber-300">({activePujari.id})</span>
-                </div>
-                <div className="text-[10px] font-bold flex items-center gap-1 mt-0.5">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
-                  {activePujari.freeTierUsed ? (
-                    <span className="text-amber-200/80">{t.firstListUsed}</span>
-                  ) : (
-                    <span className="text-emerald-300 font-black">{t.firstListFree}</span>
-                  )}
-                </div>
-              </div>
+          {/* Active Logged-in Pujari Profile Pill */}
+          {activePujari && !isAdminView && (
+            <div className="flex items-center gap-1.5 bg-amber-950/70 border border-amber-400/40 px-2 sm:px-3 py-1 rounded-xl text-xs">
+              <User className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span className="font-black text-amber-100 hidden sm:inline truncate max-w-[100px]">
+                {activePujari.name}
+              </span>
+              <button
+                onClick={onLogoutPujari}
+                title="Pujari Logout"
+                className="p-1 text-amber-300 hover:text-white rounded-lg transition cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
 
-          {/* Role Indicator / Toggle */}
-          <div className="flex items-center bg-black/40 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border border-amber-400/50 text-[11px] sm:text-xs font-bold">
-            <button
-              onClick={() => onSwitchRole('pujari')}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl transition cursor-pointer flex items-center gap-1 ${
-                currentRole === 'pujari'
-                  ? 'bg-amber-400 text-amber-950 font-black shadow-md'
-                  : 'text-amber-200 hover:text-white'
-              }`}
-            >
-              <User className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> {t.rolePujari}
-            </button>
-            <button
-              onClick={() => {
-                if (currentRole !== 'admin') {
-                  onOpenAdminModal();
-                } else {
-                  onSwitchRole('admin');
-                }
-              }}
-              className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl transition cursor-pointer flex items-center gap-1 ${
-                currentRole === 'admin'
-                  ? 'bg-amber-400 text-amber-950 font-black shadow-md'
-                  : 'text-amber-200 hover:text-white'
-              }`}
-            >
-              <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-950" /> {t.roleAdmin}
-            </button>
-          </div>
-
-          {currentRole === 'pujari' && activePujari && (
-            <button
-              onClick={onLogoutPujari}
-              title="Logout"
-              className="p-2 text-amber-200 hover:text-white hover:bg-amber-900/50 rounded-xl transition cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+          {/* Dedicated Admin Status / Exit Pill (ONLY visible when navigating /admin directly) */}
+          {isAdminView && isAdminAuthenticated && (
+            <div className="flex items-center gap-1.5 bg-black/60 border border-amber-400/60 px-2.5 py-1 rounded-xl text-xs">
+              <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="font-black text-amber-200 hidden sm:inline">Admin Mode</span>
+              {onLogoutAdmin && (
+                <button
+                  onClick={onLogoutAdmin}
+                  title="Logout Admin"
+                  className="px-2 py-0.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black rounded-lg text-[10px] sm:text-xs transition cursor-pointer"
+                >
+                  Logout
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

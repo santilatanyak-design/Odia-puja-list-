@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Pujari, QrConfig } from './types';
-import { getQrConfig, loginPujari, subscribeQrConfig, subscribePujaris, subscribeSiteLock } from './lib/api';
+import { getQrConfig, loginPujari, subscribeQrConfig, subscribePujaris, subscribeSiteLock, verifyAdminMasterId } from './lib/api';
 import { Language } from './lib/translations';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
@@ -8,6 +8,8 @@ import { Footer } from './components/Footer';
 import { HomePage } from './components/HomePage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { getSeoConfigForView, updateDocumentSeoAndCanonical } from './lib/seoHelper';
+import { sanitizeIdentifier, isActionThrottled, GENERIC_ODIA_ERROR_MESSAGE } from './lib/sanitize';
+import { ShieldCheck, KeyRound, AlertCircle } from 'lucide-react';
 
 // Safe lazy loading wrapper with automatic dynamic import recovery
 const lazyWithRetry = (componentImport: () => Promise<{ default: React.ComponentType<any> }>) =>
@@ -29,8 +31,106 @@ const TempleShortsFeed = lazyWithRetry(() => import('./components/TempleShortsFe
 const PanchangPage = lazyWithRetry(() => import('./components/PanchangPage').then((m) => ({ default: m.PanchangPage })));
 const SpiritualBlog = lazyWithRetry(() => import('./components/SpiritualBlog').then((m) => ({ default: m.SpiritualBlog })));
 const AdminPanel = lazyWithRetry(() => import('./components/AdminPanel').then((m) => ({ default: m.AdminPanel })));
-const AdminLoginModal = lazyWithRetry(() => import('./components/AdminLoginModal').then((m) => ({ default: m.AdminLoginModal })));
 const SiteLockOverlay = lazyWithRetry(() => import('./components/SiteLockOverlay').then((m) => ({ default: m.SiteLockOverlay })));
+
+interface AdminRouteLoginProps {
+  onSuccess: () => void;
+  onBackToHome: () => void;
+}
+
+const AdminRouteLogin: React.FC<AdminRouteLoginProps> = ({ onSuccess, onBackToHome }) => {
+  const [masterId, setMasterId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isActionThrottled('admin_route_login', 1500)) {
+      setErrorMsg('ଅତି ଦ୍ରୁତ ଆବେଦନ! ଦୟାକରି ୧-୨ ସେକେଣ୍ଡ ଅପେକ୍ଷା କରନ୍ତୁ।');
+      return;
+    }
+    const cleanId = sanitizeIdentifier(masterId);
+    if (!cleanId) {
+      setErrorMsg('ଦୟାକରି ସଠିକ୍ ଆଡମିନ୍ Password / Master ID ଦିଅନ୍ତୁ।');
+      return;
+    }
+    try {
+      setLoading(true);
+      setErrorMsg('');
+      const valid = await verifyAdminMasterId(cleanId);
+      if (valid) {
+        onSuccess();
+      } else {
+        setErrorMsg('ଅସିଦ୍ଧ ଆଡମିନ୍ Master ID / Password।');
+      }
+    } catch (err) {
+      console.error('Admin route login error:', err);
+      setErrorMsg(GENERIC_ODIA_ERROR_MESSAGE);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[75vh] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-amber-300 relative animate-in fade-in zoom-in-95 duration-200">
+        <button
+          onClick={onBackToHome}
+          className="mb-4 text-xs font-bold text-amber-900 hover:text-amber-950 flex items-center gap-1.5 transition cursor-pointer"
+        >
+          <span>←</span>
+          <span>ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଫେରନ୍ତୁ (Back to Public Home)</span>
+        </button>
+
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-gradient-to-tr from-[#701a1e] to-[#8B0000] text-amber-300 rounded-2xl border border-amber-400 shadow-md">
+            <ShieldCheck className="w-7 h-7" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-amber-950">ଆଡମିନ୍ ପୋର୍ଟାଲ୍ ଲଗଇନ୍</h2>
+            <p className="text-xs text-amber-900/80 font-bold">Secure Administrative Access</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-amber-950 mb-1.5">
+              ଆଡମିନ୍ ପାସୱାର୍ଡ / ମାଷ୍ଟର ID (Admin Password)
+            </label>
+            <div className="relative">
+              <input
+                type="password"
+                required
+                autoFocus
+                placeholder="ଆଡମିନ୍ Password / Master ID ଦିଅନ୍ତୁ"
+                value={masterId}
+                onChange={(e) => setMasterId(e.target.value)}
+                className="w-full pl-9 pr-3 py-3 border border-amber-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500 outline-none font-mono font-bold"
+              />
+              <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+            </div>
+          </div>
+
+          {errorMsg && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2 font-bold">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 bg-gradient-to-r from-[#701a1e] to-[#8B0000] hover:from-[#5c1518] hover:to-[#701a1e] text-white font-extrabold rounded-xl text-sm transition shadow-lg cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            <ShieldCheck className="w-4 h-4 text-amber-300" />
+            <span>{loading ? 'ଯାଞ୍ଚ ଚାଲିଛି...' : 'ଆଡମିନ୍ ପ୍ୟାନେଲ୍ ପ୍ରବେଶ କରନ୍ତୁ'}</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -44,7 +144,7 @@ export default function App() {
     }
     return 'OD';
   });
-  const [currentRole, setCurrentRole] = useState<'pujari' | 'admin'>('pujari');
+
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
     try {
       if (typeof window !== 'undefined' && window.sessionStorage) {
@@ -55,11 +155,11 @@ export default function App() {
     }
     return false;
   });
+
   const [activePujari, setActivePujari] = useState<Pujari | null>(null);
-  const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   // View Navigation State: Resolved from preloaded state, pathname, search parameters, or default 'home'
-  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog'>(() => {
+  const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog' | 'admin'>(() => {
     try {
       if (typeof window !== 'undefined') {
         const preloaded = (window as any).__PRELOADED_STATE__;
@@ -68,6 +168,9 @@ export default function App() {
         }
 
         const pathname = window.location.pathname.toLowerCase();
+        if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+          return 'admin';
+        }
         if (pathname.startsWith('/story/') || pathname.startsWith('/blog/') || pathname.startsWith('/stories/')) {
           return 'blog';
         }
@@ -92,6 +195,9 @@ export default function App() {
 
         const params = new URLSearchParams(window.location.search);
         const view = params.get('view');
+        if (view === 'admin' || params.get('admin')) {
+          return 'admin';
+        }
         if (view === 'store' || params.get('store') || params.get('product_id') || params.get('product')) {
           return 'store';
         }
@@ -125,9 +231,19 @@ export default function App() {
     try {
       if (typeof window === 'undefined') return;
 
+      if (viewMode === 'admin') {
+        if (window.location.pathname !== '/admin') {
+          window.history.replaceState({ viewMode: 'admin' }, '', '/admin');
+        }
+        const seoConfig = getSeoConfigForView('admin');
+        updateDocumentSeoAndCanonical(seoConfig);
+        return;
+      }
+
       // 1. Determine the appropriate query parameter string for the active view
       const currentParams = new URLSearchParams(window.location.search);
       let targetQuery = '';
+      let targetPath = '/';
 
       if (viewMode === 'store') {
         const productId = currentParams.get('product_id') || currentParams.get('product');
@@ -157,9 +273,9 @@ export default function App() {
         }
       }
 
-      // 2. Synchronize URL search parameters in the browser address bar without reload
-      const newUrl = `${window.location.pathname}${targetQuery}`;
-      if (window.location.search !== targetQuery) {
+      // 2. Synchronize URL in the browser address bar without reload
+      const newUrl = `${targetPath}${targetQuery}`;
+      if (window.location.pathname !== targetPath || window.location.search !== targetQuery) {
         window.history.replaceState({ viewMode }, '', newUrl);
       }
 
@@ -176,9 +292,17 @@ export default function App() {
     const handlePopState = () => {
       try {
         if (typeof window !== 'undefined') {
+          const pathname = window.location.pathname.toLowerCase();
+          if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+            setViewMode('admin');
+            return;
+          }
+
           const params = new URLSearchParams(window.location.search);
           const view = params.get('view');
-          if (view === 'store' || params.get('store') || params.get('product_id') || params.get('product')) {
+          if (view === 'admin' || params.get('admin')) {
+            setViewMode('admin');
+          } else if (view === 'store' || params.get('store') || params.get('product_id') || params.get('product')) {
             setViewMode('store');
           } else if (view === 'temple' || params.get('templeId') || params.get('temple')) {
             setViewMode('temple');
@@ -227,14 +351,6 @@ export default function App() {
     };
   }, []);
 
-  // Strict Admin Route Protection Check
-  useEffect(() => {
-    if (currentRole === 'admin' && !isAdminAuthenticated) {
-      setCurrentRole('pujari');
-      setAdminModalOpen(true);
-    }
-  }, [currentRole, isAdminAuthenticated]);
-
   const toggleLang = () => {
     setLang((prev) => {
       const next = prev === 'OD' ? 'EN' : 'OD';
@@ -248,6 +364,7 @@ export default function App() {
       return next;
     });
   };
+
   const [qrConfig, setQrConfig] = useState<QrConfig>({
     newCreationQrUrl: '',
     newCreationUpiId: 'pujasamagri@upi',
@@ -330,6 +447,21 @@ export default function App() {
     setViewMode('home');
   };
 
+  const handleAdminLogout = () => {
+    setIsAdminAuthenticated(false);
+    try {
+      if (typeof window !== 'undefined' && window.sessionStorage) {
+        sessionStorage.removeItem('puja_app_admin_auth');
+      }
+    } catch {
+      // Safe skip
+    }
+    setViewMode('home');
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', '/');
+    }
+  };
+
   const handleRefreshPujariStatus = async () => {
     if (activePujari) {
       const res = await loginPujari({ pujariId: activePujari.id });
@@ -343,31 +475,20 @@ export default function App() {
     <div className="min-h-screen bg-[#FFFBF0] text-amber-950 font-sans selection:bg-amber-200 flex flex-col w-full max-w-full overflow-x-hidden box-border">
       {/* Top Navigation Bar */}
       <Navbar
-        currentRole={currentRole}
+        currentView={viewMode}
+        isAdminAuthenticated={isAdminAuthenticated}
         activePujari={activePujari}
         lang={lang}
         onToggleLang={toggleLang}
         onGoHome={() => {
-          setCurrentRole('pujari');
           setViewMode('home');
         }}
-        onSwitchRole={(role) => {
-          if (role === 'admin') {
-            if (isAdminAuthenticated) {
-              setCurrentRole('admin');
-            } else {
-              setAdminModalOpen(true);
-            }
-          } else {
-            setCurrentRole(role);
-          }
-        }}
         onLogoutPujari={handlePujariLogout}
-        onOpenAdminModal={() => setAdminModalOpen(true)}
+        onLogoutAdmin={handleAdminLogout}
       />
 
       {/* Main View Area */}
-      <main className="w-full max-w-full overflow-x-hidden box-border">
+      <main className="w-full max-w-full overflow-x-hidden box-border flex-1">
         <ErrorBoundary onReset={() => setViewMode('home')}>
           <Suspense
             fallback={
@@ -377,15 +498,24 @@ export default function App() {
               </div>
             }
           >
-            {currentRole === 'admin' && isAdminAuthenticated ? (
-              <AdminPanel
-                onLogoutAdmin={() => {
-                  setIsAdminAuthenticated(false);
-                  sessionStorage.removeItem('puja_app_admin_auth');
-                  setCurrentRole('pujari');
-                  setViewMode('home');
-                }}
-              />
+            {viewMode === 'admin' ? (
+              isAdminAuthenticated ? (
+                <AdminPanel onLogoutAdmin={handleAdminLogout} />
+              ) : (
+                <AdminRouteLogin
+                  onSuccess={() => {
+                    setIsAdminAuthenticated(true);
+                    try {
+                      sessionStorage.setItem('puja_app_admin_auth', 'true');
+                    } catch {
+                      // Safe skip
+                    }
+                  }}
+                  onBackToHome={() => {
+                    setViewMode('home');
+                  }}
+                />
+              )
             ) : viewMode === 'store' ? (
               <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4">
                 <button
@@ -422,7 +552,6 @@ export default function App() {
                 <PujariLogin
                   lang={lang}
                   onLoginSuccess={handlePujariLoginSuccess}
-                  onOpenAdminModal={() => setAdminModalOpen(true)}
                 />
               </div>
             ) : viewMode === 'portal' && activePujari ? (
@@ -472,15 +601,14 @@ export default function App() {
       </main>
 
       {/* Footer Section: Privacy Policy & Terms of Use */}
-      {viewMode !== 'shorts' && <Footer />}
+      {viewMode !== 'shorts' && viewMode !== 'admin' && <Footer />}
 
-      {/* Fixed Native Mobile App Bottom Navigation Bar */}
-      {viewMode !== 'shorts' && (
+      {/* Fixed Native Mobile App Bottom Navigation Bar (Shown on public screens) */}
+      {viewMode !== 'shorts' && viewMode !== 'admin' && (
         <BottomNav
           currentView={viewMode}
           activePujari={activePujari}
           onNavigateHome={() => {
-            setCurrentRole('pujari');
             setViewMode('home');
           }}
           onNavigateBookings={() => {
@@ -498,32 +626,25 @@ export default function App() {
               setViewMode('login');
             }
           }}
-          onOpenAdminModal={() => setAdminModalOpen(true)}
         />
       )}
 
-      {/* Admin Login Modal & SiteLock in Suspense */}
+      {/* SiteLock Overlay */}
       <Suspense fallback={null}>
-        {adminModalOpen && (
-          <AdminLoginModal
-            isOpen={adminModalOpen}
-            onClose={() => setAdminModalOpen(false)}
-            onSuccess={() => {
-              setIsAdminAuthenticated(true);
-              sessionStorage.setItem('puja_app_admin_auth', 'true');
-              setCurrentRole('admin');
-            }}
-          />
-        )}
-
         <SiteLockOverlay
           isLocked={isSiteLocked}
-          isAdmin={currentRole === 'admin' && isAdminAuthenticated}
-          onOpenAdminModal={() => setAdminModalOpen(true)}
+          isAdmin={viewMode === 'admin' && isAdminAuthenticated}
+          onOpenAdminModal={() => {
+            setViewMode('admin');
+          }}
           onUnlockAndNavigateToAdmin={() => {
             setIsAdminAuthenticated(true);
-            sessionStorage.setItem('puja_app_admin_auth', 'true');
-            setCurrentRole('admin');
+            try {
+              sessionStorage.setItem('puja_app_admin_auth', 'true');
+            } catch {
+              // Safe skip
+            }
+            setViewMode('admin');
             setIsSiteLocked(false);
           }}
         />

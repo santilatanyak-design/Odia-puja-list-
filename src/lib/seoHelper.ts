@@ -35,7 +35,7 @@ export const createStoryExcerpt = (text: string, maxLen = 150): string => {
 };
 
 export const getSeoConfigForView = (
-  viewMode: 'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog',
+  viewMode: 'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog' | 'admin',
   searchQuery?: string
 ): PageSeoConfig => {
   const origin = getBaseOrigin();
@@ -83,6 +83,13 @@ export const getSeoConfigForView = (
   }
 
   switch (viewMode) {
+    case 'admin':
+      return {
+        title: 'ଆଡମିନ୍ ପୋର୍ଟାଲ୍ (Admin Portal) | Bhakti Ananda Odia TV',
+        description: 'Bhakti Ananda Odia TV ଅଫିସିଆଲ୍ ଆଡମିନ୍ ପ୍ୟାନେଲ୍।',
+        canonicalUrl: `${origin}/admin`,
+      };
+
     case 'store':
       return {
         title: 'ଅନଲାଇନ୍ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ (Online Puja Store) | Bhakti Ananda Odia TV',
@@ -129,8 +136,8 @@ export const getSeoConfigForView = (
     case 'home':
     default:
       return {
-        title: 'ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ଜେନେରେଟର | Puja Samagri List Generator - Bhakti Ananda Odia TV',
-        description: 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ ଦର୍ଶନ କରନ୍ତୁ।',
+        title: 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ, ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା',
+        description: 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ ଦର୍ଶନ କରନ୍ତୁ।',
         canonicalUrl: `${origin}/`,
       };
   }
