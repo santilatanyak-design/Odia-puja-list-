@@ -10,6 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { getSeoConfigForView, updateDocumentSeoAndCanonical } from './lib/seoHelper';
 import { sanitizeIdentifier, isActionThrottled, GENERIC_ODIA_ERROR_MESSAGE } from './lib/sanitize';
 import { ShieldCheck, KeyRound, AlertCircle } from 'lucide-react';
+import { AdminInstallSection } from './components/AdminInstallSection';
 
 // Safe lazy loading wrapper with automatic dynamic import recovery
 const lazyWithRetry = (componentImport: () => Promise<{ default: React.ComponentType<any> }>) =>
@@ -72,7 +73,7 @@ const AdminRouteLogin: React.FC<AdminRouteLoginProps> = ({ onSuccess, onBackToHo
   };
 
   return (
-    <div className="min-h-[75vh] flex items-center justify-center p-4">
+    <div className="min-h-[75vh] flex items-center justify-center p-4 flex-col">
       <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-amber-300 relative animate-in fade-in zoom-in-95 duration-200">
         <button
           onClick={onBackToHome}
@@ -128,6 +129,11 @@ const AdminRouteLogin: React.FC<AdminRouteLoginProps> = ({ onSuccess, onBackToHo
           </button>
         </form>
       </div>
+
+      {/* Dedicated Private Admin PWA App Install Section at bottom of Admin Login */}
+      <div className="w-full max-w-md">
+        <AdminInstallSection />
+      </div>
     </div>
   );
 };
@@ -162,6 +168,16 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog' | 'admin'>(() => {
     try {
       if (typeof window !== 'undefined') {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+        const isInstalledAdminApp = localStorage.getItem('pwa_admin_installed') === 'true';
+        const params = new URLSearchParams(window.location.search);
+        const pwaParam = params.get('pwa');
+
+        // If launched in standalone mode as the Admin PWA, immediately open /admin
+        if ((isStandalone && isInstalledAdminApp) || pwaParam === 'admin') {
+          return 'admin';
+        }
+
         const preloaded = (window as any).__PRELOADED_STATE__;
         if (preloaded && preloaded.viewMode) {
           return preloaded.viewMode;
@@ -193,7 +209,6 @@ export default function App() {
           return 'portal';
         }
 
-        const params = new URLSearchParams(window.location.search);
         const view = params.get('view');
         if (view === 'admin' || params.get('admin')) {
           return 'admin';

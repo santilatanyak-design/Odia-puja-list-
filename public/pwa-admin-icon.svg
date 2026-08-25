@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="adminGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#701a1e" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#adminGrad)"/>
+  <rect x="16" y="16" width="480" height="480" rx="94" fill="none" stroke="#f59e0b" stroke-width="8" stroke-opacity="0.8"/>
+  
+  <!-- Shield Icon Graphic -->
+  <path d="M256 90 L390 145 C390 280 256 390 256 420 C256 390 122 280 122 145 Z" fill="#b45309" stroke="#fbbf24" stroke-width="12" stroke-linejoin="round"/>
+  
+  <!-- Sacred Om Center Symbol -->
+  <text x="256" y="278" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="serif" font-size="140" font-weight="bold">ॐ</text>
+  
+  <!-- Admin Lock / Key Accent Badge -->
+  <circle cx="360" cy="360" r="48" fill="#f59e0b" stroke="#78350f" stroke-width="6"/>
+  <path d="M352 350 V344 C352 339.6 355.6 336 360 336 C364.4 336 368 339.6 368 344 V350 M348 350 H372 C374.2 350 376 351.8 376 354 V372 C376 374.2 374.2 376 372 376 H348 C345.8 376 344 374.2 344 372 V354 C344 351.8 345.8 350 348 350 Z" fill="none" stroke="#451a03" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

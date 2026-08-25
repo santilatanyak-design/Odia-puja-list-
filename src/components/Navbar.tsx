@@ -185,24 +185,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Section / Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* PWA 1-Click App Install Button */}
-          {!isInstalled && deferredPrompt ? (
-            <button
-              onClick={handleInstallClick}
-              title={lang === 'OD' ? 'ମୋବାଇଲ୍‌ରେ ଆପ୍ ସଂସ୍ଥାପନ କରନ୍ତୁ' : 'Install App on Mobile'}
-              className="px-2 sm:px-3.5 py-1.2 sm:py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-amber-950 font-black text-[11px] sm:text-xs rounded-xl border-2 border-amber-500 shadow-md flex items-center gap-1 cursor-pointer transition active:scale-95"
-            >
-              <Download className="w-3.5 h-3.5 text-amber-950 stroke-[2.5]" />
-              <span className="hidden lg:inline">{t.downloadApp}</span>
-              <span className="lg:hidden">{t.downloadAppShort}</span>
-            </button>
-          ) : isInstalled ? (
-            <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 bg-amber-950/80 text-amber-300 border border-amber-400/50 rounded-xl text-[11px] font-black">
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-              <span>{t.appInstalled}</span>
-            </div>
-          ) : null}
-
           {/* Language Toggle Button */}
           <button
             onClick={onToggleLang}

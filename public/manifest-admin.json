@@ -1,0 +1,19 @@
+{
+  "short_name": "Admin Portal",
+  "name": "Bhakti Ananda TV - Admin Portal",
+  "description": "ଅଫିସିଆଲ୍ ଆଡମିନ୍ ପୋର୍ଟାଲ୍ - ପୂଜାରୀ ଯାଞ୍ଚ, ପେମେଣ୍ଟ ଅନୁମୋଦନ ଏବଂ ସାଇଟ୍ ପରିଚାଳନା",
+  "icons": [
+    {
+      "src": "/pwa-admin-icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/admin?pwa=admin",
+  "scope": "/",
+  "background_color": "#090d16",
+  "theme_color": "#701a1e",
+  "display": "standalone",
+  "orientation": "portrait"
+}

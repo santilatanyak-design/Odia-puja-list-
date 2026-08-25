@@ -39,6 +39,7 @@ import { AdminShortsManagement } from './AdminShortsManagement';
 import { AdminContent } from './AdminContent';
 import { AdminDistrictManagement } from './AdminDistrictManagement';
 import { AdminSliderManagement } from './AdminSliderManagement';
+import { AdminInstallSection } from './AdminInstallSection';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -2034,6 +2035,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
           </div>
         </div>
       )}
+
+      {/* Dedicated Private Admin PWA App Install Section */}
+      <AdminInstallSection />
     </div>
   );
 };

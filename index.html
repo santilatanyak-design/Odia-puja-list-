@@ -21,9 +21,41 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Odia:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Dynamic Manifest Linking (Admin vs Public) and Global Prompt Capture -->
+    <script>
+      (function() {
+        var isStandAlone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        var pathname = window.location.pathname.toLowerCase();
+        var searchParams = new URLSearchParams(window.location.search);
+        var isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/') || searchParams.get('pwa') === 'admin' || searchParams.get('view') === 'admin';
+
+        // Capture beforeinstallprompt globally
+        window.addEventListener('beforeinstallprompt', function(e) {
+          e.preventDefault();
+          window.__PWA_ADMIN_PROMPT__ = e;
+        });
+
+        // If standalone and was installed as admin or query has pwa=admin, route immediately to /admin
+        if (isStandAlone) {
+          try {
+            var isInstalledAdmin = localStorage.getItem('pwa_admin_installed') === 'true';
+            if (isInstalledAdmin && pathname !== '/admin') {
+              window.location.replace('/admin?pwa=admin');
+            }
+          } catch(e) {}
+        }
+
+        // Set appropriate manifest link
+        var manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.id = 'dynamic-pwa-manifest';
+        manifestLink.href = isAdminRoute ? '/manifest-admin.json' : '/manifest.json';
+        document.head.appendChild(manifestLink);
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
-    <meta name="theme-color" content="#b45309" />
+    <meta name="theme-color" content="#701a1e" />
     <!-- Open Graph & Social Media Previews -->
     <meta property="og:site_name" content="Puja Samagri Portal & Online Temple Booking" />
     <meta property="og:title" content="🙏 ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ ଓ ଓଡ଼ିଶା ଦର୍ଶନ" />
