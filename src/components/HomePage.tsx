@@ -89,13 +89,23 @@ export const HomePage: React.FC<HomePageProps> = ({
   }, []);
 
   const handleInstallPublicApp = async () => {
-    if (pwaPrompt) {
+    if (typeof document !== 'undefined') {
+      const dynamicManifest = document.getElementById('dynamic-pwa-manifest') as HTMLLinkElement;
+      if (dynamicManifest) {
+        dynamicManifest.href = '/manifest.json';
+      }
+    }
+    const prompt = pwaPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_INSTALL_PROMPT__ : null);
+    if (prompt) {
       try {
-        pwaPrompt.prompt();
-        const { outcome } = await pwaPrompt.userChoice;
+        prompt.prompt();
+        const { outcome } = await prompt.userChoice;
         if (outcome === 'accepted') {
           setIsAppInstalled(true);
           setPwaPrompt(null);
+          if (typeof window !== 'undefined') {
+            (window as any).__PWA_INSTALL_PROMPT__ = null;
+          }
         }
       } catch (err) {
         console.error('PWA install prompt error:', err);

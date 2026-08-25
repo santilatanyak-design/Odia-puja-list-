@@ -168,13 +168,11 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog' | 'admin'>(() => {
     try {
       if (typeof window !== 'undefined') {
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
-        const isInstalledAdminApp = localStorage.getItem('pwa_admin_installed') === 'true';
         const params = new URLSearchParams(window.location.search);
         const pwaParam = params.get('pwa');
 
-        // If launched in standalone mode as the Admin PWA, immediately open /admin
-        if ((isStandalone && isInstalledAdminApp) || pwaParam === 'admin') {
+        // Explicit PWA Admin parameter
+        if (pwaParam === 'admin') {
           return 'admin';
         }
 
@@ -241,10 +239,16 @@ export default function App() {
     return 'home';
   });
 
-  // Dynamic SEO, Canonical Link, & Search Parameter Synchronizer
+  // Dynamic SEO, Canonical Link, Search Parameter & PWA Manifest Synchronizer
   useEffect(() => {
     try {
       if (typeof window === 'undefined') return;
+
+      // Update dynamic PWA manifest link in head based on active route
+      const dynamicManifest = document.getElementById('dynamic-pwa-manifest') as HTMLLinkElement;
+      if (dynamicManifest) {
+        dynamicManifest.href = viewMode === 'admin' ? '/admin-manifest.json' : '/manifest.json';
+      }
 
       if (viewMode === 'admin') {
         if (window.location.pathname !== '/admin') {

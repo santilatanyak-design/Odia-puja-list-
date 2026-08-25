@@ -57,16 +57,24 @@ export const AdminInstallSection: React.FC<AdminInstallSectionProps> = ({ onInst
   }, [onInstalled]);
 
   const handleInstallApp = async () => {
-    if (deferredPrompt) {
+    if (typeof document !== 'undefined') {
+      const dynamicManifest = document.getElementById('dynamic-pwa-manifest') as HTMLLinkElement;
+      if (dynamicManifest) {
+        dynamicManifest.href = '/admin-manifest.json';
+      }
+    }
+    const prompt = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_ADMIN_PROMPT__ || (window as any).__PWA_INSTALL_PROMPT__ : null);
+    if (prompt) {
       try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+        prompt.prompt();
+        const { outcome } = await prompt.userChoice;
         if (outcome === 'accepted') {
           setIsStandalone(true);
           setJustInstalled(true);
           setDeferredPrompt(null);
           if (typeof window !== 'undefined') {
             (window as any).__PWA_ADMIN_PROMPT__ = null;
+            (window as any).__PWA_INSTALL_PROMPT__ = null;
             localStorage.setItem('pwa_admin_installed', 'true');
           }
           if (onInstalled) {

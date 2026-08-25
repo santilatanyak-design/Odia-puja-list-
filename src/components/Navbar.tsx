@@ -151,17 +151,33 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const handleInstallClick = async () => {
-    if (deferredPrompt) {
+    if (typeof document !== 'undefined') {
+      const dynamicManifest = document.getElementById('dynamic-pwa-manifest') as HTMLLinkElement;
+      if (dynamicManifest) {
+        dynamicManifest.href = '/manifest.json';
+      }
+    }
+    const prompt = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_INSTALL_PROMPT__ : null);
+    if (prompt) {
       try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+        prompt.prompt();
+        const { outcome } = await prompt.userChoice;
         if (outcome === 'accepted') {
           setIsInstalled(true);
           setDeferredPrompt(null);
+          if (typeof window !== 'undefined') {
+            (window as any).__PWA_INSTALL_PROMPT__ = null;
+          }
         }
       } catch (err) {
         console.error('PWA install prompt error:', err);
       }
+    } else {
+      alert(
+        lang === 'OD'
+          ? 'ମୋବାଇଲ୍ ବ୍ରାଉଜର୍ (Chrome) ମେନୁ (⋮) ଖୋଲନ୍ତୁ ଏବଂ "Install App" କିମ୍ବା "Add to Home screen" ଉପରେ କ୍ଲିକ୍ କରନ୍ତୁ।'
+          : 'Open browser menu (⋮) and tap "Install App" or "Add to Home screen".'
+      );
     }
   };
 
