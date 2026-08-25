@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Download, CheckCircle2, ShieldCheck, Smartphone } from 'lucide-react';
+import { isInAppBrowser, isAndroid, openInNativeChrome } from '../utils/pwaHelper';
+import { PwaInstallModal } from './PwaInstallModal';
 
 interface AdminInstallSectionProps {
   onInstalled?: () => void;
@@ -9,6 +11,7 @@ export const AdminInstallSection: React.FC<AdminInstallSectionProps> = ({ onInst
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState<boolean>(false);
   const [justInstalled, setJustInstalled] = useState<boolean>(false);
+  const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
 
   useEffect(() => {
     // 1. Detect if already running in standalone PWA app mode
@@ -63,6 +66,14 @@ export const AdminInstallSection: React.FC<AdminInstallSectionProps> = ({ onInst
         dynamicManifest.href = '/admin-manifest.json';
       }
     }
+
+    // Check if inside in-app browser on Android
+    if (isInAppBrowser() && isAndroid()) {
+      const currentAdminUrl = `${window.location.origin}/admin?pwa=admin`;
+      const redirected = openInNativeChrome(currentAdminUrl);
+      if (redirected) return;
+    }
+
     const prompt = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_ADMIN_PROMPT__ || (window as any).__PWA_INSTALL_PROMPT__ : null);
     if (prompt) {
       try {
@@ -85,10 +96,7 @@ export const AdminInstallSection: React.FC<AdminInstallSectionProps> = ({ onInst
         console.error('Admin PWA prompt error:', err);
       }
     } else {
-      // Guide the admin for manual bookmark / home screen pinning
-      alert(
-        'ମୋବାଇଲ୍ ବ୍ରାଉଜର୍ (Chrome/Safari) ମେନୁ (⋮ କିମ୍ବା Share) ଖୋଲନ୍ତୁ ଏବଂ "Add to Home Screen" କିମ୍ବା "Install App" ଉପରେ କ୍ଲିକ୍ କରନ୍ତୁ।'
-      );
+      setShowInstallModal(true);
     }
   };
 
@@ -133,6 +141,13 @@ export const AdminInstallSection: React.FC<AdminInstallSectionProps> = ({ onInst
           )}
         </div>
       </div>
+
+      {/* PWA Install Modal replacing alert */}
+      <PwaInstallModal
+        isOpen={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+        lang="OD"
+      />
     </div>
   );
 };

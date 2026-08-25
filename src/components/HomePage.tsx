@@ -27,6 +27,8 @@ import {
   DevotionalOmIllustration
 } from './AppIcons';
 import { ExploreDistrictSection } from './ExploreDistrictSection';
+import { triggerPwaInstall } from '../utils/pwaHelper';
+import { PwaInstallModal } from './PwaInstallModal';
 
 interface HomePageProps {
   activePujari: Pujari | null;
@@ -55,6 +57,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [pwaPrompt, setPwaPrompt] = useState<any>(null);
   const [isAppInstalled, setIsAppInstalled] = useState<boolean>(false);
+  const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -89,30 +92,16 @@ export const HomePage: React.FC<HomePageProps> = ({
   }, []);
 
   const handleInstallPublicApp = async () => {
-    if (typeof document !== 'undefined') {
-      const dynamicManifest = document.getElementById('dynamic-pwa-manifest') as HTMLLinkElement;
-      if (dynamicManifest) {
-        dynamicManifest.href = '/manifest.json';
+    await triggerPwaInstall(
+      pwaPrompt,
+      () => {
+        setIsAppInstalled(true);
+        setPwaPrompt(null);
+      },
+      () => {
+        setShowInstallModal(true);
       }
-    }
-    const prompt = pwaPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_INSTALL_PROMPT__ : null);
-    if (prompt) {
-      try {
-        prompt.prompt();
-        const { outcome } = await prompt.userChoice;
-        if (outcome === 'accepted') {
-          setIsAppInstalled(true);
-          setPwaPrompt(null);
-          if (typeof window !== 'undefined') {
-            (window as any).__PWA_INSTALL_PROMPT__ = null;
-          }
-        }
-      } catch (err) {
-        console.error('PWA install prompt error:', err);
-      }
-    } else {
-      alert('ମୋବାଇଲ୍ ବ୍ରାଉଜର୍ (Chrome) ମେନୁ (⋮) ଖୋଲନ୍ତୁ ଏବଂ "Install App" କିମ୍ବା "Add to Home screen" ଉପରେ କ୍ଲିକ୍ କରନ୍ତୁ।');
-    }
+    );
   };
 
   // Subscribe to real-time Home Slider config from Firebase
@@ -636,6 +625,13 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         </div>
       )}
+
+      {/* PWA Mobile Install Guide Modal (replaces JS alerts with contextual UI) */}
+      <PwaInstallModal
+        isOpen={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+        lang="OD"
+      />
     </div>
   );
 };

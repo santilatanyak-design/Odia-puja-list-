@@ -3,6 +3,8 @@ import { Pujari } from '../types';
 import { ShieldCheck, User, LogOut, Sparkles, Languages, Download, CheckCircle2, Share2 } from 'lucide-react';
 import { Language, translations } from '../lib/translations';
 import { TempleAppLogo } from './AppIcons';
+import { triggerPwaInstall } from '../utils/pwaHelper';
+import { PwaInstallModal } from './PwaInstallModal';
 
 export const getGlobalMainThumbnailUrl = (): string => {
   try {
@@ -116,6 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   // PWA Install Prompt State
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
+  const [showInstallModal, setShowInstallModal] = useState<boolean>(false);
 
   useEffect(() => {
     // Synchronize global Open Graph meta tags on initial page mount
@@ -129,11 +132,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       setIsInstalled(true);
     }
 
+    if ((window as any).__PWA_INSTALL_PROMPT__) {
+      setDeferredPrompt((window as any).__PWA_INSTALL_PROMPT__);
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       // Prevent standard browser infobar
       e.preventDefault();
       // Store event for 1-click install trigger
       setDeferredPrompt(e);
+      if (typeof window !== 'undefined') {
+        (window as any).__PWA_INSTALL_PROMPT__ = e;
+      }
     };
 
     const handleAppInstalled = () => {
@@ -151,34 +161,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const handleInstallClick = async () => {
-    if (typeof document !== 'undefined') {
-      const dynamicManifest = document.getElementById('dynamic-pwa-manifest') as HTMLLinkElement;
-      if (dynamicManifest) {
-        dynamicManifest.href = '/manifest.json';
+    await triggerPwaInstall(
+      deferredPrompt,
+      () => {
+        setIsInstalled(true);
+        setDeferredPrompt(null);
+      },
+      () => {
+        setShowInstallModal(true);
       }
-    }
-    const prompt = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__PWA_INSTALL_PROMPT__ : null);
-    if (prompt) {
-      try {
-        prompt.prompt();
-        const { outcome } = await prompt.userChoice;
-        if (outcome === 'accepted') {
-          setIsInstalled(true);
-          setDeferredPrompt(null);
-          if (typeof window !== 'undefined') {
-            (window as any).__PWA_INSTALL_PROMPT__ = null;
-          }
-        }
-      } catch (err) {
-        console.error('PWA install prompt error:', err);
-      }
-    } else {
-      alert(
-        lang === 'OD'
-          ? 'ମୋବାଇଲ୍ ବ୍ରାଉଜର୍ (Chrome) ମେନୁ (⋮) ଖୋଲନ୍ତୁ ଏବଂ "Install App" କିମ୍ବା "Add to Home screen" ଉପରେ କ୍ଲିକ୍ କରନ୍ତୁ।'
-          : 'Open browser menu (⋮) and tap "Install App" or "Add to Home screen".'
-      );
-    }
+    );
   };
 
   const isAdminView = currentView === 'admin';
@@ -202,7 +194,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Right Section / Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Public PWA 1-Click App Install Button */}
-          {!isAdminView && !isInstalled && deferredPrompt && (
+          {!isAdminView && !isInstalled && (
             <button
               onClick={handleInstallClick}
               title={lang === 'OD' ? 'ମୋବାଇଲ୍‌ରେ ଆପ୍ ସଂସ୍ଥାପନ କରନ୍ତୁ' : 'Install App on Mobile'}
@@ -269,6 +261,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </div>
       </div>
+
+      {/* PWA Install Guide Modal (replaces JS alerts with contextual UI) */}
+      <PwaInstallModal
+        isOpen={showInstallModal}
+        onClose={() => setShowInstallModal(false)}
+        lang={lang}
+      />
     </header>
   );
 };
