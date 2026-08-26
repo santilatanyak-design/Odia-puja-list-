@@ -10,6 +10,14 @@ export function isInAppBrowser(): boolean {
 
   // Comprehensive In-App Browser & WebView identifiers
   const inAppPatterns = [
+    // ShareChat & Moj (Mohalla Tech) - High priority detection
+    /ShareChat/i,
+    /ShareChatApp/i,
+    /ShareChat_Android/i,
+    /mohalla/i,
+    /Moj\//i,
+    /MojApp/i,
+
     // Meta / Facebook / Instagram / Threads
     /FBAN/i,
     /FBAV/i,
@@ -49,14 +57,6 @@ export function isInAppBrowser(): boolean {
     /TikTok/i,
     /BytedanceWebview/i,
 
-    // ShareChat & Moj (Mohalla Tech)
-    /ShareChat/i,
-    /ShareChatApp/i,
-    /ShareChat_Android/i,
-    /mohalla/i,
-    /Moj\//i,
-    /MojApp/i,
-
     // Reddit & Pinterest
     /Reddit/i,
     /RedditApp/i,
@@ -91,7 +91,7 @@ export function isIOS(): boolean {
 
 /**
  * Triggers an Android Chrome Intent to break out of any in-app webview
- * (WhatsApp, Instagram, Threads, Twitter/X, Telegram, LinkedIn, Snapchat, etc.)
+ * (ShareChat, WhatsApp, Instagram, Threads, Twitter/X, Telegram, LinkedIn, Snapchat, etc.)
  * and launch the full Chrome browser, allowing standard PWA installation to work seamlessly.
  */
 export function openInNativeChrome(targetUrl?: string): boolean {
@@ -109,41 +109,73 @@ export function openInNativeChrome(targetUrl?: string): boolean {
     try {
       // Remove scheme (http:// or https://) for the intent URI
       const urlWithoutScheme = fullUrl.replace(/^https?:\/\//i, '');
-      const scheme = fullUrl.startsWith('http://') ? 'http' : 'https';
+      const fallbackUrl = fullUrl.startsWith('http') ? fullUrl : `https://${fullUrl}`;
       
-      // Standard Android Chrome Intent with fallback parameter
-      const intentUrl = `intent://${urlWithoutScheme}#Intent;scheme=${scheme};package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(fullUrl)};end;`;
-      
-      // Multi-layered breakout strategy for strict in-app WebViews like ShareChat:
-      // 1. Programmatic DOM anchor click (triggers native Android OS intent handler in WebViews)
+      // Explicit Android Chrome Intent URI with browser_fallback_url parameter
+      const intentUrl = `intent://${urlWithoutScheme}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end;`;
+
+      // 1. Dynamic Anchor Tag Method (bypasses ShareChat WebView click/intent swallowing)
       if (typeof document !== 'undefined') {
         const link = document.createElement('a');
         link.href = intentUrl;
-        link.rel = 'noopener noreferrer';
         link.target = '_blank';
+        link.rel = 'noopener noreferrer';
         link.style.display = 'none';
+        link.style.position = 'fixed';
+        link.style.top = '-9999px';
+        link.style.left = '-9999px';
         document.body.appendChild(link);
+        
+        // Dispatch mouse click event explicitly
+        try {
+          const clickEvent = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+          });
+          link.dispatchEvent(clickEvent);
+        } catch {
+          // fallback to standard .click()
+        }
+        
         link.click();
+
         setTimeout(() => {
           try {
-            document.body.removeChild(link);
+            if (document.body.contains(link)) {
+              document.body.removeChild(link);
+            }
           } catch {
             // ignore cleanup errors
           }
-        }, 300);
+        }, 500);
       }
 
-      // 2. Direct location assignment fallback
+      // 2. Direct assignment attempt as immediate parallel trigger
       try {
-        window.location.assign(intentUrl);
-      } catch {
         window.location.href = intentUrl;
+      } catch (assignErr) {
+        console.warn('Direct location.href assignment failed:', assignErr);
       }
 
       return true;
     } catch (e) {
-      console.warn('Could not launch Chrome intent:', e);
+      console.warn('Could not launch Chrome intent, triggering secondary window.open backup:', e);
+      // Secondary Backup: Force system browser via window.open
+      try {
+        window.open(fullUrl, '_blank', 'noopener,noreferrer');
+      } catch {
+        window.location.href = fullUrl;
+      }
+      return true;
     }
+  }
+
+  // Non-Android fallback
+  try {
+    window.open(fullUrl, '_blank', 'noopener,noreferrer');
+  } catch {
+    window.location.href = fullUrl;
   }
 
   return false;
