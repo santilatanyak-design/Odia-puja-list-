@@ -49,6 +49,14 @@ export function isInAppBrowser(): boolean {
     /TikTok/i,
     /BytedanceWebview/i,
 
+    // ShareChat & Moj (Mohalla Tech)
+    /ShareChat/i,
+    /ShareChatApp/i,
+    /ShareChat_Android/i,
+    /mohalla/i,
+    /Moj\//i,
+    /MojApp/i,
+
     // Reddit & Pinterest
     /Reddit/i,
     /RedditApp/i,
@@ -89,18 +97,49 @@ export function isIOS(): boolean {
 export function openInNativeChrome(targetUrl?: string): boolean {
   if (typeof window === 'undefined') return false;
 
-  const rawUrl = targetUrl || window.location.href;
-  
+  let fullUrl = targetUrl || window.location.href;
+  try {
+    // Ensure absolute URL
+    fullUrl = new URL(fullUrl, window.location.origin).href;
+  } catch {
+    fullUrl = window.location.href;
+  }
+
   if (isAndroid()) {
     try {
       // Remove scheme (http:// or https://) for the intent URI
-      const urlWithoutScheme = rawUrl.replace(/^https?:\/\//i, '');
-      const scheme = rawUrl.startsWith('http://') ? 'http' : 'https';
+      const urlWithoutScheme = fullUrl.replace(/^https?:\/\//i, '');
+      const scheme = fullUrl.startsWith('http://') ? 'http' : 'https';
       
-      // Android Chrome Intent syntax
-      const intentUrl = `intent://${urlWithoutScheme}#Intent;scheme=${scheme};package=com.android.chrome;end;`;
+      // Standard Android Chrome Intent with fallback parameter
+      const intentUrl = `intent://${urlWithoutScheme}#Intent;scheme=${scheme};package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(fullUrl)};end;`;
       
-      window.location.href = intentUrl;
+      // Multi-layered breakout strategy for strict in-app WebViews like ShareChat:
+      // 1. Programmatic DOM anchor click (triggers native Android OS intent handler in WebViews)
+      if (typeof document !== 'undefined') {
+        const link = document.createElement('a');
+        link.href = intentUrl;
+        link.rel = 'noopener noreferrer';
+        link.target = '_blank';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          try {
+            document.body.removeChild(link);
+          } catch {
+            // ignore cleanup errors
+          }
+        }, 300);
+      }
+
+      // 2. Direct location assignment fallback
+      try {
+        window.location.assign(intentUrl);
+      } catch {
+        window.location.href = intentUrl;
+      }
+
       return true;
     } catch (e) {
       console.warn('Could not launch Chrome intent:', e);

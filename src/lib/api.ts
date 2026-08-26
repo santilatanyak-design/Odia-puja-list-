@@ -52,6 +52,9 @@ import {
   requestAdminNotificationPermission,
   getAdminNotificationStatus,
   triggerAdminNewPujariPush,
+  fsLogPwaInstall,
+  fsGetPwaInstalls,
+  fsSubscribePwaInstalls,
 } from './firebase';
 
 // Automatically seed initial defaults into Firestore on module load if empty
@@ -364,3 +367,17 @@ export async function approvePasswordResetRequest(requestId: string): Promise<bo
 export async function rejectPasswordResetRequest(requestId: string, reason?: string) {
   return fsRejectPasswordResetRequest(requestId, reason);
 }
+
+// ----------------------------------------------------------------------
+// PWA INSTALL ANALYTICS & ADMIN REPORTING
+// ----------------------------------------------------------------------
+export async function logPwaInstall(extra?: { platform?: string; userAgent?: string; referrer?: string }) {
+  return fsLogPwaInstall(extra);
+}
+
+export async function getPwaInstalls() {
+  return fsGetPwaInstalls();
+}
+
+export { fsSubscribePwaInstalls as subscribePwaInstalls };
+

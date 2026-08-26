@@ -137,9 +137,26 @@
         "updatedAt": { "type": "string" }
       },
       "required": ["id", "districtId", "category", "title", "description"]
+    },
+    "analytics_install": {
+      "title": "Analytics Install",
+      "description": "Log records of successful PWA installations across all devices and browsers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "platform": { "type": "string" },
+        "userAgent": { "type": "string" },
+        "referrer": { "type": "string" }
+      },
+      "required": ["timestamp"]
     }
   },
   "firestore": {
+    "/analytics_installs/{installId}": {
+      "schema": "analytics_install",
+      "description": "Logged PWA installations"
+    },
     "/pujaris/{pujariId}": {
       "schema": "pujari",
       "description": "Pujari profiles"

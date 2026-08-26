@@ -15,7 +15,7 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import firebaseConfigFile from '../../firebase-applet-config.json';
-import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, PasswordResetRequest, HomeSliderConfig, SliderImage, PuriStoreConfig, PuriStoreProduct } from '../types';
+import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, PasswordResetRequest, HomeSliderConfig, SliderImage, PuriStoreConfig, PuriStoreProduct, AnalyticsInstall } from '../types';
 import { DEFAULT_PUJA_TEMPLATES } from '../data/defaultTemplates';
 import { isOfficeOpen } from './officeHours';
 
@@ -1933,5 +1933,64 @@ export async function fsRejectPasswordResetRequest(
     console.error('fsRejectPasswordResetRequest Error:', err);
     return { success: false };
   }
+}
+
+// ----------------------------------------------------------------------
+// 8. REAL-TIME PWA INSTALL ANALYTICS TRACKING
+// ----------------------------------------------------------------------
+export async function fsLogPwaInstall(extra?: {
+  platform?: string;
+  userAgent?: string;
+  referrer?: string;
+}): Promise<boolean> {
+  try {
+    const installId = 'INST-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+    const docRef = doc(db, 'analytics_installs', installId);
+    
+    let resolvedPlatform = extra?.platform || '';
+    if (!resolvedPlatform && typeof navigator !== 'undefined') {
+      resolvedPlatform = (navigator as any).userAgentData?.platform || navigator.platform || 'Unknown';
+    }
+
+    const installData: AnalyticsInstall = {
+      id: installId,
+      timestamp: new Date().toISOString(),
+      platform: resolvedPlatform || 'Web',
+      userAgent: extra?.userAgent || (typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'),
+      referrer: extra?.referrer || (typeof document !== 'undefined' ? document.referrer : ''),
+    };
+
+    await safeSetDoc(docRef, installData);
+    return true;
+  } catch (err) {
+    console.error('fsLogPwaInstall Error:', err);
+    return false;
+  }
+}
+
+export async function fsGetPwaInstalls(): Promise<AnalyticsInstall[]> {
+  try {
+    const snap = await getDocs(collection(db, 'analytics_installs'));
+    const installs = snap.docs.map((d) => d.data() as AnalyticsInstall);
+    installs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return installs;
+  } catch (err) {
+    console.error('fsGetPwaInstalls Error:', err);
+    return [];
+  }
+}
+
+export function fsSubscribePwaInstalls(
+  callback: (installs: AnalyticsInstall[]) => void
+): Unsubscribe {
+  return onSnapshot(
+    collection(db, 'analytics_installs'),
+    (snap) => {
+      const installs = snap.docs.map((d) => d.data() as AnalyticsInstall);
+      installs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      callback(installs);
+    },
+    (err) => console.error('fsSubscribePwaInstalls Error:', err)
+  );
 }
 

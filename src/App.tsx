@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Pujari, QrConfig } from './types';
-import { getQrConfig, loginPujari, subscribeQrConfig, subscribePujaris, subscribeSiteLock, verifyAdminMasterId } from './lib/api';
+import { getQrConfig, loginPujari, subscribeQrConfig, subscribePujaris, subscribeSiteLock, verifyAdminMasterId, logPwaInstall } from './lib/api';
 import { Language } from './lib/translations';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
@@ -346,6 +346,30 @@ export default function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Global Real-time PWA Installation Tracker
+  useEffect(() => {
+    const handleGlobalAppInstalled = (evt: Event) => {
+      try {
+        console.log('🎉 PWA successfully installed on device:', evt);
+        const resolvedPlatform = (navigator as any)?.userAgentData?.platform || navigator.platform || 'Unknown';
+        logPwaInstall({
+          platform: resolvedPlatform,
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+          referrer: typeof document !== 'undefined' ? document.referrer : '',
+        }).catch((err) => {
+          console.warn('Failed to log PWA install to Firestore:', err);
+        });
+      } catch (err) {
+        console.warn('Error in appinstalled event handler:', err);
+      }
+    };
+
+    window.addEventListener('appinstalled', handleGlobalAppInstalled);
+    return () => {
+      window.removeEventListener('appinstalled', handleGlobalAppInstalled);
+    };
   }, []);
 
   // Global Emergency Site Lock State

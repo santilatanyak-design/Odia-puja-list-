@@ -376,3 +376,11 @@ export const ODISHA_DISTRICTS: OdishaDistrictInfo[] = [
   { id: 'deogarh', nameOdia: 'ଦେବଗଡ଼', nameEng: 'Deogarh', tagline: 'ପ୍ରଧାନପାଟ ଜଳପ୍ରପାତ ଓ ରାଜବାଟୀ', icon: '🏞️' },
 ];
 
+export interface AnalyticsInstall {
+  id: string;
+  timestamp: string;
+  platform?: string;
+  userAgent?: string;
+  referrer?: string;
+}
+

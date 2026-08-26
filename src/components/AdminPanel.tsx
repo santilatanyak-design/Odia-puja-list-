@@ -40,6 +40,7 @@ import { AdminContent } from './AdminContent';
 import { AdminDistrictManagement } from './AdminDistrictManagement';
 import { AdminSliderManagement } from './AdminSliderManagement';
 import { AdminInstallSection } from './AdminInstallSection';
+import { AdminInstallReport } from './AdminInstallReport';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -105,7 +106,7 @@ export function getDisplayUtr(pmt?: PaymentRequest | null, list?: PujaList | nul
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
-  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'qr' | 'templates' | 'slider' | 'store' | 'temple' | 'shorts' | 'content' | 'district'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'installs' | 'qr' | 'templates' | 'slider' | 'store' | 'temple' | 'shorts' | 'content' | 'district'>('payments');
 
   // Data States
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
@@ -774,6 +775,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
         </button>
 
         <button
+          onClick={() => setActiveTab('installs')}
+          className={`px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 ${
+            activeTab === 'installs'
+              ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white font-extrabold shadow-xs border border-emerald-400'
+              : 'text-slate-800 hover:bg-amber-50'
+          }`}
+        >
+          <Download className="w-4 h-4 text-emerald-500" />
+          <span>📲 ଆପ୍ ଡାଉନଲୋଡ୍ ରିପୋର୍ଟ (App Installs)</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('qr')}
           className={`px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 ${
             activeTab === 'qr'
@@ -867,6 +880,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
           <span>ବ୍ୟାନର୍ ଓ ଷ୍ଟୋର୍ (Banner & Store)</span>
         </button>
       </div>
+
+      {/* TAB: PWA INSTALLS & APP DOWNLOAD REPORT */}
+      {activeTab === 'installs' && <AdminInstallReport />}
 
       {/* TAB: HOME BANNER SLIDER */}
       {activeTab === 'slider' && <AdminSliderManagement />}
