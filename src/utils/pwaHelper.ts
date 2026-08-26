@@ -10,14 +10,6 @@ export function isInAppBrowser(): boolean {
 
   // Comprehensive In-App Browser & WebView identifiers
   const inAppPatterns = [
-    // ShareChat & Moj (Mohalla Tech) - High priority detection
-    /ShareChat/i,
-    /ShareChatApp/i,
-    /ShareChat_Android/i,
-    /mohalla/i,
-    /Moj\//i,
-    /MojApp/i,
-
     // Meta / Facebook / Instagram / Threads
     /FBAN/i,
     /FBAV/i,
@@ -91,91 +83,31 @@ export function isIOS(): boolean {
 
 /**
  * Triggers an Android Chrome Intent to break out of any in-app webview
- * (ShareChat, WhatsApp, Instagram, Threads, Twitter/X, Telegram, LinkedIn, Snapchat, etc.)
+ * (WhatsApp, Instagram, Threads, Twitter/X, Telegram, LinkedIn, Snapchat, Facebook, etc.)
  * and launch the full Chrome browser, allowing standard PWA installation to work seamlessly.
  */
 export function openInNativeChrome(targetUrl?: string): boolean {
   if (typeof window === 'undefined') return false;
 
-  let fullUrl = targetUrl || window.location.href;
+  const rawUrl = targetUrl || window.location.href;
+  let fullUrl = rawUrl;
   try {
-    // Ensure absolute URL
-    fullUrl = new URL(fullUrl, window.location.origin).href;
+    fullUrl = new URL(rawUrl, window.location.origin).href;
   } catch {
     fullUrl = window.location.href;
   }
 
   if (isAndroid()) {
     try {
-      // Remove scheme (http:// or https://) for the intent URI
       const urlWithoutScheme = fullUrl.replace(/^https?:\/\//i, '');
-      const fallbackUrl = fullUrl.startsWith('http') ? fullUrl : `https://${fullUrl}`;
+      const scheme = fullUrl.startsWith('http://') ? 'http' : 'https';
+      const intentUrl = `intent://${urlWithoutScheme}#Intent;scheme=${scheme};package=com.android.chrome;end;`;
       
-      // Explicit Android Chrome Intent URI with browser_fallback_url parameter
-      const intentUrl = `intent://${urlWithoutScheme}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end;`;
-
-      // 1. Dynamic Anchor Tag Method (bypasses ShareChat WebView click/intent swallowing)
-      if (typeof document !== 'undefined') {
-        const link = document.createElement('a');
-        link.href = intentUrl;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.style.display = 'none';
-        link.style.position = 'fixed';
-        link.style.top = '-9999px';
-        link.style.left = '-9999px';
-        document.body.appendChild(link);
-        
-        // Dispatch mouse click event explicitly
-        try {
-          const clickEvent = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-          });
-          link.dispatchEvent(clickEvent);
-        } catch {
-          // fallback to standard .click()
-        }
-        
-        link.click();
-
-        setTimeout(() => {
-          try {
-            if (document.body.contains(link)) {
-              document.body.removeChild(link);
-            }
-          } catch {
-            // ignore cleanup errors
-          }
-        }, 500);
-      }
-
-      // 2. Direct assignment attempt as immediate parallel trigger
-      try {
-        window.location.href = intentUrl;
-      } catch (assignErr) {
-        console.warn('Direct location.href assignment failed:', assignErr);
-      }
-
+      window.location.href = intentUrl;
       return true;
     } catch (e) {
-      console.warn('Could not launch Chrome intent, triggering secondary window.open backup:', e);
-      // Secondary Backup: Force system browser via window.open
-      try {
-        window.open(fullUrl, '_blank', 'noopener,noreferrer');
-      } catch {
-        window.location.href = fullUrl;
-      }
-      return true;
+      console.warn('Could not launch Chrome intent:', e);
     }
-  }
-
-  // Non-Android fallback
-  try {
-    window.open(fullUrl, '_blank', 'noopener,noreferrer');
-  } catch {
-    window.location.href = fullUrl;
   }
 
   return false;
