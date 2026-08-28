@@ -65,10 +65,11 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
   const [copiedStoryId, setCopiedStoryId] = useState<string | null>(null);
   const [likedStories, setLikedStories] = useState<Record<string, boolean>>({});
 
-  // Smart Affiliate Ad Pop-up State
+  // Smart Affiliate Ad Pop-up State (Scroll Depth Cliffhanger/Suspense Trigger)
   const [isAdOpen, setIsAdOpen] = useState<boolean>(false);
   const [activeAd, setActiveAd] = useState<AffiliateProductAd | null>(null);
-  const adTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const adTriggeredForStoryRef = useRef<Record<string, boolean>>({});
+  const modalScrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   // 1. Subscribe to spiritual stories
   useEffect(() => {
@@ -105,7 +106,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
     };
   }, []);
 
-  // 2. Dynamic SEO, Canonical Link & JSON-LD Schema Synchronizer + Smart Affiliate Ad Trigger
+  // 2. Dynamic SEO, Canonical Link & JSON-LD Schema Synchronizer + Smart Affiliate Ad Setup
   useEffect(() => {
     try {
       if (typeof window === 'undefined') return;
@@ -120,12 +121,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
           window.history.replaceState({ viewMode: 'blog', storyId: selectedStory.id }, '', targetUrl);
         }
 
-        // Setup Smart Affiliate Ad with Delay Trigger - Strictly per-post
-        if (adTimeoutRef.current) {
-          clearTimeout(adTimeoutRef.current);
-          adTimeoutRef.current = null;
-        }
-
+        // Configure per-post Affiliate Ad
         const adConfig = selectedStory.affiliateAd;
         const hasAdContent =
           adConfig &&
@@ -134,10 +130,8 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
 
         if (hasAdContent && adConfig) {
           setActiveAd(adConfig);
-          const delayMs = (adConfig.triggerDelaySeconds || 4) * 1000;
-          adTimeoutRef.current = setTimeout(() => {
-            setIsAdOpen(true);
-          }, delayMs);
+          // Ad will open only when user scrolls to >= 40% depth in the article content
+          setIsAdOpen(false);
         } else {
           // If no affiliate ad is configured or fields are blank, DO NOT trigger any pop-up
           setActiveAd(null);
@@ -154,24 +148,35 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
           window.history.replaceState({ viewMode: 'blog' }, '', targetUrl);
         }
 
-        if (adTimeoutRef.current) {
-          clearTimeout(adTimeoutRef.current);
-          adTimeoutRef.current = null;
-        }
         setIsAdOpen(false);
         setActiveAd(null);
       }
     } catch (err) {
       console.warn('Story SEO synchronization error:', err);
     }
-
-    return () => {
-      if (adTimeoutRef.current) {
-        clearTimeout(adTimeoutRef.current);
-        adTimeoutRef.current = null;
-      }
-    };
   }, [selectedStory]);
+
+  // 3. Cliffhanger / Suspense Scroll Depth Detector (Triggers at ~40% scroll depth of reading)
+  const handleStoryScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (!selectedStory || !activeAd || !activeAd.enabled) return;
+
+    // Check if already shown in this reading session for this story
+    if (adTriggeredForStoryRef.current[selectedStory.id]) return;
+
+    const target = e.currentTarget;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    const maxScroll = scrollHeight - clientHeight;
+
+    if (maxScroll <= 0) return;
+
+    const scrollPercentage = (scrollTop / maxScroll) * 100;
+
+    // 40% Suspense / Cliffhanger Threshold
+    if (scrollPercentage >= 40) {
+      adTriggeredForStoryRef.current[selectedStory.id] = true;
+      setIsAdOpen(true);
+    }
+  };
 
   const categories = [
     { id: 'all', label: 'ସମସ୍ତ କାହାଣୀ (All)' },
@@ -533,8 +538,12 @@ ${story.summary}
               </button>
             </div>
 
-            {/* Modal Scrollable Content */}
-            <div className="p-5 sm:p-8 overflow-y-auto space-y-6 flex-1">
+            {/* Modal Scrollable Content with Suspense/Cliffhanger Scroll Listener */}
+            <div
+              ref={modalScrollContainerRef}
+              onScroll={handleStoryScroll}
+              className="p-5 sm:p-8 overflow-y-auto space-y-6 flex-1 scroll-smooth"
+            >
               {/* Image banner */}
               {selectedStory.imageUrl && (
                 <div className="h-60 sm:h-80 w-full rounded-2xl overflow-hidden bg-slate-900 shadow-md">
