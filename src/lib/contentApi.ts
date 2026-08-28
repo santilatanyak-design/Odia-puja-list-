@@ -249,6 +249,7 @@ export async function saveSpiritualStory(story: Partial<SpiritualStory>): Promis
       likesCount: story.likesCount ?? current?.likesCount ?? 0,
       publishedAt: story.publishedAt || current?.publishedAt || new Date().toISOString().split('T')[0],
       isFeatured: story.isFeatured ?? current?.isFeatured ?? false,
+      affiliateAd: story.affiliateAd !== undefined ? story.affiliateAd : current?.affiliateAd,
     };
   } else {
     const newId = 'story-' + Math.floor(100000 + Math.random() * 900000);
@@ -264,6 +265,7 @@ export async function saveSpiritualStory(story: Partial<SpiritualStory>): Promis
       likesCount: 0,
       publishedAt: new Date().toISOString().split('T')[0],
       isFeatured: story.isFeatured ?? false,
+      affiliateAd: story.affiliateAd,
     };
   }
 

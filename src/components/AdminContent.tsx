@@ -480,47 +480,132 @@ export const AdminContent: React.FC = () => {
           {editingStory ? (
             <form
               onSubmit={handleSaveStory}
-              className="bg-white rounded-3xl p-5 sm:p-7 border-2 border-amber-400 shadow-xl space-y-4"
+              className="bg-white rounded-3xl p-5 sm:p-7 border-2 border-amber-400 shadow-xl space-y-6"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-amber-200">
-                <h3 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                  <Edit3 className="w-5 h-5 text-amber-700" />
-                  <span>{editingStory.id ? 'କାହାଣୀ ସଂପାଦନା (Edit Story)' : 'ନୂତନ ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ ଯୋଡ଼ନ୍ତୁ (Add Story)'}</span>
-                </h3>
+              <div className="flex items-center justify-between pb-4 border-b border-amber-200">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-amber-100 text-amber-900 rounded-xl">
+                    <Edit3 className="w-5 h-5 text-amber-800" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900">
+                      {editingStory.id ? 'କାହାଣୀ ସଂପାଦନା (Edit Dynamic Post)' : 'ନୂତନ ଆଧ୍ୟାତ୍ମିକ ପୋଷ୍ଟ ଯୋଡ଼ନ୍ତୁ (Dynamic Custom Post)'}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      ଶୂନ୍ୟ-ଷ୍ଟୋରେଜ୍ (Zero-Storage): ଇମେଜ୍ URL ମାଧ୍ୟମରେ ସହଜରେ କଷ୍ଟମ୍ ପୋଷ୍ଟ ଓ Amazon Affiliate ବିଜ୍ଞାପନ ଯୋଡ଼ନ୍ତୁ।
+                    </p>
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={() => setEditingStory(null)}
-                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer"
                 >
                   Cancel (ରଦ୍ଦ କରନ୍ତୁ)
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-1 sm:col-span-2">
-                  <label className="block text-xs font-bold text-slate-700">📖 ଶୀର୍ଷକ (Story Title) *</label>
+              {/* 1. TITLE & ON-THE-FLY CATEGORY */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="space-y-1.5 sm:col-span-8">
+                  <label className="block text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <span>📖 ପୋଷ୍ଟ ଶୀର୍ଷକ (Post Title) *</span>
+                  </label>
                   <input
                     type="text"
                     required
                     value={editingStory.title || ''}
                     onChange={(e) => setEditingStory({ ...editingStory, title: e.target.value })}
-                    placeholder="e.g. ଶ୍ରୀକ୍ଷେତ୍ରରେ ଭକ୍ତ ସାଲବେଗଙ୍କ ଅମୃତ ଭକ୍ତି"
-                    className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    placeholder="e.g. ଶ୍ରୀକ୍ଷେତ୍ରରେ ଭକ୍ତ ସାଲବେଗଙ୍କ ଅମୃତ ଭକ୍ତି ଓ ଅଲୌକିକ ଅନୁଭୂତି"
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-amber-300 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-slate-700">🏷️ ବର୍ଗ (Category)</label>
+                <div className="space-y-1.5 sm:col-span-4">
+                  <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <span>🏷️ ବର୍ଗ (Category - On The Fly)</span>
+                  </label>
                   <input
                     type="text"
+                    required
                     value={editingStory.category || ''}
                     onChange={(e) => setEditingStory({ ...editingStory, category: e.target.value })}
-                    placeholder="e.g. ଜଗନ୍ନାଥ ଲୀଳା / ପୁରାଣ କଥା"
-                    className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    placeholder="Type ANY category or pick below..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
                   />
                 </div>
               </div>
 
+              {/* Quick Category Chips */}
+              <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                <span className="text-[11px] font-bold text-slate-500">ଶୀଘ୍ର ବର୍ଗ ଚୟନ (Quick Chips):</span>
+                {['ଜଗନ୍ନାଥ ଲୀଳା', 'ପୁରାଣ କଥା', 'ଶିବ ମହିମା', 'ଭକ୍ତି ସାହିତ୍ୟ', 'ଆୟୁର୍ବେଦ ଓ ଜୀବନଶୈଳୀ', 'ମନ୍ଦିର ଇତିହାସ', 'ଦୈନିକ ପୂଜା ବିଧି'].map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setEditingStory({ ...editingStory, category: cat })}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition cursor-pointer ${
+                      editingStory.category === cat
+                        ? 'bg-amber-800 text-white shadow-xs'
+                        : 'bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* 2. IMAGE URL INPUT & LIVE PREVIEW (Zero Storage) */}
+              <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-300/80 space-y-3">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-amber-950 flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <Image className="w-3.5 h-3.5 text-amber-700" />
+                      <span>🖼️ ଇମେଜ୍ URL (Image URL - Zero Local Storage) *</span>
+                    </span>
+                    <span className="text-[10px] text-amber-700 font-semibold">Paste web link / Unsplash / Cloud URL</span>
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    value={editingStory.imageUrl || ''}
+                    onChange={(e) => setEditingStory({ ...editingStory, imageUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                  />
+                </div>
+
+                {/* Live Preview Box */}
+                {editingStory.imageUrl ? (
+                  <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
+                    <div className="h-28 w-44 rounded-lg overflow-hidden bg-slate-900 border border-amber-300 shrink-0">
+                      <img
+                        src={editingStory.imageUrl}
+                        alt="Live Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop';
+                        }}
+                      />
+                    </div>
+                    <div className="space-y-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-emerald-700 font-bold">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>ଲାଇଭ୍ ଇମେଜ୍ ପ୍ରିଭ୍ୟୁ ସକ୍ରିୟ (Live Image Preview OK)</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-snug">
+                        କୌଣସି ଫାଇଲ୍ ସର୍ଭରରେ ଅପଲୋଡ୍ କରିବା ଦରକାର ନାହିଁ। ଏହା ସିଧାସଳଖ ଫାଷ୍ଟ CDN ରୁ ଲୋଡ୍ ହେବ।
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-amber-800 italic">
+                    💡 ଉପରେ ଇମେଜ୍ ଲିଙ୍କ୍ ପେଷ୍ଟ କଲେ ତୁରନ୍ତ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ ପ୍ରଦର୍ଶିତ ହେବ।
+                  </div>
+                )}
+              </div>
+
+              {/* 3. METADATA: AUTHOR, READ TIME, FEATURED */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-700">✍️ ଲେଖକ (Author Name)</label>
@@ -545,73 +630,355 @@ export const AdminContent: React.FC = () => {
                 </div>
 
                 <div className="space-y-1 flex items-center pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-950">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-950 p-2 bg-amber-50 rounded-xl border border-amber-200 w-full">
                     <input
                       type="checkbox"
                       checked={!!editingStory.isFeatured}
                       onChange={(e) => setEditingStory({ ...editingStory, isFeatured: e.target.checked })}
                       className="w-4 h-4 text-amber-600 rounded"
                     />
-                    <span>⭐ ମୁଖ୍ୟ କାହାଣୀ (Featured Story)</span>
+                    <span>⭐ ମୁଖ୍ୟ କାହାଣୀ (Featured)</span>
                   </label>
                 </div>
               </div>
 
+              {/* 4. SUMMARY / SNIPPET */}
               <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">🖼️ Image URL (କାହାଣୀ ଫଟୋ URL)</label>
-                <input
-                  type="url"
-                  value={editingStory.imageUrl || ''}
-                  onChange={(e) => setEditingStory({ ...editingStory, imageUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-                {editingStory.imageUrl && (
-                  <div className="mt-2 h-32 w-48 rounded-xl overflow-hidden border border-amber-300">
-                    <img src={editingStory.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">📝 ସଂକ୍ଷିପ୍ତ ସାରାଂଶ (Short Summary / Preview) *</label>
+                <label className="block text-xs font-bold text-slate-700">📝 ସଂକ୍ଷିପ୍ତ ସାରାଂଶ (Short Summary / Card Snippet) *</label>
                 <textarea
                   rows={2}
                   required
                   value={editingStory.summary || ''}
                   onChange={(e) => setEditingStory({ ...editingStory, summary: e.target.value })}
-                  placeholder="କାହାଣୀର ୨-୩ ଧାଡ଼ି ବିଶିଷ୍ଟ ସଂକ୍ଷିପ୍ତ ସାରାଂଶ..."
-                  className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="କାହାଣୀର ୨-୩ ଧାଡ଼ି ବିଶିଷ୍ଟ ମୁଖ୍ୟ ସାରାଂଶ ଯାହା କାର୍ଡ ଉପରେ ଦେଖାଯିବ..."
+                  className="w-full px-3.5 py-2 rounded-xl border border-amber-300 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-bold text-slate-700">📜 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ବିବରଣୀ (Full Story Content) *</label>
+              {/* 5. CONTENT EDITOR WITH FORMATTING TOOLBAR */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-slate-800">
+                    📜 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ବିବରଣୀ (Full Article Content Editor) *
+                  </label>
+                  <span className="text-[11px] text-slate-500 font-mono">
+                    {(editingStory.content || '').length} ଅକ୍ଷର | {((editingStory.content || '').trim().split(/\s+/).filter(Boolean)).length} ଶବ୍ଦ
+                  </span>
+                </div>
+
+                {/* Quick Rich Text Helper Tools */}
+                <div className="flex items-center gap-1.5 p-2 bg-slate-100 rounded-xl border border-slate-200 flex-wrap text-xs">
+                  <span className="text-[10px] font-bold text-slate-600 mr-1">Quick Tools:</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStory((prev) => ({
+                        ...prev,
+                        content: (prev?.content || '') + ' **ମୁଖ୍ୟ ବାକ୍ୟ** ',
+                      }));
+                    }}
+                    className="px-2 py-1 bg-white hover:bg-amber-100 rounded font-bold text-slate-700 border border-slate-300 text-[11px]"
+                  >
+                    <b>B</b> Bold
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStory((prev) => ({
+                        ...prev,
+                        content: (prev?.content || '') + ' *ବିଶେଷ ଶବ୍ଦ* ',
+                      }));
+                    }}
+                    className="px-2 py-1 bg-white hover:bg-amber-100 rounded italic text-slate-700 border border-slate-300 text-[11px]"
+                  >
+                    <i>I</i> Italic
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStory((prev) => ({
+                        ...prev,
+                        content: (prev?.content || '') + '\n\n### ଉପ-ଶୀର୍ଷକ (Subheading)\n',
+                      }));
+                    }}
+                    className="px-2 py-1 bg-white hover:bg-amber-100 rounded font-bold text-slate-700 border border-slate-300 text-[11px]"
+                  >
+                    📑 Heading
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStory((prev) => ({
+                        ...prev,
+                        content: (prev?.content || '') + '\n\n> "ଦିବ୍ୟ ଉକ୍ତି କିମ୍ବା ଶ୍ଳୋକ"\n\n',
+                      }));
+                    }}
+                    className="px-2 py-1 bg-white hover:bg-amber-100 rounded text-slate-700 border border-slate-300 text-[11px]"
+                  >
+                    💬 Quote
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStory((prev) => ({
+                        ...prev,
+                        content: (prev?.content || '') + '\n• ପ୍ରଥମ ବିନ୍ଦୁ\n• ଦ୍ୱିତୀୟ ବିନ୍ଦୁ\n',
+                      }));
+                    }}
+                    className="px-2 py-1 bg-white hover:bg-amber-100 rounded text-slate-700 border border-slate-300 text-[11px]"
+                  >
+                    • List
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStory((prev) => ({
+                        ...prev,
+                        content: (prev?.content || '') + '\n\n',
+                      }));
+                    }}
+                    className="px-2 py-1 bg-white hover:bg-amber-100 rounded text-slate-700 border border-slate-300 text-[11px]"
+                  >
+                    ↩ New Para
+                  </button>
+                </div>
+
                 <textarea
-                  rows={8}
+                  rows={9}
                   required
                   value={editingStory.content || ''}
                   onChange={(e) => setEditingStory({ ...editingStory, content: e.target.value })}
-                  placeholder="କାହାଣୀର ସମ୍ପୂର୍ଣ୍ଣ ବିବରଣୀ ଲେଖନ୍ତୁ..."
-                  className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed font-sans"
+                  placeholder="ପ୍ରବନ୍ଧ କିମ୍ବା ଆଧ୍ୟାତ୍ମିକ କାହାଣୀର ସମ୍ପୂର୍ଣ୍ଣ ବିବରଣୀ ଲେଖନ୍ତୁ..."
+                  className="w-full px-3.5 py-3 rounded-2xl border-2 border-amber-300 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed font-sans"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-amber-200">
+              {/* 6. SMART AFFILIATE POP-UP AD (Monetization Engine) */}
+              <div className="p-4 sm:p-5 bg-gradient-to-br from-amber-500/10 via-amber-100/50 to-orange-100/40 rounded-3xl border-2 border-amber-400 space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-amber-300/80">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 bg-amber-500 text-amber-950 rounded-lg text-xs font-black">
+                      💰 MONETIZE
+                    </span>
+                    <div>
+                      <h4 className="font-black text-amber-950 text-xs sm:text-sm">
+                        ସ୍ମାର୍ଟ Amazon Affiliate Pop-up ବିଜ୍ଞାପନ (Smart Affiliate Ad System)
+                      </h4>
+                      <p className="text-[11px] text-amber-900 font-medium">
+                        ପାଠକ କାହାଣୀ ପଢ଼ିବା ସମୟରେ ନିର୍ଦ୍ଦିଷ୍ଟ ସେକେଣ୍ଡ ପରେ ଆପେ ଆପେ Amazon ପ୍ରଡକ୍ଟ ପପ୍-ଅପ୍ ହେବ ଏବଂ କାଉଣ୍ଟଡାଉନ୍ ପରେ ବନ୍ଦ ହେବ।
+                      </p>
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-amber-400 shadow-xs text-xs font-black text-amber-950">
+                    <input
+                      type="checkbox"
+                      checked={!!editingStory.affiliateAd?.enabled}
+                      onChange={(e) =>
+                        setEditingStory({
+                          ...editingStory,
+                          affiliateAd: {
+                            ...(editingStory.affiliateAd || {}),
+                            enabled: e.target.checked,
+                            triggerDelaySeconds: editingStory.affiliateAd?.triggerDelaySeconds || 4,
+                            countdownSeconds: editingStory.affiliateAd?.countdownSeconds || 5,
+                            productTitle: editingStory.affiliateAd?.productTitle || 'ପବିତ୍ର ଓଡ଼ିଆ ଭାଗବତ ଓ ପୂଜା ସାମଗ୍ରୀ ସେଟ୍',
+                            productImageUrl: editingStory.affiliateAd?.productImageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=500&auto=format&fit=crop',
+                            affiliateUrl: editingStory.affiliateAd?.affiliateUrl || 'https://www.amazon.in',
+                            productPrice: editingStory.affiliateAd?.productPrice || 'Special ₹299 (Save 40%)',
+                            productDescription: editingStory.affiliateAd?.productDescription || 'ଶୁଦ୍ଧ କାଷ୍ଠ ଚନ୍ଦନ, ଅଗରବତୀ, ଘିଅ ଦୀପ ଓ ଶ୍ରୀମଦଭାଗବତ ଗ୍ରନ୍ଥ। ଆଜି ହିଁ Amazon ରୁ ଅର୍ଡର କରନ୍ତୁ।',
+                          },
+                        })
+                      }
+                      className="w-4 h-4 text-amber-600 rounded"
+                    />
+                    <span>{editingStory.affiliateAd?.enabled ? '✅ Ad Enabled (ସକ୍ରିୟ)' : '⚪ Enable Ad (ଅନ୍ କରନ୍ତୁ)'}</span>
+                  </label>
+                </div>
+
+                {editingStory.affiliateAd?.enabled && (
+                  <div className="space-y-4 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                      <div className="space-y-1 sm:col-span-7">
+                        <label className="block text-xs font-bold text-slate-800">
+                          📦 ପ୍ରଡକ୍ଟ ଶୀର୍ଷକ (Amazon Product Title)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingStory.affiliateAd?.productTitle || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                productTitle: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="e.g. ଶ୍ରୀ ଜଗନ୍ନାଥ କାଷ୍ଠ ମୂର୍ତ୍ତି / ସମ୍ପୂର୍ଣ୍ଣ ଓଡ଼ିଆ ଭାଗବତ ସେଟ୍"
+                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-5">
+                        <label className="block text-xs font-bold text-slate-800">
+                          🏷️ ମୂଲ୍ୟ / ଅଫର୍ (Price Tag / Discount)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingStory.affiliateAd?.productPrice || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                productPrice: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="e.g. ₹399 (Amazon Deal)"
+                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                      <div className="space-y-1 sm:col-span-7">
+                        <label className="block text-xs font-bold text-slate-800">
+                          🔗 Amazon Affiliate Target Link (ଅର୍ଡର ଲିଙ୍କ୍)
+                        </label>
+                        <input
+                          type="url"
+                          value={editingStory.affiliateAd?.affiliateUrl || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                affiliateUrl: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="https://www.amazon.in/dp/...?tag=youraffiliate-21"
+                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-5">
+                        <label className="block text-xs font-bold text-slate-800">
+                          🖼️ ପ୍ରଡକ୍ଟ ଫଟୋ URL (Product Image URL)
+                        </label>
+                        <input
+                          type="url"
+                          value={editingStory.affiliateAd?.productImageUrl || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                productImageUrl: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="https://images-na.ssl-images-amazon.com/..."
+                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-slate-800">
+                        📝 ପ୍ରଡକ୍ଟ ସଂକ୍ଷିପ୍ତ ବିବରଣୀ (Short Ad Description)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingStory.affiliateAd?.productDescription || ''}
+                        onChange={(e) =>
+                          setEditingStory({
+                            ...editingStory,
+                            affiliateAd: {
+                              ...(editingStory.affiliateAd || {}),
+                              productDescription: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="e.g. ଶୁଦ୍ଧ ସାମଗ୍ରୀ ସହ ଦ୍ରୁତ ଡେଲିଭରି ଉପଲବ୍ଧ। ଆଜି ହିଁ ଅର୍ଡର କରନ୍ତୁ।"
+                        className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-medium bg-white"
+                      />
+                    </div>
+
+                    {/* Delay Trigger & Countdown Controls */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-white rounded-2xl border border-amber-300/70">
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-700">
+                          ⏳ Delay Trigger (କେତେ ସେକେଣ୍ଡ ପରେ Pop-up ହେବ?)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={1}
+                            max={60}
+                            value={editingStory.affiliateAd?.triggerDelaySeconds || 4}
+                            onChange={(e) =>
+                              setEditingStory({
+                                ...editingStory,
+                                affiliateAd: {
+                                  ...(editingStory.affiliateAd || {}),
+                                  triggerDelaySeconds: Number(e.target.value),
+                                },
+                              })
+                            }
+                            className="w-24 px-3 py-1.5 rounded-xl border border-amber-300 text-xs font-black text-center"
+                          />
+                          <span className="text-xs text-slate-500 font-bold">ସେକେଣ୍ଡ (Default: 4s)</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-700">
+                          ⏱️ Countdown Timer (କେତେ ସେକେଣ୍ଡ କାଉଣ୍ଟଡାଉନ୍ ପରେ ବନ୍ଦ ହେବ?)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={2}
+                            max={30}
+                            value={editingStory.affiliateAd?.countdownSeconds || 5}
+                            onChange={(e) =>
+                              setEditingStory({
+                                ...editingStory,
+                                affiliateAd: {
+                                  ...(editingStory.affiliateAd || {}),
+                                  countdownSeconds: Number(e.target.value),
+                                },
+                              })
+                            }
+                            className="w-24 px-3 py-1.5 rounded-xl border border-amber-300 text-xs font-black text-center"
+                          />
+                          <span className="text-xs text-slate-500 font-bold">ସେକେଣ୍ଡ (5, 4, 3, 2, 1, 0)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 7. PUBLISH & ACTIONS */}
+              <div className="flex items-center justify-between gap-3 pt-4 border-t border-amber-200">
                 <button
                   type="button"
                   onClick={() => setEditingStory(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs"
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl text-xs transition cursor-pointer"
                 >
-                  Cancel
+                  Cancel (ରଦ୍ଦ କରନ୍ତୁ)
                 </button>
                 <button
                   type="submit"
                   disabled={savingStory}
-                  className="px-6 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 text-white font-extrabold rounded-2xl text-xs flex items-center gap-2 shadow-md cursor-pointer"
+                  className="px-8 py-3 bg-gradient-to-r from-amber-700 via-amber-800 to-amber-950 hover:from-amber-800 hover:to-amber-900 text-white font-black rounded-2xl text-xs sm:text-sm flex items-center gap-2.5 shadow-xl transition transform active:scale-98 cursor-pointer border border-amber-400"
                 >
                   <Save className="w-4 h-4 text-amber-300" />
-                  <span>Save Story (କାହାଣୀ ସଂରକ୍ଷଣ କରନ୍ତୁ)</span>
+                  <span>{savingStory ? 'ପ୍ରକାଶିତ ହେଉଛି...' : '🚀 Publish Post Live (ପୋଷ୍ଟ ଲାଇଭ୍ କରନ୍ତୁ)'}</span>
                 </button>
               </div>
             </form>

@@ -301,6 +301,17 @@ export interface DailyPanchang {
   updatedAt?: string;
 }
 
+export interface AffiliateProductAd {
+  enabled?: boolean;
+  productTitle?: string;
+  productImageUrl?: string;
+  productDescription?: string;
+  productPrice?: string;
+  affiliateUrl?: string;
+  triggerDelaySeconds?: number;
+  countdownSeconds?: number;
+}
+
 export interface SpiritualStory {
   id: string;
   title: string;
@@ -313,6 +324,7 @@ export interface SpiritualStory {
   likesCount?: number;
   publishedAt: string;
   isFeatured?: boolean;
+  affiliateAd?: AffiliateProductAd;
 }
 
 export type DistrictCategory = 'temple' | 'festival' | 'story';
