@@ -28,8 +28,18 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-export const AdminContent: React.FC = () => {
-  const [activeSubTab, setActiveSubTab] = useState<'panchang' | 'stories'>('panchang');
+interface AdminContentProps {
+  defaultSection?: 'panchang' | 'stories';
+}
+
+export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'panchang' }) => {
+  const [activeSubTab, setActiveSubTab] = useState<'panchang' | 'stories'>(defaultSection);
+
+  useEffect(() => {
+    if (defaultSection) {
+      setActiveSubTab(defaultSection);
+    }
+  }, [defaultSection]);
 
   // Panchang State
   const [panchangForm, setPanchangForm] = useState<DailyPanchang>(DEFAULT_PANCHANG);

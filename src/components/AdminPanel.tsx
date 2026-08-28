@@ -106,7 +106,7 @@ export function getDisplayUtr(pmt?: PaymentRequest | null, list?: PujaList | nul
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
-  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'installs' | 'qr' | 'templates' | 'slider' | 'store' | 'temple' | 'shorts' | 'content' | 'district'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'lists' | 'pujaris' | 'resets' | 'installs' | 'qr' | 'templates' | 'slider' | 'store' | 'temple' | 'shorts' | 'content' | 'custom_posts' | 'district'>('payments');
 
   // Data States
   const [payments, setPayments] = useState<PaymentRequest[]>([]);
@@ -857,6 +857,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
         </button>
 
         <button
+          onClick={() => setActiveTab('custom_posts')}
+          className={`px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 ${
+            activeTab === 'custom_posts'
+              ? 'bg-gradient-to-r from-amber-800 to-orange-950 text-white font-extrabold shadow-xs border border-amber-400'
+              : 'text-slate-800 hover:bg-amber-50'
+          }`}
+        >
+          <span className="text-sm">✍️</span>
+          <span>କଷ୍ଟମ୍ ପୋଷ୍ଟ ଓ ବିଜ୍ଞାପନ (Custom Posts & Ads)</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('district')}
           className={`px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-2 ${
             activeTab === 'district'
@@ -891,7 +903,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
       {activeTab === 'district' && <AdminDistrictManagement />}
 
       {/* TAB: DAILY PANCHANG & SPIRITUAL STORIES */}
-      {activeTab === 'content' && <AdminContent />}
+      {activeTab === 'content' && <AdminContent defaultSection="panchang" />}
+
+      {/* TAB: CUSTOM POSTS & AFFILIATE ADS */}
+      {activeTab === 'custom_posts' && <AdminContent defaultSection="stories" />}
 
       {/* TAB: TEMPLE PUJA SHORTS MANAGEMENT */}
       {activeTab === 'shorts' && <AdminShortsManagement />}
