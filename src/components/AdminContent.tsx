@@ -586,15 +586,15 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                 </div>
 
                 {/* Live Preview Box */}
-                {editingStory.imageUrl ? (
+                {editingStory.imageUrl && editingStory.imageUrl.trim() ? (
                   <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
-                    <div className="h-28 w-44 rounded-lg overflow-hidden bg-slate-900 border border-amber-300 shrink-0">
+                    <div className="h-28 w-44 rounded-lg overflow-hidden bg-slate-900 border border-amber-300 shrink-0 flex items-center justify-center">
                       <img
                         src={editingStory.imageUrl}
                         alt="Live Preview"
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop';
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Crect width="18" height="18" x="3" y="3" rx="2" ry="2"/%3E%3Ccircle cx="9" cy="9" r="2"/%3E%3Cpath d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/%3E%3C/svg%3E';
                         }}
                       />
                     </div>
@@ -609,8 +609,14 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                     </div>
                   </div>
                 ) : (
-                  <div className="text-[11px] text-amber-800 italic">
-                    💡 ଉପରେ ଇମେଜ୍ ଲିଙ୍କ୍ ପେଷ୍ଟ କଲେ ତୁରନ୍ତ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ ପ୍ରଦର୍ଶିତ ହେବ।
+                  <div className="flex items-center gap-3 p-3.5 bg-white rounded-xl border-2 border-dashed border-amber-300 text-amber-900/80">
+                    <div className="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 shrink-0 border border-amber-200">
+                      <Image className="w-6 h-6 opacity-60" />
+                    </div>
+                    <div className="text-xs space-y-0.5">
+                      <p className="font-bold text-amber-950">କୌଣସି ଫଟୋ URL ଦିଆଯାଇ ନାହିଁ (No Image URL)</p>
+                      <p className="text-[11px] text-slate-500 font-medium">ଉପରେ ଇମେଜ୍ ଲିଙ୍କ୍ ପେଷ୍ଟ କଲେ ଏଠାରେ ତୁରନ୍ତ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ ପ୍ରଦର୍ଶିତ ହେବ।</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -624,7 +630,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                     value={editingStory.author || ''}
                     onChange={(e) => setEditingStory({ ...editingStory, author: e.target.value })}
                     placeholder="e.g. ପଣ୍ଡିତ ସୂର୍ଯ୍ୟନାରାୟଣ ରଥ"
-                    className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
                   />
                 </div>
 
@@ -633,9 +639,10 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                   <input
                     type="number"
                     min={1}
-                    value={editingStory.readTimeMinutes || 4}
-                    onChange={(e) => setEditingStory({ ...editingStory, readTimeMinutes: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    value={editingStory.readTimeMinutes !== undefined && editingStory.readTimeMinutes !== null && editingStory.readTimeMinutes !== 0 ? editingStory.readTimeMinutes : ''}
+                    onChange={(e) => setEditingStory({ ...editingStory, readTimeMinutes: Number(e.target.value) || 0 })}
+                    placeholder="e.g. 4"
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
                   />
                 </div>
 
@@ -792,10 +799,10 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                             enabled: e.target.checked,
                             triggerDelaySeconds: editingStory.affiliateAd?.triggerDelaySeconds || 4,
                             countdownSeconds: editingStory.affiliateAd?.countdownSeconds || 5,
-                            productTitle: editingStory.affiliateAd?.productTitle || 'ପବିତ୍ର ଓଡ଼ିଆ ଭାଗବତ ଓ ପୂଜା ସାମଗ୍ରୀ ସେଟ୍',
-                            productImageUrl: editingStory.affiliateAd?.productImageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=500&auto=format&fit=crop',
-                            affiliateUrl: editingStory.affiliateAd?.affiliateUrl || 'https://www.amazon.in',
-                            productDescription: editingStory.affiliateAd?.productDescription || 'ଶୁଦ୍ଧ କାଷ୍ଠ ଚନ୍ଦନ, ଅଗରବତୀ, ଘିଅ ଦୀପ ଓ ଶ୍ରୀମଦଭାଗବତ ଗ୍ରନ୍ଥ। ଆଜି ହିଁ Amazon ରୁ ଅର୍ଡର କରନ୍ତୁ।',
+                            productTitle: editingStory.affiliateAd?.productTitle || '',
+                            productImageUrl: editingStory.affiliateAd?.productImageUrl || '',
+                            affiliateUrl: editingStory.affiliateAd?.affiliateUrl || '',
+                            productDescription: editingStory.affiliateAd?.productDescription || '',
                           },
                         })
                       }
@@ -975,13 +982,22 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                 onClick={() =>
                   setEditingStory({
                     title: '',
-                    category: 'ଜଗନ୍ନାଥ ଲୀଳା',
-                    author: 'ପଣ୍ଡିତ ମହାଶୟ',
-                    readTimeMinutes: 4,
+                    category: '',
+                    author: '',
+                    readTimeMinutes: undefined as any,
                     summary: '',
                     content: '',
-                    imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop',
+                    imageUrl: '',
                     isFeatured: false,
+                    affiliateAd: {
+                      enabled: false,
+                      productTitle: '',
+                      productImageUrl: '',
+                      affiliateUrl: '',
+                      productDescription: '',
+                      triggerDelaySeconds: 4,
+                      countdownSeconds: 5,
+                    },
                   })
                 }
                 className="px-5 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-2xl text-xs flex items-center gap-2 shadow-md cursor-pointer"

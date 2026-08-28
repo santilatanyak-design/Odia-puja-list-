@@ -120,29 +120,26 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({ onBack, onNavigate
           window.history.replaceState({ viewMode: 'blog', storyId: selectedStory.id }, '', targetUrl);
         }
 
-        // Setup Smart Affiliate Ad with Delay Trigger
+        // Setup Smart Affiliate Ad with Delay Trigger - Strictly per-post
         if (adTimeoutRef.current) {
           clearTimeout(adTimeoutRef.current);
           adTimeoutRef.current = null;
         }
 
-        const adConfig: AffiliateProductAd = selectedStory.affiliateAd || {
-          enabled: true,
-          productTitle: 'ପବିତ୍ର ଓଡ଼ିଆ ଭାଗବତ ଓ ପୂଜା ସାମଗ୍ରୀ ସେଟ୍',
-          productImageUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop',
-          productDescription: 'ଶୁଦ୍ଧ ଚନ୍ଦନ କାଠ, ଅଗରବତୀ, ପିତ୍ତଳ ଦୀପ ଓ ଶ୍ରୀମଦ୍ ଭାଗବତ ଗ୍ରନ୍ଥ। Amazon ରେ ଉପଲବ୍ଧ।',
-          affiliateUrl: 'https://www.amazon.in',
-          triggerDelaySeconds: 4,
-          countdownSeconds: 5,
-        };
+        const adConfig = selectedStory.affiliateAd;
+        const hasAdContent =
+          adConfig &&
+          adConfig.enabled === true &&
+          Boolean((adConfig.productTitle && adConfig.productTitle.trim()) || (adConfig.affiliateUrl && adConfig.affiliateUrl.trim()));
 
-        if (adConfig.enabled !== false) {
+        if (hasAdContent && adConfig) {
           setActiveAd(adConfig);
           const delayMs = (adConfig.triggerDelaySeconds || 4) * 1000;
           adTimeoutRef.current = setTimeout(() => {
             setIsAdOpen(true);
           }, delayMs);
         } else {
+          // If no affiliate ad is configured or fields are blank, DO NOT trigger any pop-up
           setActiveAd(null);
           setIsAdOpen(false);
         }
@@ -444,7 +441,7 @@ ${story.summary}
                       </span>
                     </div>
 
-                    {story.affiliateAd?.enabled && (
+                    {story.affiliateAd?.enabled && (story.affiliateAd.productTitle?.trim() || story.affiliateAd.affiliateUrl?.trim()) && (
                       <div className="absolute top-3 right-3 z-10">
                         <span className="px-2 py-0.5 bg-black/60 backdrop-blur-xs text-amber-300 rounded-full text-[10px] font-black border border-amber-400/40 flex items-center gap-1">
                           <ShoppingBag className="w-3 h-3 text-amber-400" />
