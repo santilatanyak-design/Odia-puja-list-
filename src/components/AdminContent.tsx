@@ -795,7 +795,6 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                             productTitle: editingStory.affiliateAd?.productTitle || 'ପବିତ୍ର ଓଡ଼ିଆ ଭାଗବତ ଓ ପୂଜା ସାମଗ୍ରୀ ସେଟ୍',
                             productImageUrl: editingStory.affiliateAd?.productImageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=500&auto=format&fit=crop',
                             affiliateUrl: editingStory.affiliateAd?.affiliateUrl || 'https://www.amazon.in',
-                            productPrice: editingStory.affiliateAd?.productPrice || 'Special ₹299 (Save 40%)',
                             productDescription: editingStory.affiliateAd?.productDescription || 'ଶୁଦ୍ଧ କାଷ୍ଠ ଚନ୍ଦନ, ଅଗରବତୀ, ଘିଅ ଦୀପ ଓ ଶ୍ରୀମଦଭାଗବତ ଗ୍ରନ୍ଥ। ଆଜି ହିଁ Amazon ରୁ ଅର୍ଡର କରନ୍ତୁ।',
                           },
                         })
@@ -808,48 +807,25 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
 
                 {editingStory.affiliateAd?.enabled && (
                   <div className="space-y-4 pt-1">
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                      <div className="space-y-1 sm:col-span-7">
-                        <label className="block text-xs font-bold text-slate-800">
-                          📦 ପ୍ରଡକ୍ଟ ଶୀର୍ଷକ (Amazon Product Title)
-                        </label>
-                        <input
-                          type="text"
-                          value={editingStory.affiliateAd?.productTitle || ''}
-                          onChange={(e) =>
-                            setEditingStory({
-                              ...editingStory,
-                              affiliateAd: {
-                                ...(editingStory.affiliateAd || {}),
-                                productTitle: e.target.value,
-                              },
-                            })
-                          }
-                          placeholder="e.g. ଶ୍ରୀ ଜଗନ୍ନାଥ କାଷ୍ଠ ମୂର୍ତ୍ତି / ସମ୍ପୂର୍ଣ୍ଣ ଓଡ଼ିଆ ଭାଗବତ ସେଟ୍"
-                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold bg-white"
-                        />
-                      </div>
-
-                      <div className="space-y-1 sm:col-span-5">
-                        <label className="block text-xs font-bold text-slate-800">
-                          🏷️ ମୂଲ୍ୟ / ଅଫର୍ (Price Tag / Discount)
-                        </label>
-                        <input
-                          type="text"
-                          value={editingStory.affiliateAd?.productPrice || ''}
-                          onChange={(e) =>
-                            setEditingStory({
-                              ...editingStory,
-                              affiliateAd: {
-                                ...(editingStory.affiliateAd || {}),
-                                productPrice: e.target.value,
-                              },
-                            })
-                          }
-                          placeholder="e.g. ₹399 (Amazon Deal)"
-                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold bg-white"
-                        />
-                      </div>
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-slate-800">
+                        📦 ପ୍ରଡକ୍ଟ ଶୀର୍ଷକ (Amazon Product Title)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingStory.affiliateAd?.productTitle || ''}
+                        onChange={(e) =>
+                          setEditingStory({
+                            ...editingStory,
+                            affiliateAd: {
+                              ...(editingStory.affiliateAd || {}),
+                              productTitle: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="e.g. ଶ୍ରୀ ଜଗନ୍ନାଥ କାଷ୍ଠ ମୂର୍ତ୍ତି / ସମ୍ପୂର୍ଣ୍ଣ ଓଡ଼ିଆ ଭାଗବତ ସେଟ୍"
+                        className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold bg-white"
+                      />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">

@@ -131,11 +131,10 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
                 <span className="text-slate-600 text-[11px] ml-1">(4.8 / 5 Verified)</span>
               </div>
 
-              {ad.productPrice && (
-                <span className="px-2.5 py-0.5 bg-rose-100 text-rose-800 border border-rose-200 rounded-lg text-xs font-black">
-                  {ad.productPrice}
-                </span>
-              )}
+              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg text-[11px] font-black flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3" />
+                <span>Verified</span>
+              </span>
             </div>
 
             <h3 className="text-base font-black text-slate-900 leading-snug">
