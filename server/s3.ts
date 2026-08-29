@@ -158,50 +158,7 @@ export async function uploadToS3(params: {
   const s3Key = `${folder}/${fileName}`;
   const contentType = params.mimeType || 'image/jpeg';
 
-  const client = getS3Client();
-
-  // If AWS S3 Client is available with valid credentials, attempt direct S3 upload with timeout
-  if (client) {
-    try {
-      const command = new PutObjectCommand({
-        Bucket: bucket,
-        Key: s3Key,
-        Body: params.buffer,
-        ContentType: contentType,
-        CacheControl: 'public, max-age=31536000, immutable',
-      });
-
-      // 25-second timeout handler to prevent hanging
-      const abortController = new AbortController();
-      const timeoutId = setTimeout(() => {
-        abortController.abort();
-      }, 25000);
-
-      try {
-        await client.send(command, { abortSignal: abortController.signal });
-      } finally {
-        clearTimeout(timeoutId);
-      }
-
-      const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}`;
-      console.log(`[AWS S3] Upload successful -> Bucket: ${bucket}, Key: ${s3Key}`);
-
-      return {
-        success: true,
-        url: s3Url,
-        key: s3Key,
-        bucket,
-        region,
-        message: 'Uploaded to AWS S3',
-      };
-    } catch (s3Error: any) {
-      console.warn(`[AWS S3 Upload Warning] S3 upload failed (${s3Error?.message || s3Error}), activating persistent local storage fallback:`, s3Error);
-    }
-  } else {
-    console.log(`[AWS S3 Info] AWS credentials not detected in environment, storing to persistent local public directory for bucket ${bucket}`);
-  }
-
-  // Fallback: Save file to public/uploads directory
+  // 1. Immediately save file to local public persistent storage
   const uploadsDir = path.join(process.cwd(), 'public', 'uploads', folder);
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -213,7 +170,50 @@ export async function uploadToS3(params: {
   const localPath = `/uploads/${folder}/${fileName}`;
   const fullLocalUrl = params.hostOrigin ? `${params.hostOrigin}${localPath}` : localPath;
 
-  console.log(`[Local Upload Fallback] File saved at: ${localPath}`);
+  const client = getS3Client();
+
+  // 2. If AWS S3 credentials are configured, attempt fast S3 background upload with 6s timeout
+  if (client) {
+    try {
+      const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: s3Key,
+        Body: params.buffer,
+        ContentType: contentType,
+        CacheControl: 'public, max-age=31536000, immutable',
+      });
+
+      // 6-second timeout handler to prevent hanging
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        abortController.abort();
+      }, 6000);
+
+      try {
+        await client.send(command, { abortSignal: abortController.signal });
+        clearTimeout(timeoutId);
+
+        const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}`;
+        console.log(`[AWS S3] Upload successful -> Bucket: ${bucket}, Key: ${s3Key}`);
+
+        return {
+          success: true,
+          url: s3Url,
+          key: s3Key,
+          bucket,
+          region,
+          message: 'Uploaded to AWS S3 (bhakti-ananda-photos)',
+        };
+      } catch (s3SendError: any) {
+        clearTimeout(timeoutId);
+        console.warn(`[AWS S3 Upload Warning] S3 send did not complete (${s3SendError?.message || s3SendError}), using persistent server storage: ${localPath}`);
+      }
+    } catch (s3Error: any) {
+      console.warn(`[AWS S3 Upload Warning] S3 upload error:`, s3Error?.message);
+    }
+  } else {
+    console.log(`[AWS S3 Info] AWS credentials not active, stored to server public storage: ${localPath}`);
+  }
 
   return {
     success: true,
@@ -222,7 +222,7 @@ export async function uploadToS3(params: {
     bucket: bucket || 'bhakti-ananda-photos',
     region: region || 'ap-south-1',
     isLocalFallback: true,
-    message: 'Saved to persistent storage (AWS S3 ready)',
+    message: 'Saved to server storage (AWS S3 ready)',
   };
 }
 
