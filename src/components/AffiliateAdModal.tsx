@@ -87,17 +87,21 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Countdown Badge */}
-            <div className="flex items-center gap-1 px-2.5 py-1 bg-amber-500/20 border border-amber-400/50 rounded-full text-amber-300 font-mono text-xs font-black">
-              <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
-              <span>{countdown}s</span>
+            {/* Countdown Badge with clear 'Closes in Xs...' indicator */}
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-400/20 border border-amber-400/60 rounded-full text-amber-300 font-mono text-xs font-black shadow-inner select-none"
+              title={`Ad will auto-dismiss in ${countdown} seconds`}
+            >
+              <Clock className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>Closes in {countdown}s...</span>
             </div>
 
-            {/* Manual Close Button */}
+            {/* Prominent Manual Close Button */}
             <button
               onClick={onClose}
-              title="Close Ad"
-              className="p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition cursor-pointer"
+              title="Close Ad and continue reading"
+              aria-label="Close"
+              className="p-1.5 rounded-full text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 transition cursor-pointer flex items-center justify-center border border-white/20 active:scale-95"
             >
               <X className="w-4 h-4" />
             </button>

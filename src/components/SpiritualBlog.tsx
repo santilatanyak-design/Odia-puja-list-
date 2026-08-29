@@ -183,16 +183,23 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
         // Configure per-post Affiliate Ad
         const adConfig = selectedStory.affiliateAd;
-        const hasAdContent =
-          adConfig &&
-          adConfig.enabled === true &&
-          Boolean(
-            (adConfig.productTitle && adConfig.productTitle.trim()) ||
-              (adConfig.affiliateUrl && adConfig.affiliateUrl.trim())
-          );
+        const isExplicitlyDisabled = adConfig && adConfig.enabled === false;
 
-        if (hasAdContent && adConfig) {
-          setActiveAd(adConfig);
+        if (!isExplicitlyDisabled) {
+          const resolvedAd: AffiliateProductAd = {
+            enabled: true,
+            productTitle: adConfig?.productTitle || 'ପବିତ୍ର ଶ୍ରୀମଦ୍ ଭାଗବତ ଓ ପୂଜା ସାମଗ୍ରୀ ସେଟ୍',
+            productDescription:
+              adConfig?.productDescription ||
+              'ଶୁଦ୍ଧ ପିତ୍ତଳ ଦୀପ, ଗଙ୍ଗାଜଳ, ଚନ୍ଦନ ଓ ଶ୍ରେଷ୍ଠ ଧାର୍ମିକ ପୁସ୍ତକ। Amazon ରେ ସ୍ୱତନ୍ତ୍ର ରିହାତି ସହ ଉପଲବ୍ଧ।',
+            productImageUrl:
+              adConfig?.productImageUrl ||
+              'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=800',
+            affiliateUrl: adConfig?.affiliateUrl || 'https://www.amazon.in',
+            triggerDelaySeconds: Number(adConfig?.triggerDelaySeconds) > 0 ? Number(adConfig?.triggerDelaySeconds) : 5,
+            countdownSeconds: Number(adConfig?.countdownSeconds) > 0 ? Number(adConfig?.countdownSeconds) : 5,
+          };
+          setActiveAd(resolvedAd);
           setIsAdOpen(false);
         } else {
           setActiveAd(null);
@@ -217,14 +224,14 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     }
   }, [selectedStory]);
 
-  // 4. SMART AFFILIATE AD TRIGGER 1: Automatic Time Delay Trigger (e.g. 4s)
+  // 4. SMART AFFILIATE AD TRIGGER 1: Automatic Time Delay Trigger (e.g. 5s fallback)
   useEffect(() => {
     if (!selectedStory || !activeAd || !activeAd.enabled) return;
 
     // Check if already shown in this reading session for this story
     if (adTriggeredForStoryRef.current[selectedStory.id]) return;
 
-    const delayMs = Math.max(1, Number(activeAd.triggerDelaySeconds) || 4) * 1000;
+    const delayMs = Math.max(1, Number(activeAd.triggerDelaySeconds) || 5) * 1000;
     const timer = setTimeout(() => {
       if (!adTriggeredForStoryRef.current[selectedStory.id]) {
         adTriggeredForStoryRef.current[selectedStory.id] = true;
@@ -235,7 +242,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     return () => clearTimeout(timer);
   }, [selectedStory, activeAd]);
 
-  // 5. SMART AFFILIATE AD TRIGGER 2: Scroll Depth Cliffhanger (>= 35% scroll threshold)
+  // 5. SMART AFFILIATE AD TRIGGER 2: Scroll Depth Trigger (>= 50% scroll threshold)
   useEffect(() => {
     if (!selectedStory || !activeAd || !activeAd.enabled) return;
     if (adTriggeredForStoryRef.current[selectedStory.id]) return;
@@ -247,7 +254,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
       if (docHeight > 0) {
         const scrollPct = (scrollY / docHeight) * 100;
-        if (scrollPct >= 35) {
+        if (scrollPct >= 50) {
           adTriggeredForStoryRef.current[selectedStory.id] = true;
           setIsAdOpen(true);
         }
