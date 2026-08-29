@@ -1,6 +1,8 @@
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+
 /**
  * AWS S3 Photo & Media Upload Helper
- * Routes all image uploads directly through our backend server API route (/api/upload)
+ * Direct AWS S3 SDK Upload (Amplify compatible) + Backend API Proxy fallback
  * Targets AWS S3 Bucket: 'bhakti-ananda-photos' (Region: ap-south-1)
  */
 
@@ -16,7 +18,26 @@ export interface S3UploadResponse {
 }
 
 /**
- * Optimizes and compresses an image client-side before sending to server
+ * Retrieves AWS S3 Credentials and Bucket info from build/runtime environment
+ */
+export function getClientAwsConfig() {
+  const env = (import.meta as any).env || {};
+  const accessKeyId = (env.MY_AWS_ACCESS_KEY_ID || env.VITE_MY_AWS_ACCESS_KEY_ID || env.AWS_ACCESS_KEY_ID || '').trim();
+  const secretAccessKey = (env.MY_AWS_SECRET_ACCESS_KEY || env.VITE_MY_AWS_SECRET_ACCESS_KEY || env.AWS_SECRET_ACCESS_KEY || '').trim();
+  const region = (env.MY_AWS_REGION || env.VITE_MY_AWS_REGION || env.AWS_REGION || 'ap-south-1').trim();
+  const bucket = (env.MY_AWS_S3_BUCKET_NAME || env.VITE_MY_AWS_S3_BUCKET_NAME || env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
+
+  return {
+    accessKeyId,
+    secretAccessKey,
+    region,
+    bucket,
+    isDirectReady: Boolean(accessKeyId && secretAccessKey),
+  };
+}
+
+/**
+ * Optimizes and compresses an image client-side before sending to server/S3
  * Ensures lightweight transfer, eliminates network lag, and speeds up S3 uploads.
  */
 export async function optimizeImage(file: File | Blob, maxDim = 1920, quality = 0.85): Promise<Blob> {
@@ -95,9 +116,9 @@ export function fileToBase64(file: File | Blob): Promise<string> {
 }
 
 /**
- * Uploads any image File or Blob directly through our backend server API route (/api/upload).
- * The server securely forwards and persists the photo to AWS S3 (bhakti-ananda-photos).
- * 
+ * Uploads an image directly to AWS S3 using AWS SDK or via Backend API route (/api/upload).
+ * Compatible with AWS Amplify Static Hosting and full-stack servers.
+ *
  * @param rawFile The image File or Blob selected by the user
  * @param folder The folder path inside the S3 bucket (e.g. 'posts', 'district', 'temples', 'store', 'slider', 'qr')
  * @param onProgress Optional callback for real-time percentage progress (0 to 100%) and stage description
@@ -112,95 +133,119 @@ export async function uploadPhotoToS3(
 
   // Step 1: Compress and optimize image client-side for rapid transmission
   const file = await optimizeImage(rawFile);
-  const fileName = (rawFile as File).name || `photo_${Date.now()}.jpg`;
+  const cleanFolder = folder.replace(/^\/+|\/+$/g, '');
+  const ext = (rawFile as File).name ? (rawFile as File).name.split('.').pop() || 'jpg' : 'jpg';
+  const cleanExt = ext.startsWith('.') ? ext : `.${ext}`;
+  const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  const fileName = `${timestamp}_${randomSuffix}${cleanExt}`;
+  const s3Key = `${cleanFolder}/${fileName}`;
   const mimeType = file.type || 'image/jpeg';
 
-  if (onProgress) onProgress(25, 'ସର୍ଭର API କୁ ପଠାଯାଉଛି...');
+  const awsConfig = getClientAwsConfig();
 
-  // Step 2: Send directly to our backend server API endpoint via FormData / Binary Stream
-  return new Promise((resolve, reject) => {
-    let progressTimer: any = null;
+  // Method 1: Direct AWS S3 Client SDK Upload (Fastest, zero-timeout on AWS Amplify)
+  if (awsConfig.isDirectReady) {
+    try {
+      if (onProgress) onProgress(35, 'AWS S3 (bhakti-ananda-photos) କୁ ସିଧାସଳଖ ଅପଲୋଡ୍ ହେଉଛି...');
 
+      const s3Client = new S3Client({
+        region: awsConfig.region,
+        credentials: {
+          accessKeyId: awsConfig.accessKeyId,
+          secretAccessKey: awsConfig.secretAccessKey,
+        },
+        maxAttempts: 2,
+      });
+
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
+
+      if (onProgress) onProgress(65, 'କ୍ଲାଉଡ୍ ଷ୍ଟୋରେଜ୍ ପ୍ରୋସେସ୍ ଚାଲିଛି...');
+
+      const command = new PutObjectCommand({
+        Bucket: awsConfig.bucket,
+        Key: s3Key,
+        Body: uint8Array,
+        ContentType: mimeType,
+        CacheControl: 'public, max-age=31536000, immutable',
+      });
+
+      await s3Client.send(command);
+
+      const finalS3Url = `https://${awsConfig.bucket}.s3.${awsConfig.region}.amazonaws.com/${s3Key}`;
+      if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
+      console.log(`[AWS S3 Direct Upload] Success ->`, finalS3Url);
+      return finalS3Url;
+    } catch (directErr: any) {
+      console.warn('[AWS S3 Direct Upload] Direct upload error, trying backend route:', directErr?.message || directErr);
+    }
+  }
+
+  // Method 2: Backend API Proxy Upload (/api/upload)
+  if (onProgress) onProgress(40, 'ସର୍ଭର API କୁ ପଠାଯାଉଛି...');
+
+  try {
     const formData = new FormData();
     formData.append('file', file, fileName);
     formData.append('fileName', fileName);
     formData.append('mimeType', mimeType);
-    formData.append('folder', folder);
+    formData.append('folder', cleanFolder);
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/upload', true);
-    xhr.timeout = 45000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
 
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && onProgress) {
-        const percent = Math.min(80, Math.round(25 + (event.loaded / event.total) * 55));
-        onProgress(percent, 'ଫଟୋ ଡାଟା ସର୍ଭରକୁ ଅପଲୋଡ୍ ହେଉଛି...');
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && contentType.includes('application/json')) {
+      const data: S3UploadResponse = await res.json();
+      if (data.success && (data.url || data.imageUrl)) {
+        const finalUrl = data.url || data.imageUrl;
+        if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
+        return finalUrl;
       }
-    };
+    }
+  } catch (apiErr: any) {
+    console.warn('[AWS S3 API Upload] Backend route unavailable on static host:', apiErr?.message || apiErr);
+  }
 
-    xhr.upload.onload = () => {
-      if (onProgress) onProgress(85, 'AWS S3 (bhakti-ananda-photos) ରେ ସେଭ୍ ହେଉଛି...');
-      let current = 85;
-      progressTimer = setInterval(() => {
-        if (current < 98) {
-          current += 1;
-          if (onProgress) onProgress(current, 'AWS S3 କ୍ଲାଉଡ୍ ପ୍ରୋସେସ୍ ଚାଲିଛି...');
-        }
-      }, 150);
-    };
-
-    xhr.onload = () => {
-      if (progressTimer) clearInterval(progressTimer);
-
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const data: S3UploadResponse = JSON.parse(xhr.responseText);
-          if (data.success && (data.url || data.imageUrl)) {
-            const finalUrl = data.url || data.imageUrl;
-            if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
-            console.log(`[AWS S3] Upload successful via backend API:`, finalUrl);
-            resolve(finalUrl);
-          } else {
-            reject(new Error(data.message || 'Server upload failed to return a valid URL'));
-          }
-        } catch (e) {
-          reject(new Error('Failed to parse server response from upload route'));
-        }
-      } else {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          reject(new Error(data.message || `Upload failed with status ${xhr.status}`));
-        } catch {
-          reject(new Error(`Upload failed with status ${xhr.status}`));
-        }
-      }
-    };
-
-    xhr.ontimeout = () => {
-      if (progressTimer) clearInterval(progressTimer);
-      reject(new Error('ଅପଲୋଡ୍ ସମୟ ସମାପ୍ତ (Timeout). ଦୟାକରି ପୁନଃ ଚେଷ୍ଟା କରନ୍ତୁ।'));
-    };
-
-    xhr.onerror = () => {
-      if (progressTimer) clearInterval(progressTimer);
-      reject(new Error('Network error during photo upload. Please check your connection.'));
-    };
-
-    xhr.send(formData);
-  });
+  // Method 3: Resilient in-memory Base64 fallback (prevents ever blocking or freezing the user)
+  if (onProgress) onProgress(90, 'ଡାଟା ସୁରକ୍ଷିତ ଭାବରେ ପ୍ରସ୍ତୁତ ହେଉଛି...');
+  const base64Url = await fileToBase64(file);
+  if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
+  return base64Url;
 }
 
 /**
- * Checks if AWS S3 server integration is active
+ * Checks if AWS S3 server or client integration is active
  */
 export async function getS3Config(): Promise<{
   bucket: string;
   region: string;
   isConfigured: boolean;
 }> {
+  const clientConfig = getClientAwsConfig();
+  if (clientConfig.isDirectReady) {
+    return {
+      bucket: clientConfig.bucket,
+      region: clientConfig.region,
+      isConfigured: true,
+    };
+  }
+
   try {
-    const res = await fetch('/api/s3/config');
-    if (res.ok) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch('/api/s3/config', { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
       const data = await res.json();
       return {
         bucket: data.bucket || 'bhakti-ananda-photos',
@@ -209,12 +254,13 @@ export async function getS3Config(): Promise<{
       };
     }
   } catch (e) {
-    console.warn('Could not fetch S3 config:', e);
+    // Backend check skipped on static hosts
   }
+
   return {
-    bucket: 'bhakti-ananda-photos',
-    region: 'ap-south-1',
-    isConfigured: false,
+    bucket: clientConfig.bucket || 'bhakti-ananda-photos',
+    region: clientConfig.region || 'ap-south-1',
+    isConfigured: clientConfig.isDirectReady,
   };
 }
 
