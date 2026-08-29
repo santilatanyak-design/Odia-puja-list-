@@ -1,21 +1,28 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import multer from 'multer';
 import { createServer as createViteServer } from 'vite';
 import { DEFAULT_PUJA_TEMPLATES } from './src/data/defaultTemplates';
 import { DEFAULT_TEMPLES } from './src/data/defaultTemples';
 import { DEFAULT_DISTRICT_ITEMS } from './src/data/defaultDistrictItems';
 import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory, DistrictItem, ODISHA_DISTRICTS } from './src/types';
-import { uploadToS3 } from './server/s3';
+import { uploadToS3, createPresignedUploadUrl } from './server/s3';
 
 const app = express();
 const PORT = 3000;
+
+// Configure Multer for in-memory multipart form uploads
+const memoryUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }, // up to 50MB
+});
 
 // Enable CORS for all API and asset endpoints
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-amz-acl, x-amz-storage-class');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
@@ -137,34 +144,48 @@ let db = loadDb();
 // ----------------------------------------------------
 
 // 0. AWS S3 Photo & Media Upload Endpoint (Bucket: bhakti-ananda-photos, Region: ap-south-1)
-app.post(['/api/upload', '/api/s3/upload'], async (req, res) => {
+// Supports both direct multipart/form-data streaming AND JSON base64 payloads
+app.post(['/api/upload', '/api/s3/upload'], memoryUpload.single('file'), async (req, res) => {
   // Set explicit request timeout to prevent hanging connections
   req.setTimeout(60000);
 
   try {
-    const { fileData, fileName, mimeType, folder = 'photos' } = req.body;
+    let buffer: Buffer | null = null;
+    let originalName = 'photo.jpg';
+    let detectedMime = 'image/jpeg';
+    let folder = (req.body.folder || 'photos').trim();
 
-    if (!fileData || typeof fileData !== 'string') {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing fileData (Base64 data URL or Base64 string is required)',
-      });
+    // 1. Multipart Form Data (Fastest binary upload)
+    if (req.file) {
+      buffer = req.file.buffer;
+      originalName = req.file.originalname || originalName;
+      detectedMime = req.file.mimetype || detectedMime;
+    } 
+    // 2. Base64 JSON Payload
+    else if (req.body.fileData && typeof req.body.fileData === 'string') {
+      const fileData = req.body.fileData;
+      originalName = req.body.fileName || originalName;
+      detectedMime = req.body.mimeType || detectedMime;
+
+      if (fileData.startsWith('data:')) {
+        const match = fileData.match(/^data:([^;]+);base64,(.+)$/);
+        if (match) {
+          detectedMime = match[1];
+          buffer = Buffer.from(match[2], 'base64');
+        } else {
+          const parts = fileData.split(',');
+          buffer = Buffer.from(parts[1] || parts[0], 'base64');
+        }
+      } else {
+        buffer = Buffer.from(fileData, 'base64');
+      }
     }
 
-    let buffer: Buffer;
-    let detectedMime = mimeType || 'image/jpeg';
-
-    if (fileData.startsWith('data:')) {
-      const match = fileData.match(/^data:([^;]+);base64,(.+)$/);
-      if (match) {
-        detectedMime = match[1];
-        buffer = Buffer.from(match[2], 'base64');
-      } else {
-        const parts = fileData.split(',');
-        buffer = Buffer.from(parts[1] || parts[0], 'base64');
-      }
-    } else {
-      buffer = Buffer.from(fileData, 'base64');
+    if (!buffer || buffer.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file or data received. Please provide a valid image.',
+      });
     }
 
     const hostHeader = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
@@ -173,9 +194,9 @@ app.post(['/api/upload', '/api/s3/upload'], async (req, res) => {
 
     const uploadResult = await uploadToS3({
       buffer,
-      originalName: fileName || 'photo.jpg',
+      originalName,
       mimeType: detectedMime,
-      folder: folder || 'photos',
+      folder,
       hostOrigin,
     });
 
@@ -199,6 +220,31 @@ app.post(['/api/upload', '/api/s3/upload'], async (req, res) => {
       success: false,
       message: error.message || 'Failed to upload photo to AWS S3 bucket',
       error: String(error),
+    });
+  }
+});
+
+// Presigned URL generation endpoint for high-speed direct AWS S3 client uploads
+app.post(['/api/upload/presigned-url', '/api/s3/presigned-url'], async (req, res) => {
+  try {
+    const { fileName, mimeType, folder = 'photos' } = req.body || {};
+    const hostHeader = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
+    const protoHeader = req.headers['x-forwarded-proto'] || 'https';
+    const hostOrigin = `${protoHeader}://${hostHeader}`;
+
+    const presigned = await createPresignedUploadUrl({
+      originalName: fileName || 'photo.jpg',
+      mimeType: mimeType || 'image/jpeg',
+      folder,
+      hostOrigin,
+    });
+
+    res.json(presigned);
+  } catch (error: any) {
+    console.error('[AWS S3 Presigned URL Error]:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to generate presigned URL',
     });
   }
 });

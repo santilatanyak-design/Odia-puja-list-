@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import path from 'path';
 import fs from 'fs';
 
@@ -20,7 +21,7 @@ export function getS3Client(): S3Client | null {
         accessKeyId,
         secretAccessKey,
       },
-      maxAttempts: 2,
+      maxAttempts: 3,
     });
   }
   return s3Client;
@@ -34,6 +35,91 @@ export interface S3UploadResult {
   region: string;
   isLocalFallback?: boolean;
   message?: string;
+}
+
+export interface PresignedUrlResult {
+  success: boolean;
+  presignedUrl?: string;
+  finalUrl: string;
+  key: string;
+  bucket: string;
+  region: string;
+  isDirectS3: boolean;
+}
+
+/**
+ * Creates a Presigned S3 Upload URL for direct frontend-to-S3 uploads,
+ * or returns direct proxy target if credentials are not configured.
+ */
+export async function createPresignedUploadUrl(params: {
+  originalName?: string;
+  mimeType?: string;
+  folder?: string;
+  hostOrigin?: string;
+}): Promise<PresignedUrlResult> {
+  const bucket = (process.env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
+  const region = (process.env.AWS_REGION || 'ap-south-1').trim();
+  const folder = (params.folder || 'photos').replace(/^\/+|\/+$/g, '');
+
+  const ext = params.originalName
+    ? path.extname(params.originalName)
+    : params.mimeType === 'image/png'
+    ? '.png'
+    : params.mimeType === 'image/webp'
+    ? '.webp'
+    : params.mimeType === 'image/gif'
+    ? '.gif'
+    : '.jpg';
+
+  const cleanExt = ext || '.jpg';
+  const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  const cleanBaseName = params.originalName
+    ? path.basename(params.originalName, ext).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40)
+    : 'photo';
+
+  const fileName = `${timestamp}_${cleanBaseName}_${randomSuffix}${cleanExt}`;
+  const s3Key = `${folder}/${fileName}`;
+  const contentType = params.mimeType || 'image/jpeg';
+
+  const client = getS3Client();
+
+  if (client) {
+    try {
+      const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: s3Key,
+        ContentType: contentType,
+        CacheControl: 'public, max-age=31536000, immutable',
+      });
+
+      // Presigned URL valid for 15 minutes
+      const presignedUrl = await getSignedUrl(client, command, { expiresIn: 900 });
+      const finalUrl = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}`;
+
+      return {
+        success: true,
+        presignedUrl,
+        finalUrl,
+        key: s3Key,
+        bucket,
+        region,
+        isDirectS3: true,
+      };
+    } catch (err: any) {
+      console.warn('[AWS S3 Presign Warning] Failed to generate presigned URL, falling back to proxy:', err?.message);
+    }
+  }
+
+  const localUrl = `${params.hostOrigin || ''}/uploads/${folder}/${fileName}`;
+  return {
+    success: true,
+    finalUrl: localUrl,
+    key: s3Key,
+    bucket,
+    region,
+    isDirectS3: false,
+  };
 }
 
 /**
@@ -85,11 +171,11 @@ export async function uploadToS3(params: {
         CacheControl: 'public, max-age=31536000, immutable',
       });
 
-      // 18-second timeout handler to prevent hanging
+      // 25-second timeout handler to prevent hanging
       const abortController = new AbortController();
       const timeoutId = setTimeout(() => {
         abortController.abort();
-      }, 18000);
+      }, 25000);
 
       try {
         await client.send(command, { abortSignal: abortController.signal });
