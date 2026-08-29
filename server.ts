@@ -7,7 +7,7 @@ import { DEFAULT_PUJA_TEMPLATES } from './src/data/defaultTemplates';
 import { DEFAULT_TEMPLES } from './src/data/defaultTemples';
 import { DEFAULT_DISTRICT_ITEMS } from './src/data/defaultDistrictItems';
 import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory, DistrictItem, ODISHA_DISTRICTS } from './src/types';
-import { uploadToS3, createPresignedUploadUrl } from './server/s3';
+import { uploadToS3, createPresignedUploadUrl, getAwsConfig } from './server/s3';
 
 const app = express();
 const PORT = 3000;
@@ -251,16 +251,14 @@ app.post(['/api/upload/presigned-url', '/api/s3/presigned-url'], async (req, res
 
 // AWS S3 Config & Status Endpoint
 app.get('/api/s3/config', (req, res) => {
-  const bucket = (process.env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
-  const region = (process.env.AWS_REGION || 'ap-south-1').trim();
-  const hasAccessKey = Boolean(process.env.AWS_ACCESS_KEY_ID);
-  const hasSecretKey = Boolean(process.env.AWS_SECRET_ACCESS_KEY);
+  const { bucket, region, accessKeyId, secretAccessKey } = getAwsConfig();
+  const isConfigured = Boolean(accessKeyId && secretAccessKey);
 
   res.json({
     success: true,
     bucket,
     region,
-    isConfigured: hasAccessKey && hasSecretKey,
+    isConfigured,
     provider: 'AWS S3 (Amazon Web Services)',
   });
 });

@@ -5,10 +5,16 @@ import fs from 'fs';
 
 let s3Client: S3Client | null = null;
 
+export function getAwsConfig() {
+  const accessKeyId = (process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID)?.trim();
+  const secretAccessKey = (process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY)?.trim();
+  const region = (process.env.MY_AWS_REGION || process.env.AWS_REGION || 'ap-south-1').trim();
+  const bucket = (process.env.MY_AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
+  return { accessKeyId, secretAccessKey, region, bucket };
+}
+
 export function getS3Client(): S3Client | null {
-  const region = (process.env.AWS_REGION || 'ap-south-1').trim();
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim();
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim();
+  const { accessKeyId, secretAccessKey, region } = getAwsConfig();
 
   if (!accessKeyId || !secretAccessKey) {
     return null;
@@ -57,8 +63,7 @@ export async function createPresignedUploadUrl(params: {
   folder?: string;
   hostOrigin?: string;
 }): Promise<PresignedUrlResult> {
-  const bucket = (process.env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
-  const region = (process.env.AWS_REGION || 'ap-south-1').trim();
+  const { bucket, region } = getAwsConfig();
   const folder = (params.folder || 'photos').replace(/^\/+|\/+$/g, '');
 
   const ext = params.originalName
@@ -133,8 +138,7 @@ export async function uploadToS3(params: {
   folder?: string;
   hostOrigin?: string;
 }): Promise<S3UploadResult> {
-  const bucket = (process.env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
-  const region = (process.env.AWS_REGION || 'ap-south-1').trim();
+  const { bucket, region } = getAwsConfig();
   const folder = (params.folder || 'photos').replace(/^\/+|\/+$/g, '');
 
   const ext = params.originalName
