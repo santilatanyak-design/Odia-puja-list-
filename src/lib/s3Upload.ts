@@ -2,7 +2,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 /**
  * AWS S3 Photo & Media Upload Helper
- * Direct AWS S3 SDK Upload (Amplify compatible) + Backend API Proxy fallback
+ * Direct Browser AWS S3 SDK Upload (Amplify compatible) + Fallbacks
  * Targets AWS S3 Bucket: 'bhakti-ananda-photos' (Region: ap-south-1)
  */
 
@@ -21,11 +21,44 @@ export interface S3UploadResponse {
  * Retrieves AWS S3 Credentials and Bucket info from build/runtime environment
  */
 export function getClientAwsConfig() {
-  const env = (import.meta as any).env || {};
-  const accessKeyId = (env.MY_AWS_ACCESS_KEY_ID || env.VITE_MY_AWS_ACCESS_KEY_ID || env.AWS_ACCESS_KEY_ID || '').trim();
-  const secretAccessKey = (env.MY_AWS_SECRET_ACCESS_KEY || env.VITE_MY_AWS_SECRET_ACCESS_KEY || env.AWS_SECRET_ACCESS_KEY || '').trim();
-  const region = (env.MY_AWS_REGION || env.VITE_MY_AWS_REGION || env.AWS_REGION || 'ap-south-1').trim();
-  const bucket = (env.MY_AWS_S3_BUCKET_NAME || env.VITE_MY_AWS_S3_BUCKET_NAME || env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
+  const env = (typeof import.meta !== 'undefined' && (import.meta as any).env) || {};
+  const globalEnv = (typeof window !== 'undefined' && (window as any).__AWS_ENV__) || {};
+
+  const accessKeyId = (
+    env.MY_AWS_ACCESS_KEY_ID ||
+    env.VITE_MY_AWS_ACCESS_KEY_ID ||
+    env.AWS_ACCESS_KEY_ID ||
+    globalEnv.MY_AWS_ACCESS_KEY_ID ||
+    globalEnv.AWS_ACCESS_KEY_ID ||
+    ''
+  ).trim();
+
+  const secretAccessKey = (
+    env.MY_AWS_SECRET_ACCESS_KEY ||
+    env.VITE_MY_AWS_SECRET_ACCESS_KEY ||
+    env.AWS_SECRET_ACCESS_KEY ||
+    globalEnv.MY_AWS_SECRET_ACCESS_KEY ||
+    globalEnv.AWS_SECRET_ACCESS_KEY ||
+    ''
+  ).trim();
+
+  const region = (
+    env.MY_AWS_REGION ||
+    env.VITE_MY_AWS_REGION ||
+    env.AWS_REGION ||
+    globalEnv.MY_AWS_REGION ||
+    globalEnv.AWS_REGION ||
+    'ap-south-1'
+  ).trim();
+
+  const bucket = (
+    env.MY_AWS_S3_BUCKET_NAME ||
+    env.VITE_MY_AWS_S3_BUCKET_NAME ||
+    env.AWS_S3_BUCKET_NAME ||
+    globalEnv.MY_AWS_S3_BUCKET_NAME ||
+    globalEnv.AWS_S3_BUCKET_NAME ||
+    'bhakti-ananda-photos'
+  ).trim();
 
   return {
     accessKeyId,
@@ -171,14 +204,20 @@ export async function uploadPhotoToS3(
         CacheControl: 'public, max-age=31536000, immutable',
       });
 
-      await s3Client.send(command);
+      // Wrap direct S3 upload in an 8-second circuit breaker to prevent hanging
+      const uploadPromise = s3Client.send(command);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('S3 Direct Connection Timeout')), 8000)
+      );
+
+      await Promise.race([uploadPromise, timeoutPromise]);
 
       const finalS3Url = `https://${awsConfig.bucket}.s3.${awsConfig.region}.amazonaws.com/${s3Key}`;
       if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
       console.log(`[AWS S3 Direct Upload] Success ->`, finalS3Url);
       return finalS3Url;
     } catch (directErr: any) {
-      console.warn('[AWS S3 Direct Upload] Direct upload error, trying backend route:', directErr?.message || directErr);
+      console.warn('[AWS S3 Direct Upload] Direct upload issue, trying backend route:', directErr?.message || directErr);
     }
   }
 
@@ -193,7 +232,7 @@ export async function uploadPhotoToS3(
     formData.append('folder', cleanFolder);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout for static hosts
 
     const res = await fetch('/api/upload', {
       method: 'POST',
