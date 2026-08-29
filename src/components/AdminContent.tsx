@@ -27,6 +27,7 @@ import {
   Image,
   RefreshCw,
 } from 'lucide-react';
+import { S3PhotoUploader } from './S3PhotoUploader';
 
 interface AdminContentProps {
   defaultSection?: 'panchang' | 'stories';
@@ -565,60 +566,16 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                 ))}
               </div>
 
-              {/* 2. IMAGE URL INPUT & LIVE PREVIEW (Zero Storage) */}
+              {/* 2. S3 PHOTO UPLOADER (AWS S3 Bucket: bhakti-ananda-photos) */}
               <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-300/80 space-y-3">
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold text-amber-950 flex items-center justify-between">
-                    <span className="flex items-center gap-1">
-                      <Image className="w-3.5 h-3.5 text-amber-700" />
-                      <span>🖼️ ଇମେଜ୍ URL (Image URL - Zero Local Storage) *</span>
-                    </span>
-                    <span className="text-[10px] text-amber-700 font-semibold">Paste web link / Cloud URL</span>
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    value={editingStory.imageUrl || ''}
-                    onChange={(e) => setEditingStory({ ...editingStory, imageUrl: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
-                  />
-                </div>
-
-                {/* Live Preview Box */}
-                {editingStory.imageUrl && editingStory.imageUrl.trim() ? (
-                  <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3 rounded-xl border border-amber-200 shadow-xs">
-                    <div className="h-28 w-44 rounded-lg overflow-hidden bg-slate-900 border border-amber-300 shrink-0 flex items-center justify-center">
-                      <img
-                        src={editingStory.imageUrl}
-                        alt="Live Preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Crect width="18" height="18" x="3" y="3" rx="2" ry="2"/%3E%3Ccircle cx="9" cy="9" r="2"/%3E%3Cpath d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/%3E%3C/svg%3E';
-                        }}
-                      />
-                    </div>
-                    <div className="space-y-1 text-xs text-slate-600">
-                      <div className="flex items-center gap-1 text-emerald-700 font-bold">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>ଲାଇଭ୍ ଇମେଜ୍ ପ୍ରିଭ୍ୟୁ ସକ୍ରିୟ (Live Image Preview OK)</span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 leading-snug">
-                        କୌଣସି ଫାଇଲ୍ ସର୍ଭରରେ ଅପଲୋଡ୍ କରିବା ଦରକାର ନାହିଁ। ଏହା ସିଧାସଳଖ ଫାଷ୍ଟ CDN ରୁ ଲୋଡ୍ ହେବ।
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 p-3.5 bg-white rounded-xl border-2 border-dashed border-amber-300 text-amber-900/80">
-                    <div className="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 shrink-0 border border-amber-200">
-                      <Image className="w-6 h-6 opacity-60" />
-                    </div>
-                    <div className="text-xs space-y-0.5">
-                      <p className="font-bold text-amber-950">କୌଣସି ଫଟୋ URL ଦିଆଯାଇ ନାହିଁ (No Image URL)</p>
-                      <p className="text-[11px] text-slate-500 font-medium">ଉପରେ ଇମେଜ୍ ଲିଙ୍କ୍ ପେଷ୍ଟ କଲେ ଏଠାରେ ତୁରନ୍ତ ଲାଇଭ୍ ପ୍ରିଭ୍ୟୁ ପ୍ରଦର୍ଶିତ ହେବ।</p>
-                    </div>
-                  </div>
-                )}
+                <S3PhotoUploader
+                  value={editingStory.imageUrl || ''}
+                  onChange={(url) => setEditingStory({ ...editingStory, imageUrl: url })}
+                  folder="posts"
+                  label="🖼️ ପୋଷ୍ଟ ଫଟୋ (Post Photo / S3 Storage)"
+                  placeholder="https://... or click upload photo"
+                  required
+                />
               </div>
 
               {/* 3. METADATA: AUTHOR, READ TIME, FEATURED */}
@@ -858,23 +815,20 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                       </div>
 
                       <div className="space-y-1 sm:col-span-5">
-                        <label className="block text-xs font-bold text-slate-800">
-                          🖼️ ପ୍ରଡକ୍ଟ ଫଟୋ URL (Product Image URL)
-                        </label>
-                        <input
-                          type="url"
+                        <S3PhotoUploader
                           value={editingStory.affiliateAd?.productImageUrl || ''}
-                          onChange={(e) =>
+                          onChange={(url) =>
                             setEditingStory({
                               ...editingStory,
                               affiliateAd: {
                                 ...(editingStory.affiliateAd || {}),
-                                productImageUrl: e.target.value,
+                                productImageUrl: url,
                               },
                             })
                           }
-                          placeholder="https://images-na.ssl-images-amazon.com/..."
-                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
+                          folder="posts"
+                          label="🖼️ ପ୍ରଡକ୍ଟ ଫଟୋ (Product Photo)"
+                          placeholder="https://... or upload image"
                         />
                       </div>
                     </div>

@@ -3,6 +3,7 @@ import { UnifiedFeedItem } from '../types';
 import { getAllContent } from '../lib/contentApi';
 import { SmartImage } from './SmartImage';
 import { getCategoryBadgeStyle } from './SpiritualBlog';
+import { shareStoryNative, shareTempleNative } from '../lib/ogMetaHelper';
 import {
   BookOpen,
   Calendar,
@@ -103,21 +104,42 @@ export const UnifiedFeedSection: React.FC<UnifiedFeedSectionProps> = ({
     }
   };
 
-  const handleShare = (e: React.MouseEvent, item: UnifiedFeedItem) => {
+  const handleShare = async (e: React.MouseEvent, item: UnifiedFeedItem) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/?item=${encodeURIComponent(item.id)}`;
-    if (navigator.share) {
-      navigator.share({
-        title: item.title,
-        text: item.summary,
-        url: shareUrl,
-      }).catch(() => {});
-    } else {
-      try {
-        navigator.clipboard.writeText(shareUrl);
-        setCopiedId(item.id);
-        setTimeout(() => setCopiedId(null), 2500);
-      } catch {}
+    try {
+      if (item.sourceType === 'temple') {
+        const rawTempleId = item.id.replace('temple-', '');
+        const res = await shareTempleNative({
+          id: rawTempleId,
+          name: item.title,
+          location: item.summary || 'Odisha',
+          pujariPhone: '',
+          imageUrl: item.imageUrl || '',
+          description: item.summary || '',
+        });
+        if (res.success) {
+          setCopiedId(item.id);
+          setTimeout(() => setCopiedId(null), 2500);
+        }
+      } else {
+        const res = await shareStoryNative({
+          id: item.id,
+          title: item.title,
+          category: item.category || 'General',
+          summary: item.summary || '',
+          content: item.content || item.summary || '',
+          imageUrl: item.imageUrl || '',
+          author: item.author || 'Bhakti Ananda Odia TV',
+          readTimeMinutes: item.readTimeMinutes || 3,
+          publishedAt: item.publishedAt || new Date().toISOString(),
+        });
+        if (res.success) {
+          setCopiedId(item.id);
+          setTimeout(() => setCopiedId(null), 2500);
+        }
+      }
+    } catch (err) {
+      console.warn('Share feed item error:', err);
     }
   };
 

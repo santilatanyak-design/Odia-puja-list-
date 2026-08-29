@@ -23,6 +23,7 @@ import {
   BookOpen,
   Filter,
 } from 'lucide-react';
+import { S3PhotoUploader } from './S3PhotoUploader';
 
 export const AdminDistrictManagement: React.FC = () => {
   const [items, setItems] = useState<DistrictItem[]>([]);
@@ -583,34 +584,15 @@ export const AdminDistrictManagement: React.FC = () => {
                 </div>
               </div>
 
-              {/* 5. Image URL */}
-              <div>
-                <label className="block font-bold text-amber-950 mb-1">
-                  ଛବି URL (Image URL - 100% Direct Link)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    placeholder="https://example.com/image.jpg"
-                    value={editingItem.imageUrl || ''}
-                    onChange={(e) =>
-                      setEditingItem((prev) => ({ ...prev, imageUrl: e.target.value }))
-                    }
-                    className="flex-1 p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono"
-                  />
-                  {editingItem.imageUrl && (
-                    <div className="w-10 h-10 rounded-xl border border-amber-300 overflow-hidden shrink-0">
-                      <img
-                        src={editingItem.imageUrl}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
-                <p className="text-[10px] text-gray-500 mt-1">
-                  💡 ଆପଣ ନିଜର Image URL ଦେଇପାରିବେ।
-                </p>
+              {/* 5. Image Upload (AWS S3 bhakti-ananda-photos) */}
+              <div className="p-3 bg-amber-50/60 rounded-2xl border border-amber-200">
+                <S3PhotoUploader
+                  value={editingItem.imageUrl || ''}
+                  onChange={(url) => setEditingItem((prev) => ({ ...prev, imageUrl: url }))}
+                  folder="district"
+                  label="ଛବି / ଫଟୋ (District Place Photo / S3 Storage)"
+                  placeholder="https://... or select photo from device"
+                />
               </div>
 
               {/* 6. Description / History */}
@@ -729,41 +711,23 @@ export const AdminDistrictManagement: React.FC = () => {
                 {/* 2. Affiliate Image URL & 3. Affiliate Target URL */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="block font-bold text-amber-950 text-xs">
-                      🖼️ ଆଫିଲିଏଟ୍ ଫଟୋ URL (Affiliate Image URL) *
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="url"
-                        placeholder="https://example.com/product-ad.jpg"
-                        value={editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl || ''}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setEditingItem((prev) => ({
-                            ...prev,
-                            affiliateProductImageUrl: val,
-                            affiliateAd: {
-                              ...(prev?.affiliateAd || {}),
-                              enabled: true,
-                              productImageUrl: val,
-                            },
-                          }));
-                        }}
-                        className="flex-1 p-2.5 text-xs font-mono border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                      />
-                      {(editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl) && (
-                        <div className="w-9 h-9 rounded-lg border border-amber-300 overflow-hidden shrink-0 bg-white p-0.5">
-                          <img
-                            src={editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl}
-                            alt="Affiliate Preview"
-                            className="w-full h-full object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
+                    <S3PhotoUploader
+                      value={editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl || ''}
+                      onChange={(url) => {
+                        setEditingItem((prev) => ({
+                          ...prev,
+                          affiliateProductImageUrl: url,
+                          affiliateAd: {
+                            ...(prev?.affiliateAd || {}),
+                            enabled: true,
+                            productImageUrl: url,
+                          },
+                        }));
+                      }}
+                      folder="district"
+                      label="🖼️ ଆଫିଲିଏଟ୍ ଫଟୋ (Affiliate Image)"
+                      placeholder="https://... or upload photo"
+                    />
                   </div>
 
                   <div className="space-y-1">

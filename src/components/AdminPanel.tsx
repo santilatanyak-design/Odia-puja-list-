@@ -41,6 +41,7 @@ import { AdminDistrictManagement } from './AdminDistrictManagement';
 import { AdminSliderManagement } from './AdminSliderManagement';
 import { AdminInstallSection } from './AdminInstallSection';
 import { AdminInstallReport } from './AdminInstallReport';
+import { S3PhotoUploader } from './S3PhotoUploader';
 import {
   ShieldCheck,
   CheckCircle2,
@@ -401,6 +402,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
   };
 
   // 3. QR Code Upload & Config Actions
+  const handleUpdateQrS3Url = async (type: 'new' | 'redownload', s3Url: string) => {
+    if (type === 'new') {
+      const updated = await updateQrConfig({ newCreationQrUrl: s3Url });
+      setQrConfigState(updated);
+      setSelectedFile5(null);
+    } else {
+      const updated = await updateQrConfig({ reDownloadQrUrl: s3Url });
+      setQrConfigState(updated);
+      setSelectedFile2(null);
+    }
+    const successText = s3Url
+      ? 'QR Code Successfully Uploaded to AWS S3 & Saved! (QR କୋଡ୍ S3 ରେ ସେଭ୍ ହୋଇଛି!)'
+      : 'QR କୋଡ୍ ରିସେଟ୍ କରାଗଲା।';
+    setActionSuccessMsg(`🎉 ${successText}`);
+    setTimeout(() => setActionSuccessMsg(''), 4000);
+  };
+
   const handleSaveSelectedQrFile = async (type: 'new' | 'redownload') => {
     const file = type === 'new' ? selectedFile5 : selectedFile2;
     if (!file) {
@@ -1771,43 +1789,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
                   label="ନୂଆ ସୂଚୀ ଦେୟ"
                 />
 
-                <div className="space-y-3 pt-2">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      ନୂତନ QR କୋଡ୍ ଫୋଟୋ ସିଲେକ୍ଟ କରନ୍ତୁ:
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setSelectedFile5(e.target.files[0]);
-                        }
-                      }}
-                      className="w-full text-xs text-slate-700 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-amber-700 file:text-white hover:file:bg-amber-800 cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleSaveSelectedQrFile('new')}
-                      disabled={!selectedFile5}
-                      className="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold rounded-xl transition cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1.5 shadow-2xs"
-                    >
-                      <Save className="w-4 h-4" /> QR କୋଡ୍ ସଂରକ୍ଷଣ କରନ୍ତୁ (Save QR)
-                    </button>
-
-                    {qrConfig.newCreationQrUrl && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteQrImage('new')}
-                        className="py-2.5 px-3 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl text-xs font-bold border border-rose-300 transition cursor-pointer"
-                      >
-                        ରିସେଟ୍
-                      </button>
-                    )}
-                  </div>
+                <div className="pt-2">
+                  <S3PhotoUploader
+                    value={qrConfig.newCreationQrUrl || ''}
+                    onChange={(url) => handleUpdateQrS3Url('new', url)}
+                    folder="qr"
+                    label="ନୂତନ ₹୫ QR କୋଡ୍ ଫଟୋ (AWS S3 Storage)"
+                  />
                 </div>
               </div>
 
@@ -1829,43 +1817,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onLogoutAdmin }) => {
                   label="ପୁନଃ-ଡାଉନଲୋଡ୍ ଦେୟ"
                 />
 
-                <div className="space-y-3 pt-2">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      ନୂତନ QR କୋଡ୍ ଫୋଟୋ ସିଲେକ୍ଟ କରନ୍ତୁ:
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setSelectedFile2(e.target.files[0]);
-                        }
-                      }}
-                      className="w-full text-xs text-slate-700 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-amber-700 file:text-white hover:file:bg-amber-800 cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleSaveSelectedQrFile('redownload')}
-                      disabled={!selectedFile2}
-                      className="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold rounded-xl transition cursor-pointer disabled:opacity-40 flex items-center justify-center gap-1.5 shadow-2xs"
-                    >
-                      <Save className="w-4 h-4" /> QR କୋଡ୍ ସଂରକ୍ଷଣ କରନ୍ତୁ (Save QR)
-                    </button>
-
-                    {qrConfig.reDownloadQrUrl && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteQrImage('redownload')}
-                        className="py-2.5 px-3 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl text-xs font-bold border border-rose-300 transition cursor-pointer"
-                      >
-                        ରିସେଟ୍
-                      </button>
-                    )}
-                  </div>
+                <div className="pt-2">
+                  <S3PhotoUploader
+                    value={qrConfig.reDownloadQrUrl || ''}
+                    onChange={(url) => handleUpdateQrS3Url('redownload', url)}
+                    folder="qr"
+                    label="ନୂତନ ₹୨ QR କୋଡ୍ ଫଟୋ (AWS S3 Storage)"
+                  />
                 </div>
               </div>
             </div>

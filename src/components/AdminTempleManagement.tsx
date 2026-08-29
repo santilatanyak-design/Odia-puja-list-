@@ -40,6 +40,7 @@ import {
   Lock,
   Unlock,
 } from 'lucide-react';
+import { S3PhotoUploader } from './S3PhotoUploader';
 
 export const AdminTempleManagement: React.FC = () => {
   const [temples, setTemples] = useState<Temple[]>([]);
@@ -780,28 +781,18 @@ export const AdminTempleManagement: React.FC = () => {
 
           {/* GLOBAL SOCIAL MEDIA THUMBNAIL SETTING */}
           <div className="p-5 bg-white border-2 border-amber-300 rounded-3xl space-y-3 shadow-sm">
-            <label className="block font-black text-amber-950 text-xs sm:text-sm">
-              🌐 ଗ୍ଲୋବାଲ୍ ସୋସିଆଲ୍ ମିଡିଆ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ (Global Thumbnail URL)
-            </label>
             <p className="text-[11px] text-amber-800 font-medium">
               ଏହି ଲିଙ୍କ୍ ଆପ୍ ଶେୟାର୍ (Homepage Share) କରିବା ସମୟରେ Facebook / WhatsApp / Telegram ରେ ପ୍ରଦର୍ଶିତ ହେବ।
             </p>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="url"
-                value={globalThumbnail}
-                onChange={(e) => handleGlobalThumbnailChange(e.target.value)}
-                placeholder="https://... (Enter global social share thumbnail image URL)"
-                className="flex-1 px-3.5 py-2.5 rounded-2xl border-2 border-amber-300 text-xs font-mono text-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
-              />
-              <button
-                type="button"
-                onClick={handleSaveGlobalThumbnail}
-                className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-2xl transition shadow-xs flex items-center justify-center gap-1.5 shrink-0 cursor-pointer active:scale-95"
-              >
-                💾 ସେଭ୍ କରନ୍ତୁ (Save Thumbnail)
-              </button>
-            </div>
+            <S3PhotoUploader
+              value={globalThumbnail}
+              onChange={(url) => {
+                handleGlobalThumbnailChange(url);
+                handleSaveGlobalThumbnail();
+              }}
+              folder="temples"
+              label="🌐 ଗ୍ଲୋବାଲ୍ ସୋସିଆଲ୍ ମିଡିଆ ଥମ୍ବନେଲ୍ (Global Social Thumbnail / S3 Storage)"
+            />
           </div>
 
           {/* RECEIPT HEADER & CUSTOM TEXT CONFIGURATION SETTINGS */}
@@ -1018,44 +1009,25 @@ export const AdminTempleManagement: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Temple Image Preview & URL */}
-                  <div className="space-y-1.5">
-                    <label className="block font-bold text-amber-950">🖼️ ମନ୍ଦିର ଫଟୋ URL (Image URL)</label>
-                    <div className="w-full aspect-square bg-amber-50 rounded-2xl overflow-hidden border-2 border-amber-300 mb-2 max-h-48">
-                      {temple.imageUrl && temple.imageUrl.trim() ? (
-                        <img
-                          src={temple.imageUrl}
-                          alt={temple.name || 'Temple'}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-amber-700/60 p-4 text-center">
-                          <span className="text-3xl mb-1">🏛️</span>
-                          <span className="text-[11px] font-bold">ଫଟୋ URL ଦିଅନ୍ତୁ (No Image Preview)</span>
-                        </div>
-                      )}
-                    </div>
-                    <input
-                      type="url"
-                      value={temple.imageUrl}
-                      onChange={(e) => handleTempleChange(idx, 'imageUrl', e.target.value)}
-                      placeholder="https://... (Enter main temple image URL)"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                  {/* Temple Image Upload (AWS S3 Bucket: bhakti-ananda-photos) */}
+                  <div className="p-3 bg-amber-50/70 rounded-2xl border border-amber-200">
+                    <S3PhotoUploader
+                      value={temple.imageUrl || ''}
+                      onChange={(url) => handleTempleChange(idx, 'imageUrl', url)}
+                      folder="temples"
+                      label="🖼️ ମନ୍ଦିର ମୁଖ୍ୟ ଫଟୋ (Main Temple Photo / S3 Storage)"
+                      placeholder="https://... or upload image"
                     />
                   </div>
 
-                  {/* Thumbnail / Banner Image URL */}
-                  <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">🏷️ ଫଟୋ ଥମ୍ବନେଲ୍ ଲିଙ୍କ୍ (Thumbnail Image URL)</label>
-                    <input
-                      type="url"
+                  {/* Thumbnail / Banner Image */}
+                  <div className="p-3 bg-amber-50/70 rounded-2xl border border-amber-200">
+                    <S3PhotoUploader
                       value={temple.thumbnailUrl || ''}
-                      onChange={(e) => handleTempleChange(idx, 'thumbnailUrl', e.target.value)}
-                      placeholder="https://... (Thumbnail image for social share preview)"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      onChange={(url) => handleTempleChange(idx, 'thumbnailUrl', url)}
+                      folder="temples"
+                      label="🏷️ ଫଟୋ ଥମ୍ବନେଲ୍ / ବ୍ୟାନର (Thumbnail Image / S3 Storage)"
+                      placeholder="https://... or upload thumbnail"
                     />
                   </div>
 
@@ -1183,15 +1155,13 @@ export const AdminTempleManagement: React.FC = () => {
                     />
                   </div>
 
-                  {/* QR Code Image URL */}
-                  <div className="space-y-1">
-                    <label className="block font-bold text-amber-950">💳 Paytm / UPI QR Code Image URL</label>
-                    <input
-                      type="url"
+                  {/* QR Code S3 Photo Uploader */}
+                  <div className="p-3 bg-amber-50/70 rounded-2xl border border-amber-200">
+                    <S3PhotoUploader
                       value={temple.qrCodeUrl || ''}
-                      onChange={(e) => handleTempleChange(idx, 'qrCodeUrl', e.target.value)}
-                      placeholder="https://... (Enter UPI payment QR code URL)"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50"
+                      onChange={(url) => handleTempleChange(idx, 'qrCodeUrl', url)}
+                      folder="temples"
+                      label="💳 Paytm / UPI QR Code (QR Photo / S3 Storage)"
                     />
                   </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pujari, QrConfig } from '../types';
 import { VisitingCard } from './VisitingCard';
+import { S3PhotoUploader } from './S3PhotoUploader';
 import {
   Sparkles,
   Edit3,
@@ -153,16 +154,12 @@ export const VisitingCardTab: React.FC<VisitingCardTabProps> = ({
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-extrabold text-slate-700 mb-1">
-                ପ୍ରୋଫାଇଲ୍ ଫୋଟୋ URL (Optional Image URL):
-              </label>
-              <input
-                type="url"
+            <div className="p-3 bg-amber-50/60 rounded-2xl border border-amber-200">
+              <S3PhotoUploader
                 value={profilePhotoUrl}
-                onChange={(e) => setProfilePhotoUrl(e.target.value)}
-                placeholder="https://example.com/photo.jpg"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                onChange={(url) => setProfilePhotoUrl(url)}
+                folder="photos"
+                label="ପ୍ରୋଫାଇଲ୍ ଫଟୋ (Visiting Card Profile Photo / S3 Storage)"
               />
             </div>
 

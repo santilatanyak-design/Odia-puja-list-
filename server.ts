@@ -6,11 +6,13 @@ import { DEFAULT_PUJA_TEMPLATES } from './src/data/defaultTemplates';
 import { DEFAULT_TEMPLES } from './src/data/defaultTemples';
 import { DEFAULT_DISTRICT_ITEMS } from './src/data/defaultDistrictItems';
 import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory, DistrictItem, ODISHA_DISTRICTS } from './src/types';
+import { uploadToS3 } from './server/s3';
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Database Persistence File
 const DB_FILE = path.join(process.cwd(), 'data', 'db.json');
@@ -114,6 +116,80 @@ let db = loadDb();
 // ----------------------------------------------------
 // REST API ENDPOINTS
 // ----------------------------------------------------
+
+// 0. AWS S3 Photo & Media Upload Endpoint (Bucket: bhakti-ananda-photos, Region: ap-south-1)
+app.post(['/api/upload', '/api/s3/upload'], async (req, res) => {
+  try {
+    const { fileData, fileName, mimeType, folder = 'photos' } = req.body;
+
+    if (!fileData || typeof fileData !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing fileData (Base64 data URL or Base64 string is required)',
+      });
+    }
+
+    let buffer: Buffer;
+    let detectedMime = mimeType || 'image/jpeg';
+
+    if (fileData.startsWith('data:')) {
+      const match = fileData.match(/^data:([^;]+);base64,(.+)$/);
+      if (match) {
+        detectedMime = match[1];
+        buffer = Buffer.from(match[2], 'base64');
+      } else {
+        const parts = fileData.split(',');
+        buffer = Buffer.from(parts[1] || parts[0], 'base64');
+      }
+    } else {
+      buffer = Buffer.from(fileData, 'base64');
+    }
+
+    const uploadResult = await uploadToS3({
+      buffer,
+      originalName: fileName || 'photo.jpg',
+      mimeType: detectedMime,
+      folder: folder || 'photos',
+    });
+
+    console.log(
+      `[AWS S3 Upload Success] Stored in bucket: ${uploadResult.bucket} (${uploadResult.region}), URL: ${uploadResult.url}`
+    );
+
+    return res.json({
+      success: true,
+      url: uploadResult.url,
+      imageUrl: uploadResult.url,
+      key: uploadResult.key,
+      bucket: uploadResult.bucket,
+      region: uploadResult.region,
+      message: 'Photo successfully uploaded to AWS S3 bucket bhakti-ananda-photos',
+    });
+  } catch (error: any) {
+    console.error('[AWS S3 Upload Error]:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to upload photo to AWS S3 bucket',
+      error: String(error),
+    });
+  }
+});
+
+// AWS S3 Config & Status Endpoint
+app.get('/api/s3/config', (req, res) => {
+  const bucket = (process.env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
+  const region = (process.env.AWS_REGION || 'ap-south-1').trim();
+  const hasAccessKey = Boolean(process.env.AWS_ACCESS_KEY_ID);
+  const hasSecretKey = Boolean(process.env.AWS_SECRET_ACCESS_KEY);
+
+  res.json({
+    success: true,
+    bucket,
+    region,
+    isConfigured: hasAccessKey && hasSecretKey,
+    provider: 'AWS S3 (Amazon Web Services)',
+  });
+});
 
 // 1. Admin Verification
 const ADMIN_MASTER_PASSWORD = (process.env.ADMIN_MASTER_PASSWORD || 'nayakjitu@986933').trim();
@@ -794,6 +870,134 @@ app.all('/api/*', (req, res) => {
 
 export { app };
 
+// Helper to generate dynamic OpenGraph & Twitter tags for social media scrapers
+function injectDynamicOgTags(html: string, req: express.Request): string {
+  try {
+    const currentDb = loadDb();
+    const url = req.originalUrl || req.url;
+    const urlObj = new URL(url, `http://${req.headers.host || 'localhost:3000'}`);
+    const pathname = urlObj.pathname.toLowerCase();
+    const searchParams = urlObj.searchParams;
+
+    const origin = `https://${req.headers.host || 'www.bhaktianandaodiatvofficial.blog'}`;
+
+    let title = 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ, ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା';
+    let description = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ।';
+    let imageUrl = '';
+    let canonicalUrl = `${origin}${url}`;
+    let ogType = 'website';
+
+    // 1. Check Story / Blog Post
+    let storyId = '';
+    if (pathname.startsWith('/story/') || pathname.startsWith('/blog/') || pathname.startsWith('/stories/')) {
+      const parts = pathname.split('/').filter(Boolean);
+      if (parts[1]) storyId = parts[1];
+    } else if (searchParams.get('storyId') || searchParams.get('story')) {
+      storyId = searchParams.get('storyId') || searchParams.get('story') || '';
+    }
+
+    if (storyId) {
+      const story = (currentDb.stories || []).find((s) => s.id === storyId);
+      if (story) {
+        title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
+        description = story.summary || story.content || description;
+        if (description.length > 160) description = `${description.slice(0, 157)}...`;
+        imageUrl = story.imageUrl || '';
+        canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
+        ogType = 'article';
+      }
+    }
+
+    // 2. Check Temple
+    let templeId = '';
+    if (pathname.startsWith('/temple/') || pathname.startsWith('/temples/')) {
+      const parts = pathname.split('/').filter(Boolean);
+      if (parts[1]) templeId = parts[1];
+    } else if (searchParams.get('templeId') || searchParams.get('temple')) {
+      templeId = searchParams.get('templeId') || searchParams.get('temple') || '';
+    }
+
+    if (templeId) {
+      const temple = (currentDb.temples || DEFAULT_TEMPLES).find((t) => t.id === templeId);
+      if (temple) {
+        title = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
+        const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} ରେ ଅନଲାଇନ୍ ଜଳାଭିଷେକ ଓ ପୂଜା ବୁକ୍ କରନ୍ତୁ।`;
+        description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+        imageUrl = temple.imageUrl || temple.thumbnailUrl || '';
+        canonicalUrl = `${origin}/temple/${encodeURIComponent(temple.id)}`;
+      }
+    }
+
+    // 3. Check District Item
+    let districtId = '';
+    let itemId = '';
+    if (pathname.startsWith('/district/') || pathname.startsWith('/districts/')) {
+      const parts = pathname.split('/').filter(Boolean);
+      if (parts[1]) districtId = parts[1];
+      if (parts[2]) itemId = parts[2];
+    } else {
+      districtId = searchParams.get('district') || '';
+      itemId = searchParams.get('item') || '';
+    }
+
+    if (districtId || itemId) {
+      const items = currentDb.districtItems || DEFAULT_DISTRICT_ITEMS;
+      const matched = items.find((it) => (itemId ? it.id === itemId : it.districtId === districtId));
+      if (matched) {
+        title = `🛕 ${matched.title} - ${matched.districtNameOdia || ''} | ଓଡ଼ିଶା ଦର୍ଶନ`;
+        const rawDesc = matched.description || matched.significance || 'ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ପର୍ଯ୍ୟଟନ ଓ ତୀର୍ଥକ୍ଷେତ୍ର ଦର୍ଶନ କରନ୍ତୁ।';
+        description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+        imageUrl = matched.imageUrl || matched.adImageUrl || matched.affiliateProductImageUrl || '';
+        canonicalUrl = `${origin}/district/${encodeURIComponent(matched.districtId)}/${encodeURIComponent(matched.id)}`;
+      }
+    }
+
+    // 4. Check Store Product
+    let productId = searchParams.get('product_id') || searchParams.get('product') || '';
+    if (productId) {
+      title = `🛍️ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ (Puja Samagri Store) | Bhakti Ananda Odia TV`;
+      description = `ଶୁଦ୍ଧ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ, ମୂର୍ତ୍ତି ଏବଂ ଆଧ୍ୟାତ୍ମିକ ସାମଗ୍ରୀ ଅନଲାଇନରେ ଅର୍ଡର କରନ୍ତୁ Cash on Delivery ସହ।`;
+      canonicalUrl = `${origin}/?view=store&product_id=${encodeURIComponent(productId)}`;
+    }
+
+    // Replace <title>
+    let updatedHtml = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+
+    // Build replacement OG meta tags
+    const imageMetaTags = imageUrl
+      ? `
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:secure_url" content="${imageUrl}" />
+    <meta property="og:image:url" content="${imageUrl}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+    <meta name="twitter:image:src" content="${imageUrl}" />
+    <meta name="image" content="${imageUrl}" />
+    <meta itemprop="image" content="${imageUrl}" />`
+      : '';
+
+    const ogTagsBlock = `
+    <!-- Dynamic OpenGraph & Twitter Meta Tags (Server Rendered) -->
+    <meta name="description" content="${description}" />
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:type" content="${ogType}" />
+    <meta property="og:site_name" content="Bhakti Ananda Odia TV & Puja Samagri Portal" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta name="twitter:card" content="${imageUrl ? 'summary_large_image' : 'summary'}" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />${imageMetaTags}
+    <!-- End Dynamic Tags -->`;
+
+    // Inject before </head>
+    updatedHtml = updatedHtml.replace('</head>', `${ogTagsBlock}\n  </head>`);
+    return updatedHtml;
+  } catch (err) {
+    console.error('Error injecting dynamic OG tags into HTML:', err);
+    return html;
+  }
+}
+
 // ----------------------------------------------------
 // VITE MIDDLEWARE & SERVER START
 // ----------------------------------------------------
@@ -803,12 +1007,50 @@ async function startServer() {
       server: { middlewareMode: true },
       appType: 'spa',
     });
+
+    // Intercept HTML requests in development to inject dynamic OG meta tags
+    app.use(async (req, res, next) => {
+      const url = req.originalUrl || req.url;
+      const isHtmlRequest =
+        !url.startsWith('/api') &&
+        !url.startsWith('/@') &&
+        !url.startsWith('/src') &&
+        !url.startsWith('/node_modules') &&
+        !url.includes('.') &&
+        (req.headers.accept?.includes('text/html') || req.headers.accept?.includes('*/*'));
+
+      if (isHtmlRequest) {
+        try {
+          const indexHtmlPath = path.join(process.cwd(), 'index.html');
+          let template = fs.readFileSync(indexHtmlPath, 'utf-8');
+          template = await vite.transformIndexHtml(url, template);
+          const finalHtml = injectDynamicOgTags(template, req);
+          return res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
+        } catch (e) {
+          vite.ssrFixStacktrace(e as Error);
+          next(e);
+          return;
+        }
+      }
+      next();
+    });
+
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    app.use(express.static(distPath, { index: false }));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      try {
+        const indexHtmlPath = path.join(distPath, 'index.html');
+        if (fs.existsSync(indexHtmlPath)) {
+          const rawHtml = fs.readFileSync(indexHtmlPath, 'utf-8');
+          const finalHtml = injectDynamicOgTags(rawHtml, req);
+          return res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
+        }
+        res.sendFile(indexHtmlPath);
+      } catch (err) {
+        res.sendFile(path.join(distPath, 'index.html'));
+      }
     });
   }
 

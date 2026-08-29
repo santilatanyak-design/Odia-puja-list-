@@ -24,6 +24,7 @@ import {
   Layers,
   Image as ImageIcon
 } from 'lucide-react';
+import { S3PhotoUploader } from './S3PhotoUploader';
 
 export const AdminSliderManagement: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'slider' | 'store'>('slider');
@@ -355,16 +356,14 @@ export const AdminSliderManagement: React.FC = () => {
                     </div>
 
                     <div className="md:col-span-9 space-y-2">
-                      <div>
-                        <label className="block text-[11px] font-black text-slate-700 mb-1">
-                          ବ୍ୟାନର୍ ଇମେଜ୍ URL (Banner Image URL): <span className="text-rose-500">*</span>
-                        </label>
-                        <input
-                          type="url"
+                      <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200">
+                        <S3PhotoUploader
                           value={img.url}
-                          onChange={(e) => handleSliderChange(index, 'url', e.target.value)}
-                          placeholder="https://example.com/slide-image.jpg"
-                          className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:ring-2 focus:ring-amber-500"
+                          onChange={(url) => handleSliderChange(index, 'url', url)}
+                          folder="slider"
+                          label="ବ୍ୟାନର୍ ଇମେଜ୍ (Banner Image / S3 Storage)"
+                          placeholder="https://... or upload slide image"
+                          required
                         />
                       </div>
 
@@ -607,16 +606,14 @@ export const AdminSliderManagement: React.FC = () => {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[11px] font-black text-slate-700 mb-1">
-                          ୩. ଫଟୋ URL (Photo URL): <span className="text-rose-500">*</span>
-                        </label>
-                        <input
-                          type="url"
+                      <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200">
+                        <S3PhotoUploader
                           value={prod.photoUrl}
-                          onChange={(e) => handleStoreProductChange(index, 'photoUrl', e.target.value)}
-                          placeholder="https://example.com/product-photo.jpg"
-                          className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:ring-2 focus:ring-amber-500"
+                          onChange={(url) => handleStoreProductChange(index, 'photoUrl', url)}
+                          folder="store"
+                          label="୩. ଫଟୋ (Photo / S3 Storage)"
+                          placeholder="https://... or upload photo"
+                          required
                         />
                       </div>
 

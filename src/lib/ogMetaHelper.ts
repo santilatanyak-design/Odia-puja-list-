@@ -1,9 +1,37 @@
-import { Temple, DistrictItem } from '../types';
+import { Temple, DistrictItem, SpiritualStory, StoreProduct, UnifiedFeedItem } from '../types';
+
+const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: string, contentValue: string) => {
+  if (typeof document === 'undefined') return;
+  let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attrName, attrValue);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', contentValue);
+};
+
+const removeMetaTag = (attrName: 'name' | 'property' | 'itemprop', attrValue: string) => {
+  if (typeof document === 'undefined') return;
+  const el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
+  if (el) el.remove();
+};
+
+const setCanonicalUrl = (url: string) => {
+  if (typeof document === 'undefined') return;
+  let canonicalEl = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!canonicalEl) {
+    canonicalEl = document.createElement('link');
+    canonicalEl.setAttribute('rel', 'canonical');
+    document.head.appendChild(canonicalEl);
+  }
+  canonicalEl.setAttribute('href', url);
+};
 
 /**
  * Dynamically updates Open Graph (og:*), Twitter Card, and standard Meta Tags
  * in document.head for Facebook, WhatsApp, Twitter, and other preview scrapers.
- * Directly inserts the exact full image URL provided for the temple into og:image.
+ * Directly inserts the exact full AWS S3 image URL into og:image.
  */
 export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
@@ -11,37 +39,21 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   const origin = window.location.origin || '';
   const shareUrl = customUrl || `${origin}/temple/${encodeURIComponent(temple.id)}`;
   
-  const pageTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Puja Samagri Portal`;
+  const pageTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Bhakti Ananda Odia TV`;
   const metaTitle = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
   
   const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} (${temple.location || 'Odisha'}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
   const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   
-  // Directly use the exact full image URL provided by the user when adding/editing the temple without shortening or processing
+  // Directly use the exact full image URL (AWS S3 or direct URL)
   const imageUrl = (temple.imageUrl || temple.thumbnailUrl || '').trim();
 
-  // Set browser tab title
   document.title = pageTitle;
-
-  const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: string, contentValue: string) => {
-    let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-    if (!el) {
-      el = document.createElement('meta');
-      el.setAttribute(attrName, attrValue);
-      document.head.appendChild(el);
-    }
-    el.setAttribute('content', contentValue);
-  };
-
-  const removeMetaTag = (attrName: 'name' | 'property' | 'itemprop', attrValue: string) => {
-    const el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-    if (el) el.remove();
-  };
 
   // Standard HTML Description
   setOrCreateMeta('name', 'description', metaDescription);
 
-  // Open Graph (Facebook / WhatsApp / LinkedIn / Telegram)
+  // Open Graph
   setOrCreateMeta('property', 'og:type', 'website');
   setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV & Puja Samagri Portal');
   setOrCreateMeta('property', 'og:title', metaTitle);
@@ -49,12 +61,10 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   setOrCreateMeta('property', 'og:url', shareUrl);
 
   if (imageUrl) {
-    // Directly insert the exact full image URL without processing, shortening or alterations
     setOrCreateMeta('property', 'og:image', imageUrl);
     setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
     setOrCreateMeta('property', 'og:image:url', imageUrl);
     setOrCreateMeta('property', 'og:image:alt', temple.name);
-    
     setOrCreateMeta('name', 'twitter:image', imageUrl);
     setOrCreateMeta('name', 'twitter:image:src', imageUrl);
     setOrCreateMeta('name', 'image', imageUrl);
@@ -76,17 +86,11 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   setOrCreateMeta('name', 'twitter:description', metaDescription);
 
   // Canonical Link
-  let canonicalEl = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  if (!canonicalEl) {
-    canonicalEl = document.createElement('link');
-    canonicalEl.setAttribute('rel', 'canonical');
-    document.head.appendChild(canonicalEl);
-  }
-  canonicalEl.setAttribute('href', shareUrl);
+  setCanonicalUrl(shareUrl);
 };
 
 /**
- * Dynamically updates Open Graph tags for District Items
+ * Dynamically updates Open Graph tags for District Items (Temples, Tourist places, Festivals)
  */
 export const setDynamicDistrictItemMeta = (item: DistrictItem, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
@@ -96,24 +100,15 @@ export const setDynamicDistrictItemMeta = (item: DistrictItem, customUrl?: strin
 
   const pageTitle = `${item.title} (${item.location || 'Odisha'}) | Explore Odisha`;
   const metaTitle = `🛕 ${item.title} - ${item.districtNameOdia || ''} | ଓଡ଼ିଶା ଦର୍ଶନ`;
-  const metaDescription = item.description.length > 160 ? `${item.description.slice(0, 157)}...` : item.description;
-  const imageUrl = (item.imageUrl || '').trim();
+  const rawDesc = item.description || item.significance || 'ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ପର୍ଯ୍ୟଟନ ଓ ତୀର୍ଥକ୍ଷେତ୍ର ଦର୍ଶନ କରନ୍ତୁ।';
+  const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+  const imageUrl = (item.imageUrl || item.adImageUrl || item.affiliateProductImageUrl || '').trim();
 
   document.title = pageTitle;
 
-  const setOrCreateMeta = (attrName: 'name' | 'property', attrValue: string, contentValue: string) => {
-    let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-    if (!el) {
-      el = document.createElement('meta');
-      el.setAttribute(attrName, attrValue);
-      document.head.appendChild(el);
-    }
-    el.setAttribute('content', contentValue);
-  };
-
   setOrCreateMeta('name', 'description', metaDescription);
   setOrCreateMeta('property', 'og:type', 'website');
-  setOrCreateMeta('property', 'og:site_name', 'Explore Odisha & Puja Samagri Portal');
+  setOrCreateMeta('property', 'og:site_name', 'Explore Odisha & Bhakti Ananda Odia TV');
   setOrCreateMeta('property', 'og:title', metaTitle);
   setOrCreateMeta('property', 'og:description', metaDescription);
   setOrCreateMeta('property', 'og:url', shareUrl);
@@ -121,13 +116,249 @@ export const setDynamicDistrictItemMeta = (item: DistrictItem, customUrl?: strin
   if (imageUrl) {
     setOrCreateMeta('property', 'og:image', imageUrl);
     setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+    setOrCreateMeta('property', 'og:image:url', imageUrl);
     setOrCreateMeta('property', 'og:image:alt', item.title);
     setOrCreateMeta('name', 'twitter:image', imageUrl);
+    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
     setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
   }
 
   setOrCreateMeta('name', 'twitter:title', metaTitle);
   setOrCreateMeta('name', 'twitter:description', metaDescription);
+  setCanonicalUrl(shareUrl);
+};
+
+/**
+ * Dynamically updates Open Graph tags for Spiritual Stories / Blog Posts with AWS S3 images
+ */
+export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) => {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+  const origin = window.location.origin || '';
+  const shareUrl = customUrl || `${origin}/story/${encodeURIComponent(story.id)}`;
+
+  const pageTitle = `${story.title} | Bhakti Ananda Odia TV`;
+  const metaTitle = `📖 ${story.title} - ${story.category || 'ଆଧ୍ୟାତ୍ମିକ କଥା'}`;
+  const rawDesc = story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।';
+  const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+  const imageUrl = (story.imageUrl || '').trim();
+
+  document.title = pageTitle;
+
+  setOrCreateMeta('name', 'description', metaDescription);
+  setOrCreateMeta('property', 'og:type', 'article');
+  setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV');
+  setOrCreateMeta('property', 'og:title', metaTitle);
+  setOrCreateMeta('property', 'og:description', metaDescription);
+  setOrCreateMeta('property', 'og:url', shareUrl);
+
+  if (imageUrl) {
+    setOrCreateMeta('property', 'og:image', imageUrl);
+    setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+    setOrCreateMeta('property', 'og:image:url', imageUrl);
+    setOrCreateMeta('property', 'og:image:alt', story.title);
+    setOrCreateMeta('name', 'twitter:image', imageUrl);
+    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
+    setOrCreateMeta('name', 'image', imageUrl);
+    setOrCreateMeta('itemprop', 'image', imageUrl);
+    setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+  } else {
+    removeMetaTag('property', 'og:image');
+    removeMetaTag('property', 'og:image:secure_url');
+    removeMetaTag('property', 'og:image:url');
+    removeMetaTag('name', 'twitter:image');
+  }
+
+  setOrCreateMeta('name', 'twitter:title', metaTitle);
+  setOrCreateMeta('name', 'twitter:description', metaDescription);
+  setCanonicalUrl(shareUrl);
+};
+
+/**
+ * Dynamically updates Open Graph tags for Store Products (Puja Samagri Store)
+ */
+export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: string) => {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+  const origin = window.location.origin || '';
+  const shareUrl = customUrl || `${origin}/?view=store&product_id=${encodeURIComponent(product.id)}`;
+
+  const pageTitle = `${product.name} - ₹${product.price} | Puja Samagri Store`;
+  const metaTitle = `🛍️ ${product.name} (ମୂଲ୍ୟ: ₹${product.price}) - Cash on Delivery`;
+  const rawDesc = product.description || `Buy ${product.name} on Puja Samagri Store with Cash on Delivery (COD) across Odisha.`;
+  const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+  const imageUrl = (product.imageUrl || '').trim();
+
+  document.title = pageTitle;
+
+  setOrCreateMeta('name', 'description', metaDescription);
+  setOrCreateMeta('property', 'og:type', 'product');
+  setOrCreateMeta('property', 'og:site_name', 'Puja Samagri Store | Bhakti Ananda Odia TV');
+  setOrCreateMeta('property', 'og:title', metaTitle);
+  setOrCreateMeta('property', 'og:description', metaDescription);
+  setOrCreateMeta('property', 'og:url', shareUrl);
+
+  if (imageUrl) {
+    setOrCreateMeta('property', 'og:image', imageUrl);
+    setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+    setOrCreateMeta('property', 'og:image:url', imageUrl);
+    setOrCreateMeta('property', 'og:image:alt', product.name);
+    setOrCreateMeta('name', 'twitter:image', imageUrl);
+    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
+    setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+  }
+
+  setOrCreateMeta('name', 'twitter:title', metaTitle);
+  setOrCreateMeta('name', 'twitter:description', metaDescription);
+  setCanonicalUrl(shareUrl);
+};
+
+/**
+ * Executes native navigator.share() API with fallback to Clipboard Copy and WhatsApp Direct Share.
+ */
+export const shareStoryNative = async (
+  story: SpiritualStory
+): Promise<{ success: boolean; method: 'share' | 'clipboard' | 'whatsapp'; error?: string }> => {
+  if (typeof window === 'undefined') {
+    return { success: false, method: 'clipboard', error: 'Window undefined' };
+  }
+
+  const origin = window.location.origin || '';
+  const shareUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
+  const shareTitle = `📖 ${story.title}`;
+  const excerpt = story.summary || story.content ? `${(story.summary || story.content).slice(0, 120)}...` : '';
+  const shareText = `📖 *${story.title}*\n${excerpt}\n\n✍️ ଲେଖକ: ${story.author || 'Bhakti Ananda Odia TV'}\n\n👇 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପଢ଼ନ୍ତୁ ଏହି ଲିଙ୍କ୍ ରେ:\n${shareUrl}`;
+
+  // Update dynamic OG meta tags immediately
+  setDynamicStoryMeta(story, shareUrl);
+
+  // 1. Try Native Web Share API
+  if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+    try {
+      const sharePayload: ShareData = {
+        title: shareTitle,
+        text: `📖 ${story.title}\n\n${excerpt}`,
+        url: shareUrl,
+      };
+
+      if (typeof navigator.canShare === 'function') {
+        if (navigator.canShare(sharePayload)) {
+          await navigator.share(sharePayload);
+          return { success: true, method: 'share' };
+        }
+      } else {
+        await navigator.share(sharePayload);
+        return { success: true, method: 'share' };
+      }
+    } catch (err: any) {
+      if (err && (err.name === 'AbortError' || err.message?.includes('Abort'))) {
+        return { success: false, method: 'share', error: 'User cancelled share' };
+      }
+      console.warn('Native share failed, falling back to clipboard / whatsapp:', err);
+    }
+  }
+
+  // 2. Try Clipboard API
+  let clipboardCopied = false;
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(shareText);
+      clipboardCopied = true;
+    }
+  } catch (clipErr) {
+    console.warn('Clipboard write failed:', clipErr);
+  }
+
+  // 3. Fallback to WhatsApp Direct URL
+  const encodedText = encodeURIComponent(`${shareText}`);
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
+
+  try {
+    const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) {
+      window.location.href = whatsappUrl;
+    }
+  } catch {
+    // Safe fallback
+  }
+
+  return {
+    success: true,
+    method: clipboardCopied ? 'clipboard' : 'whatsapp',
+  };
+};
+
+/**
+ * Executes native navigator.share() API for Store Products
+ */
+export const shareStoreProductNative = async (
+  product: StoreProduct
+): Promise<{ success: boolean; method: 'share' | 'clipboard' | 'whatsapp'; error?: string }> => {
+  if (typeof window === 'undefined') {
+    return { success: false, method: 'clipboard', error: 'Window undefined' };
+  }
+
+  const origin = window.location.origin || '';
+  const shareUrl = `${origin}/?view=store&product_id=${encodeURIComponent(product.id)}`;
+  const shareTitle = `🛍️ ${product.name} - ₹${product.price}`;
+  const shareText = `🛍️ *${product.name}* (ମୂଲ୍ୟ: ₹${product.price})\n${product.description ? product.description.slice(0, 100) + '...' : 'ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ - Cash on Delivery ଉପଲବ୍ଧ!'}\n\n👇 ଏହି ଲିଙ୍କ୍ ରେ ଅର୍ଡର୍ କରନ୍ତୁ:\n${shareUrl}`;
+
+  // Update dynamic OG meta tags immediately
+  setDynamicStoreProductMeta(product, shareUrl);
+
+  // 1. Try Native Web Share API
+  if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+    try {
+      const sharePayload: ShareData = {
+        title: shareTitle,
+        text: `Buy ${product.name} for ₹${product.price} at Puja Samagri Store!`,
+        url: shareUrl,
+      };
+
+      if (typeof navigator.canShare === 'function') {
+        if (navigator.canShare(sharePayload)) {
+          await navigator.share(sharePayload);
+          return { success: true, method: 'share' };
+        }
+      } else {
+        await navigator.share(sharePayload);
+        return { success: true, method: 'share' };
+      }
+    } catch (err: any) {
+      if (err && (err.name === 'AbortError' || err.message?.includes('Abort'))) {
+        return { success: false, method: 'share', error: 'User cancelled share' };
+      }
+    }
+  }
+
+  // 2. Try Clipboard API
+  let clipboardCopied = false;
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(shareText);
+      clipboardCopied = true;
+    }
+  } catch (clipErr) {
+    console.warn('Clipboard write failed:', clipErr);
+  }
+
+  // 3. WhatsApp Direct URL
+  const encodedText = encodeURIComponent(`${shareText}`);
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
+
+  try {
+    const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    if (!opened) {
+      window.location.href = whatsappUrl;
+    }
+  } catch {
+    // Safe fallback
+  }
+
+  return {
+    success: true,
+    method: clipboardCopied ? 'clipboard' : 'whatsapp',
+  };
 };
 
 /**
@@ -214,7 +445,7 @@ export const shareTempleNative = async (
   const shareTitle = `🚩 ${temple.name} - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
   const shareText = `🙏 ${temple.name} (${temple.location || 'Odisha'}) ରେ ଦର୍ଶନ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା / ଜଳାଭିଷେକ ବୁକିଂ କରନ୍ତୁ!\n\n👇 ଏହି ଲିଙ୍କ୍ ରେ କ୍ଲିକ୍ କରି ବୁକିଂ କରନ୍ତୁ:\n${shareUrl}`;
 
-  // Update dynamic OG meta tags before sharing so local preview crawlers fetch updated tags
+  // Update dynamic OG meta tags before sharing
   setDynamicTempleMeta(temple, shareUrl);
 
   // 1. Try Native Web Share API

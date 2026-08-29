@@ -53,6 +53,7 @@ import {
   Type,
   Settings,
 } from 'lucide-react';
+import { S3PhotoUploader } from './S3PhotoUploader';
 
 export const AdminStoreManagement: React.FC = () => {
   const [products, setProducts] = useState<StoreProduct[]>([]);
@@ -826,27 +827,24 @@ export const AdminStoreManagement: React.FC = () => {
             )}
 
             <form onSubmit={handleSaveBanner} className="space-y-3 text-xs">
-              <div>
-                <label className="font-bold text-gray-800 block mb-1">
-                  Store Banner Background Image URL:
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    required
-                    value={bannerInputUrl}
-                    onChange={(e) => setBannerInputUrl(e.target.value)}
-                    placeholder="https://example.com/store-banner.jpg"
-                    className="flex-1 p-2.5 rounded-xl border border-amber-300 text-xs focus:ring-2 focus:ring-amber-500"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2.5 bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>Update Banner</span>
-                  </button>
-                </div>
+              <div className="p-3 bg-amber-50/60 rounded-2xl border border-amber-200">
+                <S3PhotoUploader
+                  value={bannerInputUrl}
+                  onChange={(url) => setBannerInputUrl(url)}
+                  folder="store"
+                  label="Store Banner Background (AWS S3 Storage)"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 shrink-0 shadow"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Update Banner</span>
+                </button>
               </div>
 
               {/* Banner Live Preview */}
@@ -1004,14 +1002,13 @@ export const AdminStoreManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="font-bold text-gray-800 block mb-1">ଛବି URL (Image URL)</label>
-                <input
-                  type="url"
+              <div className="p-3 bg-amber-50/60 rounded-2xl border border-amber-200">
+                <S3PhotoUploader
                   value={editingProduct.imageUrl || ''}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, imageUrl: e.target.value })}
-                  placeholder="https://example.com/product.jpg"
-                  className="w-full p-2.5 rounded-xl border border-amber-300 text-xs"
+                  onChange={(url) => setEditingProduct({ ...editingProduct, imageUrl: url })}
+                  folder="store"
+                  label="ସାମଗ୍ରୀ ଫଟୋ (Product Photo / S3 Storage)"
+                  placeholder="https://... or upload photo"
                 />
               </div>
 
@@ -1374,56 +1371,26 @@ export const AdminStoreManagement: React.FC = () => {
 
                 {/* Banner Image URLs Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Festival Offer Banner URL */}
-                  <div>
-                    <label className="font-bold text-gray-800 block mb-1">
-                      Festival Banner Image URL (ଉତ୍ସବ ବ୍ୟାନର୍ ଛବି URL):
-                    </label>
-                    <input
-                      type="url"
+                  {/* Festival Offer Banner */}
+                  <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200">
+                    <S3PhotoUploader
                       value={settingsState.festivalBannerUrl || ''}
-                      onChange={(e) => setSettingsState({ ...settingsState, festivalBannerUrl: e.target.value })}
-                      placeholder="https://example.com/banner.jpg"
-                      className="w-full p-2.5 rounded-xl border border-amber-300 text-xs mb-2"
+                      onChange={(url) => setSettingsState({ ...settingsState, festivalBannerUrl: url })}
+                      folder="store"
+                      label="Festival Banner Image (ଉତ୍ସବ ବ୍ୟାନର୍ ଛବି / S3)"
+                      placeholder="https://... or upload banner"
                     />
-                    {settingsState.festivalBannerUrl ? (
-                      <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
-                        <img
-                          src={settingsState.festivalBannerUrl}
-                          alt="Festival Banner Preview"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    ) : null}
                   </div>
 
-                  {/* Store Background Header Banner URL */}
-                  <div>
-                    <label className="font-bold text-gray-800 block mb-1">
-                      Store Header Banner Image URL (ଷ୍ଟୋର୍ ହେଡର୍ ବ୍ୟାନର୍ URL):
-                    </label>
-                    <input
-                      type="url"
+                  {/* Store Background Header Banner */}
+                  <div className="p-3 bg-amber-50/60 rounded-xl border border-amber-200">
+                    <S3PhotoUploader
                       value={settingsState.bannerImageUrl || ''}
-                      onChange={(e) => setSettingsState({ ...settingsState, bannerImageUrl: e.target.value })}
-                      placeholder="https://example.com/store-header.jpg"
-                      className="w-full p-2.5 rounded-xl border border-amber-300 text-xs mb-2"
+                      onChange={(url) => setSettingsState({ ...settingsState, bannerImageUrl: url })}
+                      folder="store"
+                      label="Store Header Banner Image (ଷ୍ଟୋର୍ ହେଡର୍ ବ୍ୟାନର୍ / S3)"
+                      placeholder="https://... or upload banner"
                     />
-                    {settingsState.bannerImageUrl ? (
-                      <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
-                        <img
-                          src={settingsState.bannerImageUrl}
-                          alt="Store Header Banner Preview"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    ) : null}
                   </div>
                 </div>
 

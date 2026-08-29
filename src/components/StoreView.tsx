@@ -38,6 +38,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { SmartImage } from './SmartImage';
+import { shareStoreProductNative, setDynamicStoreProductMeta } from '../lib/ogMetaHelper';
 
 interface StoreViewProps {
   userPhone?: string;
@@ -116,31 +117,6 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
     }
   }, [config.bannerImageUrl]);
 
-  // Dynamic Open Graph Meta Tags Updater for Social Media Previews
-  const updateOgMetaTags = (product: StoreProduct) => {
-    if (typeof document === 'undefined') return;
-    document.title = `${product.name} - ₹${product.price} | Puja Samagri Store`;
-
-    const setMeta = (attr: 'property' | 'name', key: string, content: string) => {
-      let el = document.querySelector(`meta[${attr}="${key}"]`);
-      if (!el) {
-        el = document.createElement('meta');
-        el.setAttribute(attr, key);
-        document.head.appendChild(el);
-      }
-      el.setAttribute('content', content);
-    };
-
-    setMeta('property', 'og:title', `${product.name} - ₹${product.price}`);
-    setMeta('property', 'og:description', product.description || `Buy ${product.name} on Puja Samagri Store with Cash on Delivery.`);
-    if (product.imageUrl) {
-      setMeta('property', 'og:image', product.imageUrl);
-      setMeta('name', 'twitter:image', product.imageUrl);
-    }
-    setMeta('property', 'og:url', window.location.href);
-    setMeta('name', 'twitter:title', `${product.name} - ₹${product.price}`);
-  };
-
   // Deep Link Routing: Detect product_id in URL and scroll to / highlight product
   useEffect(() => {
     if (products.length === 0) return;
@@ -155,7 +131,7 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
         setSelectedCategory('all');
         setSearchQuery('');
         setHighlightedProductId(matched.id);
-        updateOgMetaTags(matched);
+        setDynamicStoreProductMeta(matched);
 
         setTimeout(() => {
           const el = document.getElementById(`product-${matched.id}`);
@@ -173,65 +149,17 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
     }
   }, [products]);
 
-  // Web Share API Handler
+  // Web Share API Handler with Dynamic Meta & Native/Clipboard/WhatsApp Fallback
   const handleShareProduct = async (product: StoreProduct, e: React.MouseEvent) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}${window.location.pathname}?product_id=${product.id}`;
-    const shareData = {
-      title: `${product.name} - ₹${product.price}`,
-      text: `Buy ${product.name} for ₹${product.price} at Puja Samagri Store (Cash on Delivery available)!`,
-      url: shareUrl,
-    };
-
-    updateOgMetaTags(product);
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch (err: unknown) {
-        // If user cancelled or dismissed native share dialog, do not attempt copy fallback
-        if (err && typeof err === 'object' && 'name' in err && (err as { name: string }).name === 'AbortError') {
-          return;
-        }
-        console.log('Share prompt dismissed or unsupported, falling back to copy:', err);
-      }
-    }
-
-    // Fallback 1: Clipboard API with focus check
     try {
-      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        if (document.hasFocus && !document.hasFocus()) {
-          window.focus();
-        }
-        await navigator.clipboard.writeText(shareUrl);
+      const res = await shareStoreProductNative(product);
+      if (res.success) {
         setCopiedProductId(product.id);
         setTimeout(() => setCopiedProductId(null), 3000);
-        return;
       }
     } catch (err) {
-      console.warn('navigator.clipboard failed, attempting legacy execCommand fallback:', err);
-    }
-
-    // Fallback 2: Legacy document.execCommand('copy')
-    try {
-      const textArea = document.createElement('textarea');
-      textArea.value = shareUrl;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-9999px';
-      textArea.style.top = '-9999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-
-      if (successful) {
-        setCopiedProductId(product.id);
-        setTimeout(() => setCopiedProductId(null), 3000);
-      }
-    } catch (fallbackErr) {
-      console.warn('ExecCommand copy fallback failed:', fallbackErr);
+      console.warn('Share product error:', err);
     }
   };
 

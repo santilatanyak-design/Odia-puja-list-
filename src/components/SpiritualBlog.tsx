@@ -9,6 +9,7 @@ import {
   getSeoConfigForView,
   getBaseOrigin,
 } from '../lib/seoHelper';
+import { shareStoryNative, setDynamicStoryMeta } from '../lib/ogMetaHelper';
 import {
   BookOpen,
   Search,
@@ -397,26 +398,16 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     }
   };
 
-  const handleShareStory = (e: React.MouseEvent, story: SpiritualStory) => {
+  const handleShareStory = async (e: React.MouseEvent, story: SpiritualStory) => {
     e.stopPropagation();
-    const origin = getBaseOrigin();
-    const storyCanonicalLink = `${origin}/story/${encodeURIComponent(story.id)}`;
-    const shareText = `📖 *${story.title}*
-${story.summary}
-
-✍️ ଲେଖକ: ${story.author}
-ପଢ଼ନ୍ତୁ ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପୂଜା ସାମଗ୍ରୀ ପୋର୍ଟାଲରେ: ${storyCanonicalLink}`;
-
-    if (navigator.share) {
-      navigator.share({
-        title: story.title,
-        text: shareText,
-        url: storyCanonicalLink,
-      }).catch(() => {});
-    } else if (navigator.clipboard) {
-      navigator.clipboard.writeText(shareText);
-      setCopiedStoryId(story.id);
-      setTimeout(() => setCopiedStoryId(null), 2500);
+    try {
+      const res = await shareStoryNative(story);
+      if (res.success) {
+        setCopiedStoryId(story.id);
+        setTimeout(() => setCopiedStoryId(null), 2500);
+      }
+    } catch (err) {
+      console.warn('Share story error:', err);
     }
   };
 
