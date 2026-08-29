@@ -1,7 +1,7 @@
 /**
  * AWS S3 Photo & Media Upload Helper
- * Direct integration with AWS S3 Bucket: 'bhakti-ananda-photos' (Region: ap-south-1)
- * Enhanced with Presigned URL Direct Upload, Stream Proxy, and Client Image Optimization.
+ * Routes all image uploads directly through our backend server API route (/api/upload)
+ * Targets AWS S3 Bucket: 'bhakti-ananda-photos' (Region: ap-south-1)
  */
 
 export interface S3UploadResponse {
@@ -15,22 +15,13 @@ export interface S3UploadResponse {
   message?: string;
 }
 
-export interface PresignedUrlResponse {
-  success: boolean;
-  presignedUrl?: string;
-  finalUrl: string;
-  key: string;
-  bucket: string;
-  region: string;
-  isDirectS3: boolean;
-}
-
 /**
- * Optimizes/compresses an image client-side to prevent network bottlenecks and timeouts
+ * Optimizes and compresses an image client-side before sending to server
+ * Ensures lightweight transfer, eliminates network lag, and speeds up S3 uploads.
  */
 export async function optimizeImage(file: File | Blob, maxDim = 1920, quality = 0.85): Promise<Blob> {
-  // If file is SVG or GIF or already under 800KB, skip resizing
-  if (file.type === 'image/svg+xml' || file.type === 'image/gif' || file.size < 800 * 1024) {
+  // If file is SVG or GIF or already under 600KB, return as is
+  if (file.type === 'image/svg+xml' || file.type === 'image/gif' || file.size < 600 * 1024) {
     return file;
   }
 
@@ -104,8 +95,9 @@ export function fileToBase64(file: File | Blob): Promise<string> {
 }
 
 /**
- * Uploads any image File or Blob directly through our backend server API route (/api/upload)
- * Uses Base64 data encoding and server-side processing for instant, reliable AWS S3 uploads without timeouts.
+ * Uploads any image File or Blob directly through our backend server API route (/api/upload).
+ * The server securely forwards and persists the photo to AWS S3 (bhakti-ananda-photos).
+ * 
  * @param rawFile The image File or Blob selected by the user
  * @param folder The folder path inside the S3 bucket (e.g. 'posts', 'district', 'temples', 'store', 'slider', 'qr')
  * @param onProgress Optional callback for real-time percentage progress (0 to 100%) and stage description
@@ -123,30 +115,32 @@ export async function uploadPhotoToS3(
   const fileName = (rawFile as File).name || `photo_${Date.now()}.jpg`;
   const mimeType = file.type || 'image/jpeg';
 
-  if (onProgress) onProgress(25, 'ବେସ୍୬୪ ଏନକୋଡିଂ କରାଯାଉଛି...');
-  const base64Data = await fileToBase64(file);
+  if (onProgress) onProgress(25, 'ସର୍ଭର API କୁ ପଠାଯାଉଛି...');
 
-  // Step 2: Send base64 payload to backend server proxy route (/api/upload)
+  // Step 2: Send directly to our backend server API endpoint via FormData / Binary Stream
   return new Promise((resolve, reject) => {
     let progressTimer: any = null;
 
-    if (onProgress) onProgress(40, 'ସର୍ଭର API କୁ ପଠାଯାଉଛି...');
+    const formData = new FormData();
+    formData.append('file', file, fileName);
+    formData.append('fileName', fileName);
+    formData.append('mimeType', mimeType);
+    formData.append('folder', folder);
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/api/upload', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.timeout = 40000;
+    xhr.timeout = 45000;
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && onProgress) {
-        const percent = Math.min(85, Math.round(40 + (event.loaded / event.total) * 45));
-        onProgress(percent, 'ଫଟୋ ଡାଟା ଅପଲୋଡ୍ ହେଉଛି...');
+        const percent = Math.min(80, Math.round(25 + (event.loaded / event.total) * 55));
+        onProgress(percent, 'ଫଟୋ ଡାଟା ସର୍ଭରକୁ ଅପଲୋଡ୍ ହେଉଛି...');
       }
     };
 
     xhr.upload.onload = () => {
-      if (onProgress) onProgress(88, 'AWS S3 (bhakti-ananda-photos) ରେ ସେଭ୍ ହେଉଛି...');
-      let current = 88;
+      if (onProgress) onProgress(85, 'AWS S3 (bhakti-ananda-photos) ରେ ସେଭ୍ ହେଉଛି...');
+      let current = 85;
       progressTimer = setInterval(() => {
         if (current < 98) {
           current += 1;
@@ -164,7 +158,7 @@ export async function uploadPhotoToS3(
           if (data.success && (data.url || data.imageUrl)) {
             const finalUrl = data.url || data.imageUrl;
             if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
-            console.log(`[AWS S3] Upload successful via backend API proxy:`, finalUrl);
+            console.log(`[AWS S3] Upload successful via backend API:`, finalUrl);
             resolve(finalUrl);
           } else {
             reject(new Error(data.message || 'Server upload failed to return a valid URL'));
@@ -192,14 +186,7 @@ export async function uploadPhotoToS3(
       reject(new Error('Network error during photo upload. Please check your connection.'));
     };
 
-    xhr.send(
-      JSON.stringify({
-        fileData: base64Data,
-        fileName,
-        mimeType,
-        folder,
-      })
-    );
+    xhr.send(formData);
   });
 }
 
