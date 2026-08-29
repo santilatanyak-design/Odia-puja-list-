@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { DistrictItem, DistrictCategory, ODISHA_DISTRICTS, OdishaDistrictInfo, PuriStoreConfig } from '../types';
+import React, { useState, useEffect, useRef } from 'react';
+import { DistrictItem, DistrictCategory, ODISHA_DISTRICTS, OdishaDistrictInfo, PuriStoreConfig, AffiliateProductAd } from '../types';
 import { subscribeDistrictItems } from '../lib/districtApi';
 import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
 import { shareDistrictItemNative, setDynamicDistrictItemMeta } from '../lib/ogMetaHelper';
 import { PuriOnlineStoreModal } from './PuriOnlineStoreModal';
+import { AffiliateAdModal } from './AffiliateAdModal';
 import { SmartImage } from './SmartImage';
 import {
   MapPin,
@@ -36,6 +37,70 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
   const [puriStoreModalOpen, setPuriStoreModalOpen] = useState(false);
   const [puriStoreConfig, setPuriStoreConfig] = useState<PuriStoreConfig>(DEFAULT_PURI_STORE_CONFIG);
   const [loading, setLoading] = useState(true);
+  const [isAffiliateModalOpen, setIsAffiliateModalOpen] = useState(false);
+  const [activeAffiliateAd, setActiveAffiliateAd] = useState<AffiliateProductAd | null>(null);
+  const affiliateTriggeredForDistRef = useRef<Record<string, boolean>>({});
+
+  // Resolve affiliate ad whenever selectedDetailItem changes
+  useEffect(() => {
+    if (selectedDetailItem) {
+      const affiliateUrl = (
+        selectedDetailItem.affiliateTargetUrl ||
+        selectedDetailItem.affiliateAd?.affiliateUrl ||
+        ''
+      ).trim();
+
+      const productImageUrl = (
+        selectedDetailItem.affiliateProductImageUrl ||
+        selectedDetailItem.affiliateAd?.productImageUrl ||
+        ''
+      ).trim();
+
+      const isEnabled =
+        selectedDetailItem.affiliateAd?.enabled !== false &&
+        Boolean(affiliateUrl && productImageUrl);
+
+      if (isEnabled) {
+        const resolved: AffiliateProductAd = {
+          enabled: true,
+          productTitle:
+            selectedDetailItem.affiliateProductTitle ||
+            selectedDetailItem.affiliateAd?.productTitle ||
+            '',
+          productDescription: selectedDetailItem.affiliateAd?.productDescription || '',
+          productImageUrl,
+          affiliateUrl,
+          countdownSeconds: Math.max(
+            1,
+            Number(selectedDetailItem.affiliateAd?.countdownSeconds) || 5
+          ),
+        };
+        setActiveAffiliateAd(resolved);
+      } else {
+        setActiveAffiliateAd(null);
+        setIsAffiliateModalOpen(false);
+      }
+    } else {
+      setActiveAffiliateAd(null);
+      setIsAffiliateModalOpen(false);
+    }
+  }, [selectedDetailItem]);
+
+  // Handle 50% scroll trigger inside detail modal
+  const handleDetailModalScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (!selectedDetailItem || !activeAffiliateAd || !activeAffiliateAd.enabled) return;
+    if (affiliateTriggeredForDistRef.current[selectedDetailItem.id]) return;
+
+    const target = e.currentTarget;
+    const scrollHeight = target.scrollHeight - target.clientHeight;
+    if (scrollHeight > 0) {
+      const scrollPct = (target.scrollTop / scrollHeight) * 100;
+      if (scrollPct >= 50) {
+        affiliateTriggeredForDistRef.current[selectedDetailItem.id] = true;
+        setIsAffiliateModalOpen(true);
+      }
+    }
+  };
 
   useEffect(() => {
     const unsub = subscribeDistrictItems((items) => {
@@ -456,7 +521,10 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
       {/* ------------------------------------------------------------- */}
       {selectedDetailItem && (
         <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border-2 border-amber-400 relative space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+          <div
+            onScroll={handleDetailModalScroll}
+            className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border-2 border-amber-400 relative space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200"
+          >
             {/* Modal Header Bar */}
             <div className="flex items-center justify-between border-b border-amber-200 pb-3">
               <div className="flex items-center gap-2">
@@ -579,20 +647,20 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                 </div>
               )}
 
-              {/* Affiliate Product Recommendation Card if configured */}
+              {/* Affiliate Product Recommendation Card (Strict NO-FALLBACK Rule: Only if valid image + url) */}
               {Boolean(
-                (selectedDetailItem.affiliateProductTitle && selectedDetailItem.affiliateProductTitle.trim()) ||
-                (selectedDetailItem.affiliateTargetUrl && selectedDetailItem.affiliateTargetUrl.trim()) ||
-                (selectedDetailItem.affiliateAd?.productTitle && selectedDetailItem.affiliateAd.productTitle.trim()) ||
-                (selectedDetailItem.affiliateAd?.affiliateUrl && selectedDetailItem.affiliateAd.affiliateUrl.trim())
+                activeAffiliateAd &&
+                activeAffiliateAd.enabled !== false &&
+                activeAffiliateAd.productImageUrl &&
+                activeAffiliateAd.affiliateUrl
               ) && (
                 <div className="pt-2">
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-3.5 sm:p-4 shadow-sm flex flex-col sm:flex-row items-center gap-3.5">
-                    {(selectedDetailItem.affiliateProductImageUrl || selectedDetailItem.affiliateAd?.productImageUrl) && (
+                    {activeAffiliateAd?.productImageUrl && (
                       <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-white border border-amber-200 p-1 shrink-0 overflow-hidden flex items-center justify-center">
                         <SmartImage
-                          src={selectedDetailItem.affiliateProductImageUrl || selectedDetailItem.affiliateAd?.productImageUrl || ''}
-                          alt={selectedDetailItem.affiliateProductTitle || selectedDetailItem.affiliateAd?.productTitle || 'Product'}
+                          src={activeAffiliateAd.productImageUrl}
+                          alt={activeAffiliateAd.productTitle || 'Product'}
                           className="w-full h-full object-contain"
                         />
                       </div>
@@ -603,14 +671,14 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                         <span>ସ୍ୱତନ୍ତ୍ର ପୂଜା ସାମଗ୍ରୀ • Special Offer</span>
                       </span>
                       <h5 className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
-                        {selectedDetailItem.affiliateProductTitle || selectedDetailItem.affiliateAd?.productTitle || 'ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ଓ ଧାର୍ମିକ ପୁସ୍ତକ'}
+                        {activeAffiliateAd?.productTitle || 'ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ଓ ଧାର୍ମିକ ପୁସ୍ତକ'}
                       </h5>
                       <p className="text-[11px] text-slate-600 font-medium">
-                        Amazon ରେ ରିହାତି ମୂଲ୍ୟରେ ଉପଲବ୍ଧ | ସିଧାସଳଖ ଘରେ ଡେଲିଭରୀ ପାଆନ୍ତୁ।
+                        {activeAffiliateAd?.productDescription || 'Amazon ରେ ରିହାତି ମୂଲ୍ୟରେ ଉପଲବ୍ଧ | ସିଧାସଳଖ ଘରେ ଡେଲିଭରୀ ପାଆନ୍ତୁ।'}
                       </p>
                     </div>
                     <a
-                      href={selectedDetailItem.affiliateTargetUrl || selectedDetailItem.affiliateAd?.affiliateUrl || 'https://www.amazon.in'}
+                      href={activeAffiliateAd?.affiliateUrl || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
@@ -673,6 +741,14 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
           </div>
         </div>
       )}
+
+      {/* Strict Scroll-triggered Countdown Affiliate Ad Overlay for District Content */}
+      <AffiliateAdModal
+        ad={activeAffiliateAd}
+        isOpen={isAffiliateModalOpen}
+        onClose={() => setIsAffiliateModalOpen(false)}
+        lang="OD"
+      />
 
       {/* Puri Online Store Modal */}
       <PuriOnlineStoreModal

@@ -392,6 +392,20 @@ export async function getAllContent(): Promise<UnifiedFeedItem[]> {
     for (const dItem of districtItems) {
       if (!dItem.title) continue;
       const isPurana = dItem.category === 'story' || dItem.districtNameOdia.includes('ପୁରାଣ');
+      const affiliateUrl = (
+        dItem.affiliateTargetUrl ||
+        dItem.affiliateAd?.affiliateUrl ||
+        ''
+      ).trim();
+      const productImageUrl = (
+        dItem.affiliateProductImageUrl ||
+        dItem.affiliateAd?.productImageUrl ||
+        ''
+      ).trim();
+      const hasValidAd = Boolean(
+        dItem.affiliateAd?.enabled !== false && affiliateUrl && productImageUrl
+      );
+
       unified.push({
         id: `district-${dItem.id}`,
         title: dItem.title,
@@ -404,6 +418,16 @@ export async function getAllContent(): Promise<UnifiedFeedItem[]> {
         publishedAt: dItem.createdAt ? dItem.createdAt.split('T')[0] : '2026-01-01',
         sourceType: isPurana ? 'purana' : 'district_story',
         isFeatured: false,
+        affiliateAd: hasValidAd
+          ? {
+              enabled: true,
+              productTitle: dItem.affiliateProductTitle || dItem.affiliateAd?.productTitle || '',
+              productDescription: dItem.affiliateAd?.productDescription || '',
+              productImageUrl,
+              affiliateUrl,
+              countdownSeconds: dItem.affiliateAd?.countdownSeconds || 5,
+            }
+          : undefined,
         originalData: dItem,
       });
     }

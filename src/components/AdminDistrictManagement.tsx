@@ -662,7 +662,7 @@ export const AdminDistrictManagement: React.FC = () => {
                 </div>
               </div>
 
-              {/* 8. Monetization & Affiliate Ad Section (3 Dedicated Input Fields) */}
+              {/* 8. Monetization & Affiliate Ad Section */}
               <div className="p-3.5 sm:p-4 bg-gradient-to-br from-amber-50/90 via-orange-50/50 to-amber-50/80 rounded-2xl border-2 border-dashed border-amber-300 space-y-3">
                 <div className="flex items-center justify-between pb-1.5 border-b border-amber-200">
                   <div className="flex items-center gap-2">
@@ -671,9 +671,24 @@ export const AdminDistrictManagement: React.FC = () => {
                       ମନିଟାଇଜେସନ୍ / ଆଫିଲିଏଟ୍ ବିଜ୍ଞାପନ (Monetization & Affiliate Product Ad)
                     </span>
                   </div>
-                  <span className="text-[10px] font-bold text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-md">
-                    Optional / ଐଚ୍ଛିକ
-                  </span>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-amber-950 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingItem.affiliateAd?.enabled !== false && Boolean(editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl || editingItem.affiliateTargetUrl || editingItem.affiliateAd?.affiliateUrl)}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        setEditingItem((prev) => ({
+                          ...prev,
+                          affiliateAd: {
+                            ...(prev?.affiliateAd || {}),
+                            enabled: checked,
+                          },
+                        }));
+                      }}
+                      className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
+                    />
+                    <span>Active (ସକ୍ରିୟ)</span>
+                  </label>
                 </div>
 
                 {/* 1. Affiliate Product Title */}
@@ -705,12 +720,12 @@ export const AdminDistrictManagement: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="block font-bold text-amber-950 text-xs">
-                      🖼️ ଆଫିଲିଏଟ୍ ଫଟୋ URL (Affiliate Image URL)
+                      🖼️ ଆଫିଲିଏଟ୍ ଫଟୋ URL (Affiliate Image URL) *
                     </label>
                     <div className="flex gap-2">
                       <input
                         type="url"
-                        placeholder="https://images-na.ssl-images-amazon.com/... or image URL"
+                        placeholder="https://example.com/product-ad.jpg"
                         value={editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl || ''}
                         onChange={(e) => {
                           const val = e.target.value;
@@ -732,6 +747,9 @@ export const AdminDistrictManagement: React.FC = () => {
                             src={editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl}
                             alt="Affiliate Preview"
                             className="w-full h-full object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
                           />
                         </div>
                       )}
@@ -740,7 +758,7 @@ export const AdminDistrictManagement: React.FC = () => {
 
                   <div className="space-y-1">
                     <label className="block font-bold text-amber-950 text-xs">
-                      🔗 ଆଫିଲିଏଟ୍ ଲିଙ୍କ୍ (Affiliate Target URL)
+                      🔗 ଆଫିଲିଏଟ୍ ଲିଙ୍କ୍ (Affiliate Buy Link) *
                     </label>
                     <input
                       type="url"
@@ -759,6 +777,54 @@ export const AdminDistrictManagement: React.FC = () => {
                         }));
                       }}
                       className="w-full p-2.5 text-xs font-mono border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Optional Description & Countdown Timer Duration */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="space-y-1">
+                    <label className="block font-bold text-amber-950 text-xs">
+                      📝 ସଂକ୍ଷିପ୍ତ ଅଫର ବିବରଣୀ (Short Offer Note)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. 100% Original & Fast Delivery Available"
+                      value={editingItem.affiliateAd?.productDescription || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingItem((prev) => ({
+                          ...prev,
+                          affiliateAd: {
+                            ...(prev?.affiliateAd || {}),
+                            productDescription: val,
+                          },
+                        }));
+                      }}
+                      className="w-full p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block font-bold text-amber-950 text-xs">
+                      ⏱️ କାଉଣ୍ଟଡାଉନ୍ ଟାଇମର୍ ସେକେଣ୍ଡ (Timer: 5s Default)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={30}
+                      value={editingItem.affiliateAd?.countdownSeconds || 5}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 5;
+                        setEditingItem((prev) => ({
+                          ...prev,
+                          affiliateAd: {
+                            ...(prev?.affiliateAd || {}),
+                            countdownSeconds: val,
+                          },
+                        }));
+                      }}
+                      className="w-full p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
                     />
                   </div>
                 </div>
