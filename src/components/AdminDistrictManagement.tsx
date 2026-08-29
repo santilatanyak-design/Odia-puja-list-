@@ -65,31 +65,41 @@ export const AdminDistrictManagement: React.FC = () => {
       affiliateProductTitle: '',
       affiliateProductImageUrl: '',
       affiliateTargetUrl: '',
+      adTriggerText: '',
+      adTimerSeconds: 5,
       affiliateAd: {
         enabled: true,
         productTitle: '',
         productImageUrl: '',
         affiliateUrl: '',
+        adTriggerText: '',
+        adTimerSeconds: 5,
       },
     });
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (item: DistrictItem) => {
-    const affiliateProductTitle = item.affiliateProductTitle || item.affiliateAd?.productTitle || '';
-    const affiliateProductImageUrl = item.affiliateProductImageUrl || item.affiliateAd?.productImageUrl || '';
-    const affiliateTargetUrl = item.affiliateTargetUrl || item.affiliateAd?.affiliateUrl || '';
+    const affiliateProductTitle = item.adTitle || item.affiliateProductTitle || item.affiliateAd?.productTitle || '';
+    const affiliateProductImageUrl = item.adImageUrl || item.affiliateProductImageUrl || item.affiliateAd?.productImageUrl || '';
+    const affiliateTargetUrl = item.adLink || item.affiliateTargetUrl || item.affiliateAd?.affiliateUrl || '';
+    const adTriggerText = item.adTriggerText || item.affiliateAd?.adTriggerText || '';
+    const adTimerSeconds = Number(item.adTimerSeconds) || Number(item.affiliateAd?.adTimerSeconds) || Number(item.affiliateAd?.countdownSeconds) || 5;
 
     setEditingItem({
       ...item,
       affiliateProductTitle,
       affiliateProductImageUrl,
       affiliateTargetUrl,
+      adTriggerText,
+      adTimerSeconds,
       affiliateAd: item.affiliateAd || {
         enabled: true,
         productTitle: affiliateProductTitle,
         productImageUrl: affiliateProductImageUrl,
         affiliateUrl: affiliateTargetUrl,
+        adTriggerText,
+        adTimerSeconds,
       },
     });
     setIsModalOpen(true);
@@ -781,52 +791,85 @@ export const AdminDistrictManagement: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Optional Description & Countdown Timer Duration */}
+                {/* Trigger Word & Countdown Timer Duration */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <div className="space-y-1">
                     <label className="block font-bold text-amber-950 text-xs">
-                      📝 ସଂକ୍ଷିପ୍ତ ଅଫର ବିବରଣୀ (Short Offer Note)
+                      🎯 ଶବ୍ଦ ଟ୍ରିଗର୍ / କୀ-ୱାର୍ଡ଼ (Word Trigger in Description)
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. 100% Original & Fast Delivery Available"
-                      value={editingItem.affiliateAd?.productDescription || ''}
+                      placeholder="e.g. ଜଗନ୍ନାଥ, ପ୍ରସାଦ, ପୂଜା, ରଥଯାତ୍ରା (Optional)"
+                      value={editingItem.adTriggerText || editingItem.affiliateAd?.adTriggerText || ''}
                       onChange={(e) => {
                         const val = e.target.value;
                         setEditingItem((prev) => ({
                           ...prev,
+                          adTriggerText: val,
                           affiliateAd: {
                             ...(prev?.affiliateAd || {}),
-                            productDescription: val,
+                            adTriggerText: val,
                           },
                         }));
                       }}
-                      className="w-full p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full p-2.5 text-xs font-bold border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
                     />
+                    <p className="text-[10px] text-amber-800">
+                      ଯେତେବେଳେ ପାଠକ ଏହି ଶବ୍ଦ ପାଖକୁ ସ୍କ୍ରୋଲ୍ କରିବେ, ବିଜ୍ଞାପନ ଟ୍ରିଗର୍ ହେବ (IntersectionObserver)।
+                    </p>
                   </div>
 
                   <div className="space-y-1">
                     <label className="block font-bold text-amber-950 text-xs">
-                      ⏱️ କାଉଣ୍ଟଡାଉନ୍ ଟାଇମର୍ ସେକେଣ୍ଡ (Timer: 5s Default)
+                      ⏱️ କାଉଣ୍ଟଡାଉନ୍ ଟାଇମର୍ ସେକେଣ୍ଡ (adTimerSeconds: 5s Default)
                     </label>
                     <input
                       type="number"
                       min={1}
-                      max={30}
-                      value={editingItem.affiliateAd?.countdownSeconds || 5}
+                      max={60}
+                      value={editingItem.adTimerSeconds || editingItem.affiliateAd?.adTimerSeconds || editingItem.affiliateAd?.countdownSeconds || 5}
                       onChange={(e) => {
                         const val = parseInt(e.target.value) || 5;
                         setEditingItem((prev) => ({
                           ...prev,
+                          adTimerSeconds: val,
                           affiliateAd: {
                             ...(prev?.affiliateAd || {}),
+                            adTimerSeconds: val,
                             countdownSeconds: val,
                           },
                         }));
                       }}
-                      className="w-full p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      className="w-full p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono"
                     />
+                    <p className="text-[10px] text-amber-800">
+                      ବିଜ୍ଞାପନ ପପ୍-ଅପ୍ ଆପେ ଆପେ ବନ୍ଦ ହେବା ପାଇଁ ସମୟ।
+                    </p>
                   </div>
+                </div>
+
+                {/* Optional Offer Note */}
+                <div className="space-y-1 pt-1">
+                  <label className="block font-bold text-amber-950 text-xs">
+                    📝 ସଂକ୍ଷିପ୍ତ ଅଫର ବିବରଣୀ (Short Offer Note)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 100% Original & Fast Delivery Available"
+                    value={editingItem.adDescription || editingItem.affiliateAd?.productDescription || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingItem((prev) => ({
+                        ...prev,
+                        adDescription: val,
+                        affiliateAd: {
+                          ...(prev?.affiliateAd || {}),
+                          productDescription: val,
+                        },
+                      }));
+                    }}
+                    className="w-full p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  />
                 </div>
               </div>
 

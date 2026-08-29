@@ -309,6 +309,10 @@ export interface AffiliateProductAd {
   affiliateUrl?: string;
   triggerDelaySeconds?: number;
   countdownSeconds?: number;
+  adTriggerText?: string;
+  adTimerSeconds?: number;
+  adImageUrl?: string;
+  adLink?: string;
 }
 
 export interface UnifiedFeedItem {
@@ -365,6 +369,12 @@ export interface DistrictItem {
   affiliateProductTitle?: string;
   affiliateProductImageUrl?: string;
   affiliateTargetUrl?: string;
+  adTriggerText?: string;
+  adTimerSeconds?: number;
+  adImageUrl?: string;
+  adLink?: string;
+  adTitle?: string;
+  adDescription?: string;
 }
 
 export interface OdishaDistrictInfo {

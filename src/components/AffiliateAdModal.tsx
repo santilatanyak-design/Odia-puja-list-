@@ -29,6 +29,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
   // If ad data is missing, disabled, or lacks a valid link or image, return null immediately.
   const affiliateUrl = (
     ad?.affiliateUrl ||
+    ad?.adLink ||
     (ad as any)?.affiliateLink ||
     (ad as any)?.affiliateTargetUrl ||
     ''
@@ -36,6 +37,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 
   const productImageUrl = (
     ad?.productImageUrl ||
+    ad?.adImageUrl ||
     (ad as any)?.affiliateImageURL ||
     (ad as any)?.affiliateImageUrl ||
     (ad as any)?.affiliateProductImageUrl ||
@@ -44,7 +46,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 
   const isEnabled = ad && ad.enabled !== false && Boolean(affiliateUrl && productImageUrl);
 
-  const countdownStart = Math.max(1, Number(ad?.countdownSeconds) || 5);
+  const countdownStart = Math.max(1, Number(ad?.adTimerSeconds) || Number(ad?.countdownSeconds) || 5);
   const [countdown, setCountdown] = useState<number>(countdownStart);
   const onCloseRef = useRef(onClose);
 

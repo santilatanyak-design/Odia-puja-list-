@@ -121,9 +121,36 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
   const now = new Date().toISOString();
   const id = item.id || 'dist-item-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
 
-  const affiliateProductTitle = item.affiliateProductTitle?.trim() || item.affiliateAd?.productTitle?.trim() || '';
-  const affiliateProductImageUrl = item.affiliateProductImageUrl?.trim() || item.affiliateAd?.productImageUrl?.trim() || '';
-  const affiliateTargetUrl = item.affiliateTargetUrl?.trim() || item.affiliateAd?.affiliateUrl?.trim() || '';
+  const affiliateProductTitle =
+    item.adTitle?.trim() ||
+    item.affiliateProductTitle?.trim() ||
+    item.affiliateAd?.productTitle?.trim() ||
+    '';
+  const affiliateProductImageUrl =
+    item.adImageUrl?.trim() ||
+    item.affiliateProductImageUrl?.trim() ||
+    item.affiliateAd?.productImageUrl?.trim() ||
+    item.affiliateAd?.adImageUrl?.trim() ||
+    (item as any).affiliateImageURL?.trim() ||
+    '';
+  const affiliateTargetUrl =
+    item.adLink?.trim() ||
+    item.affiliateTargetUrl?.trim() ||
+    item.affiliateAd?.affiliateUrl?.trim() ||
+    item.affiliateAd?.adLink?.trim() ||
+    (item as any).affiliateLink?.trim() ||
+    '';
+  const adTriggerText =
+    item.adTriggerText?.trim() ||
+    item.affiliateAd?.adTriggerText?.trim() ||
+    '';
+  const adTimerSeconds = Math.max(
+    1,
+    Number(item.adTimerSeconds) ||
+      Number(item.affiliateAd?.adTimerSeconds) ||
+      Number(item.affiliateAd?.countdownSeconds) ||
+      5
+  );
 
   const affiliateAd =
     affiliateProductTitle || affiliateTargetUrl || affiliateProductImageUrl || item.affiliateAd
@@ -132,9 +159,13 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
           productTitle: affiliateProductTitle,
           productImageUrl: affiliateProductImageUrl,
           affiliateUrl: affiliateTargetUrl,
-          productDescription: item.affiliateAd?.productDescription || '',
+          adImageUrl: affiliateProductImageUrl,
+          adLink: affiliateTargetUrl,
+          adTriggerText,
+          adTimerSeconds,
+          productDescription: item.adDescription || item.affiliateAd?.productDescription || '',
           triggerDelaySeconds: item.affiliateAd?.triggerDelaySeconds || 4,
-          countdownSeconds: item.affiliateAd?.countdownSeconds || 5,
+          countdownSeconds: adTimerSeconds,
         }
       : undefined;
 
@@ -157,6 +188,12 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
     affiliateProductTitle,
     affiliateProductImageUrl,
     affiliateTargetUrl,
+    adTriggerText,
+    adTimerSeconds,
+    adImageUrl: affiliateProductImageUrl,
+    adLink: affiliateTargetUrl,
+    adTitle: affiliateProductTitle,
+    adDescription: item.adDescription || item.affiliateAd?.productDescription || '',
     affiliateAd,
   };
 

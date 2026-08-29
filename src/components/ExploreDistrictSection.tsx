@@ -45,14 +45,48 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
   useEffect(() => {
     if (selectedDetailItem) {
       const affiliateUrl = (
+        selectedDetailItem.adLink ||
         selectedDetailItem.affiliateTargetUrl ||
         selectedDetailItem.affiliateAd?.affiliateUrl ||
+        selectedDetailItem.affiliateAd?.adLink ||
+        (selectedDetailItem as any).affiliateLink ||
         ''
       ).trim();
 
       const productImageUrl = (
+        selectedDetailItem.adImageUrl ||
         selectedDetailItem.affiliateProductImageUrl ||
         selectedDetailItem.affiliateAd?.productImageUrl ||
+        selectedDetailItem.affiliateAd?.adImageUrl ||
+        (selectedDetailItem as any).affiliateImageURL ||
+        (selectedDetailItem as any).affiliateImageUrl ||
+        ''
+      ).trim();
+
+      const adTriggerText = (
+        selectedDetailItem.adTriggerText ||
+        selectedDetailItem.affiliateAd?.adTriggerText ||
+        ''
+      ).trim();
+
+      const adTimerSeconds = Math.max(
+        1,
+        Number(selectedDetailItem.adTimerSeconds) ||
+          Number(selectedDetailItem.affiliateAd?.adTimerSeconds) ||
+          Number(selectedDetailItem.affiliateAd?.countdownSeconds) ||
+          5
+      );
+
+      const productTitle = (
+        selectedDetailItem.adTitle ||
+        selectedDetailItem.affiliateProductTitle ||
+        selectedDetailItem.affiliateAd?.productTitle ||
+        ''
+      ).trim();
+
+      const productDescription = (
+        selectedDetailItem.adDescription ||
+        selectedDetailItem.affiliateAd?.productDescription ||
         ''
       ).trim();
 
@@ -63,17 +97,15 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
       if (isEnabled) {
         const resolved: AffiliateProductAd = {
           enabled: true,
-          productTitle:
-            selectedDetailItem.affiliateProductTitle ||
-            selectedDetailItem.affiliateAd?.productTitle ||
-            '',
-          productDescription: selectedDetailItem.affiliateAd?.productDescription || '',
+          productTitle,
+          productDescription,
           productImageUrl,
           affiliateUrl,
-          countdownSeconds: Math.max(
-            1,
-            Number(selectedDetailItem.affiliateAd?.countdownSeconds) || 5
-          ),
+          adImageUrl: productImageUrl,
+          adLink: affiliateUrl,
+          adTriggerText,
+          adTimerSeconds,
+          countdownSeconds: adTimerSeconds,
         };
         setActiveAffiliateAd(resolved);
       } else {
@@ -86,7 +118,48 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
     }
   }, [selectedDetailItem]);
 
-  // Handle 50% scroll trigger inside detail modal
+  // WORD-SPECIFIC TRIGGER: IntersectionObserver for adTriggerText inside District Description
+  useEffect(() => {
+    if (!selectedDetailItem || !activeAffiliateAd || !activeAffiliateAd.enabled) return;
+    if (!activeAffiliateAd.adTriggerText) return;
+    if (affiliateTriggeredForDistRef.current[selectedDetailItem.id]) return;
+
+    // Small delay to ensure modal DOM is mounted
+    const timer = setTimeout(() => {
+      const targetEl = document.getElementById('ad-trigger-word');
+      const scrollContainer = document.getElementById('district-detail-modal-container');
+
+      if (!targetEl) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              if (!affiliateTriggeredForDistRef.current[selectedDetailItem.id]) {
+                affiliateTriggeredForDistRef.current[selectedDetailItem.id] = true;
+                setIsAffiliateModalOpen(true);
+              }
+              observer.disconnect();
+            }
+          });
+        },
+        {
+          root: scrollContainer || null,
+          threshold: 0.1,
+        }
+      );
+
+      observer.observe(targetEl);
+
+      return () => {
+        observer.disconnect();
+      };
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [selectedDetailItem, activeAffiliateAd]);
+
+  // Handle scroll trigger inside detail modal (50% scroll depth fallback if no word trigger or user scrolls past)
   const handleDetailModalScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (!selectedDetailItem || !activeAffiliateAd || !activeAffiliateAd.enabled) return;
     if (affiliateTriggeredForDistRef.current[selectedDetailItem.id]) return;
@@ -100,6 +173,40 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
         setIsAffiliateModalOpen(true);
       }
     }
+  };
+
+  // Helper to render District Description with marked trigger word for IntersectionObserver
+  const renderDistrictDescription = (description: string, triggerWord?: string) => {
+    if (!triggerWord || !triggerWord.trim()) {
+      return description;
+    }
+
+    const trimmed = triggerWord.trim();
+    const lowerDesc = description.toLowerCase();
+    const lowerTrigger = trimmed.toLowerCase();
+    const index = lowerDesc.indexOf(lowerTrigger);
+
+    if (index === -1) {
+      return description;
+    }
+
+    const before = description.slice(0, index);
+    const match = description.slice(index, index + trimmed.length);
+    const after = description.slice(index + trimmed.length);
+
+    return (
+      <>
+        {before}
+        <span
+          id="ad-trigger-word"
+          data-trigger-text={trimmed}
+          className="relative inline font-bold text-amber-950 underline decoration-amber-400 decoration-2 underline-offset-2"
+        >
+          {match}
+        </span>
+        {after}
+      </>
+    );
   };
 
   useEffect(() => {
@@ -522,6 +629,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
       {selectedDetailItem && (
         <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div
+            id="district-detail-modal-container"
             onScroll={handleDetailModalScroll}
             className="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border-2 border-amber-400 relative space-y-4 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200"
           >
@@ -631,7 +739,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                   <span>ବିସ୍ତୃତ ବିବରଣୀ ଓ ଇତିହାସ (Full History & Description)</span>
                 </h4>
                 <div className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/80 p-4 rounded-2xl border border-slate-200">
-                  {selectedDetailItem.description}
+                  {renderDistrictDescription(selectedDetailItem.description, activeAffiliateAd?.adTriggerText)}
                 </div>
               </div>
 
