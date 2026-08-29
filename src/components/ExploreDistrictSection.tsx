@@ -5,6 +5,7 @@ import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api'
 import { shareDistrictItemNative, setDynamicDistrictItemMeta } from '../lib/ogMetaHelper';
 import { PuriOnlineStoreModal } from './PuriOnlineStoreModal';
 import { AffiliateAdModal } from './AffiliateAdModal';
+import { findTriggerInText, logAffiliateDebug } from '../lib/adUtils';
 import { SmartImage } from './SmartImage';
 import {
   MapPin,
@@ -118,16 +119,32 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
     }
   }, [selectedDetailItem]);
 
-  // WORD-SPECIFIC TRIGGER: IntersectionObserver for adTriggerText inside District Description
+  // WORD-SPECIFIC TRIGGER & FAIL-SAFE 50% SCROLL FALLBACK with Comprehensive Debug Logs
   useEffect(() => {
     if (!selectedDetailItem || !activeAffiliateAd || !activeAffiliateAd.enabled) return;
-    if (!activeAffiliateAd.adTriggerText) return;
     if (affiliateTriggeredForDistRef.current[selectedDetailItem.id]) return;
 
-    // Small delay to ensure modal DOM is mounted
+    // Small delay to ensure modal DOM content is fully rendered
     const timer = setTimeout(() => {
       const targetEl = document.getElementById('ad-trigger-word');
       const scrollContainer = document.getElementById('district-detail-modal-container');
+      const isElementInDom = Boolean(targetEl);
+
+      // Log full debug diagnostic
+      logAffiliateDebug('District Content View', {
+        storyOrDistrictId: selectedDetailItem.id,
+        triggerText: activeAffiliateAd.adTriggerText,
+        timerSeconds: activeAffiliateAd.adTimerSeconds || activeAffiliateAd.countdownSeconds,
+        imageUrl: activeAffiliateAd.productImageUrl || activeAffiliateAd.adImageUrl,
+        link: activeAffiliateAd.affiliateUrl || activeAffiliateAd.adLink,
+        productTitle: activeAffiliateAd.productTitle,
+        elementFoundInDom: isElementInDom,
+        reason: isElementInDom
+          ? `Word element found. IntersectionObserver armed for trigger keyword: "${activeAffiliateAd.adTriggerText}".`
+          : activeAffiliateAd.adTriggerText
+          ? `Keyword "${activeAffiliateAd.adTriggerText}" was provided but not found in text. FAIL-SAFE FALLBACK: 50% Scroll depth trigger is active.`
+          : 'No keyword provided. FAIL-SAFE FALLBACK: 50% Scroll depth trigger is active.',
+      });
 
       if (!targetEl) return;
 
@@ -136,6 +153,10 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               if (!affiliateTriggeredForDistRef.current[selectedDetailItem.id]) {
+                console.log(
+                  '%c[Affiliate Ad Debug] 🚀 Trigger Word Intersected! Opening Ad Modal now.',
+                  'color: #16a34a; font-weight: bold;'
+                );
                 affiliateTriggeredForDistRef.current[selectedDetailItem.id] = true;
                 setIsAffiliateModalOpen(true);
               }
@@ -154,12 +175,12 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
       return () => {
         observer.disconnect();
       };
-    }, 100);
+    }, 150);
 
     return () => clearTimeout(timer);
   }, [selectedDetailItem, activeAffiliateAd]);
 
-  // Handle scroll trigger inside detail modal (50% scroll depth fallback if no word trigger or user scrolls past)
+  // Handle scroll trigger inside detail modal (Fail-safe 50% scroll depth fallback)
   const handleDetailModalScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (!selectedDetailItem || !activeAffiliateAd || !activeAffiliateAd.enabled) return;
     if (affiliateTriggeredForDistRef.current[selectedDetailItem.id]) return;
@@ -169,42 +190,39 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
     if (scrollHeight > 0) {
       const scrollPct = (target.scrollTop / scrollHeight) * 100;
       if (scrollPct >= 50) {
+        console.log(
+          '%c[Affiliate Ad Debug] 📜 50% Scroll Depth reached in District View! Opening Ad Modal via Fail-safe Fallback.',
+          'color: #2563eb; font-weight: bold;'
+        );
         affiliateTriggeredForDistRef.current[selectedDetailItem.id] = true;
         setIsAffiliateModalOpen(true);
       }
     }
   };
 
-  // Helper to render District Description with marked trigger word for IntersectionObserver
+  // Robust helper to render District Description with marked trigger word for IntersectionObserver
   const renderDistrictDescription = (description: string, triggerWord?: string) => {
+    if (!description) return null;
     if (!triggerWord || !triggerWord.trim()) {
       return description;
     }
 
-    const trimmed = triggerWord.trim();
-    const lowerDesc = description.toLowerCase();
-    const lowerTrigger = trimmed.toLowerCase();
-    const index = lowerDesc.indexOf(lowerTrigger);
-
-    if (index === -1) {
+    const matchResult = findTriggerInText(description, triggerWord);
+    if (!matchResult.found) {
       return description;
     }
 
-    const before = description.slice(0, index);
-    const match = description.slice(index, index + trimmed.length);
-    const after = description.slice(index + trimmed.length);
-
     return (
       <>
-        {before}
+        {matchResult.before}
         <span
           id="ad-trigger-word"
-          data-trigger-text={trimmed}
+          data-trigger-text={triggerWord.trim()}
           className="relative inline font-bold text-amber-950 underline decoration-amber-400 decoration-2 underline-offset-2"
         >
-          {match}
+          {matchResult.match}
         </span>
-        {after}
+        {matchResult.after}
       </>
     );
   };

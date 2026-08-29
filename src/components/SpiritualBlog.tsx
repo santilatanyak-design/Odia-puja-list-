@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { SmartImage } from './SmartImage';
 import { AffiliateAdModal } from './AffiliateAdModal';
+import { findTriggerInText, logAffiliateDebug } from '../lib/adUtils';
 
 interface SpiritualBlogProps {
   initialStoryId?: string | null;
@@ -187,6 +188,8 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
           adConfig?.affiliateUrl ||
           (adConfig as any)?.affiliateLink ||
           (adConfig as any)?.affiliateTargetUrl ||
+          adConfig?.adLink ||
+          (selectedStory as any).adLink ||
           (selectedStory as any).affiliateUrl ||
           (selectedStory as any).affiliateLink ||
           ''
@@ -194,12 +197,28 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
         const productImageUrl = (
           adConfig?.productImageUrl ||
+          adConfig?.adImageUrl ||
           (adConfig as any)?.affiliateImageURL ||
           (adConfig as any)?.affiliateImageUrl ||
+          (selectedStory as any).adImageUrl ||
           (selectedStory as any).affiliateImageURL ||
           (selectedStory as any).affiliateImageUrl ||
           ''
         ).trim();
+
+        const adTriggerText = (
+          adConfig?.adTriggerText ||
+          (selectedStory as any).adTriggerText ||
+          ''
+        ).trim();
+
+        const adTimerSeconds = Math.max(
+          1,
+          Number(adConfig?.adTimerSeconds) ||
+            Number((selectedStory as any).adTimerSeconds) ||
+            Number(adConfig?.countdownSeconds) ||
+            5
+        );
 
         const isExplicitlyDisabled = adConfig && adConfig.enabled === false;
         const hasValidAffiliateData = !isExplicitlyDisabled && Boolean(affiliateUrl && productImageUrl);
@@ -211,7 +230,11 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
             productDescription: adConfig.productDescription?.trim() || '',
             productImageUrl,
             affiliateUrl,
-            countdownSeconds: Math.max(1, Number(adConfig.countdownSeconds) || 5),
+            adImageUrl: productImageUrl,
+            adLink: affiliateUrl,
+            adTriggerText,
+            adTimerSeconds,
+            countdownSeconds: adTimerSeconds,
           };
           setActiveAd(resolvedAd);
           setIsAdOpen(false);
@@ -238,11 +261,59 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     }
   }, [selectedStory]);
 
-  // SMART AFFILIATE AD TRIGGER: Exact 50% Article Scroll Depth Trigger
+  // SMART AFFILIATE AD TRIGGER: Word-Specific IntersectionObserver & Fail-Safe 50% Scroll Fallback
   useEffect(() => {
     if (!selectedStory || !activeAd || !activeAd.enabled) return;
     if (adTriggeredForStoryRef.current[selectedStory.id]) return;
 
+    // Small delay to ensure post DOM is fully rendered
+    const timer = setTimeout(() => {
+      const targetEl = document.getElementById('ad-trigger-word');
+      const isElementInDom = Boolean(targetEl);
+
+      // Log full debug diagnostic
+      logAffiliateDebug('Single Story Post View', {
+        storyOrDistrictId: selectedStory.id,
+        triggerText: activeAd.adTriggerText,
+        timerSeconds: activeAd.adTimerSeconds || activeAd.countdownSeconds,
+        imageUrl: activeAd.productImageUrl || activeAd.adImageUrl,
+        link: activeAd.affiliateUrl || activeAd.adLink,
+        productTitle: activeAd.productTitle,
+        elementFoundInDom: isElementInDom,
+        reason: isElementInDom
+          ? `Word element found in post DOM. IntersectionObserver active for keyword: "${activeAd.adTriggerText}".`
+          : activeAd.adTriggerText
+          ? `Keyword "${activeAd.adTriggerText}" was provided but not found in post text. FAIL-SAFE FALLBACK: 50% scroll depth is active.`
+          : 'No keyword provided. FAIL-SAFE FALLBACK: 50% scroll depth is active.',
+      });
+
+      if (targetEl) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                if (!adTriggeredForStoryRef.current[selectedStory.id]) {
+                  console.log(
+                    '%c[Affiliate Ad Debug] 🚀 Post Trigger Word Intersected! Opening Ad Modal now.',
+                    'color: #16a34a; font-weight: bold;'
+                  );
+                  adTriggeredForStoryRef.current[selectedStory.id] = true;
+                  setIsAdOpen(true);
+                }
+                observer.disconnect();
+              }
+            });
+          },
+          {
+            threshold: 0.1,
+          }
+        );
+
+        observer.observe(targetEl);
+      }
+    }, 150);
+
+    // Fail-Safe 50% Scroll Fallback
     const handleWindowScroll = () => {
       if (adTriggeredForStoryRef.current[selectedStory.id]) return;
 
@@ -251,10 +322,14 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         const rect = articleEl.getBoundingClientRect();
         const articleHeight = articleEl.offsetHeight;
         if (articleHeight > 0) {
-          // Calculate when the user has scrolled to 50% of the article body
+          // Calculate when user scrolled to 50% of the article body
           const scrolledPastTop = Math.max(0, -rect.top + window.innerHeight * 0.5);
           const scrollPct = (scrolledPastTop / articleHeight) * 100;
           if (scrollPct >= 50) {
+            console.log(
+              '%c[Affiliate Ad Debug] 📜 50% Article Scroll reached in Post View! Opening Ad Modal via Fail-safe Fallback.',
+              'color: #2563eb; font-weight: bold;'
+            );
             adTriggeredForStoryRef.current[selectedStory.id] = true;
             setIsAdOpen(true);
           }
@@ -265,6 +340,10 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         if (docHeight > 0) {
           const scrollPct = (scrollY / docHeight) * 100;
           if (scrollPct >= 50) {
+            console.log(
+              '%c[Affiliate Ad Debug] 📜 50% Document Scroll reached in Post View! Opening Ad Modal via Fail-safe Fallback.',
+              'color: #2563eb; font-weight: bold;'
+            );
             adTriggeredForStoryRef.current[selectedStory.id] = true;
             setIsAdOpen(true);
           }
@@ -273,10 +352,13 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     };
 
     window.addEventListener('scroll', handleWindowScroll, { passive: true });
-    // Check initial scroll in case user already navigated / scrolled
+    // Check initial scroll position
     handleWindowScroll();
 
-    return () => window.removeEventListener('scroll', handleWindowScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleWindowScroll);
+    };
   }, [selectedStory, activeAd]);
 
   const categories = [
@@ -457,48 +539,75 @@ ${story.summary}
             </div>
           )}
 
-          {/* Formatted Content Body */}
+          {/* Formatted Content Body with Observable Smart Trigger */}
           <div className="prose prose-orange max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-4 font-normal">
-            {selectedStory.content.split('\n\n').map((para, idx) => {
-              const trimmed = para.trim();
-              if (trimmed.startsWith('### ')) {
+            {(() => {
+              let triggerRenderedInBody = false;
+              const triggerWord = activeAd?.adTriggerText;
+
+              return selectedStory.content.split('\n\n').map((para, idx) => {
+                const trimmed = para.trim();
+                if (trimmed.startsWith('### ')) {
+                  return (
+                    <h3
+                      key={idx}
+                      className="text-base sm:text-xl font-black text-slate-900 pt-3 pb-1 border-b border-orange-200"
+                    >
+                      {trimmed.replace('### ', '')}
+                    </h3>
+                  );
+                }
+                if (trimmed.startsWith('> ')) {
+                  return (
+                    <blockquote
+                      key={idx}
+                      className="p-3.5 bg-orange-50/80 border-l-4 border-orange-600 rounded-r-xl italic font-bold text-orange-950 text-xs sm:text-sm"
+                    >
+                      {trimmed.replace('> ', '')}
+                    </blockquote>
+                  );
+                }
+                if (trimmed.startsWith('• ') || trimmed.startsWith('- ')) {
+                  return (
+                    <div key={idx} className="pl-3 space-y-1.5 my-2">
+                      {trimmed.split('\n').map((line, lIdx) => (
+                        <div key={lIdx} className="flex items-start gap-2 text-slate-800">
+                          <span className="text-orange-600 font-black">•</span>
+                          <span>{line.replace(/^[•\-]\s*/, '')}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+
+                // Normal Paragraph: Match trigger word if present and not rendered yet
+                if (triggerWord && !triggerRenderedInBody) {
+                  const matchResult = findTriggerInText(para, triggerWord);
+                  if (matchResult.found) {
+                    triggerRenderedInBody = true;
+                    return (
+                      <p key={idx} className="leading-relaxed text-slate-800">
+                        {matchResult.before}
+                        <span
+                          id="ad-trigger-word"
+                          data-trigger-text={triggerWord.trim()}
+                          className="relative inline font-bold text-orange-950 underline decoration-amber-400 decoration-2 underline-offset-2"
+                        >
+                          {matchResult.match}
+                        </span>
+                        {matchResult.after}
+                      </p>
+                    );
+                  }
+                }
+
                 return (
-                  <h3
-                    key={idx}
-                    className="text-base sm:text-xl font-black text-slate-900 pt-3 pb-1 border-b border-orange-200"
-                  >
-                    {trimmed.replace('### ', '')}
-                  </h3>
+                  <p key={idx} className="leading-relaxed text-slate-800">
+                    {para}
+                  </p>
                 );
-              }
-              if (trimmed.startsWith('> ')) {
-                return (
-                  <blockquote
-                    key={idx}
-                    className="p-3.5 bg-orange-50/80 border-l-4 border-orange-600 rounded-r-xl italic font-bold text-orange-950 text-xs sm:text-sm"
-                  >
-                    {trimmed.replace('> ', '')}
-                  </blockquote>
-                );
-              }
-              if (trimmed.startsWith('• ') || trimmed.startsWith('- ')) {
-                return (
-                  <div key={idx} className="pl-3 space-y-1.5 my-2">
-                    {trimmed.split('\n').map((line, lIdx) => (
-                      <div key={lIdx} className="flex items-start gap-2 text-slate-800">
-                        <span className="text-orange-600 font-black">•</span>
-                        <span>{line.replace(/^[•\-]\s*/, '')}</span>
-                      </div>
-                    ))}
-                  </div>
-                );
-              }
-              return (
-                <p key={idx} className="leading-relaxed text-slate-800">
-                  {para}
-                </p>
-              );
-            })}
+              });
+            })()}
           </div>
 
           {/* ================================================================= */}

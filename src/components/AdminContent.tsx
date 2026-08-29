@@ -900,56 +900,60 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                       />
                     </div>
 
-                    {/* Delay Trigger & Countdown Controls */}
+                    {/* Word Trigger & Countdown Controls */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-white rounded-2xl border border-amber-300/70">
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-700">
-                          ⏳ Delay Trigger (କେତେ ସେକେଣ୍ଡ ପରେ Pop-up ହେବ?)
+                          🎯 ଶବ୍ଦ ଟ୍ରିଗର୍ / କୀ-ୱାର୍ଡ଼ (Word Trigger in Story Text)
                         </label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min={1}
-                            max={60}
-                            value={editingStory.affiliateAd?.triggerDelaySeconds || 4}
-                            onChange={(e) =>
-                              setEditingStory({
-                                ...editingStory,
-                                affiliateAd: {
-                                  ...(editingStory.affiliateAd || {}),
-                                  triggerDelaySeconds: Number(e.target.value),
-                                },
-                              })
-                            }
-                            className="w-24 px-3 py-1.5 rounded-xl border border-amber-300 text-xs font-black text-center"
-                          />
-                          <span className="text-xs text-slate-500 font-bold">ସେକେଣ୍ଡ (Default: 4s)</span>
-                        </div>
+                        <input
+                          type="text"
+                          placeholder="e.g. ଜଗନ୍ନାଥ, ଗୀତା, ପୂଜା (Optional)"
+                          value={editingStory.affiliateAd?.adTriggerText || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                adTriggerText: e.target.value,
+                              },
+                            })
+                          }
+                          className="w-full px-3 py-1.5 rounded-xl border border-amber-300 text-xs font-bold"
+                        />
+                        <p className="text-[10px] text-slate-500">
+                          ପାଠକ ଏହି ଶବ୍ଦକୁ ସ୍କ୍ରୋଲ୍ କଲେ ବିଜ୍ଞାପନ ତୁରନ୍ତ ଖୋଲିବ।
+                        </p>
                       </div>
 
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-700">
-                          ⏱️ Countdown Timer (କେତେ ସେକେଣ୍ଡ କାଉଣ୍ଟଡାଉନ୍ ପରେ ବନ୍ଦ ହେବ?)
+                          ⏱️ Countdown Timer (କେତେ ସେକେଣ୍ଡ ପରେ ବନ୍ଦ ହେବ?)
                         </label>
                         <div className="flex items-center gap-2">
                           <input
                             type="number"
                             min={2}
-                            max={30}
-                            value={editingStory.affiliateAd?.countdownSeconds || 5}
-                            onChange={(e) =>
+                            max={60}
+                            value={editingStory.affiliateAd?.adTimerSeconds || editingStory.affiliateAd?.countdownSeconds || 5}
+                            onChange={(e) => {
+                              const val = Number(e.target.value) || 5;
                               setEditingStory({
                                 ...editingStory,
                                 affiliateAd: {
                                   ...(editingStory.affiliateAd || {}),
-                                  countdownSeconds: Number(e.target.value),
+                                  adTimerSeconds: val,
+                                  countdownSeconds: val,
                                 },
-                              })
-                            }
+                              });
+                            }}
                             className="w-24 px-3 py-1.5 rounded-xl border border-amber-300 text-xs font-black text-center"
                           />
-                          <span className="text-xs text-slate-500 font-bold">ସେକେଣ୍ଡ (5, 4, 3, 2, 1, 0)</span>
+                          <span className="text-xs text-slate-500 font-bold">ସେକେଣ୍ଡ (Default: 5s)</span>
                         </div>
+                        <p className="text-[10px] text-slate-500">
+                          ଅଟୋମେଟିକ୍ ବନ୍ଦ ହେବା ସମୟ।
+                        </p>
                       </div>
                     </div>
                   </div>
