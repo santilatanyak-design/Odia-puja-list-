@@ -121,6 +121,23 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
   const now = new Date().toISOString();
   const id = item.id || 'dist-item-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
 
+  const affiliateProductTitle = item.affiliateProductTitle?.trim() || item.affiliateAd?.productTitle?.trim() || '';
+  const affiliateProductImageUrl = item.affiliateProductImageUrl?.trim() || item.affiliateAd?.productImageUrl?.trim() || '';
+  const affiliateTargetUrl = item.affiliateTargetUrl?.trim() || item.affiliateAd?.affiliateUrl?.trim() || '';
+
+  const affiliateAd =
+    affiliateProductTitle || affiliateTargetUrl || affiliateProductImageUrl || item.affiliateAd
+      ? {
+          enabled: item.affiliateAd?.enabled ?? Boolean(affiliateProductTitle || affiliateTargetUrl),
+          productTitle: affiliateProductTitle,
+          productImageUrl: affiliateProductImageUrl,
+          affiliateUrl: affiliateTargetUrl,
+          productDescription: item.affiliateAd?.productDescription || '',
+          triggerDelaySeconds: item.affiliateAd?.triggerDelaySeconds || 4,
+          countdownSeconds: item.affiliateAd?.countdownSeconds || 5,
+        }
+      : undefined;
+
   const fullItem: DistrictItem = {
     id,
     districtId: item.districtId || 'puri',
@@ -137,6 +154,10 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
     externalLink: item.externalLink?.trim() || '',
     createdAt: item.createdAt || now,
     updatedAt: now,
+    affiliateProductTitle,
+    affiliateProductImageUrl,
+    affiliateTargetUrl,
+    affiliateAd,
   };
 
   const docRef = doc(db, COLLECTION_NAME, id);

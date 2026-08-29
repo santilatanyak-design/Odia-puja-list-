@@ -361,6 +361,10 @@ export interface DistrictItem {
   externalLink?: string;
   createdAt?: string;
   updatedAt?: string;
+  affiliateAd?: AffiliateProductAd;
+  affiliateProductTitle?: string;
+  affiliateProductImageUrl?: string;
+  affiliateTargetUrl?: string;
 }
 
 export interface OdishaDistrictInfo {

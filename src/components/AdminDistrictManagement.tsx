@@ -62,12 +62,36 @@ export const AdminDistrictManagement: React.FC = () => {
       famousFestivals: '',
       bestTimeToVisit: '',
       externalLink: '',
+      affiliateProductTitle: '',
+      affiliateProductImageUrl: '',
+      affiliateTargetUrl: '',
+      affiliateAd: {
+        enabled: true,
+        productTitle: '',
+        productImageUrl: '',
+        affiliateUrl: '',
+      },
     });
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (item: DistrictItem) => {
-    setEditingItem({ ...item });
+    const affiliateProductTitle = item.affiliateProductTitle || item.affiliateAd?.productTitle || '';
+    const affiliateProductImageUrl = item.affiliateProductImageUrl || item.affiliateAd?.productImageUrl || '';
+    const affiliateTargetUrl = item.affiliateTargetUrl || item.affiliateAd?.affiliateUrl || '';
+
+    setEditingItem({
+      ...item,
+      affiliateProductTitle,
+      affiliateProductImageUrl,
+      affiliateTargetUrl,
+      affiliateAd: item.affiliateAd || {
+        enabled: true,
+        productTitle: affiliateProductTitle,
+        productImageUrl: affiliateProductImageUrl,
+        affiliateUrl: affiliateTargetUrl,
+      },
+    });
     setIsModalOpen(true);
   };
 
@@ -635,6 +659,108 @@ export const AdminDistrictManagement: React.FC = () => {
                     }
                     className="w-full p-2.5 text-xs border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono"
                   />
+                </div>
+              </div>
+
+              {/* 8. Monetization & Affiliate Ad Section (3 Dedicated Input Fields) */}
+              <div className="p-3.5 sm:p-4 bg-gradient-to-br from-amber-50/90 via-orange-50/50 to-amber-50/80 rounded-2xl border-2 border-dashed border-amber-300 space-y-3">
+                <div className="flex items-center justify-between pb-1.5 border-b border-amber-200">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">💰</span>
+                    <span className="font-black text-xs text-amber-950">
+                      ମନିଟାଇଜେସନ୍ / ଆଫିଲିଏଟ୍ ବିଜ୍ଞାପନ (Monetization & Affiliate Product Ad)
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-800 bg-amber-200/70 px-2 py-0.5 rounded-md">
+                    Optional / ଐଚ୍ଛିକ
+                  </span>
+                </div>
+
+                {/* 1. Affiliate Product Title */}
+                <div className="space-y-1">
+                  <label className="block font-bold text-amber-950 text-xs">
+                    📦 ପ୍ରଡକ୍ଟ ଶୀର୍ଷକ (Affiliate Product Title)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. ଶ୍ରୀ ଜଗନ୍ନାଥ କାଷ୍ଠ ମୂର୍ତ୍ତି / ସମ୍ପୂର୍ଣ୍ଣ ଓଡ଼ିଆ ଭାଗବତ ସେଟ୍ / ପିତ୍ତଳ ଦୀପ"
+                    value={editingItem.affiliateProductTitle || editingItem.affiliateAd?.productTitle || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingItem((prev) => ({
+                        ...prev,
+                        affiliateProductTitle: val,
+                        affiliateAd: {
+                          ...(prev?.affiliateAd || {}),
+                          enabled: true,
+                          productTitle: val,
+                        },
+                      }));
+                    }}
+                    className="w-full p-2.5 text-xs font-bold border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* 2. Affiliate Image URL & 3. Affiliate Target URL */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block font-bold text-amber-950 text-xs">
+                      🖼️ ଆଫିଲିଏଟ୍ ଫଟୋ URL (Affiliate Image URL)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        placeholder="https://images-na.ssl-images-amazon.com/... or image URL"
+                        value={editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditingItem((prev) => ({
+                            ...prev,
+                            affiliateProductImageUrl: val,
+                            affiliateAd: {
+                              ...(prev?.affiliateAd || {}),
+                              enabled: true,
+                              productImageUrl: val,
+                            },
+                          }));
+                        }}
+                        className="flex-1 p-2.5 text-xs font-mono border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      />
+                      {(editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl) && (
+                        <div className="w-9 h-9 rounded-lg border border-amber-300 overflow-hidden shrink-0 bg-white p-0.5">
+                          <img
+                            src={editingItem.affiliateProductImageUrl || editingItem.affiliateAd?.productImageUrl}
+                            alt="Affiliate Preview"
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block font-bold text-amber-950 text-xs">
+                      🔗 ଆଫିଲିଏଟ୍ ଲିଙ୍କ୍ (Affiliate Target URL)
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://www.amazon.in/dp/...?tag=yourtag-21"
+                      value={editingItem.affiliateTargetUrl || editingItem.affiliateAd?.affiliateUrl || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingItem((prev) => ({
+                          ...prev,
+                          affiliateTargetUrl: val,
+                          affiliateAd: {
+                            ...(prev?.affiliateAd || {}),
+                            enabled: true,
+                            affiliateUrl: val,
+                          },
+                        }));
+                      }}
+                      className="w-full p-2.5 text-xs font-mono border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
