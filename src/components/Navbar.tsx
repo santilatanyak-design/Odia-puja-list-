@@ -176,16 +176,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isAdminView = currentView === 'admin';
 
   return (
-    <header className="sticky top-0 z-40 bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#701a1e] text-white border-b-2 border-amber-400 shadow-lg w-full max-w-full overflow-hidden box-border">
-      <div className="max-w-7xl mx-auto px-2 sm:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2.5 w-full box-border">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200/80 shadow-xs w-full max-w-full overflow-hidden box-border">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-1.5 sm:gap-2.5 w-full box-border">
         {/* Logo & Sacred Branding */}
-        <div onClick={onGoHome} className="flex items-center gap-2 sm:gap-2.5 cursor-pointer min-w-0 shrink">
-          <TempleAppLogo size={38} className="shrink-0 shadow-sm" />
+        <div onClick={onGoHome} className="flex items-center gap-2.5 cursor-pointer min-w-0 shrink">
+          <TempleAppLogo size={40} className="shrink-0 shadow-2xs" />
           <div className="min-w-0 shrink">
-            <h1 className="text-xs sm:text-base font-black text-amber-100 leading-tight tracking-tight flex items-center gap-1 min-w-0">
+            <h1 className="text-xs sm:text-base font-extrabold text-slate-900 leading-tight tracking-tight flex items-center gap-1 min-w-0">
               <span className="truncate">Bhakti Ananda Odia TV</span>
             </h1>
-            <p className="text-[10px] sm:text-xs text-amber-200/90 font-medium hidden sm:block truncate">
+            <p className="text-[10px] sm:text-xs text-orange-600 font-semibold hidden sm:block truncate">
               Your Devotion, Our Service
             </p>
           </div>
@@ -198,9 +198,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={handleInstallClick}
               title={lang === 'OD' ? 'ମୋବାଇଲ୍‌ରେ ଆପ୍ ସଂସ୍ଥାପନ କରନ୍ତୁ' : 'Install App on Mobile'}
-              className="px-2 sm:px-3.5 py-1.2 sm:py-1.5 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-amber-950 font-black text-[11px] sm:text-xs rounded-xl border-2 border-amber-500 shadow-md flex items-center gap-1 cursor-pointer transition active:scale-95"
+              className="px-2.5 sm:px-3.5 py-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-[11px] sm:text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition active:scale-95"
             >
-              <Download className="w-3.5 h-3.5 text-amber-950 stroke-[2.5]" />
+              <Download className="w-3.5 h-3.5 text-white stroke-[2.5]" />
               <span className="hidden lg:inline">{t.downloadApp}</span>
               <span className="lg:hidden">{t.downloadAppShort}</span>
             </button>
@@ -210,9 +210,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onToggleLang}
             title={lang === 'OD' ? 'Switch to English' : 'ଓଡ଼ିଆ ଭାଷା ବାଛନ୍ତୁ'}
-            className="flex items-center gap-1 px-2 sm:px-3 py-1.2 sm:py-1.5 rounded-xl border-2 border-amber-400 bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 font-black text-[11px] sm:text-xs transition cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-600 font-bold text-[11px] sm:text-xs transition cursor-pointer shadow-2xs active:scale-95"
           >
-            <Languages className="w-3.5 h-3.5 text-amber-300" />
+            <Languages className="w-3.5 h-3.5 text-orange-500" />
             <span>{lang === 'OD' ? 'English' : 'ଓଡ଼ିଆ'}</span>
           </button>
 
@@ -220,39 +220,39 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={handleHeaderAppShare}
             title={lang === 'OD' ? 'ଆପ୍ ଶେୟାର୍ କରନ୍ତୁ' : 'Share App'}
-            className="flex items-center gap-1 px-2 sm:px-3 py-1.2 sm:py-1.5 rounded-xl border-2 border-amber-400 bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 font-black text-[11px] sm:text-xs transition cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-orange-50 text-slate-700 hover:text-orange-600 font-bold text-[11px] sm:text-xs transition cursor-pointer shadow-2xs active:scale-95"
           >
-            <Share2 className="w-3.5 h-3.5 text-amber-300" />
+            <Share2 className="w-3.5 h-3.5 text-orange-500" />
             <span className="hidden xs:inline">{lang === 'OD' ? 'ଶେୟାର୍' : 'Share'}</span>
           </button>
 
           {/* Active Logged-in Pujari Profile Pill */}
           {activePujari && !isAdminView && (
-            <div className="flex items-center gap-1.5 bg-amber-950/70 border border-amber-400/40 px-2 sm:px-3 py-1 rounded-xl text-xs">
-              <User className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-              <span className="font-black text-amber-100 hidden sm:inline truncate max-w-[100px]">
+            <div className="flex items-center gap-1.5 bg-orange-50 border border-orange-200 px-2.5 sm:px-3 py-1 rounded-xl text-xs">
+              <User className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+              <span className="font-bold text-orange-950 hidden sm:inline truncate max-w-[100px]">
                 {activePujari.name}
               </span>
               <button
                 onClick={onLogoutPujari}
                 title="Pujari Logout"
-                className="p-1 text-amber-300 hover:text-white rounded-lg transition cursor-pointer"
+                className="p-1 text-slate-400 hover:text-rose-600 rounded-lg transition cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
 
-          {/* Dedicated Admin Status / Exit Pill (ONLY visible when navigating /admin directly) */}
+          {/* Dedicated Admin Status / Exit Pill */}
           {isAdminView && isAdminAuthenticated && (
-            <div className="flex items-center gap-1.5 bg-black/60 border border-amber-400/60 px-2.5 py-1 rounded-xl text-xs">
+            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700 text-white px-2.5 py-1 rounded-xl text-xs shadow-xs">
               <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
-              <span className="font-black text-amber-200 hidden sm:inline">Admin Mode</span>
+              <span className="font-bold text-amber-200 hidden sm:inline">Admin Mode</span>
               {onLogoutAdmin && (
                 <button
                   onClick={onLogoutAdmin}
                   title="Logout Admin"
-                  className="px-2 py-0.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black rounded-lg text-[10px] sm:text-xs transition cursor-pointer"
+                  className="px-2 py-0.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-[10px] sm:text-xs transition cursor-pointer"
                 >
                   Logout
                 </button>

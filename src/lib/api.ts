@@ -57,8 +57,12 @@ import {
   fsSubscribePwaInstalls,
 } from './firebase';
 
-// Automatically seed initial defaults into Firestore on module load if empty
-seedInitialFirestoreData().catch((err) => console.error('Firestore init error:', err));
+// Automatically seed initial defaults into Firestore in background when idle/online
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    seedInitialFirestoreData().catch(() => {});
+  }, 1000);
+}
 
 const API_BASE = '/api';
 

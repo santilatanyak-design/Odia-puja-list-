@@ -306,10 +306,26 @@ export interface AffiliateProductAd {
   productTitle?: string;
   productImageUrl?: string;
   productDescription?: string;
-  productPrice?: string;
   affiliateUrl?: string;
   triggerDelaySeconds?: number;
   countdownSeconds?: number;
+}
+
+export interface UnifiedFeedItem {
+  id: string;
+  title: string;
+  category: string;
+  summary: string;
+  content?: string;
+  imageUrl: string;
+  author?: string;
+  readTimeMinutes?: number;
+  publishedAt: string;
+  sourceType: 'custom_post' | 'temple' | 'purana' | 'district_story';
+  isFeatured?: boolean;
+  likesCount?: number;
+  affiliateAd?: AffiliateProductAd;
+  originalData?: any;
 }
 
 export interface SpiritualStory {

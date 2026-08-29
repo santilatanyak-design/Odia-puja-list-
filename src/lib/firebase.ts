@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, isSupported } from 'firebase/messaging';
 import {
   getFirestore,
+  initializeFirestore,
   collection,
   doc,
   getDoc,
@@ -31,11 +32,25 @@ if (typeof window !== 'undefined' && (window as any).firebaseConfig) {
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore (supporting custom databaseId if configured)
-export const db =
-  firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
-    ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
-    : getFirestore(app);
+// Initialize Firestore with robust auto-detect long polling fallback to avoid 10s streaming timeouts in sandbox/proxies
+export const db = (() => {
+  const customDbId =
+    firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
+      ? firebaseConfig.firestoreDatabaseId
+      : undefined;
+
+  try {
+    return initializeFirestore(
+      app,
+      {
+        experimentalAutoDetectLongPolling: true,
+      },
+      customDbId
+    );
+  } catch {
+    return customDbId ? getFirestore(app, customDbId) : getFirestore(app);
+  }
+})();
 
 // Collection References
 const COLLECTIONS = {
@@ -121,14 +136,14 @@ export async function seedInitialFirestoreData() {
     const qrDocRef = doc(db, COLLECTIONS.CONFIG, 'qrConfig');
     const qrSnap = await getDoc(qrDocRef);
     if (!qrSnap.exists()) {
-      await setDoc(qrDocRef, DEFAULT_QR_CONFIG);
+      await safeSetDoc(qrDocRef, DEFAULT_QR_CONFIG);
     }
 
     // 2. Seed Initial Pujaris if empty
     const pujarisSnap = await getDocs(collection(db, COLLECTIONS.PUJARIS));
     if (pujarisSnap.empty) {
       for (const p of INITIAL_PUJARIS) {
-        await setDoc(doc(db, COLLECTIONS.PUJARIS, p.id), p);
+        await safeSetDoc(doc(db, COLLECTIONS.PUJARIS, p.id), p);
       }
     }
 
@@ -136,11 +151,14 @@ export async function seedInitialFirestoreData() {
     const tmplSnap = await getDocs(collection(db, COLLECTIONS.TEMPLATES));
     if (tmplSnap.empty) {
       for (const tmpl of DEFAULT_PUJA_TEMPLATES) {
-        await setDoc(doc(db, COLLECTIONS.TEMPLATES, tmpl.id), tmpl);
+        await safeSetDoc(doc(db, COLLECTIONS.TEMPLATES, tmpl.id), tmpl);
       }
     }
-  } catch (err) {
-    console.error('Error seeding initial Firestore data:', err);
+  } catch (err: any) {
+    const isOffline = err?.message?.includes('offline') || err?.code === 'unavailable';
+    if (!isOffline) {
+      console.warn('Initial Firestore seed check:', err?.message || err);
+    }
   }
 }
 
@@ -1257,10 +1275,13 @@ export async function fsGetQrConfig(): Promise<QrConfig> {
     if (snap.exists()) {
       return { ...DEFAULT_QR_CONFIG, ...(snap.data() as QrConfig) };
     }
-    await setDoc(docRef, DEFAULT_QR_CONFIG);
+    safeSetDoc(docRef, DEFAULT_QR_CONFIG).catch(() => {});
     return DEFAULT_QR_CONFIG;
-  } catch (err) {
-    console.error('fsGetQrConfig Error:', err);
+  } catch (err: any) {
+    const isOffline = err?.message?.includes('offline') || err?.code === 'unavailable';
+    if (!isOffline) {
+      console.warn('fsGetQrConfig Notice:', err?.message || err);
+    }
     return DEFAULT_QR_CONFIG;
   }
 }

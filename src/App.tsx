@@ -164,6 +164,47 @@ export default function App() {
 
   const [activePujari, setActivePujari] = useState<Pujari | null>(null);
 
+  // Selected Story ID & Temple ID for dynamic post / temple deep-linking
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const preloaded = (window as any).__PRELOADED_STATE__;
+        if (preloaded && preloaded.storyId) return preloaded.storyId;
+
+        const pathname = window.location.pathname.toLowerCase();
+        const parts = pathname.split('/').filter(Boolean);
+        if (parts[0] === 'story' || parts[0] === 'blog' || parts[0] === 'stories') {
+          return parts[1] || null;
+        }
+        const params = new URLSearchParams(window.location.search);
+        return params.get('storyId') || params.get('story') || null;
+      }
+    } catch {
+      // Fallback
+    }
+    return null;
+  });
+
+  const [selectedTempleId, setSelectedTempleId] = useState<string | null>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const preloaded = (window as any).__PRELOADED_STATE__;
+        if (preloaded && preloaded.templeId) return preloaded.templeId;
+
+        const pathname = window.location.pathname.toLowerCase();
+        const parts = pathname.split('/').filter(Boolean);
+        if (parts[0] === 'temple' || parts[0] === 'temples') {
+          return parts[1] || null;
+        }
+        const params = new URLSearchParams(window.location.search);
+        return params.get('templeId') || params.get('temple') || null;
+      }
+    } catch {
+      // Fallback
+    }
+    return null;
+  });
+
   // View Navigation State: Resolved from preloaded state, pathname, search parameters, or default 'home'
   const [viewMode, setViewMode] = useState<'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog' | 'admin'>(() => {
     try {
@@ -268,12 +309,12 @@ export default function App() {
         const productId = currentParams.get('product_id') || currentParams.get('product');
         targetQuery = productId ? `?view=store&product_id=${encodeURIComponent(productId)}` : '?view=store';
       } else if (viewMode === 'temple') {
-        const templeId = currentParams.get('templeId') || currentParams.get('temple');
+        const templeId = selectedTempleId || currentParams.get('templeId') || currentParams.get('temple');
         targetQuery = templeId ? `?templeId=${encodeURIComponent(templeId)}` : '?view=temple';
       } else if (viewMode === 'panchang') {
         targetQuery = '?panchang=true';
       } else if (viewMode === 'blog') {
-        const storyId = currentParams.get('storyId') || currentParams.get('story');
+        const storyId = selectedStoryId || currentParams.get('storyId') || currentParams.get('story');
         targetQuery = storyId ? `?view=blog&storyId=${encodeURIComponent(storyId)}` : '?view=blog';
       } else if (viewMode === 'shorts') {
         targetQuery = '?shorts=true';
@@ -295,7 +336,7 @@ export default function App() {
       // 2. Synchronize URL in the browser address bar without reload
       const newUrl = `${targetPath}${targetQuery}`;
       if (window.location.pathname !== targetPath || window.location.search !== targetQuery) {
-        window.history.replaceState({ viewMode }, '', newUrl);
+        window.history.replaceState({ viewMode, storyId: selectedStoryId, templeId: selectedTempleId }, '', newUrl);
       }
 
       // 3. Dynamically update <title>, <meta name="description">, <link rel="canonical"> and OG tags
@@ -304,7 +345,7 @@ export default function App() {
     } catch (err) {
       console.warn('SEO & Canonical synchronization error:', err);
     }
-  }, [viewMode]);
+  }, [viewMode, selectedStoryId, selectedTempleId]);
 
   // Listen to browser Back / Forward (popstate) buttons for seamless navigation
   useEffect(() => {
@@ -312,22 +353,44 @@ export default function App() {
       try {
         if (typeof window !== 'undefined') {
           const pathname = window.location.pathname.toLowerCase();
+          const parts = pathname.split('/').filter(Boolean);
+          if (parts[0] === 'story' || parts[0] === 'blog' || parts[0] === 'stories') {
+            const sid = parts[1] || null;
+            setSelectedStoryId(sid);
+            setViewMode('blog');
+            return;
+          }
+          if (parts[0] === 'temple' || parts[0] === 'temples') {
+            const tid = parts[1] || null;
+            setSelectedTempleId(tid);
+            setViewMode('temple');
+            return;
+          }
           if (pathname === '/admin' || pathname.startsWith('/admin/')) {
             setViewMode('admin');
             return;
           }
 
           const params = new URLSearchParams(window.location.search);
+          const storyParam = params.get('storyId') || params.get('story');
+          if (storyParam) {
+            setSelectedStoryId(storyParam);
+          }
+          const templeParam = params.get('templeId') || params.get('temple');
+          if (templeParam) {
+            setSelectedTempleId(templeParam);
+          }
+
           const view = params.get('view');
           if (view === 'admin' || params.get('admin')) {
             setViewMode('admin');
           } else if (view === 'store' || params.get('store') || params.get('product_id') || params.get('product')) {
             setViewMode('store');
-          } else if (view === 'temple' || params.get('templeId') || params.get('temple')) {
+          } else if (view === 'temple' || templeParam) {
             setViewMode('temple');
           } else if (view === 'panchang' || params.get('panchang')) {
             setViewMode('panchang');
-          } else if (view === 'blog' || params.get('blog') || params.get('stories') || params.get('storyId') || params.get('story')) {
+          } else if (view === 'blog' || storyParam || params.get('blog') || params.get('stories')) {
             setViewMode('blog');
           } else if (view === 'shorts' || params.get('shorts') || params.get('feed')) {
             setViewMode('shorts');
@@ -336,6 +399,7 @@ export default function App() {
           } else if (view === 'portal' || params.get('portal')) {
             setViewMode('portal');
           } else {
+            setSelectedStoryId(null);
             setViewMode('home');
           }
         }
@@ -347,6 +411,36 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  const handleNavigateToBlog = (storyId?: string) => {
+    if (storyId) {
+      setSelectedStoryId(storyId);
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ viewMode: 'blog', storyId }, '', `/story/${encodeURIComponent(storyId)}`);
+      }
+    } else {
+      setSelectedStoryId(null);
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ viewMode: 'blog' }, '', '/?view=blog');
+      }
+    }
+    setViewMode('blog');
+  };
+
+  const handleNavigateToTemple = (templeId?: string) => {
+    if (templeId) {
+      setSelectedTempleId(templeId);
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ viewMode: 'temple', templeId }, '', `/temple/${encodeURIComponent(templeId)}`);
+      }
+    } else {
+      setSelectedTempleId(null);
+      if (typeof window !== 'undefined') {
+        window.history.pushState({ viewMode: 'temple' }, '', '/?view=temple');
+      }
+    }
+    setViewMode('temple');
+  };
 
   // Global Real-time PWA Installation Tracker
   useEffect(() => {
@@ -620,7 +714,11 @@ export default function App() {
               />
             ) : viewMode === 'blog' ? (
               <SpiritualBlog
-                onBack={() => setViewMode('home')}
+                initialStoryId={selectedStoryId}
+                onBack={() => {
+                  setSelectedStoryId(null);
+                  setViewMode('home');
+                }}
                 onNavigateToPanchang={() => setViewMode('panchang')}
               />
             ) : (
@@ -634,9 +732,9 @@ export default function App() {
                   }
                 }}
                 onNavigateToStore={() => setViewMode('store')}
-                onNavigateToTemple={() => setViewMode('temple')}
+                onNavigateToTemple={handleNavigateToTemple}
                 onNavigateToPanchang={() => setViewMode('panchang')}
-                onNavigateToBlog={() => setViewMode('blog')}
+                onNavigateToBlog={handleNavigateToBlog}
                 onNavigateToShorts={() => setViewMode('shorts')}
                 onNavigateToLogin={() => setViewMode('login')}
               />

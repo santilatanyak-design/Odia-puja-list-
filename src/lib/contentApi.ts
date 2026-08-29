@@ -1,6 +1,8 @@
-import { DailyPanchang, SpiritualStory } from '../types';
+import { DailyPanchang, SpiritualStory, UnifiedFeedItem } from '../types';
 import { db, sanitizeFirestoreData } from './firebase';
 import { collection, doc, setDoc, getDocs, getDoc, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getTemplesFromLocal } from './templeApi';
+import { getDistrictItems } from './districtApi';
 
 const LOCAL_STORAGE_PANCHANG = 'odisha_daily_panchang';
 const LOCAL_STORAGE_STORIES = 'odisha_spiritual_stories';
@@ -239,13 +241,13 @@ export async function saveSpiritualStory(story: Partial<SpiritualStory>): Promis
     const current = existing.find((s) => s.id === story.id);
     updatedStory = {
       id: story.id,
-      title: story.title || current?.title || 'ନୂତନ ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ',
-      category: story.category || current?.category || 'ଜଗନ୍ନାଥ ଲୀଳା',
+      title: story.title || current?.title || '',
+      category: story.category || current?.category || '',
       summary: story.summary || current?.summary || '',
       content: story.content || current?.content || '',
-      imageUrl: story.imageUrl || current?.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop',
-      author: story.author || current?.author || 'ପଣ୍ଡିତ ମହାଶୟ',
-      readTimeMinutes: Number(story.readTimeMinutes) || current?.readTimeMinutes || 4,
+      imageUrl: story.imageUrl || current?.imageUrl || '',
+      author: story.author || current?.author || '',
+      readTimeMinutes: Number(story.readTimeMinutes) || current?.readTimeMinutes || 0,
       likesCount: story.likesCount ?? current?.likesCount ?? 0,
       publishedAt: story.publishedAt || current?.publishedAt || new Date().toISOString().split('T')[0],
       isFeatured: story.isFeatured ?? current?.isFeatured ?? false,
@@ -255,13 +257,13 @@ export async function saveSpiritualStory(story: Partial<SpiritualStory>): Promis
     const newId = 'story-' + Math.floor(100000 + Math.random() * 900000);
     updatedStory = {
       id: newId,
-      title: story.title || 'ନୂତନ ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ',
-      category: story.category || 'ଜଗନ୍ନାଥ ଲୀଳା',
+      title: story.title || '',
+      category: story.category || '',
       summary: story.summary || '',
       content: story.content || '',
-      imageUrl: story.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000&auto=format&fit=crop',
-      author: story.author || 'ପଣ୍ଡିତ ମହାଶୟ',
-      readTimeMinutes: Number(story.readTimeMinutes) || 4,
+      imageUrl: story.imageUrl || '',
+      author: story.author || '',
+      readTimeMinutes: Number(story.readTimeMinutes) || 0,
       likesCount: 0,
       publishedAt: new Date().toISOString().split('T')[0],
       isFeatured: story.isFeatured ?? false,
@@ -331,4 +333,91 @@ export async function likeSpiritualStory(storyId: string): Promise<number> {
   }
 
   return updatedLikes;
+}
+
+// =======================================================================
+// UNIFIED MIXED FEED (Custom Posts + Temples + Purana + District Content)
+// =======================================================================
+export async function getAllContent(): Promise<UnifiedFeedItem[]> {
+  try {
+    const [stories, temples, districtItems] = await Promise.all([
+      getSpiritualStories().catch(() => []),
+      Promise.resolve(getTemplesFromLocal()).catch(() => []),
+      getDistrictItems().catch(() => []),
+    ]);
+
+    const unified: UnifiedFeedItem[] = [];
+
+    // 1. Custom Spiritual Stories / Posts
+    for (const story of stories) {
+      if (!story.title && !story.content) continue;
+      unified.push({
+        id: story.id,
+        title: story.title,
+        category: story.category || 'ଆଧ୍ୟାତ୍ମିକ କଥା',
+        summary: story.summary || (story.content ? story.content.slice(0, 140) + '...' : ''),
+        content: story.content,
+        imageUrl: story.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000',
+        author: story.author || 'ପଣ୍ଡିତ ମହାଶୟ',
+        readTimeMinutes: story.readTimeMinutes || 3,
+        publishedAt: story.publishedAt || new Date().toISOString().split('T')[0],
+        sourceType: 'custom_post',
+        isFeatured: story.isFeatured,
+        likesCount: story.likesCount,
+        affiliateAd: story.affiliateAd,
+        originalData: story,
+      });
+    }
+
+    // 2. Temples Collection
+    for (const temple of temples) {
+      if (!temple.name) continue;
+      unified.push({
+        id: `temple-${temple.id}`,
+        title: temple.name,
+        category: 'ପବିତ୍ର ମନ୍ଦିର ଦର୍ଶନ',
+        summary: temple.description || temple.history?.slice(0, 140) || 'ପବିତ୍ର ମନ୍ଦିର ଦର୍ଶନ ଓ ପୂଜା ସେବା।',
+        content: temple.history || temple.description,
+        imageUrl: temple.imageUrl || 'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=1000',
+        author: temple.location || 'ଓଡ଼ିଶା ଦେବୋତ୍ତର ବିଭାଗ',
+        readTimeMinutes: 4,
+        publishedAt: '2026-01-01',
+        sourceType: 'temple',
+        isFeatured: false,
+        originalData: temple,
+      });
+    }
+
+    // 3. District Items (Purana & Heritage)
+    for (const dItem of districtItems) {
+      if (!dItem.title) continue;
+      const isPurana = dItem.category === 'story' || dItem.districtNameOdia.includes('ପୁରାଣ');
+      unified.push({
+        id: `district-${dItem.id}`,
+        title: dItem.title,
+        category: isPurana ? 'ପୌରାଣିକ ଇତିହାସ' : `${dItem.districtNameOdia} - ${dItem.category === 'temple' ? 'ମନ୍ଦିର' : 'ପର୍ବପର୍ବାଣୀ'}`,
+        summary: dItem.description ? dItem.description.slice(0, 140) + '...' : (dItem.significance || ''),
+        content: dItem.description,
+        imageUrl: dItem.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000',
+        author: `${dItem.districtNameOdia} ଐତିହ୍ୟ`,
+        readTimeMinutes: 3,
+        publishedAt: dItem.createdAt ? dItem.createdAt.split('T')[0] : '2026-01-01',
+        sourceType: isPurana ? 'purana' : 'district_story',
+        isFeatured: false,
+        originalData: dItem,
+      });
+    }
+
+    // Sort descending by publish date (newest first)
+    unified.sort((a, b) => {
+      const dateA = new Date(a.publishedAt).getTime() || 0;
+      const dateB = new Date(b.publishedAt).getTime() || 0;
+      return dateB - dateA;
+    });
+
+    return unified;
+  } catch (err) {
+    console.warn('Error fetching unified mixed feed:', err);
+    return [];
+  }
 }

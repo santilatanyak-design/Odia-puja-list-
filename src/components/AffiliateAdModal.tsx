@@ -27,27 +27,34 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 }) => {
   const countdownStart = Number(ad.countdownSeconds) > 0 ? Number(ad.countdownSeconds) : 5;
   const [countdown, setCountdown] = useState<number>(countdownStart);
+  const onCloseRef = React.useRef(onClose);
 
   useEffect(() => {
-    if (!isOpen) {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen || !ad.enabled) {
       setCountdown(countdownStart);
       return;
     }
 
     setCountdown(countdownStart);
+    let remaining = countdownStart;
+
     const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          onClose(); // Auto-dismiss when countdown reaches 0
-          return 0;
-        }
-        return prev - 1;
-      });
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(interval);
+        setCountdown(0);
+        onCloseRef.current();
+      } else {
+        setCountdown(remaining);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isOpen, countdownStart, onClose]);
+  }, [isOpen, countdownStart, ad.enabled]);
 
   if (!isOpen || !ad.enabled) return null;
 

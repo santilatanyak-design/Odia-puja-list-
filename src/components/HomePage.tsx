@@ -26,7 +26,8 @@ import {
   PujaStatusIllustration,
   DevotionalOmIllustration
 } from './AppIcons';
-import { ExploreDistrictSection } from './ExploreDistrictSection';
+import { UnifiedFeedSection } from './UnifiedFeedSection';
+import { BreakingNewsTicker } from './BreakingNewsTicker';
 import { triggerPwaInstall } from '../utils/pwaHelper';
 import { PwaInstallModal } from './PwaInstallModal';
 
@@ -34,9 +35,9 @@ interface HomePageProps {
   activePujari: Pujari | null;
   onNavigateToCreateList: () => void;
   onNavigateToStore: () => void;
-  onNavigateToTemple?: () => void;
+  onNavigateToTemple?: (templeId?: string) => void;
   onNavigateToPanchang?: () => void;
-  onNavigateToBlog?: () => void;
+  onNavigateToBlog?: (storyId?: string) => void;
   onNavigateToShorts?: () => void;
   onNavigateToLogin: () => void;
 }
@@ -247,15 +248,15 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             {/* Title & Tagline */}
             <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-3xl font-black text-[#8B0000] tracking-tight leading-tight font-serif drop-shadow-2xs">
+              <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight font-serif drop-shadow-2xs">
                 Bhakti Ananda <br className="hidden xs:inline sm:hidden" />
-                <span>Odia TV</span>
+                <span className="text-orange-600">Odia TV</span>
               </h1>
-              <p className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight mt-0.5 sm:mt-1">
+              <p className="text-xs sm:text-sm font-semibold text-slate-600 tracking-tight mt-0.5 sm:mt-1">
                 Your Devotion, Our Service
               </p>
               <div className="flex items-center gap-1.5 mt-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-amber-400/30 border border-amber-500/40 text-amber-950 font-black rounded-full text-[10px] sm:text-xs">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-orange-50 border border-orange-200 text-orange-800 font-bold rounded-full text-[10px] sm:text-xs">
                   <span>🚩 ଜୟ ଜଗନ୍ନାଥ</span>
                   <span>•</span>
                   <span>ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀ</span>
@@ -266,14 +267,14 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* Active Pujari Logged-in Notice (If authenticated) */}
           {activePujari && (
-            <div className="relative z-10 mt-3 pt-2.5 border-t border-amber-300/50 flex items-center justify-between">
-              <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
-                <UserCheck className="w-4 h-4 text-emerald-700" />
+            <div className="relative z-10 mt-3 pt-2.5 border-t border-slate-200 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                <UserCheck className="w-4 h-4 text-emerald-600" />
                 <span>ସ୍ୱାଗତମ୍: {activePujari.name} ({activePujari.id})</span>
               </span>
               <button
                 onClick={onNavigateToCreateList}
-                className="text-[11px] font-black text-[#8B0000] underline underline-offset-2 hover:text-amber-900 cursor-pointer"
+                className="text-[11px] font-bold text-orange-600 underline underline-offset-2 hover:text-orange-700 cursor-pointer"
               >
                 ଡାସବୋର୍ଡକୁ ଯାଆନ୍ତୁ →
               </button>
@@ -284,19 +285,24 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* Active Pujari Notice (When logged in and slider is active) */}
       {activePujari && hasCustomSlides && (
-        <div className="bg-amber-50/90 border border-amber-300 rounded-2xl px-4 py-2 flex items-center justify-between shadow-2xs">
-          <span className="inline-flex items-center gap-1.5 text-xs font-black text-amber-950">
-            <UserCheck className="w-4 h-4 text-emerald-700" />
+        <div className="bg-orange-50/80 border border-orange-200 rounded-2xl px-4 py-2 flex items-center justify-between shadow-2xs">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800">
+            <UserCheck className="w-4 h-4 text-emerald-600" />
             <span>ସ୍ୱାଗତମ୍: {activePujari.name} ({activePujari.id})</span>
           </span>
           <button
             onClick={onNavigateToCreateList}
-            className="text-[11px] font-black text-[#8B0000] underline underline-offset-2 hover:text-amber-900 cursor-pointer"
+            className="text-[11px] font-bold text-orange-600 underline underline-offset-2 hover:text-orange-700 cursor-pointer"
           >
             ଡାସବୋର୍ଡକୁ ଯାଆନ୍ତୁ →
           </button>
         </div>
       )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* BREAKING NEWS / PANCHANG LIVE TICKER                           */}
+      {/* ------------------------------------------------------------- */}
+      <BreakingNewsTicker onTickerClick={onNavigateToPanchang} />
 
       {/* ------------------------------------------------------------- */}
       {/* 2. NATIVE 6 FEATURE APP CARDS (Matching Reference Screenshot) */}
@@ -306,7 +312,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         <button
           id="native-card-find-temples"
           type="button"
-          onClick={onNavigateToTemple}
+          onClick={() => onNavigateToTemple?.()}
           className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
         >
           <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
@@ -326,7 +332,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         <button
           id="native-card-book-puja"
           type="button"
-          onClick={onNavigateToTemple}
+          onClick={() => onNavigateToTemple?.()}
           className="bg-white hover:bg-amber-50/50 active:scale-95 transition-all duration-150 rounded-2xl p-2.5 sm:p-4 shadow-sm hover:shadow-md border border-amber-200/80 flex flex-col items-center justify-between text-center min-h-[115px] sm:min-h-[140px] cursor-pointer group"
         >
           <div className="flex-1 flex items-center justify-center p-1 group-hover:scale-108 transition-transform">
@@ -426,16 +432,16 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* ------------------------------------------------------------- */}
       {/* 3. QUICK SPIRITUAL ACCESS PILLS (Daily Panchang & Vedic Blog)  */}
       {/* ------------------------------------------------------------- */}
-      <div className="bg-gradient-to-r from-[#701a1e] via-[#8B0000] to-[#701a1e] text-white rounded-2xl p-3 sm:p-4 shadow-md border border-amber-400/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="bg-white border border-slate-200/90 text-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3 text-left w-full sm:w-auto">
-          <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-xl shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 flex items-center justify-center text-xl shrink-0">
             📅
           </div>
           <div>
-            <div className="text-xs sm:text-sm font-black text-amber-200">
+            <div className="text-xs sm:text-sm font-bold text-slate-900">
               ଦୈନିକ ଓଡ଼ିଆ ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା
             </div>
-            <div className="text-[10px] sm:text-xs text-amber-100/90 font-medium">
+            <div className="text-[10px] sm:text-xs text-slate-500 font-medium">
               ଆଜିର ତିଥି, ଶୁଭ ବେଳା, ରାହୁକାଳ ଏବଂ ପୌରାଣିକ ଗାଥା
             </div>
           </div>
@@ -444,16 +450,16 @@ export const HomePage: React.FC<HomePageProps> = ({
         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           <button
             onClick={onNavigateToPanchang}
-            className="flex-1 sm:flex-initial px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black rounded-xl text-xs shadow-xs transition flex items-center justify-center gap-1 cursor-pointer"
+            className="flex-1 sm:flex-initial px-3.5 py-1.5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Calendar className="w-3.5 h-3.5" />
             <span>ପଞ୍ଜିକା</span>
           </button>
           <button
-            onClick={onNavigateToBlog}
-            className="flex-1 sm:flex-initial px-3 py-1.5 bg-amber-100/20 hover:bg-amber-100/30 text-amber-200 hover:text-white font-black rounded-xl text-xs border border-amber-400/50 shadow-xs transition flex items-center justify-center gap-1 cursor-pointer"
+            onClick={() => onNavigateToBlog?.()}
+            className="flex-1 sm:flex-initial px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs border border-slate-200 shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <BookOpen className="w-3.5 h-3.5" />
+            <BookOpen className="w-3.5 h-3.5 text-orange-600" />
             <span>କଥା ଓ ବ୍ଲଗ୍</span>
           </button>
         </div>
@@ -463,17 +469,17 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* 4. PUBLIC PWA MOBILE APP DOWNLOAD BANNER                     */}
       {/* ------------------------------------------------------------- */}
       {!isAppInstalled && (
-        <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 border-2 border-amber-600/40 rounded-2xl p-3.5 sm:p-4 text-slate-950 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-3.5 sm:p-4 text-white shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3 text-left w-full sm:w-auto">
-            <div className="p-2.5 bg-slate-950 text-amber-400 rounded-xl shrink-0 shadow-xs">
+            <div className="p-2.5 bg-white/20 text-white rounded-xl shrink-0 backdrop-blur-xs">
               <Smartphone className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs sm:text-sm font-black text-slate-950 flex items-center gap-1.5">
+              <div className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
                 <span>ମୋବାଇଲ୍ ଆପ୍ ଡାଉନଲୋଡ୍ କରନ୍ତୁ (Download App)</span>
-                <span className="px-1.5 py-0.5 bg-slate-950 text-amber-300 text-[9px] font-black rounded-md">PWA</span>
+                <span className="px-1.5 py-0.5 bg-white/25 text-white text-[9px] font-extrabold rounded-md">PWA</span>
               </div>
-              <div className="text-[10px] sm:text-xs text-slate-900 font-bold mt-0.5">
+              <div className="text-[10px] sm:text-xs text-orange-50 font-medium mt-0.5">
                 ଦୈନିକ ପଞ୍ଜିକା, ପୂଜା ବୁକିଂ ଓ ଓଡ଼ିଶା ଦର୍ଶନ ପାଇଁ ଆପ୍ ଇନଷ୍ଟଲ୍ କରନ୍ତୁ।
               </div>
             </div>
@@ -482,7 +488,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           <button
             type="button"
             onClick={handleInstallPublicApp}
-            className="w-full sm:w-auto px-4 py-2 bg-slate-950 hover:bg-slate-900 text-amber-300 hover:text-amber-200 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shrink-0"
+            className="w-full sm:w-auto px-4 py-2 bg-white hover:bg-orange-50 text-orange-700 font-bold rounded-xl text-xs shadow-2xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shrink-0"
           >
             <Download className="w-4 h-4 stroke-[2.5]" />
             <span>Install App (ଡାଉନଲୋଡ୍)</span>
@@ -495,32 +501,32 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* ------------------------------------------------------------- */}
       <div id="home-pujari-portal-banner">
         {!activePujari ? (
-          <div className="bg-amber-50/90 border border-amber-300/80 rounded-2xl p-3.5 sm:p-4 text-center space-y-2">
-            <div className="flex items-center justify-center gap-1.5 text-amber-950 font-black text-xs sm:text-sm">
-              <ShieldCheck className="w-4 h-4 text-amber-800 shrink-0" />
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 text-center space-y-2 shadow-2xs">
+            <div className="flex items-center justify-center gap-1.5 text-slate-800 font-bold text-xs sm:text-sm">
+              <ShieldCheck className="w-4 h-4 text-orange-600 shrink-0" />
               <span>ପୂଜାରୀ / ପଣ୍ଡିତ ପୋର୍ଟାଲ୍ (Pujari & Pandit Portal)</span>
             </div>
-            <p className="text-[11px] sm:text-xs text-amber-900/90 font-medium">
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
               ଓଡ଼ିଶାର ସମସ୍ତ ପୂଜକଙ୍କ ପାଇଁ ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ ତିଆରି ଏବଂ Odia PDF ଡାଉନଲୋଡ୍ ସେବା।
             </p>
             <button
               onClick={onNavigateToLogin}
               type="button"
-              className="w-full sm:w-auto px-5 py-2 bg-gradient-to-r from-[#701a1e] to-[#8B0000] hover:from-[#8B0000] hover:to-[#a00000] text-amber-200 hover:text-white font-extrabold rounded-xl text-xs shadow-sm transition cursor-pointer border border-amber-400/40"
+              className="w-full sm:w-auto px-5 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold rounded-xl text-xs shadow-2xs transition cursor-pointer"
             >
               🔑 ପୂଜାରୀ ଲଗଇନ୍ / ରେଜିଷ୍ଟ୍ରେସନ୍ (Login)
             </button>
           </div>
         ) : (
-          <div className="bg-amber-50/90 border border-amber-300/80 rounded-2xl p-3.5 sm:p-4 text-center space-y-2">
-            <div className="text-xs sm:text-sm font-black text-amber-950 flex items-center justify-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-600" />
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 text-center space-y-2 shadow-2xs">
+            <div className="text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-orange-600" />
               <span>ଆପଣ ଲଗଇନ୍ ଅଛନ୍ତି: {activePujari.name}</span>
             </div>
             <button
               onClick={onNavigateToCreateList}
               type="button"
-              className="w-full sm:w-auto px-5 py-2 bg-gradient-to-r from-[#701a1e] to-[#8B0000] text-amber-200 hover:text-white font-extrabold rounded-xl text-xs shadow-sm transition cursor-pointer border border-amber-400/40"
+              className="w-full sm:w-auto px-5 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold rounded-xl text-xs shadow-2xs transition cursor-pointer"
             >
               🙏 ପୂଜାରୀ ଡାସବୋର୍ଡ (Pujari Dashboard) କୁ ଯାଆନ୍ତୁ
             </button>
@@ -529,9 +535,12 @@ export const HomePage: React.FC<HomePageProps> = ({
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 5. EXPLORE ODISHA BY DISTRICT (30 DISTRICTS)                   */}
+      {/* 5. MAIN UNIFIED NEWS PORTAL FEED                              */}
       {/* ------------------------------------------------------------- */}
-      <ExploreDistrictSection onNavigateToTemples={onNavigateToTemple} />
+      <UnifiedFeedSection
+        onNavigateToBlog={onNavigateToBlog}
+        onNavigateToTemple={onNavigateToTemple}
+      />
 
       {/* ------------------------------------------------------------- */}
       {/* DEVOTIONAL CONTENT SELECTION MODAL                            */}
