@@ -181,23 +181,37 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
           window.history.replaceState({ viewMode: 'blog', storyId: selectedStory.id }, '', targetUrl);
         }
 
-        // Configure per-post Affiliate Ad ONLY if configured in database
+        // Configure per-post Affiliate Ad ONLY if BOTH valid link & image exist in database
         const adConfig = selectedStory.affiliateAd;
-        const hasAd = Boolean(
-          adConfig &&
-          adConfig.enabled !== false &&
-          (adConfig.productTitle?.trim() || adConfig.affiliateUrl?.trim())
-        );
+        const affiliateUrl = (
+          adConfig?.affiliateUrl ||
+          (adConfig as any)?.affiliateLink ||
+          (adConfig as any)?.affiliateTargetUrl ||
+          (selectedStory as any).affiliateUrl ||
+          (selectedStory as any).affiliateLink ||
+          ''
+        ).trim();
 
-        if (hasAd && adConfig) {
+        const productImageUrl = (
+          adConfig?.productImageUrl ||
+          (adConfig as any)?.affiliateImageURL ||
+          (adConfig as any)?.affiliateImageUrl ||
+          (selectedStory as any).affiliateImageURL ||
+          (selectedStory as any).affiliateImageUrl ||
+          ''
+        ).trim();
+
+        const isExplicitlyDisabled = adConfig && adConfig.enabled === false;
+        const hasValidAffiliateData = !isExplicitlyDisabled && Boolean(affiliateUrl && productImageUrl);
+
+        if (hasValidAffiliateData && adConfig) {
           const resolvedAd: AffiliateProductAd = {
             enabled: true,
-            productTitle: adConfig.productTitle || '',
-            productDescription: adConfig.productDescription || '',
-            productImageUrl: adConfig.productImageUrl || '',
-            affiliateUrl: adConfig.affiliateUrl || '',
-            triggerDelaySeconds: Number(adConfig.triggerDelaySeconds) > 0 ? Number(adConfig.triggerDelaySeconds) : 5,
-            countdownSeconds: Number(adConfig.countdownSeconds) > 0 ? Number(adConfig.countdownSeconds) : 5,
+            productTitle: adConfig.productTitle?.trim() || '',
+            productDescription: adConfig.productDescription?.trim() || '',
+            productImageUrl,
+            affiliateUrl,
+            countdownSeconds: Math.max(1, Number(adConfig.countdownSeconds) || 5),
           };
           setActiveAd(resolvedAd);
           setIsAdOpen(false);
@@ -224,44 +238,44 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     }
   }, [selectedStory]);
 
-  // 4. SMART AFFILIATE AD TRIGGER 1: Automatic Time Delay Trigger (e.g. 5s fallback)
-  useEffect(() => {
-    if (!selectedStory || !activeAd || !activeAd.enabled) return;
-
-    // Check if already shown in this reading session for this story
-    if (adTriggeredForStoryRef.current[selectedStory.id]) return;
-
-    const delayMs = Math.max(1, Number(activeAd.triggerDelaySeconds) || 5) * 1000;
-    const timer = setTimeout(() => {
-      if (!adTriggeredForStoryRef.current[selectedStory.id]) {
-        adTriggeredForStoryRef.current[selectedStory.id] = true;
-        setIsAdOpen(true);
-      }
-    }, delayMs);
-
-    return () => clearTimeout(timer);
-  }, [selectedStory, activeAd]);
-
-  // 5. SMART AFFILIATE AD TRIGGER 2: Scroll Depth Trigger (>= 50% scroll threshold)
+  // SMART AFFILIATE AD TRIGGER: Exact 50% Article Scroll Depth Trigger
   useEffect(() => {
     if (!selectedStory || !activeAd || !activeAd.enabled) return;
     if (adTriggeredForStoryRef.current[selectedStory.id]) return;
 
     const handleWindowScroll = () => {
       if (adTriggeredForStoryRef.current[selectedStory.id]) return;
-      const scrollY = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
-      if (docHeight > 0) {
-        const scrollPct = (scrollY / docHeight) * 100;
-        if (scrollPct >= 50) {
-          adTriggeredForStoryRef.current[selectedStory.id] = true;
-          setIsAdOpen(true);
+      const articleEl = document.getElementById('single-story-article');
+      if (articleEl) {
+        const rect = articleEl.getBoundingClientRect();
+        const articleHeight = articleEl.offsetHeight;
+        if (articleHeight > 0) {
+          // Calculate when the user has scrolled to 50% of the article body
+          const scrolledPastTop = Math.max(0, -rect.top + window.innerHeight * 0.5);
+          const scrollPct = (scrolledPastTop / articleHeight) * 100;
+          if (scrollPct >= 50) {
+            adTriggeredForStoryRef.current[selectedStory.id] = true;
+            setIsAdOpen(true);
+          }
+        }
+      } else {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if (docHeight > 0) {
+          const scrollPct = (scrollY / docHeight) * 100;
+          if (scrollPct >= 50) {
+            adTriggeredForStoryRef.current[selectedStory.id] = true;
+            setIsAdOpen(true);
+          }
         }
       }
     };
 
     window.addEventListener('scroll', handleWindowScroll, { passive: true });
+    // Check initial scroll in case user already navigated / scrolled
+    handleWindowScroll();
+
     return () => window.removeEventListener('scroll', handleWindowScroll);
   }, [selectedStory, activeAd]);
 
@@ -382,7 +396,10 @@ ${story.summary}
         </div>
 
         {/* Main Article Container */}
-        <article className="bg-white rounded-3xl border border-orange-100/90 shadow-sm p-4 sm:p-8 space-y-6">
+        <article
+          id="single-story-article"
+          className="bg-white rounded-3xl border border-orange-100/90 shadow-sm p-4 sm:p-8 space-y-6"
+        >
           {/* Header Metadata */}
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2.5">
