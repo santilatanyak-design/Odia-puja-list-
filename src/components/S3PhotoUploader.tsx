@@ -24,6 +24,7 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadPercent, setUploadPercent] = useState<number>(0);
+  const [uploadStage, setUploadStage] = useState<string>('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -44,29 +45,24 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
 
     try {
       setIsUploading(true);
-      setUploadPercent(5);
+      setUploadPercent(10);
+      setUploadStage('ଫଟୋ ପ୍ରସ୍ତୁତ ହେଉଛି...');
       setErrorMsg('');
       setUploadSuccess(false);
 
-      // Smooth progress update interval for feedback
-      const progressTimer = setInterval(() => {
-        setUploadPercent((prev) => {
-          if (prev >= 90) return prev;
-          return prev + Math.floor(Math.random() * 8) + 4;
-        });
-      }, 150);
-
-      const s3Url = await uploadPhotoToS3(file, folder, (percent) => {
-        setUploadPercent((prev) => Math.max(prev, percent));
+      const s3Url = await uploadPhotoToS3(file, folder, (percent, stage) => {
+        setUploadPercent(percent);
+        if (stage) setUploadStage(stage);
       });
 
-      clearInterval(progressTimer);
       setUploadPercent(100);
+      setUploadStage('ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
       onChange(s3Url);
       setUploadSuccess(true);
       setTimeout(() => {
         setUploadSuccess(false);
         setUploadPercent(0);
+        setUploadStage('');
       }, 3500);
     } catch (err: any) {
       console.error('S3 Upload failed:', err);
@@ -138,7 +134,7 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
               <Loader2 className="w-5 h-5 text-amber-700 animate-spin shrink-0" />
               <div>
                 <p className="text-xs font-extrabold text-amber-950">
-                  AWS S3 କୁ ଫଟୋ ଅପଲୋଡ୍ ହେଉଛି...
+                  {uploadStage || 'AWS S3 କୁ ଫଟୋ ଅପଲୋଡ୍ ହେଉଛି...'}
                 </p>
                 <p className="text-[10px] text-amber-800 font-medium">
                   Bucket: bhakti-ananda-photos (ap-south-1)

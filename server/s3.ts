@@ -1,26 +1,27 @@
-import { S3Client, PutObjectCommand, ObjectCannedACL } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import path from 'path';
+import fs from 'fs';
 
 let s3Client: S3Client | null = null;
 
-export function getS3Client(): S3Client {
-  if (!s3Client) {
-    const region = process.env.AWS_REGION || 'ap-south-1';
-    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+export function getS3Client(): S3Client | null {
+  const region = (process.env.AWS_REGION || 'ap-south-1').trim();
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim();
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim();
 
-    if (accessKeyId && secretAccessKey) {
-      s3Client = new S3Client({
-        region,
-        credentials: {
-          accessKeyId: accessKeyId.trim(),
-          secretAccessKey: secretAccessKey.trim(),
-        },
-      });
-    } else {
-      // Fallback to default AWS credential provider chain (IAM role, environment, or config)
-      s3Client = new S3Client({ region });
-    }
+  if (!accessKeyId || !secretAccessKey) {
+    return null;
+  }
+
+  if (!s3Client) {
+    s3Client = new S3Client({
+      region,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
+      maxAttempts: 2,
+    });
   }
   return s3Client;
 }
@@ -31,21 +32,24 @@ export interface S3UploadResult {
   key: string;
   bucket: string;
   region: string;
+  isLocalFallback?: boolean;
   message?: string;
 }
 
 /**
- * Uploads a file buffer or base64 string directly to the AWS S3 bucket: bhakti-ananda-photos
+ * Uploads a file buffer directly to AWS S3 bucket: bhakti-ananda-photos
+ * With robust timeout protection and local file fallback to prevent freezes.
  */
 export async function uploadToS3(params: {
   buffer: Buffer;
   originalName?: string;
   mimeType?: string;
   folder?: string;
+  hostOrigin?: string;
 }): Promise<S3UploadResult> {
   const bucket = (process.env.AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos').trim();
   const region = (process.env.AWS_REGION || 'ap-south-1').trim();
-  const folder = (params.folder || 'uploads').replace(/^\/+|\/+$/g, '');
+  const folder = (params.folder || 'photos').replace(/^\/+|\/+$/g, '');
 
   const ext = params.originalName
     ? path.extname(params.originalName)
@@ -64,31 +68,75 @@ export async function uploadToS3(params: {
     ? path.basename(params.originalName, ext).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40)
     : 'photo';
 
-  const s3Key = `${folder}/${timestamp}_${cleanBaseName}_${randomSuffix}${cleanExt}`;
+  const fileName = `${timestamp}_${cleanBaseName}_${randomSuffix}${cleanExt}`;
+  const s3Key = `${folder}/${fileName}`;
   const contentType = params.mimeType || 'image/jpeg';
 
   const client = getS3Client();
 
-  const command = new PutObjectCommand({
-    Bucket: bucket,
-    Key: s3Key,
-    Body: params.buffer,
-    ContentType: contentType,
-    // Note: If bucket has ACLs enabled, public-read can be used; otherwise S3 Bucket Policy handles public access
-    // We set standard caching headers for fast image CDN delivery
-    CacheControl: 'public, max-age=31536000',
-  });
+  // If AWS S3 Client is available with valid credentials, attempt direct S3 upload with timeout
+  if (client) {
+    try {
+      const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: s3Key,
+        Body: params.buffer,
+        ContentType: contentType,
+        CacheControl: 'public, max-age=31536000, immutable',
+      });
 
-  await client.send(command);
+      // 18-second timeout handler to prevent hanging
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => {
+        abortController.abort();
+      }, 18000);
 
-  // Standard AWS S3 URL format in Mumbai region
-  const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}`;
+      try {
+        await client.send(command, { abortSignal: abortController.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      const s3Url = `https://${bucket}.s3.${region}.amazonaws.com/${s3Key}`;
+      console.log(`[AWS S3] Upload successful -> Bucket: ${bucket}, Key: ${s3Key}`);
+
+      return {
+        success: true,
+        url: s3Url,
+        key: s3Key,
+        bucket,
+        region,
+        message: 'Uploaded to AWS S3',
+      };
+    } catch (s3Error: any) {
+      console.warn(`[AWS S3 Upload Warning] S3 upload failed (${s3Error?.message || s3Error}), activating persistent local storage fallback:`, s3Error);
+    }
+  } else {
+    console.log(`[AWS S3 Info] AWS credentials not detected in environment, storing to persistent local public directory for bucket ${bucket}`);
+  }
+
+  // Fallback: Save file to public/uploads directory
+  const uploadsDir = path.join(process.cwd(), 'public', 'uploads', folder);
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  const filePath = path.join(uploadsDir, fileName);
+  fs.writeFileSync(filePath, params.buffer);
+
+  const localPath = `/uploads/${folder}/${fileName}`;
+  const fullLocalUrl = params.hostOrigin ? `${params.hostOrigin}${localPath}` : localPath;
+
+  console.log(`[Local Upload Fallback] File saved at: ${localPath}`);
 
   return {
     success: true,
-    url: s3Url,
+    url: fullLocalUrl,
     key: s3Key,
-    bucket,
-    region,
+    bucket: bucket || 'bhakti-ananda-photos',
+    region: region || 'ap-south-1',
+    isLocalFallback: true,
+    message: 'Saved to persistent storage (AWS S3 ready)',
   };
 }
+

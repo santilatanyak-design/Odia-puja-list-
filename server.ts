@@ -11,8 +11,27 @@ import { uploadToS3 } from './server/s3';
 const app = express();
 const PORT = 3000;
 
+// Enable CORS for all API and asset endpoints
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Serve static public and uploaded media files
+const publicUploadsDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(publicUploadsDir)) {
+  fs.mkdirSync(publicUploadsDir, { recursive: true });
+}
+app.use('/uploads', express.static(publicUploadsDir, { maxAge: '1y' }));
+app.use(express.static(path.join(process.cwd(), 'public')));
 
 // Database Persistence File
 const DB_FILE = path.join(process.cwd(), 'data', 'db.json');
@@ -119,6 +138,9 @@ let db = loadDb();
 
 // 0. AWS S3 Photo & Media Upload Endpoint (Bucket: bhakti-ananda-photos, Region: ap-south-1)
 app.post(['/api/upload', '/api/s3/upload'], async (req, res) => {
+  // Set explicit request timeout to prevent hanging connections
+  req.setTimeout(60000);
+
   try {
     const { fileData, fileName, mimeType, folder = 'photos' } = req.body;
 
@@ -145,11 +167,16 @@ app.post(['/api/upload', '/api/s3/upload'], async (req, res) => {
       buffer = Buffer.from(fileData, 'base64');
     }
 
+    const hostHeader = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:3000';
+    const protoHeader = req.headers['x-forwarded-proto'] || 'https';
+    const hostOrigin = `${protoHeader}://${hostHeader}`;
+
     const uploadResult = await uploadToS3({
       buffer,
       originalName: fileName || 'photo.jpg',
       mimeType: detectedMime,
       folder: folder || 'photos',
+      hostOrigin,
     });
 
     console.log(
@@ -163,7 +190,8 @@ app.post(['/api/upload', '/api/s3/upload'], async (req, res) => {
       key: uploadResult.key,
       bucket: uploadResult.bucket,
       region: uploadResult.region,
-      message: 'Photo successfully uploaded to AWS S3 bucket bhakti-ananda-photos',
+      isLocalFallback: uploadResult.isLocalFallback || false,
+      message: uploadResult.message || 'Photo successfully uploaded to AWS S3 bucket bhakti-ananda-photos',
     });
   } catch (error: any) {
     console.error('[AWS S3 Upload Error]:', error);
