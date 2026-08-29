@@ -79,8 +79,8 @@ export const AdminStoreManagement: React.FC = () => {
     backgroundColor: '#fffbeb',
     templateStyle: 'grid',
     noticeBarText: '⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!',
-    festivalBannerUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
-    bannerImageUrl: DEFAULT_BANNER_IMAGE,
+    festivalBannerUrl: '',
+    bannerImageUrl: '',
     deliveryChargeAmount: 40,
     freeDeliveryThreshold: 500,
     customToggles: {},
@@ -105,7 +105,7 @@ export const AdminStoreManagement: React.FC = () => {
     const unsubO = subscribeStoreOrders((data) => setOrders(data));
     const unsubC = subscribeStoreConfig((cfg) => {
       setConfig(cfg);
-      setBannerInputUrl(cfg.bannerImageUrl || DEFAULT_BANNER_IMAGE);
+      setBannerInputUrl(cfg.bannerImageUrl || '');
       setSettingsState((prev) => ({
         ...cfg,
         enableFestivalBanner: cfg.enableFestivalBanner ?? true,
@@ -116,8 +116,8 @@ export const AdminStoreManagement: React.FC = () => {
         backgroundColor: cfg.backgroundColor || '#fffbeb',
         templateStyle: cfg.templateStyle || 'grid',
         noticeBarText: cfg.noticeBarText || '⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!',
-        festivalBannerUrl: cfg.festivalBannerUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
-        bannerImageUrl: cfg.bannerImageUrl || DEFAULT_BANNER_IMAGE,
+        festivalBannerUrl: cfg.festivalBannerUrl || '',
+        bannerImageUrl: cfg.bannerImageUrl || '',
         deliveryChargeAmount: cfg.deliveryChargeAmount ?? 40,
         freeDeliveryThreshold: cfg.freeDeliveryThreshold ?? 500,
         customToggles: cfg.customToggles || {},
@@ -628,14 +628,20 @@ export const AdminStoreManagement: React.FC = () => {
                 className="bg-white rounded-2xl border border-amber-200 p-4 shadow-sm flex flex-col justify-between space-y-3"
               >
                 <div className="flex gap-3">
-                  <img
-                    src={
-                      p.imageUrl ||
-                      'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
-                    }
-                    alt={p.name}
-                    className="w-20 h-20 object-cover rounded-xl border border-amber-200 shrink-0"
-                  />
+                  {p.imageUrl ? (
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      className="w-20 h-20 object-cover rounded-xl border border-amber-200 shrink-0"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-xl border border-amber-200 bg-amber-50 flex items-center justify-center text-xs text-amber-800 font-bold shrink-0">
+                      📦
+                    </div>
+                  )}
                   <div className="flex-1 space-y-1">
                     <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
                       {p.category}
@@ -830,7 +836,7 @@ export const AdminStoreManagement: React.FC = () => {
                     required
                     value={bannerInputUrl}
                     onChange={(e) => setBannerInputUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/photo-..."
+                    placeholder="https://example.com/store-banner.jpg"
                     className="flex-1 p-2.5 rounded-xl border border-amber-300 text-xs focus:ring-2 focus:ring-amber-500"
                   />
                   <button
@@ -1004,7 +1010,7 @@ export const AdminStoreManagement: React.FC = () => {
                   type="url"
                   value={editingProduct.imageUrl || ''}
                   onChange={(e) => setEditingProduct({ ...editingProduct, imageUrl: e.target.value })}
-                  placeholder="https://images.unsplash.com/photo-..."
+                  placeholder="https://example.com/product.jpg"
                   className="w-full p-2.5 rounded-xl border border-amber-300 text-xs"
                 />
               </div>
@@ -1377,19 +1383,21 @@ export const AdminStoreManagement: React.FC = () => {
                       type="url"
                       value={settingsState.festivalBannerUrl || ''}
                       onChange={(e) => setSettingsState({ ...settingsState, festivalBannerUrl: e.target.value })}
-                      placeholder="https://images.unsplash.com/photo-..."
+                      placeholder="https://example.com/banner.jpg"
                       className="w-full p-2.5 rounded-xl border border-amber-300 text-xs mb-2"
                     />
-                    <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
-                      <img
-                        src={settingsState.festivalBannerUrl || DEFAULT_BANNER_IMAGE}
-                        alt="Festival Banner Preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).setAttribute('src', DEFAULT_BANNER_IMAGE);
-                        }}
-                      />
-                    </div>
+                    {settingsState.festivalBannerUrl ? (
+                      <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
+                        <img
+                          src={settingsState.festivalBannerUrl}
+                          alt="Festival Banner Preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : null}
                   </div>
 
                   {/* Store Background Header Banner URL */}
@@ -1401,19 +1409,21 @@ export const AdminStoreManagement: React.FC = () => {
                       type="url"
                       value={settingsState.bannerImageUrl || ''}
                       onChange={(e) => setSettingsState({ ...settingsState, bannerImageUrl: e.target.value })}
-                      placeholder="https://images.unsplash.com/photo-..."
+                      placeholder="https://example.com/store-header.jpg"
                       className="w-full p-2.5 rounded-xl border border-amber-300 text-xs mb-2"
                     />
-                    <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
-                      <img
-                        src={settingsState.bannerImageUrl || DEFAULT_BANNER_IMAGE}
-                        alt="Store Header Banner Preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).setAttribute('src', DEFAULT_BANNER_IMAGE);
-                        }}
-                      />
-                    </div>
+                    {settingsState.bannerImageUrl ? (
+                      <div className="w-full h-24 rounded-xl overflow-hidden border border-amber-200 bg-gray-100">
+                        <img
+                          src={settingsState.bannerImageUrl}
+                          alt="Store Header Banner Preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 export interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string;
+  src?: string;
   alt: string;
   priority?: boolean;
   fallbackSrc?: string;
@@ -10,10 +10,10 @@ export interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElemen
 }
 
 export const SmartImage: React.FC<SmartImageProps> = ({
-  src,
+  src = '',
   alt,
   priority = false,
-  fallbackSrc = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop',
+  fallbackSrc = '',
   className = '',
   containerClassName = '',
   showSkeleton = true,
@@ -28,8 +28,12 @@ export const SmartImage: React.FC<SmartImageProps> = ({
 
   // Sync src prop changes
   useEffect(() => {
-    setImgSrc(src);
+    setImgSrc(src || '');
     setHasError(false);
+    if (!src) {
+      setIsLoaded(false);
+      return;
+    }
     // If the image is already cached in browser memory, mark loaded immediately
     if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setIsLoaded(true);
@@ -38,8 +42,11 @@ export const SmartImage: React.FC<SmartImageProps> = ({
     }
   }, [src]);
 
+  if (!imgSrc && !fallbackSrc) {
+    return null;
+  }
+
   const handleLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    // 0ms immediate skeleton removal upon load
     setIsLoaded(true);
     if (onLoad) onLoad(e);
   };
@@ -49,14 +56,19 @@ export const SmartImage: React.FC<SmartImageProps> = ({
       setHasError(true);
       setImgSrc(fallbackSrc);
     } else {
+      setHasError(true);
       setIsLoaded(true);
     }
     if (onError) onError(e);
   };
 
+  if (hasError && !fallbackSrc) {
+    return null;
+  }
+
   return (
     <div className={`relative overflow-hidden ${containerClassName}`}>
-      {/* Instant Skeleton Placeholder (Shown ONLY until image is loaded with 0ms delay upon load) */}
+      {/* Instant Skeleton Placeholder */}
       {showSkeleton && !isLoaded && (
         <div
           className="absolute inset-0 bg-gradient-to-r from-amber-100/60 via-amber-200/40 to-amber-100/60 animate-pulse z-1 pointer-events-none"
@@ -70,7 +82,6 @@ export const SmartImage: React.FC<SmartImageProps> = ({
         src={imgSrc || fallbackSrc}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}
-        // React supports fetchPriority in modern versions; we provide fetchPriority
         fetchPriority={priority ? 'high' : 'auto'}
         decoding="async"
         onLoad={handleLoad}

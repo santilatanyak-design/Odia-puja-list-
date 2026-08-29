@@ -345,7 +345,7 @@ export const AdminDistrictManagement: React.FC = () => {
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop';
+                          (e.target as HTMLImageElement).style.display = 'none';
                         }}
                       />
                       <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
@@ -581,7 +581,7 @@ export const AdminDistrictManagement: React.FC = () => {
                 <div className="flex gap-2">
                   <input
                     type="url"
-                    placeholder="https://images.unsplash.com/... or any valid image link"
+                    placeholder="https://example.com/image.jpg"
                     value={editingItem.imageUrl || ''}
                     onChange={(e) =>
                       setEditingItem((prev) => ({ ...prev, imageUrl: e.target.value }))

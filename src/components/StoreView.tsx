@@ -133,10 +133,12 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
 
     setMeta('property', 'og:title', `${product.name} - ₹${product.price}`);
     setMeta('property', 'og:description', product.description || `Buy ${product.name} on Puja Samagri Store with Cash on Delivery.`);
-    setMeta('property', 'og:image', product.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop');
+    if (product.imageUrl) {
+      setMeta('property', 'og:image', product.imageUrl);
+      setMeta('name', 'twitter:image', product.imageUrl);
+    }
     setMeta('property', 'og:url', window.location.href);
     setMeta('name', 'twitter:title', `${product.name} - ₹${product.price}`);
-    setMeta('name', 'twitter:image', product.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop');
   };
 
   // Deep Link Routing: Detect product_id in URL and scroll to / highlight product
@@ -529,15 +531,14 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
       )}
 
       {/* Dynamic Festival Offer Banner */}
-      {config.enableFestivalBanner !== false && (
+      {config.enableFestivalBanner !== false && Boolean(config.festivalBannerUrl && config.festivalBannerUrl.trim()) && (
         <div className="w-full h-36 sm:h-48 rounded-2xl overflow-hidden shadow-lg mb-6 border border-amber-300/80 relative group">
           <SmartImage
-            src={config.festivalBannerUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop'}
+            src={config.festivalBannerUrl}
             alt="Festival Special Offer Banner"
             priority={true}
             containerClassName="w-full h-full"
             className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-            fallbackSrc={DEFAULT_BANNER_IMAGE}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/40 to-transparent p-4 sm:p-6 flex flex-col justify-center text-white pointer-events-none">
             <span className="bg-amber-500 text-amber-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full w-fit mb-1.5 shadow-sm">
@@ -723,25 +724,23 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                     </div>
 
                     {/* Product Image */}
-                    <div
-                      className={
-                        config.templateStyle === 'list'
-                          ? 'w-full sm:w-48 h-44 sm:h-auto bg-amber-50 overflow-hidden relative shrink-0'
-                          : 'w-full h-44 bg-amber-50 overflow-hidden relative'
-                      }
-                    >
-                      <SmartImage
-                        src={
-                          product.imageUrl ||
-                          'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
+                    {product.imageUrl ? (
+                      <div
+                        className={
+                          config.templateStyle === 'list'
+                            ? 'w-full sm:w-48 h-44 sm:h-auto bg-amber-50 overflow-hidden relative shrink-0'
+                            : 'w-full h-44 bg-amber-50 overflow-hidden relative'
                         }
-                        alt={product.name}
-                        priority={productIdx < 4}
-                        containerClassName="w-full h-full"
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                        fallbackSrc="https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop"
-                      />
-                    </div>
+                      >
+                        <SmartImage
+                          src={product.imageUrl}
+                          alt={product.name}
+                          priority={productIdx < 4}
+                          containerClassName="w-full h-full"
+                          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        />
+                      </div>
+                    ) : null}
 
                     {/* Product Content */}
                     <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
@@ -1066,14 +1065,16 @@ export const StoreView: React.FC<StoreViewProps> = ({ userPhone }) => {
                     className="bg-amber-50/80 p-2.5 rounded-2xl border border-amber-200 flex items-center justify-between gap-2"
                   >
                     <div className="flex items-center gap-2.5 overflow-hidden">
-                      <img
-                        src={
-                          item.product.imageUrl ||
-                          'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=600&auto=format&fit=crop'
-                        }
-                        alt={item.product.name}
-                        className="w-12 h-12 object-cover rounded-xl border border-amber-300 shrink-0"
-                      />
+                      {item.product.imageUrl ? (
+                        <img
+                          src={item.product.imageUrl}
+                          alt={item.product.name}
+                          className="w-12 h-12 object-cover rounded-xl border border-amber-300 shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : null}
                       <div className="truncate">
                         <h4 className="font-bold text-xs text-amber-950 truncate">
                           {item.product.name}

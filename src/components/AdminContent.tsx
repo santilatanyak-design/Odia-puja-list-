@@ -573,14 +573,14 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                       <Image className="w-3.5 h-3.5 text-amber-700" />
                       <span>🖼️ ଇମେଜ୍ URL (Image URL - Zero Local Storage) *</span>
                     </span>
-                    <span className="text-[10px] text-amber-700 font-semibold">Paste web link / Unsplash / Cloud URL</span>
+                    <span className="text-[10px] text-amber-700 font-semibold">Paste web link / Cloud URL</span>
                   </label>
                   <input
                     type="url"
                     required
                     value={editingStory.imageUrl || ''}
                     onChange={(e) => setEditingStory({ ...editingStory, imageUrl: e.target.value })}
-                    placeholder="https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000..."
+                    placeholder="https://example.com/image.jpg"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
                   />
                 </div>

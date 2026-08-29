@@ -122,7 +122,7 @@ export function getYouTubeEmbedUrl(url: string, autoplay: boolean = true): strin
 export function getYouTubeThumbnailUrl(url: string): string {
   const videoId = extractYouTubeId(url);
   if (!videoId) {
-    return 'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
+    return '';
   }
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 }

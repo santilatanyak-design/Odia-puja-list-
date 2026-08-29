@@ -1028,8 +1028,7 @@ export const AdminTempleManagement: React.FC = () => {
                           alt={temple.name || 'Temple'}
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src =
-                              'https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop';
+                            (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
                       ) : (

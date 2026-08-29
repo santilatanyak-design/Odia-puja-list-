@@ -404,7 +404,6 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                       priority={templeIdx < 3}
                       containerClassName="w-full h-full"
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      fallbackSrc="https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop"
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-amber-700 via-amber-800 to-amber-950 flex flex-col items-center justify-center text-amber-100 p-4 text-center">
@@ -856,21 +855,20 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                   </div>
 
                   {/* QR Code Display */}
-                  <div className="bg-white border-2 border-amber-400 rounded-2xl p-4 shadow-md inline-block mx-auto max-w-xs">
-                    <SmartImage
-                      src={
-                        selectedTemple.qrCodeUrl ||
-                        'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=400&auto=format&fit=crop'
-                      }
-                      alt="Paytm QR Code"
-                      priority={true}
-                      containerClassName="w-48 h-48 mx-auto rounded-xl border border-amber-200"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="mt-2 text-[11px] font-black text-amber-950">
-                      Scan QR Code with Paytm / PhonePe / Google Pay
+                  {selectedTemple.qrCodeUrl && selectedTemple.qrCodeUrl.trim() ? (
+                    <div className="bg-white border-2 border-amber-400 rounded-2xl p-4 shadow-md inline-block mx-auto max-w-xs">
+                      <SmartImage
+                        src={selectedTemple.qrCodeUrl}
+                        alt="Paytm QR Code"
+                        priority={true}
+                        containerClassName="w-48 h-48 mx-auto rounded-xl border border-amber-200"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="mt-2 text-[11px] font-black text-amber-950">
+                        Scan QR Code with Paytm / PhonePe / Google Pay
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
 
                   <div className="flex gap-2 pt-2">
                     <button
@@ -1121,7 +1119,6 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
                     priority={true}
                     containerClassName="w-full h-full"
                     className="w-full h-full object-cover"
-                    fallbackSrc="https://images.unsplash.com/photo-1627894483216-2138af692e32?q=80&w=800&auto=format&fit=crop"
                   />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center bg-amber-100 text-amber-900 font-bold p-4 text-center">

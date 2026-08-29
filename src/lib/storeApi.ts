@@ -26,7 +26,7 @@ const COLLECTIONS = {
   CONFIG: 'store_config',
 };
 
-export const DEFAULT_BANNER_IMAGE = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+export const DEFAULT_BANNER_IMAGE = '';
 
 export const ODISHA_DISTRICTS = [
   'Angul',
@@ -429,7 +429,7 @@ export const DEFAULT_STORE_CONFIG: StoreConfig = {
   templateStyle: 'grid',
 
   noticeBarText: '⚡ ପବିତ୍ର ପୂଜା ସାମଗ୍ରୀ ନଗଦ ଦେୟ (Cash on Delivery) ସହ ସମଗ୍ର ଓଡ଼ିଶାରେ ଉପଲବ୍ଧ!',
-  festivalBannerUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
+  festivalBannerUrl: '',
   deliveryChargeAmount: 40,
   freeDeliveryThreshold: 500,
   customToggles: {},

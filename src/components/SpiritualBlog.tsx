@@ -144,7 +144,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
                 : `${dMatch.districtNameOdia} - ${dMatch.category === 'temple' ? 'ମନ୍ଦିର' : 'ପର୍ବପର୍ବାଣୀ'}`,
               summary: dMatch.description ? dMatch.description.slice(0, 140) + '...' : (dMatch.significance || ''),
               content: dMatch.description || dMatch.significance || 'ପବିତ୍ର ଐତିହ୍ୟ କଥା।',
-              imageUrl: dMatch.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1000',
+              imageUrl: dMatch.imageUrl || '',
               author: `${dMatch.districtNameOdia} ଐତିହ୍ୟ`,
               readTimeMinutes: 3,
               publishedAt: dMatch.createdAt ? dMatch.createdAt.split('T')[0] : '2026-01-01',
@@ -181,23 +181,23 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
           window.history.replaceState({ viewMode: 'blog', storyId: selectedStory.id }, '', targetUrl);
         }
 
-        // Configure per-post Affiliate Ad
+        // Configure per-post Affiliate Ad ONLY if configured in database
         const adConfig = selectedStory.affiliateAd;
-        const isExplicitlyDisabled = adConfig && adConfig.enabled === false;
+        const hasAd = Boolean(
+          adConfig &&
+          adConfig.enabled !== false &&
+          (adConfig.productTitle?.trim() || adConfig.affiliateUrl?.trim())
+        );
 
-        if (!isExplicitlyDisabled) {
+        if (hasAd && adConfig) {
           const resolvedAd: AffiliateProductAd = {
             enabled: true,
-            productTitle: adConfig?.productTitle || 'ପବିତ୍ର ଶ୍ରୀମଦ୍ ଭାଗବତ ଓ ପୂଜା ସାମଗ୍ରୀ ସେଟ୍',
-            productDescription:
-              adConfig?.productDescription ||
-              'ଶୁଦ୍ଧ ପିତ୍ତଳ ଦୀପ, ଗଙ୍ଗାଜଳ, ଚନ୍ଦନ ଓ ଶ୍ରେଷ୍ଠ ଧାର୍ମିକ ପୁସ୍ତକ। Amazon ରେ ସ୍ୱତନ୍ତ୍ର ରିହାତି ସହ ଉପଲବ୍ଧ।',
-            productImageUrl:
-              adConfig?.productImageUrl ||
-              'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=800',
-            affiliateUrl: adConfig?.affiliateUrl || 'https://www.amazon.in',
-            triggerDelaySeconds: Number(adConfig?.triggerDelaySeconds) > 0 ? Number(adConfig?.triggerDelaySeconds) : 5,
-            countdownSeconds: Number(adConfig?.countdownSeconds) > 0 ? Number(adConfig?.countdownSeconds) : 5,
+            productTitle: adConfig.productTitle || '',
+            productDescription: adConfig.productDescription || '',
+            productImageUrl: adConfig.productImageUrl || '',
+            affiliateUrl: adConfig.affiliateUrl || '',
+            triggerDelaySeconds: Number(adConfig.triggerDelaySeconds) > 0 ? Number(adConfig.triggerDelaySeconds) : 5,
+            countdownSeconds: Number(adConfig.countdownSeconds) > 0 ? Number(adConfig.countdownSeconds) : 5,
           };
           setActiveAd(resolvedAd);
           setIsAdOpen(false);
