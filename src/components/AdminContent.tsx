@@ -566,16 +566,22 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                 ))}
               </div>
 
-              {/* 2. S3 PHOTO UPLOADER (AWS S3 Bucket: bhakti-ananda-photos) */}
-              <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-300/80 space-y-3">
+              {/* 2. S3 PHOTO UPLOADER / DIRECT IMAGE URL (AWS S3 Bucket: bhakti-ananda-photos) */}
+              <div className="p-4 bg-amber-50/70 rounded-2xl border-2 border-amber-300 space-y-3">
                 <S3PhotoUploader
                   value={editingStory.imageUrl || ''}
                   onChange={(url) => setEditingStory({ ...editingStory, imageUrl: url })}
                   folder="posts"
-                  label="🖼️ ପୋଷ୍ଟ ଫଟୋ (Post Photo / S3 Storage)"
+                  label="🖼️ ପୋଷ୍ଟ ଫଟୋ / ସୋସିଆଲ୍ ଶେୟାରିଂ ଇମେଜ୍ (Featured & Social Sharing Image - Facebook, WhatsApp, Twitter)"
                   placeholder="https://... or click upload photo"
                   required
                 />
+                <p className="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
+                  <span>💡 ସୂଚନା:</span>
+                  <span>
+                    ଏହି ଫଟୋଟି ଫେସବୁକ୍, ହ୍ୱାଟ୍ସଆପ୍ ଏବଂ ଟୁଇଟର୍‌ରେ ସିଧାସଳଖ Open Graph (<code>og:image</code>) ରେ ଦେଖାଯିବ।
+                  </span>
+                </p>
               </div>
 
               {/* 3. METADATA: AUTHOR, READ TIME, FEATURED */}

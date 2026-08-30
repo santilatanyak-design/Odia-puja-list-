@@ -28,6 +28,7 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
@@ -156,13 +157,45 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
         </div>
       )}
 
+      {/* Mode Selector Tabs: Direct File Upload vs Direct Image URL Input */}
+      <div className="flex items-center gap-2 pb-1">
+        <button
+          type="button"
+          onClick={() => {
+            setShowUrlInput(false);
+          }}
+          className={`px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
+            !showUrlInput
+              ? 'bg-amber-800 text-white shadow-xs'
+              : 'bg-amber-100/80 hover:bg-amber-200 text-amber-950 border border-amber-300'
+          }`}
+        >
+          <UploadCloud className="w-3.5 h-3.5" />
+          <span>ଫାଇଲ୍ ଅପଲୋଡ୍ (Direct File Upload)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setShowUrlInput(true);
+          }}
+          className={`px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
+            showUrlInput
+              ? 'bg-amber-800 text-white shadow-xs'
+              : 'bg-amber-100/80 hover:bg-amber-200 text-amber-950 border border-amber-300'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>ଇମେଜ୍ URL ଦିଅନ୍ତୁ (Paste Image URL)</span>
+        </button>
+      </div>
+
       {/* When Image Exists and Not Currently Uploading: Photo Preview & Control Card */}
       {!isUploading && value && value.trim() && (
-        <div className="relative p-3 bg-white rounded-2xl border-2 border-amber-200 shadow-xs flex flex-col sm:flex-row items-center gap-3">
-          <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-900 border-2 border-amber-300 shrink-0 flex items-center justify-center shadow-xs">
+        <div className="relative p-3.5 bg-white rounded-2xl border-2 border-amber-300 shadow-xs flex flex-col sm:flex-row items-center gap-3.5">
+          <div className="w-24 h-24 rounded-xl overflow-hidden bg-slate-900 border-2 border-amber-400 shrink-0 flex items-center justify-center shadow-md">
             <img
               src={value}
-              alt="Uploaded Preview"
+              alt="Uploaded Featured Preview"
               className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLElement).style.display = 'none';
@@ -170,17 +203,17 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
             />
           </div>
 
-          <div className="flex-1 min-w-0 space-y-1 text-center sm:text-left">
+          <div className="flex-1 min-w-0 space-y-1.5 text-center sm:text-left">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
-              <span className="text-[11px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-md flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-700" />
-                <span>ଫଟୋ ସଂଲଗ୍ନ ହୋଇଛି (AWS S3)</span>
+              <span className="text-[11px] font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                <span>ଫଟୋ ସଂଲଗ୍ନ ହୋଇଛି (Featured Image Set)</span>
               </span>
-              <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                100% Uploaded
+              <span className="text-[10px] font-black text-amber-900 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded">
+                Social OG Active
               </span>
             </div>
-            <p className="text-[11px] font-mono text-slate-500 truncate max-w-full">
+            <p className="text-[11px] font-mono text-slate-700 break-all select-all bg-amber-50/70 p-1.5 rounded-lg border border-amber-200/80 leading-tight">
               {value}
             </p>
           </div>
@@ -189,7 +222,7 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="px-3 py-2 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer"
+              className="px-3 py-2 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer border border-amber-300"
               title="Change photo"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -207,8 +240,35 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
         </div>
       )}
 
-      {/* If No Image is Selected and Not Uploading: Interactive Upload Button / Dropzone */}
-      {!isUploading && (!value || !value.trim()) && (
+      {/* Direct URL Input Mode */}
+      {showUrlInput && (
+        <div className="p-3.5 bg-white rounded-2xl border-2 border-amber-300 space-y-2">
+          <label className="block text-xs font-black text-slate-800">
+            🌐 ସିଧାସଳଖ ଫଟୋ URL (Direct Public Image URL for Facebook / WhatsApp / Twitter):
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={value || ''}
+              onChange={(e) => onChange(e.target.value.trim())}
+              placeholder="https://example.com/photo.jpg or https://...s3.amazonaws.com/..."
+              className="flex-1 px-3.5 py-2.5 rounded-xl border border-amber-300 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/30"
+            />
+            {value && (
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs border border-rose-200"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* If No Image is Selected and Not Uploading and in File Upload Mode: Interactive Upload Dropzone */}
+      {!isUploading && (!value || !value.trim()) && !showUrlInput && (
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -239,7 +299,7 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
                 JPG, PNG, WEBP
               </span>
               <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
-                Fast S3 CDN
+                Instant Social Sharing
               </span>
             </div>
           </div>
