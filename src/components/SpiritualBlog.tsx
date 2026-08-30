@@ -602,12 +602,15 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
           </div>
 
           {/* ================================================================= */}
+          {/* ================================================================= */}
           {/* HIGH-CONVERTING IN-ARTICLE & END-OF-POST SMART AFFILIATE AD CARD */}
+          {/* STRICT ZERO-DEMO RULE: ONLY rendered if productImageUrl is present */}
           {/* ================================================================= */}
           {selectedStory.affiliateAd?.enabled &&
             Boolean(
-              (selectedStory.affiliateAd.productTitle && selectedStory.affiliateAd.productTitle.trim()) ||
-                (selectedStory.affiliateAd.affiliateUrl && selectedStory.affiliateAd.affiliateUrl.trim())
+              (selectedStory.affiliateAd.productImageUrl || (selectedStory.affiliateAd as any).affiliateImageURL) &&
+                ((selectedStory.affiliateAd.productImageUrl || (selectedStory.affiliateAd as any).affiliateImageURL) || '').trim().length > 0 &&
+                (selectedStory.affiliateAd.affiliateUrl || '').trim().length > 0
             ) && (
               <div className="mt-8 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50/90 via-orange-50/80 to-amber-100/60 border-2 border-amber-300 shadow-sm relative overflow-hidden">
                 {/* Header Tag */}
@@ -625,16 +628,14 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
                   {/* Product Image */}
-                  {selectedStory.affiliateAd.productImageUrl && (
-                    <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl overflow-hidden bg-white border border-amber-200 shrink-0 shadow-xs flex items-center justify-center p-2">
-                      <img
-                        src={selectedStory.affiliateAd.productImageUrl}
-                        alt={selectedStory.affiliateAd.productTitle || 'Amazon Product'}
-                        className="w-full h-full object-contain hover:scale-105 transition-transform"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  )}
+                  <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-xl overflow-hidden bg-white border border-amber-200 shrink-0 shadow-xs flex items-center justify-center p-2">
+                    <img
+                      src={selectedStory.affiliateAd.productImageUrl || (selectedStory.affiliateAd as any).affiliateImageURL}
+                      alt={selectedStory.affiliateAd.productTitle || 'Amazon Product'}
+                      className="w-full h-full object-contain hover:scale-105 transition-transform"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
 
                   {/* Product Details & Action */}
                   <div className="min-w-0 flex-1 space-y-2 text-center sm:text-left">

@@ -773,24 +773,24 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                 </div>
               )}
 
-              {/* Affiliate Product Recommendation Card (Strict NO-FALLBACK Rule: Only if valid image + url) */}
+              {/* Affiliate Product Recommendation Card (Strict ZERO-DEMO Rule: Completely HIDDEN if affiliateImageURL is missing/empty) */}
               {Boolean(
                 activeAffiliateAd &&
                 activeAffiliateAd.enabled !== false &&
-                activeAffiliateAd.productImageUrl &&
-                activeAffiliateAd.affiliateUrl
+                (activeAffiliateAd.productImageUrl || (activeAffiliateAd as any).affiliateImageURL || (activeAffiliateAd as any).adImageUrl) &&
+                ((activeAffiliateAd.productImageUrl || (activeAffiliateAd as any).affiliateImageURL || (activeAffiliateAd as any).adImageUrl) || '').trim().length > 0 &&
+                (activeAffiliateAd.affiliateUrl || (activeAffiliateAd as any).adLink || '').trim().length > 0
               ) && (
                 <div className="pt-2">
                   <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-3.5 sm:p-4 shadow-sm flex flex-col sm:flex-row items-center gap-3.5">
-                    {activeAffiliateAd?.productImageUrl && (
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-white border border-amber-200 p-1 shrink-0 overflow-hidden flex items-center justify-center">
-                        <SmartImage
-                          src={activeAffiliateAd.productImageUrl}
-                          alt={activeAffiliateAd.productTitle || 'Product'}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    )}
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-white border border-amber-200 p-1 shrink-0 overflow-hidden flex items-center justify-center">
+                      <img
+                        src={activeAffiliateAd.productImageUrl || (activeAffiliateAd as any).affiliateImageURL || (activeAffiliateAd as any).adImageUrl}
+                        alt={activeAffiliateAd.productTitle || 'Product'}
+                        className="w-full h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
                     <div className="flex-1 text-center sm:text-left space-y-1">
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-200/80 text-amber-950 rounded text-[10px] font-black uppercase tracking-wider">
                         <Sparkles className="w-2.5 h-2.5 text-amber-700" />
@@ -804,7 +804,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                       </p>
                     </div>
                     <a
-                      href={activeAffiliateAd?.affiliateUrl || '#'}
+                      href={activeAffiliateAd?.affiliateUrl || (activeAffiliateAd as any)?.adLink || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
