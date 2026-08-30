@@ -264,13 +264,12 @@ export async function generateAllStaticPages(): Promise<number> {
   // Write all pages to dist/
   let createdCount = 0;
   for (const page of pages) {
-    const enrichedHtml = generateHtmlWithMeta(baseHtml, page);
-
     if (!page.relPath) {
-      fs.writeFileSync(baseIndexPath, enrichedHtml, 'utf-8');
-      createdCount++;
+      // Leave base index.html completely blank of OG tags as requested
       continue;
     }
+
+    const enrichedHtml = generateHtmlWithMeta(baseHtml, page);
 
     // 1. Directory based index.html: dist/<path>/index.html
     const outDir = path.join(DIST_DIR, page.relPath);
