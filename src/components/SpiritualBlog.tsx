@@ -171,7 +171,8 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         // Scroll to top when opening a story
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Inject Article/BlogPosting Schema and meta tags for the active story
+        // Synchronously update dynamic OG metadata and Schema
+        setDynamicStoryMeta(selectedStory);
         updateStorySeoAndJsonLd(selectedStory);
 
         // Sync URL to exact canonical story URL
