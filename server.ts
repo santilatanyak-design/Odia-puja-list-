@@ -947,34 +947,44 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
   try {
     const currentDb = loadDb();
     const url = req.originalUrl || req.url;
-    const urlObj = new URL(url, `http://${req.headers.host || 'localhost:3000'}`);
+    const host = req.headers.host || 'www.bhaktianandaodiatvofficial.blog';
+    const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'https');
+    const origin = `${protocol}://${host}`;
+    const urlObj = new URL(url, `http://${host}`);
     const pathname = urlObj.pathname.toLowerCase();
     const searchParams = urlObj.searchParams;
 
-    const origin = `https://${req.headers.host || 'www.bhaktianandaodiatvofficial.blog'}`;
-
     let title = 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ, ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା';
     let description = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ।';
-    let imageUrl = '';
+    let imageUrl = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
     let canonicalUrl = `${origin}${url}`;
     let ogType = 'website';
+
+    // 0. Direct URL query overrides (takes precedence if explicitly supplied in share link)
+    const directImg = searchParams.get('og_image') || searchParams.get('img') || searchParams.get('image');
+    const directTitle = searchParams.get('og_title') || searchParams.get('title');
+    const directDesc = searchParams.get('og_desc') || searchParams.get('desc');
+
+    if (directTitle) title = directTitle;
+    if (directDesc) description = directDesc;
+    if (directImg) imageUrl = directImg;
 
     // 1. Check Story / Blog Post
     let storyId = '';
     if (pathname.startsWith('/story/') || pathname.startsWith('/blog/') || pathname.startsWith('/stories/')) {
       const parts = pathname.split('/').filter(Boolean);
-      if (parts[1]) storyId = parts[1];
-    } else if (searchParams.get('storyId') || searchParams.get('story')) {
-      storyId = searchParams.get('storyId') || searchParams.get('story') || '';
+      if (parts[1]) storyId = decodeURIComponent(parts[1]);
+    } else if (searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id')) {
+      storyId = searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id') || '';
     }
 
     if (storyId) {
-      const story = (currentDb.stories || []).find((s) => s.id === storyId);
+      const story = (currentDb.stories || []).find((s) => s.id === storyId || s.id === decodeURIComponent(storyId));
       if (story) {
         title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
-        description = story.summary || story.content || description;
-        if (description.length > 160) description = `${description.slice(0, 157)}...`;
-        imageUrl = story.imageUrl || '';
+        const rawDesc = story.summary || story.content || description;
+        description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+        if (story.imageUrl) imageUrl = story.imageUrl;
         canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
         ogType = 'article';
       }
@@ -984,18 +994,18 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     let templeId = '';
     if (pathname.startsWith('/temple/') || pathname.startsWith('/temples/')) {
       const parts = pathname.split('/').filter(Boolean);
-      if (parts[1]) templeId = parts[1];
+      if (parts[1]) templeId = decodeURIComponent(parts[1]);
     } else if (searchParams.get('templeId') || searchParams.get('temple')) {
       templeId = searchParams.get('templeId') || searchParams.get('temple') || '';
     }
 
     if (templeId) {
-      const temple = (currentDb.temples || DEFAULT_TEMPLES).find((t) => t.id === templeId);
+      const temple = (currentDb.temples || DEFAULT_TEMPLES).find((t) => t.id === templeId || t.id === decodeURIComponent(templeId));
       if (temple) {
         title = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
         const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} ରେ ଅନଲାଇନ୍ ଜଳାଭିଷେକ ଓ ପୂଜା ବୁକ୍ କରନ୍ତୁ।`;
         description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-        imageUrl = temple.imageUrl || temple.thumbnailUrl || '';
+        if (temple.imageUrl || temple.thumbnailUrl) imageUrl = temple.imageUrl || temple.thumbnailUrl || imageUrl;
         canonicalUrl = `${origin}/temple/${encodeURIComponent(temple.id)}`;
       }
     }
@@ -1005,8 +1015,8 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     let itemId = '';
     if (pathname.startsWith('/district/') || pathname.startsWith('/districts/')) {
       const parts = pathname.split('/').filter(Boolean);
-      if (parts[1]) districtId = parts[1];
-      if (parts[2]) itemId = parts[2];
+      if (parts[1]) districtId = decodeURIComponent(parts[1]);
+      if (parts[2]) itemId = decodeURIComponent(parts[2]);
     } else {
       districtId = searchParams.get('district') || '';
       itemId = searchParams.get('item') || '';
@@ -1019,7 +1029,8 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
         title = `🛕 ${matched.title} - ${matched.districtNameOdia || ''} | ଓଡ଼ିଶା ଦର୍ଶନ`;
         const rawDesc = matched.description || matched.significance || 'ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ପର୍ଯ୍ୟଟନ ଓ ତୀର୍ଥକ୍ଷେତ୍ର ଦର୍ଶନ କରନ୍ତୁ।';
         description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-        imageUrl = matched.imageUrl || matched.adImageUrl || matched.affiliateProductImageUrl || '';
+        const itemImg = matched.imageUrl || matched.adImageUrl || matched.affiliateProductImageUrl;
+        if (itemImg) imageUrl = itemImg;
         canonicalUrl = `${origin}/district/${encodeURIComponent(matched.districtId)}/${encodeURIComponent(matched.id)}`;
       }
     }
@@ -1032,38 +1043,52 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
       canonicalUrl = `${origin}/?view=store&product_id=${encodeURIComponent(productId)}`;
     }
 
-    // Replace <title>
-    let updatedHtml = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
+    // Ensure absolute image URL
+    if (imageUrl && imageUrl.startsWith('/')) {
+      imageUrl = `${origin}${imageUrl}`;
+    }
 
-    // Build replacement OG meta tags
-    const imageMetaTags = imageUrl
-      ? `
-    <meta property="og:image" content="${imageUrl}" />
-    <meta property="og:image:secure_url" content="${imageUrl}" />
-    <meta property="og:image:url" content="${imageUrl}" />
-    <meta name="twitter:image" content="${imageUrl}" />
-    <meta name="twitter:image:src" content="${imageUrl}" />
-    <meta name="image" content="${imageUrl}" />
-    <meta itemprop="image" content="${imageUrl}" />`
-      : '';
+    // Strip any pre-existing OG, Twitter, canonical, and description tags from html to eliminate duplicates/conflicts
+    let cleanedHtml = html
+      .replace(/<meta\s+property=["']og:[^"']*["'][^>]*>/gi, '')
+      .replace(/<meta\s+name=["']twitter:[^"']*["'][^>]*>/gi, '')
+      .replace(/<meta\s+name=["']description["'][^>]*>/gi, '')
+      .replace(/<meta\s+name=["']image["'][^>]*>/gi, '')
+      .replace(/<meta\s+itemprop=["']image["'][^>]*>/gi, '')
+      .replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '')
+      .replace(/<title>.*?<\/title>/gi, '');
+
+    // Determine image mime type
+    let imageType = 'image/jpeg';
+    if (imageUrl.includes('.png')) imageType = 'image/png';
+    else if (imageUrl.includes('.webp')) imageType = 'image/webp';
 
     const ogTagsBlock = `
-    <!-- Dynamic OpenGraph & Twitter Meta Tags (Server Rendered) -->
+    <title>${title}</title>
     <meta name="description" content="${description}" />
     <link rel="canonical" href="${canonicalUrl}" />
-    <meta property="og:type" content="${ogType}" />
     <meta property="og:site_name" content="Bhakti Ananda Odia TV & Puja Samagri Portal" />
+    <meta property="og:type" content="${ogType}" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:url" content="${canonicalUrl}" />
-    <meta name="twitter:card" content="${imageUrl ? 'summary_large_image' : 'summary'}" />
+    <meta property="og:image" content="${imageUrl}" />
+    <meta property="og:image:secure_url" content="${imageUrl}" />
+    <meta property="og:image:url" content="${imageUrl}" />
+    <meta property="og:image:type" content="${imageType}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${title}" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
-    <meta name="twitter:description" content="${description}" />${imageMetaTags}
-    <!-- End Dynamic Tags -->`;
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${imageUrl}" />
+    <meta name="twitter:image:src" content="${imageUrl}" />
+    <meta name="image" content="${imageUrl}" />
+    <meta itemprop="image" content="${imageUrl}" />`;
 
-    // Inject before </head>
-    updatedHtml = updatedHtml.replace('</head>', `${ogTagsBlock}\n  </head>`);
-    return updatedHtml;
+    // Inject immediately inside <head>
+    return cleanedHtml.replace('<head>', `<head>${ogTagsBlock}`);
   } catch (err) {
     console.error('Error injecting dynamic OG tags into HTML:', err);
     return html;

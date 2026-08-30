@@ -156,7 +156,13 @@ export const updateDocumentSeoAndCanonical = (config: PageSeoConfig) => {
   }
 
   // 2. Helper function to create or update meta tags
-  const setOrCreateMeta = (attrName: 'name' | 'property', attrValue: string, contentValue: string) => {
+  const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: string, contentValue: string) => {
+    const existing = document.querySelectorAll(`meta[${attrName}="${attrValue}"]`);
+    if (existing.length > 1) {
+      existing.forEach((el, index) => {
+        if (index > 0) el.remove();
+      });
+    }
     let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
     if (!el) {
       el = document.createElement('meta');
@@ -187,7 +193,7 @@ export const updateDocumentSeoAndCanonical = (config: PageSeoConfig) => {
   if (config.description) setOrCreateMeta('property', 'og:description', config.description);
   if (config.canonicalUrl) setOrCreateMeta('property', 'og:url', config.canonicalUrl);
   setOrCreateMeta('property', 'og:type', config.ogType || 'website');
-  setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV');
+  setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV & Puja Samagri Portal');
 
   // 6. Update Twitter Meta
   if (config.title) setOrCreateMeta('name', 'twitter:title', config.title);
@@ -196,7 +202,12 @@ export const updateDocumentSeoAndCanonical = (config: PageSeoConfig) => {
   if (config.ogImage) {
     setOrCreateMeta('property', 'og:image', config.ogImage);
     setOrCreateMeta('property', 'og:image:secure_url', config.ogImage);
+    setOrCreateMeta('property', 'og:image:url', config.ogImage);
+    if (config.title) setOrCreateMeta('property', 'og:image:alt', config.title);
     setOrCreateMeta('name', 'twitter:image', config.ogImage);
+    setOrCreateMeta('name', 'twitter:image:src', config.ogImage);
+    setOrCreateMeta('name', 'image', config.ogImage);
+    setOrCreateMeta('itemprop', 'image', config.ogImage);
     setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
   }
 };

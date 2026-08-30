@@ -2,6 +2,13 @@ import { Temple, DistrictItem, SpiritualStory, StoreProduct, UnifiedFeedItem } f
 
 const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: string, contentValue: string) => {
   if (typeof document === 'undefined') return;
+  // Remove duplicate existing tags to ensure single source of truth
+  const existing = document.querySelectorAll(`meta[${attrName}="${attrValue}"]`);
+  if (existing.length > 1) {
+    existing.forEach((el, index) => {
+      if (index > 0) el.remove();
+    });
+  }
   let el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
   if (!el) {
     el = document.createElement('meta');
@@ -13,8 +20,8 @@ const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: 
 
 const removeMetaTag = (attrName: 'name' | 'property' | 'itemprop', attrValue: string) => {
   if (typeof document === 'undefined') return;
-  const el = document.querySelector(`meta[${attrName}="${attrValue}"]`);
-  if (el) el.remove();
+  const els = document.querySelectorAll(`meta[${attrName}="${attrValue}"]`);
+  els.forEach((el) => el.remove());
 };
 
 const setCanonicalUrl = (url: string) => {
