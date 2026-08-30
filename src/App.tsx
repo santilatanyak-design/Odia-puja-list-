@@ -310,12 +310,30 @@ export default function App() {
         targetQuery = productId ? `?view=store&product_id=${encodeURIComponent(productId)}` : '?view=store';
       } else if (viewMode === 'temple') {
         const templeId = selectedTempleId || currentParams.get('templeId') || currentParams.get('temple');
-        targetQuery = templeId ? `?templeId=${encodeURIComponent(templeId)}` : '?view=temple';
+        if (templeId) {
+          if (window.location.pathname.startsWith('/temple/')) {
+            targetPath = `/temple/${encodeURIComponent(templeId)}`;
+            targetQuery = '';
+          } else {
+            targetQuery = `?templeId=${encodeURIComponent(templeId)}`;
+          }
+        } else {
+          targetQuery = '?view=temple';
+        }
       } else if (viewMode === 'panchang') {
         targetQuery = '?panchang=true';
       } else if (viewMode === 'blog') {
         const storyId = selectedStoryId || currentParams.get('storyId') || currentParams.get('story');
-        targetQuery = storyId ? `?view=blog&storyId=${encodeURIComponent(storyId)}` : '?view=blog';
+        if (storyId) {
+          if (window.location.pathname.startsWith('/story/')) {
+            targetPath = `/story/${encodeURIComponent(storyId)}`;
+            targetQuery = '';
+          } else {
+            targetQuery = `?view=blog&storyId=${encodeURIComponent(storyId)}`;
+          }
+        } else {
+          targetQuery = '?view=blog';
+        }
       } else if (viewMode === 'shorts') {
         targetQuery = '?shorts=true';
       } else if (viewMode === 'login') {

@@ -5,6 +5,7 @@
  */
 
 import { SpiritualStory } from '../types';
+import { OFFICIAL_BRAND_LOGO_URL, resolveAbsoluteImageUrl, setDynamicStoryMeta } from './ogMetaHelper';
 
 export interface PageSeoConfig {
   title: string;
@@ -54,6 +55,7 @@ export const getSeoConfigForView = (
       title: 'ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ଲଗ୍ | Bhakti Ananda Odia TV',
       description: 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ, ସନାତନ ଧର୍ମ ନୀତି ଓ ଉତ୍ସବ ସମ୍ପର୍କିତ ବିଶେଷ ଆଧ୍ୟାତ୍ମିକ ଲେଖା।',
       canonicalUrl: `${origin}/?view=blog&storyId=${encodeURIComponent(storyId)}`,
+      ogImage: OFFICIAL_BRAND_LOGO_URL,
       ogType: 'article',
     };
   }
@@ -63,6 +65,7 @@ export const getSeoConfigForView = (
       title: 'ଓଡ଼ିଶା ଦର୍ଶନ ଓ ପ୍ରସିଦ୍ଧ ପର୍ଯ୍ୟଟନ ସ୍ଥଳୀ | Explore Odisha',
       description: 'ଓଡ଼ିଶାର ସମସ୍ତ ୩୦ଟି ଜିଲ୍ଲାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିର, ତୀର୍ଥକ୍ଷେତ୍ର, ଐତିହ୍ୟ ଓ ଦର୍ଶନୀୟ ସ୍ଥାନର ସମ୍ପୂର୍ଣ୍ଣ ବିବରଣୀ।',
       canonicalUrl: `${origin}/?district=${encodeURIComponent(districtId)}&item=${encodeURIComponent(itemId)}`,
+      ogImage: OFFICIAL_BRAND_LOGO_URL,
     };
   }
 
@@ -71,6 +74,7 @@ export const getSeoConfigForView = (
       title: 'ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Bhakti Ananda Odia TV',
       description: 'ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ମନ୍ଦିରରେ ଦର୍ଶନ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା, ଜଳାଭିଷେକ ଓ ଭୋଗ ସେବା ଅନଲାଇନ୍ ବୁକ୍ କରନ୍ତୁ।',
       canonicalUrl: `${origin}/?templeId=${encodeURIComponent(templeId)}`,
+      ogImage: OFFICIAL_BRAND_LOGO_URL,
     };
   }
 
@@ -79,6 +83,7 @@ export const getSeoConfigForView = (
       title: 'ଅନଲାଇନ୍ ପୂଜା ସାମଗ୍ରୀ ଓ ବୈଦିକ ବସ୍ତୁ | Puja Samagri Store',
       description: 'ଶୁଦ୍ଧ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ, ମୂର୍ତ୍ତି ଓ ଆଧ୍ୟାତ୍ମିକ ବସ୍ତୁ ଅନଲାଇନ୍ ଅର୍ଡର୍ କରନ୍ତୁ।',
       canonicalUrl: `${origin}/?product_id=${encodeURIComponent(productId)}`,
+      ogImage: OFFICIAL_BRAND_LOGO_URL,
     };
   }
 
@@ -88,6 +93,7 @@ export const getSeoConfigForView = (
         title: 'ଆଡମିନ୍ ପୋର୍ଟାଲ୍ (Admin Portal) | Bhakti Ananda Odia TV',
         description: 'Bhakti Ananda Odia TV ଅଫିସିଆଲ୍ ଆଡମିନ୍ ପ୍ୟାନେଲ୍।',
         canonicalUrl: `${origin}/admin`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
 
     case 'store':
@@ -95,6 +101,7 @@ export const getSeoConfigForView = (
         title: 'ଅନଲାଇନ୍ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ (Online Puja Store) | Bhakti Ananda Odia TV',
         description: 'ଶୁଦ୍ଧ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ, ମୂର୍ତ୍ତି, ଫଟୋ ବନ୍ଧେଇ, ହବନ କୁଣ୍ଡ ଏବଂ ଶ୍ରୀକ୍ଷେତ୍ର ପୁରୀର ଅଧିକୃତ ଆଧ୍ୟାତ୍ମିକ ସାମଗ୍ରୀ ଅନଲାଇନରେ ଅର୍ଡର କରନ୍ତୁ।',
         canonicalUrl: `${origin}/?view=store`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
 
     case 'temple':
@@ -102,6 +109,7 @@ export const getSeoConfigForView = (
         title: 'ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ (Temple Puja Booking) | Bhakti Ananda Odia TV',
         description: 'ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ତୀର୍ଥସ୍ଥଳୀ ଓ ମନ୍ଦିରଗୁଡ଼ିକରେ ଅନଲାଇନ୍ ଜଳାଭିଷେକ, ଭୋଗ ଲାଗି ଓ ସ୍ୱତନ୍ତ୍ର ପୂଜା ସେବା ସହଜରେ ବୁକ୍ କରନ୍ତୁ।',
         canonicalUrl: `${origin}/?view=temple`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
 
     case 'panchang':
@@ -109,6 +117,7 @@ export const getSeoConfigForView = (
         title: 'ଓଡ଼ିଆ କୋହିନୂର କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି (Odia Panchang & Calendar) | Bhakti Ananda Odia TV',
         description: 'ଆଜିର ତିଥି, ନକ୍ଷତ୍ର, ଯୋଗ, ବାରବେଳା, କାଳବେଳା, ରାହୁକାଳ ଏବଂ ସମସ୍ତ ପର୍ବପର୍ବାଣୀ ବିବରଣୀ ସହ ଦୈନିକ ଓଡ଼ିଆ ପାଞ୍ଜି।',
         canonicalUrl: `${origin}/?panchang=true`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
 
     case 'blog':
@@ -116,6 +125,7 @@ export const getSeoConfigForView = (
         title: 'ଆଧ୍ୟାତ୍ମିକ କଥା, ବ୍ରତ ଓ ପର୍ବପର୍ବାଣୀ ବିବରଣୀ (Spiritual Blog) | Bhakti Ananda Odia TV',
         description: 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ, ସନାତନ ଧର୍ମ ନୀତି ଓ ଉତ୍ସବ ସମ୍ପର୍କିତ ବିଶେଷ ଆଧ୍ୟାତ୍ମିକ ଲେଖା।',
         canonicalUrl: `${origin}/?view=blog`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
 
     case 'shorts':
@@ -123,6 +133,7 @@ export const getSeoConfigForView = (
         title: 'ମନ୍ଦିର ଦର୍ଶନ ଓ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ (Temple Shorts Feed) | Bhakti Ananda Odia TV',
         description: 'ପ୍ରତ୍ୟହ ଦେବଦେବୀଙ୍କ ମଙ୍ଗଳ ଆଳତି, ଦିବ୍ୟ ଦର୍ଶନ, ଏବଂ ଓଡ଼ିଶାର ପବିତ୍ର ମନ୍ଦିରଗୁଡ଼ିକର ରିଲ୍ସ ଭିଡିଓ ଦେଖନ୍ତୁ।',
         canonicalUrl: `${origin}/?shorts=true`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
 
     case 'login':
@@ -131,6 +142,7 @@ export const getSeoConfigForView = (
         title: 'ପୂଜକ ଲଗଇନ୍ ଓ ପୋର୍ଟାଲ୍ (Pujari Portal) | Bhakti Ananda Odia TV',
         description: 'ପୂଜା ଫର୍ମାଟ୍, ସାମଗ୍ରୀ ତାଲିକା ଜେନେରେଟର ଏବଂ ପୂଜକ ସେବା ପୋର୍ଟାଲ୍।',
         canonicalUrl: `${origin}/?view=portal`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
 
     case 'home':
@@ -139,6 +151,7 @@ export const getSeoConfigForView = (
         title: 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ, ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା',
         description: 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ ଦର୍ଶନ କରନ୍ତୁ।',
         canonicalUrl: `${origin}/`,
+        ogImage: OFFICIAL_BRAND_LOGO_URL,
       };
   }
 };
@@ -188,7 +201,7 @@ export const updateDocumentSeoAndCanonical = (config: PageSeoConfig) => {
     canonicalEl.setAttribute('href', config.canonicalUrl);
   }
 
-  // 5. Update Open Graph Meta
+  // 5. Update Open Graph Meta (Title, Desc, URL, Type, Site Name)
   if (config.title) setOrCreateMeta('property', 'og:title', config.title);
   if (config.description) setOrCreateMeta('property', 'og:description', config.description);
   if (config.canonicalUrl) setOrCreateMeta('property', 'og:url', config.canonicalUrl);
@@ -199,21 +212,25 @@ export const updateDocumentSeoAndCanonical = (config: PageSeoConfig) => {
   if (config.title) setOrCreateMeta('name', 'twitter:title', config.title);
   if (config.description) setOrCreateMeta('name', 'twitter:description', config.description);
 
-  if (config.ogImage) {
-    setOrCreateMeta('property', 'og:image', config.ogImage);
-    setOrCreateMeta('property', 'og:image:secure_url', config.ogImage);
-    setOrCreateMeta('property', 'og:image:url', config.ogImage);
-    if (config.title) setOrCreateMeta('property', 'og:image:alt', config.title);
-    setOrCreateMeta('name', 'twitter:image', config.ogImage);
-    setOrCreateMeta('name', 'twitter:image:src', config.ogImage);
-    setOrCreateMeta('name', 'image', config.ogImage);
-    setOrCreateMeta('itemprop', 'image', config.ogImage);
-    setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
-  }
+  // 7. Strictly Resolved Image (Always non-empty for social link previews)
+  const resolvedImageUrl = resolveAbsoluteImageUrl(config.ogImage);
+  setOrCreateMeta('property', 'og:image', resolvedImageUrl);
+  setOrCreateMeta('property', 'og:image:secure_url', resolvedImageUrl);
+  setOrCreateMeta('property', 'og:image:url', resolvedImageUrl);
+  setOrCreateMeta('property', 'og:image:type', 'image/jpeg');
+  setOrCreateMeta('property', 'og:image:width', '1200');
+  setOrCreateMeta('property', 'og:image:height', '630');
+  if (config.title) setOrCreateMeta('property', 'og:image:alt', config.title);
+
+  setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+  setOrCreateMeta('name', 'twitter:image', resolvedImageUrl);
+  setOrCreateMeta('name', 'twitter:image:src', resolvedImageUrl);
+  setOrCreateMeta('name', 'image', resolvedImageUrl);
+  setOrCreateMeta('itemprop', 'image', resolvedImageUrl);
 };
 
 /**
- * Injects or updates JSON-LD schema for a specific blog/story post and updates all SEO tags
+ * Injects or updates JSON-LD schema and comprehensive Open Graph tags for a specific blog/story post
  */
 export const updateStorySeoAndJsonLd = (story: SpiritualStory) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
@@ -222,17 +239,21 @@ export const updateStorySeoAndJsonLd = (story: SpiritualStory) => {
   const canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
   const excerpt = createStoryExcerpt(story.summary || story.content || '', 150);
   const title = `${story.title} | Bhakti Ananda Odia TV`;
+  const resolvedImageUrl = resolveAbsoluteImageUrl(story.imageUrl);
 
   // 1. Update Title, Meta, Canonical, OG & Twitter
   updateDocumentSeoAndCanonical({
     title,
     description: excerpt,
     canonicalUrl,
-    ogImage: story.imageUrl || undefined,
+    ogImage: resolvedImageUrl,
     ogType: 'article',
   });
 
-  // 2. Build JSON-LD Schema (Article / BlogPosting)
+  // 2. Also run specialized story meta injector for article specific fields
+  setDynamicStoryMeta(story, canonicalUrl);
+
+  // 3. Build JSON-LD Schema (Article / BlogPosting)
   const schemaData = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -242,7 +263,7 @@ export const updateStorySeoAndJsonLd = (story: SpiritualStory) => {
     },
     headline: story.title,
     description: excerpt,
-    image: story.imageUrl ? [story.imageUrl] : undefined,
+    image: [resolvedImageUrl],
     datePublished: story.publishedAt || new Date().toISOString(),
     dateModified: story.publishedAt || new Date().toISOString(),
     author: {
@@ -255,14 +276,14 @@ export const updateStorySeoAndJsonLd = (story: SpiritualStory) => {
       url: origin,
       logo: {
         '@type': 'ImageObject',
-        url: `${origin}/favicon.ico`,
+        url: resolvedImageUrl,
       },
     },
     articleSection: story.category || 'Spiritual',
     inLanguage: 'or', // Odia language
   };
 
-  // 3. Inject into <head> with id="story-jsonld-schema"
+  // 4. Inject into <head> with id="story-jsonld-schema"
   let scriptEl = document.getElementById('story-jsonld-schema') as HTMLScriptElement | null;
   if (!scriptEl) {
     scriptEl = document.createElement('script');

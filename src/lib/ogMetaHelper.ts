@@ -1,5 +1,31 @@
 import { Temple, DistrictItem, SpiritualStory, StoreProduct, UnifiedFeedItem } from '../types';
 
+/**
+ * Official Brand Logo / Fallback Open Graph Banner Image URL
+ * High-resolution 1200x630 spiritual image that ensures Facebook and WhatsApp link previews never fail
+ */
+export const OFFICIAL_BRAND_LOGO_URL =
+  'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+
+/**
+ * Resolves any image URL to a valid, secure absolute URL.
+ * Strictly falls back to OFFICIAL_BRAND_LOGO_URL if missing, null, or empty.
+ */
+export const resolveAbsoluteImageUrl = (url?: string | null): string => {
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    return OFFICIAL_BRAND_LOGO_URL;
+  }
+  const clean = url.trim();
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
+    return `${origin}${clean.startsWith('/') ? '' : '/'}${clean}`;
+  }
+  return OFFICIAL_BRAND_LOGO_URL;
+};
+
 const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: string, contentValue: string) => {
   if (typeof document === 'undefined') return;
   // Remove duplicate existing tags to ensure single source of truth
@@ -38,12 +64,12 @@ const setCanonicalUrl = (url: string) => {
 /**
  * Dynamically updates Open Graph (og:*), Twitter Card, and standard Meta Tags
  * in document.head for Facebook, WhatsApp, Twitter, and other preview scrapers.
- * Directly inserts the exact full AWS S3 image URL into og:image.
+ * Directly inserts the exact full AWS S3 image URL into og:image with strict fallback.
  */
 export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
-  const origin = window.location.origin || '';
+  const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
   const shareUrl = customUrl || `${origin}/temple/${encodeURIComponent(temple.id)}`;
   
   const pageTitle = `${temple.name} - ପୂଜା ଓ ଜଳାଭିଷେକ ବୁକିଂ | Bhakti Ananda Odia TV`;
@@ -52,8 +78,8 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} (${temple.location || 'Odisha'}) ରେ ଜଳାଭିଷେକ ଏବଂ ସ୍ୱତନ୍ତ୍ର ପୂଜା ବୁକିଂ କରନ୍ତୁ।`;
   const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   
-  // Directly use the exact full image URL (AWS S3 or direct URL)
-  const imageUrl = (temple.imageUrl || temple.thumbnailUrl || '').trim();
+  // Directly use the exact full image URL (AWS S3 or direct URL) with strict brand fallback
+  const imageUrl = resolveAbsoluteImageUrl(temple.imageUrl || temple.thumbnailUrl);
 
   document.title = pageTitle;
 
@@ -67,30 +93,23 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
   setOrCreateMeta('property', 'og:description', metaDescription);
   setOrCreateMeta('property', 'og:url', shareUrl);
 
-  if (imageUrl) {
-    setOrCreateMeta('property', 'og:image', imageUrl);
-    setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
-    setOrCreateMeta('property', 'og:image:url', imageUrl);
-    setOrCreateMeta('property', 'og:image:alt', temple.name);
-    setOrCreateMeta('name', 'twitter:image', imageUrl);
-    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
-    setOrCreateMeta('name', 'image', imageUrl);
-    setOrCreateMeta('itemprop', 'image', imageUrl);
-  } else {
-    removeMetaTag('property', 'og:image');
-    removeMetaTag('property', 'og:image:secure_url');
-    removeMetaTag('property', 'og:image:url');
-    removeMetaTag('property', 'og:image:alt');
-    removeMetaTag('name', 'twitter:image');
-    removeMetaTag('name', 'twitter:image:src');
-    removeMetaTag('name', 'image');
-    removeMetaTag('itemprop', 'image');
-  }
+  // Open Graph Image Tags (Strict Non-Empty Output)
+  setOrCreateMeta('property', 'og:image', imageUrl);
+  setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+  setOrCreateMeta('property', 'og:image:url', imageUrl);
+  setOrCreateMeta('property', 'og:image:type', 'image/jpeg');
+  setOrCreateMeta('property', 'og:image:width', '1200');
+  setOrCreateMeta('property', 'og:image:height', '630');
+  setOrCreateMeta('property', 'og:image:alt', temple.name);
 
   // Twitter Cards
-  setOrCreateMeta('name', 'twitter:card', imageUrl ? 'summary_large_image' : 'summary');
+  setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
   setOrCreateMeta('name', 'twitter:title', metaTitle);
   setOrCreateMeta('name', 'twitter:description', metaDescription);
+  setOrCreateMeta('name', 'twitter:image', imageUrl);
+  setOrCreateMeta('name', 'twitter:image:src', imageUrl);
+  setOrCreateMeta('name', 'image', imageUrl);
+  setOrCreateMeta('itemprop', 'image', imageUrl);
 
   // Canonical Link
   setCanonicalUrl(shareUrl);
@@ -102,14 +121,14 @@ export const setDynamicTempleMeta = (temple: Temple, customUrl?: string) => {
 export const setDynamicDistrictItemMeta = (item: DistrictItem, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
-  const origin = window.location.origin || '';
+  const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
   const shareUrl = customUrl || `${origin}/district/${encodeURIComponent(item.districtId)}/${encodeURIComponent(item.id)}`;
 
   const pageTitle = `${item.title} (${item.location || 'Odisha'}) | Explore Odisha`;
   const metaTitle = `🛕 ${item.title} - ${item.districtNameOdia || ''} | ଓଡ଼ିଶା ଦର୍ଶନ`;
   const rawDesc = item.description || item.significance || 'ଓଡ଼ିଶାର ପ୍ରସିଦ୍ଧ ପର୍ଯ୍ୟଟନ ଓ ତୀର୍ଥକ୍ଷେତ୍ର ଦର୍ଶନ କରନ୍ତୁ।';
   const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-  const imageUrl = (item.imageUrl || item.adImageUrl || item.affiliateProductImageUrl || '').trim();
+  const imageUrl = resolveAbsoluteImageUrl(item.imageUrl || item.adImageUrl || item.affiliateProductImageUrl);
 
   document.title = pageTitle;
 
@@ -120,64 +139,74 @@ export const setDynamicDistrictItemMeta = (item: DistrictItem, customUrl?: strin
   setOrCreateMeta('property', 'og:description', metaDescription);
   setOrCreateMeta('property', 'og:url', shareUrl);
 
-  if (imageUrl) {
-    setOrCreateMeta('property', 'og:image', imageUrl);
-    setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
-    setOrCreateMeta('property', 'og:image:url', imageUrl);
-    setOrCreateMeta('property', 'og:image:alt', item.title);
-    setOrCreateMeta('name', 'twitter:image', imageUrl);
-    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
-    setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
-  }
+  setOrCreateMeta('property', 'og:image', imageUrl);
+  setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+  setOrCreateMeta('property', 'og:image:url', imageUrl);
+  setOrCreateMeta('property', 'og:image:type', 'image/jpeg');
+  setOrCreateMeta('property', 'og:image:width', '1200');
+  setOrCreateMeta('property', 'og:image:height', '630');
+  setOrCreateMeta('property', 'og:image:alt', item.title);
 
+  setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
   setOrCreateMeta('name', 'twitter:title', metaTitle);
   setOrCreateMeta('name', 'twitter:description', metaDescription);
+  setOrCreateMeta('name', 'twitter:image', imageUrl);
+  setOrCreateMeta('name', 'twitter:image:src', imageUrl);
   setCanonicalUrl(shareUrl);
 };
 
 /**
- * Dynamically updates Open Graph tags for Spiritual Stories / Blog Posts with AWS S3 images
+ * Dynamically updates Open Graph tags for Spiritual Stories / Blog Posts / Single Post view.
+ * Guarantees all 5 essential OG properties plus Twitter and structured metadata,
+ * strictly falling back to the official brand logo URL if the story image is missing or empty.
  */
 export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
-  const origin = window.location.origin || '';
+  const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
   const shareUrl = customUrl || `${origin}/story/${encodeURIComponent(story.id)}`;
 
   const pageTitle = `${story.title} | Bhakti Ananda Odia TV`;
-  const metaTitle = `📖 ${story.title} - ${story.category || 'ଆଧ୍ୟାତ୍ମିକ କଥା'}`;
+  const metaTitle = story.title ? `📖 ${story.title} - ${story.category || 'ଆଧ୍ୟାତ୍ମିକ କଥା'}` : 'ଆଧ୍ୟାତ୍ମିକ କଥା | Bhakti Ananda Odia TV';
   const rawDesc = story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।';
   const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-  const imageUrl = (story.imageUrl || '').trim();
+  
+  // Strict Fallback: Use story image or fallback to the official brand logo URL
+  const imageUrl = resolveAbsoluteImageUrl(story.imageUrl);
 
   document.title = pageTitle;
 
+  // 1. Standard Description
   setOrCreateMeta('name', 'description', metaDescription);
-  setOrCreateMeta('property', 'og:type', 'article');
-  setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV');
+
+  // 2. Open Graph Tags (Required 5 Properties)
   setOrCreateMeta('property', 'og:title', metaTitle);
   setOrCreateMeta('property', 'og:description', metaDescription);
+  setOrCreateMeta('property', 'og:image', imageUrl);
   setOrCreateMeta('property', 'og:url', shareUrl);
+  setOrCreateMeta('property', 'og:type', 'article');
 
-  if (imageUrl) {
-    setOrCreateMeta('property', 'og:image', imageUrl);
-    setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
-    setOrCreateMeta('property', 'og:image:url', imageUrl);
-    setOrCreateMeta('property', 'og:image:alt', story.title);
-    setOrCreateMeta('name', 'twitter:image', imageUrl);
-    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
-    setOrCreateMeta('name', 'image', imageUrl);
-    setOrCreateMeta('itemprop', 'image', imageUrl);
-    setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
-  } else {
-    removeMetaTag('property', 'og:image');
-    removeMetaTag('property', 'og:image:secure_url');
-    removeMetaTag('property', 'og:image:url');
-    removeMetaTag('name', 'twitter:image');
-  }
+  // Supporting Open Graph properties for Facebook / WhatsApp Rich Previews
+  setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV');
+  setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+  setOrCreateMeta('property', 'og:image:url', imageUrl);
+  setOrCreateMeta('property', 'og:image:type', 'image/jpeg');
+  setOrCreateMeta('property', 'og:image:width', '1200');
+  setOrCreateMeta('property', 'og:image:height', '630');
+  setOrCreateMeta('property', 'og:image:alt', story.title || 'Bhakti Ananda Odia TV');
 
+  // 3. Twitter Card Tags
+  setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
   setOrCreateMeta('name', 'twitter:title', metaTitle);
   setOrCreateMeta('name', 'twitter:description', metaDescription);
+  setOrCreateMeta('name', 'twitter:image', imageUrl);
+  setOrCreateMeta('name', 'twitter:image:src', imageUrl);
+
+  // 4. Itemprop / Search Schema Image
+  setOrCreateMeta('name', 'image', imageUrl);
+  setOrCreateMeta('itemprop', 'image', imageUrl);
+
+  // 5. Canonical Link
   setCanonicalUrl(shareUrl);
 };
 
@@ -187,14 +216,14 @@ export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) =
 export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
-  const origin = window.location.origin || '';
+  const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
   const shareUrl = customUrl || `${origin}/?view=store&product_id=${encodeURIComponent(product.id)}`;
 
   const pageTitle = `${product.name} - ₹${product.price} | Puja Samagri Store`;
   const metaTitle = `🛍️ ${product.name} (ମୂଲ୍ୟ: ₹${product.price}) - Cash on Delivery`;
   const rawDesc = product.description || `Buy ${product.name} on Puja Samagri Store with Cash on Delivery (COD) across Odisha.`;
   const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-  const imageUrl = (product.imageUrl || '').trim();
+  const imageUrl = resolveAbsoluteImageUrl(product.imageUrl);
 
   document.title = pageTitle;
 
@@ -205,18 +234,20 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
   setOrCreateMeta('property', 'og:description', metaDescription);
   setOrCreateMeta('property', 'og:url', shareUrl);
 
-  if (imageUrl) {
-    setOrCreateMeta('property', 'og:image', imageUrl);
-    setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
-    setOrCreateMeta('property', 'og:image:url', imageUrl);
-    setOrCreateMeta('property', 'og:image:alt', product.name);
-    setOrCreateMeta('name', 'twitter:image', imageUrl);
-    setOrCreateMeta('name', 'twitter:image:src', imageUrl);
-    setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
-  }
+  setOrCreateMeta('property', 'og:image', imageUrl);
+  setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
+  setOrCreateMeta('property', 'og:image:url', imageUrl);
+  setOrCreateMeta('property', 'og:image:type', 'image/jpeg');
+  setOrCreateMeta('property', 'og:image:width', '1200');
+  setOrCreateMeta('property', 'og:image:height', '630');
+  setOrCreateMeta('property', 'og:image:alt', product.name);
 
+  setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
   setOrCreateMeta('name', 'twitter:title', metaTitle);
   setOrCreateMeta('name', 'twitter:description', metaDescription);
+  setOrCreateMeta('name', 'twitter:image', imageUrl);
+  setOrCreateMeta('name', 'twitter:image:src', imageUrl);
+
   setCanonicalUrl(shareUrl);
 };
 
