@@ -1,30 +1,11 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { defineConfig, type Plugin } from 'vite';
-import { generateAllStaticPages } from './scripts/generate-static-pages';
-
-function ssgPlugin(): Plugin {
-  return {
-    name: 'vite-plugin-ssg-social-meta',
-    apply: 'build',
-    closeBundle: {
-      sequential: true,
-      order: 'post',
-      async handler() {
-        try {
-          await generateAllStaticPages();
-        } catch (err) {
-          console.error('SSG Generation error in Vite build:', err);
-        }
-      },
-    },
-  };
-}
+import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), ssgPlugin()],
+    plugins: [react(), tailwindcss()],
     define: {
       'import.meta.env.MY_AWS_ACCESS_KEY_ID': JSON.stringify(process.env.MY_AWS_ACCESS_KEY_ID || process.env.VITE_MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || ''),
       'import.meta.env.MY_AWS_SECRET_ACCESS_KEY': JSON.stringify(process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.VITE_MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || ''),
