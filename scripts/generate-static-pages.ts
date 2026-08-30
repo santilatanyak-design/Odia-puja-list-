@@ -15,16 +15,16 @@ const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1608889175123-8ee362201
 const DEFAULT_TITLE = 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ, ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା';
 const DEFAULT_DESC = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ।';
 
-interface PageMetadata {
+export interface PageMetadata {
   relPath: string; // e.g. 'story/jagannath-katha'
   title: string;
   description: string;
   imageUrl: string;
-  type?: 'website' | 'article';
+  type?: 'website' | 'article' | 'product';
   preloadedState?: Record<string, any>;
 }
 
-function loadDatabase(): { stories?: any[]; temples?: any[]; districtItems?: any[]; products?: any[] } {
+function loadDatabase(): { stories?: any[]; temples?: any[]; districtItems?: any[]; products?: any[]; storeProducts?: any[] } {
   try {
     if (fs.existsSync(DB_PATH)) {
       const raw = fs.readFileSync(DB_PATH, 'utf-8');
@@ -36,11 +36,11 @@ function loadDatabase(): { stories?: any[]; temples?: any[]; districtItems?: any
   return {};
 }
 
-function generateHtmlWithMeta(
+export function generateHtmlWithMeta(
   baseHtml: string,
   meta: PageMetadata
 ): string {
-  const fullUrl = `${SITE_URL}/${meta.relPath}`;
+  const fullUrl = meta.relPath ? `${SITE_URL}/${meta.relPath}` : `${SITE_URL}/`;
   let img = meta.imageUrl || DEFAULT_IMAGE;
   if (img.startsWith('/')) {
     img = `${SITE_URL}${img}`;
@@ -97,12 +97,12 @@ function generateHtmlWithMeta(
   return html.replace('<head>', `<head>${ogTags}`);
 }
 
-async function run() {
-  console.log('🚀 Generating static pre-rendered pages for Open Graph / Social Media crawlers...');
+export async function generateAllStaticPages(): Promise<number> {
+  console.log('🚀 Generating static pre-rendered SSG pages for Facebook, WhatsApp & social crawlers...');
   const baseIndexPath = path.join(DIST_DIR, 'index.html');
   if (!fs.existsSync(baseIndexPath)) {
-    console.error('❌ dist/index.html does not exist! Please run "vite build" first.');
-    process.exit(1);
+    console.warn('dist/index.html not found, skipping static page generation for now.');
+    return 0;
   }
 
   const baseHtml = fs.readFileSync(baseIndexPath, 'utf-8');
@@ -110,7 +110,16 @@ async function run() {
 
   const pages: PageMetadata[] = [];
 
-  // 1. Static Key Navigation Pages
+  // 1. Homepage with rich metadata
+  pages.push({
+    relPath: '',
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESC,
+    imageUrl: DEFAULT_IMAGE,
+    preloadedState: { viewMode: 'home' }
+  });
+
+  // 2. Static Core Pages
   pages.push({
     relPath: 'panchang',
     title: 'ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ଓ ପଞ୍ଜିକା (Odia Panchang 2025-2026) | Bhakti Ananda Odia TV',
@@ -136,6 +145,14 @@ async function run() {
   });
 
   pages.push({
+    relPath: 'puri-store',
+    title: 'ପୁରୀ ମନ୍ଦିର ସ୍ୱତନ୍ତ୍ର ପୂଜା ସାମଗ୍ରୀ ଓ ମହାପ୍ରସାଦ ସେବା | Bhakti Ananda Odia TV',
+    description: 'ପୁରୀ ଶ୍ରୀକ୍ଷେତ୍ରର ସ୍ୱତନ୍ତ୍ର ନିର୍ମାଲ୍ୟ, ତୁଳସୀ ମାଳା ଓ ପ୍ରସାଦ ବୁକ୍ କରନ୍ତୁ।',
+    imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
+    preloadedState: { viewMode: 'puri_store' }
+  });
+
+  pages.push({
     relPath: 'blog',
     title: 'ଓଡ଼ିଆ ଧାର୍ମିକ ଓ ପୌରାଣିକ କଥା (Spiritual Blog) | Bhakti Ananda Odia TV',
     description: 'ପ୍ରଭୁ ଜଗନ୍ନାଥଙ୍କ ଲୀଳା, ଶିବ ପୁରାଣ ଓ ଓଡ଼ିଶାର ପବିତ୍ର ଧାର୍ମିକ କଥା ପଢ଼ନ୍ତୁ।',
@@ -143,7 +160,7 @@ async function run() {
     preloadedState: { viewMode: 'blog' }
   });
 
-  // 2. Temples
+  // 3. Temples
   const allTemples = [...DEFAULT_TEMPLES];
   if (Array.isArray(db.temples)) {
     db.temples.forEach((t) => {
@@ -167,7 +184,7 @@ async function run() {
     });
   });
 
-  // 3. District Items
+  // 4. District Items
   const allDistrictItems = [...DEFAULT_DISTRICT_ITEMS];
   if (Array.isArray(db.districtItems)) {
     db.districtItems.forEach((d) => {
@@ -191,7 +208,7 @@ async function run() {
     });
   });
 
-  // 4. Stories / Spiritual Articles
+  // 5. Stories / Spiritual Articles
   if (Array.isArray(db.stories)) {
     db.stories.forEach((story) => {
       const rawDesc = story.summary || story.content || DEFAULT_DESC;
@@ -206,24 +223,82 @@ async function run() {
         type: 'article',
         preloadedState: { viewMode: 'blog', storyId: story.id }
       });
+
+      // Alias for blog/:id
+      pages.push({
+        relPath: `blog/${story.id}`,
+        title: `📖 ${story.title} | Bhakti Ananda Odia TV`,
+        description: desc,
+        imageUrl: img,
+        type: 'article',
+        preloadedState: { viewMode: 'blog', storyId: story.id }
+      });
     });
   }
+
+  // 6. Products
+  const products = Array.isArray(db.products) ? db.products : (Array.isArray(db.storeProducts) ? db.storeProducts : []);
+  products.forEach((prod) => {
+    const rawDesc = prod.description || `ଶୁଦ୍ଧ ଓ ପ୍ରାମାଣିକ ${prod.name} କିଣନ୍ତୁ।`;
+    const desc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+    const img = prod.imageUrl || prod.photoUrl || DEFAULT_IMAGE;
+
+    pages.push({
+      relPath: `store/${prod.id}`,
+      title: `🛍️ ${prod.name} | ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ | Bhakti Ananda Odia TV`,
+      description: desc,
+      imageUrl: img,
+      type: 'product',
+      preloadedState: { viewMode: 'store', productId: prod.id }
+    });
+
+    pages.push({
+      relPath: `product/${prod.id}`,
+      title: `🛍️ ${prod.name} | ଶୁଦ୍ଧ ପୂଜା ସାମଗ୍ରୀ | Bhakti Ananda Odia TV`,
+      description: desc,
+      imageUrl: img,
+      type: 'product',
+      preloadedState: { viewMode: 'store', productId: prod.id }
+    });
+  });
 
   // Write all pages to dist/
   let createdCount = 0;
   for (const page of pages) {
+    const enrichedHtml = generateHtmlWithMeta(baseHtml, page);
+
+    if (!page.relPath) {
+      // Root index.html
+      fs.writeFileSync(baseIndexPath, enrichedHtml, 'utf-8');
+      createdCount++;
+      continue;
+    }
+
+    // 1. Directory based index.html: dist/path/index.html
     const outDir = path.join(DIST_DIR, page.relPath);
     fs.mkdirSync(outDir, { recursive: true });
     const outHtmlPath = path.join(outDir, 'index.html');
-    const enrichedHtml = generateHtmlWithMeta(baseHtml, page);
     fs.writeFileSync(outHtmlPath, enrichedHtml, 'utf-8');
+
+    // 2. Direct flat html file: dist/path.html (supports AWS Amplify / S3 clean URL routing)
+    const flatHtmlPath = path.join(DIST_DIR, `${page.relPath}.html`);
+    const flatDir = path.dirname(flatHtmlPath);
+    if (!fs.existsSync(flatDir)) {
+      fs.mkdirSync(flatDir, { recursive: true });
+    }
+    fs.writeFileSync(flatHtmlPath, enrichedHtml, 'utf-8');
+
     createdCount++;
   }
 
-  console.log(`✨ Successfully pre-rendered ${createdCount} pages with dynamic Open Graph tags in dist/!`);
+  console.log(`✨ Successfully pre-rendered ${createdCount} pages with dynamic Open Graph & Twitter meta tags in dist/!`);
+  return createdCount;
 }
 
-run().catch((err) => {
-  console.error('Error generating static pages:', err);
-  process.exit(1);
-});
+// Run directly if called as a script
+if (process.argv[1] && process.argv[1].includes('generate-static-pages')) {
+  generateAllStaticPages().catch((err) => {
+    console.error('Error generating static pages:', err);
+    process.exit(1);
+  });
+}
