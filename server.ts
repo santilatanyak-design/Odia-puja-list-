@@ -1009,18 +1009,37 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     if (directDesc) description = directDesc;
     if (directImg && directImg.trim()) imageUrl = directImg.trim();
 
-    // Check if posts.json has a direct record for this path/story
+    // 1. Check Story / Blog Post
+    let storyId = '';
+    if (pathname.startsWith('/story/') || pathname.startsWith('/blog/') || pathname.startsWith('/stories/')) {
+      const parts = urlObj.pathname.split('/').filter(Boolean);
+      if (parts[1]) storyId = decodeURIComponent(parts[1]);
+    } else if (searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id')) {
+      storyId = searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id') || '';
+    }
+
+    // Check posts.json first for direct static record
+    let foundPostInJson = false;
     try {
       const postsJsonPath = path.join(process.cwd(), 'posts.json');
       if (fs.existsSync(postsJsonPath)) {
         const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
-        const matchedPost = postsData[pathname] || postsData[url] || Object.entries(postsData).find(([k]) => pathname.includes(k.toLowerCase()) || (url && url.includes(k)))?.[1];
+        const matchedPost =
+          (storyId ? postsData[`/story/${storyId}`] || postsData[storyId] : null) ||
+          postsData[pathname] ||
+          postsData[url] ||
+          Object.entries(postsData).find(([k]) =>
+            (storyId && k.includes(storyId)) || pathname.includes(k.toLowerCase()) || (url && url.includes(k))
+          )?.[1];
+
         if (matchedPost) {
+          foundPostInJson = true;
           if (matchedPost.title) title = `📖 ${matchedPost.title} | Bhakti Ananda Odia TV`;
           if (matchedPost.description) description = matchedPost.description;
           if (matchedPost.image && typeof matchedPost.image === 'string' && matchedPost.image.trim()) {
             imageUrl = matchedPost.image.trim();
           }
+          canonicalUrl = `${origin}/story/${encodeURIComponent(storyId || matchedPost.id || '')}`;
           ogType = 'article';
         }
       }
@@ -1028,17 +1047,10 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
       console.warn('Could not read posts.json:', postsErr);
     }
 
-    // 1. Check Story / Blog Post
-    let storyId = '';
-    if (pathname.startsWith('/story/') || pathname.startsWith('/blog/') || pathname.startsWith('/stories/')) {
-      const parts = pathname.split('/').filter(Boolean);
-      if (parts[1]) storyId = decodeURIComponent(parts[1]);
-    } else if (searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id')) {
-      storyId = searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id') || '';
-    }
-
+    // Check database stories if not fully resolved from posts.json
     if (storyId) {
-      const story = (currentDb.stories || []).find((s) => s.id === storyId || s.id === decodeURIComponent(storyId));
+      const allStories = currentDb.stories || [];
+      const story = allStories.find((s) => s.id === storyId || s.id === decodeURIComponent(storyId) || (s.id && s.id.toLowerCase() === storyId.toLowerCase()));
       if (story) {
         title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
         const rawDesc = story.summary || story.content || description;
@@ -1054,7 +1066,7 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     // 2. Check Temple
     let templeId = '';
     if (pathname.startsWith('/temple/') || pathname.startsWith('/temples/')) {
-      const parts = pathname.split('/').filter(Boolean);
+      const parts = urlObj.pathname.split('/').filter(Boolean);
       if (parts[1]) templeId = decodeURIComponent(parts[1]);
     } else if (searchParams.get('templeId') || searchParams.get('temple')) {
       templeId = searchParams.get('templeId') || searchParams.get('temple') || '';
@@ -1075,7 +1087,7 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     let districtId = '';
     let itemId = '';
     if (pathname.startsWith('/district/') || pathname.startsWith('/districts/')) {
-      const parts = pathname.split('/').filter(Boolean);
+      const parts = urlObj.pathname.split('/').filter(Boolean);
       if (parts[1]) districtId = decodeURIComponent(parts[1]);
       if (parts[2]) itemId = decodeURIComponent(parts[2]);
     } else {
@@ -1107,6 +1119,8 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     // Ensure absolute image URL
     if (imageUrl && imageUrl.startsWith('/')) {
       imageUrl = `${origin}${imageUrl}`;
+    } else if (imageUrl && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('data:')) {
+      imageUrl = `${origin}/${imageUrl}`;
     }
 
     // Strip any pre-existing OG, Twitter, canonical, and description tags from html to eliminate duplicates/conflicts
@@ -1123,6 +1137,7 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     let imageType = 'image/jpeg';
     if (imageUrl.includes('.png')) imageType = 'image/png';
     else if (imageUrl.includes('.webp')) imageType = 'image/webp';
+    else if (imageUrl.includes('.svg')) imageType = 'image/svg+xml';
 
     const ogTagsBlock = `
     <title>${title}</title>
@@ -1160,11 +1175,30 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
 // VITE MIDDLEWARE & SERVER START
 // ----------------------------------------------------
 async function startServer() {
-  // 1. Integrated Prerender.io Middleware for Social Media Scrapers (Facebook, WhatsApp, Googlebot, Twitterbot)
-  app.use(async (req, res, next) => {
+  // 1. Direct Static Meta Tag Injection for Social Crawlers (Facebook, WhatsApp, Twitter/X, Telegram, etc.)
+  // Web crawlers receive the pre-injected raw HTML immediately without client-side JS dependency
+  app.use((req, res, next) => {
     if (isBotRequest(req)) {
-      const handled = await proxyToPrerender(req, res);
-      if (handled) return;
+      try {
+        const isProd = process.env.NODE_ENV === 'production';
+        const htmlFilePath = isProd
+          ? path.join(process.cwd(), 'dist', 'index.html')
+          : path.join(process.cwd(), 'index.html');
+
+        if (fs.existsSync(htmlFilePath)) {
+          const rawTemplate = fs.readFileSync(htmlFilePath, 'utf-8');
+          const injectedHtml = injectDynamicOgTags(rawTemplate, req);
+          const userAgent = req.headers['user-agent'] || 'Bot';
+          console.log(`[Static OG Injector] 🤖 Served static meta tags to bot (${userAgent.slice(0, 45)}...): ${req.originalUrl || req.url}`);
+          return res.status(200).set({
+            'Content-Type': 'text/html; charset=UTF-8',
+            'X-Social-Preview-Injected': 'true',
+            'Cache-Control': 'public, max-age=300'
+          }).send(injectedHtml);
+        }
+      } catch (botErr) {
+        console.warn('[Bot Static Meta Injection Error]:', botErr);
+      }
     }
     next();
   });
@@ -1223,7 +1257,7 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🌸 Puja Samagri System Server running on http://localhost:${PORT}`);
-    console.log(`🚀 Prerender.io middleware active with Token: ${PRERENDER_TOKEN.slice(0, 6)}...`);
+    console.log(`🚀 Static Open Graph Meta Tag Injector active for Facebook, WhatsApp, Twitter, Telegram crawlers`);
   });
 }
 
