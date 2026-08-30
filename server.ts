@@ -8,6 +8,7 @@ import { DEFAULT_TEMPLES } from './src/data/defaultTemples';
 import { DEFAULT_DISTRICT_ITEMS } from './src/data/defaultDistrictItems';
 import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory, DistrictItem, ODISHA_DISTRICTS } from './src/types';
 import { uploadToS3, createPresignedUploadUrl, getAwsConfig } from './server/s3';
+import { isBotRequest, proxyToPrerender, PRERENDER_TOKEN } from './server/prerender';
 
 const app = express();
 const PORT = 3000;
@@ -947,7 +948,7 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
   try {
     const currentDb = loadDb();
     const url = req.originalUrl || req.url;
-    const host = req.headers.host || 'www.bhaktianandaodiatvofficial.blog';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.bhaktianandaodiatvofficial.blog';
     const protocol = req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'https');
     const origin = `${protocol}://${host}`;
     const urlObj = new URL(url, `http://${host}`);
@@ -968,6 +969,23 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     if (directTitle) title = directTitle;
     if (directDesc) description = directDesc;
     if (directImg) imageUrl = directImg;
+
+    // Check if posts.json has a direct record for this path/story
+    try {
+      const postsJsonPath = path.join(process.cwd(), 'posts.json');
+      if (fs.existsSync(postsJsonPath)) {
+        const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
+        const matchedPost = postsData[pathname] || postsData[url] || Object.entries(postsData).find(([k]) => pathname.includes(k.toLowerCase()))?.[1];
+        if (matchedPost) {
+          if (matchedPost.title) title = `📖 ${matchedPost.title} | Bhakti Ananda Odia TV`;
+          if (matchedPost.description) description = matchedPost.description;
+          if (matchedPost.image) imageUrl = matchedPost.image;
+          ogType = 'article';
+        }
+      }
+    } catch (postsErr) {
+      console.warn('Could not read posts.json:', postsErr);
+    }
 
     // 1. Check Story / Blog Post
     let storyId = '';
@@ -1099,6 +1117,15 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
 // VITE MIDDLEWARE & SERVER START
 // ----------------------------------------------------
 async function startServer() {
+  // 1. Integrated Prerender.io Middleware for Social Media Scrapers (Facebook, WhatsApp, Googlebot, Twitterbot)
+  app.use(async (req, res, next) => {
+    if (isBotRequest(req)) {
+      const handled = await proxyToPrerender(req, res);
+      if (handled) return;
+    }
+    next();
+  });
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -1153,8 +1180,10 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🌸 Puja Samagri System Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Prerender.io middleware active with Token: ${PRERENDER_TOKEN.slice(0, 6)}...`);
   });
 }
+
 
 startServer();
 
