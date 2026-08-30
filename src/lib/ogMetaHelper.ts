@@ -159,8 +159,8 @@ export const setDynamicDistrictItemMeta = (item: DistrictItem, customUrl?: strin
 
 /**
  * Dynamically updates Open Graph tags for Spiritual Stories / Blog Posts / Single Post view.
- * Guarantees all 5 essential OG properties plus Twitter and structured metadata,
- * strictly falling back to the official brand logo URL if the story image is missing or empty.
+ * Guarantees all 5 essential OG properties plus Twitter and structured metadata.
+ * Uses the story's original uploaded image URL if present, and ONLY falls back to brand logo if completely missing.
  */
 export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) => {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
@@ -173,8 +173,11 @@ export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) =
   const rawDesc = story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।';
   const metaDescription = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   
-  // Strict Fallback: Use story image or fallback to the official brand logo URL
-  const imageUrl = resolveAbsoluteImageUrl(story.imageUrl);
+  // Specific post image verification: Use the story's original image, only falling back if absent
+  const rawImage = story.imageUrl && typeof story.imageUrl === 'string' && story.imageUrl.trim().length > 0
+    ? story.imageUrl.trim()
+    : null;
+  const imageUrl = resolveAbsoluteImageUrl(rawImage);
 
   document.title = pageTitle;
 
@@ -192,7 +195,7 @@ export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) =
   setOrCreateMeta('property', 'og:site_name', 'Bhakti Ananda Odia TV');
   setOrCreateMeta('property', 'og:image:secure_url', imageUrl);
   setOrCreateMeta('property', 'og:image:url', imageUrl);
-  setOrCreateMeta('property', 'og:image:type', 'image/jpeg');
+  setOrCreateMeta('property', 'og:image:type', imageUrl.endsWith('.svg') ? 'image/svg+xml' : 'image/jpeg');
   setOrCreateMeta('property', 'og:image:width', '1200');
   setOrCreateMeta('property', 'og:image:height', '630');
   setOrCreateMeta('property', 'og:image:alt', story.title || 'Bhakti Ananda Odia TV');

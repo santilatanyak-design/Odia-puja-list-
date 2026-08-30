@@ -51,11 +51,34 @@ export const getSeoConfigForView = (
   const itemId = params.get('item');
 
   if (storyId) {
+    let storyImg: string | null = null;
+    let storyTitle = 'ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ଲଗ୍ | Bhakti Ananda Odia TV';
+    let storyDesc = 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ, ସନାତନ ଧର୍ମ ନୀତି ଓ ଉତ୍ସବ ସମ୍ପର୍କିତ ବିଶେଷ ଆଧ୍ୟାତ୍ମିକ ଲେଖା।';
+    try {
+      if (typeof window !== 'undefined') {
+        const local = localStorage.getItem('odia_spiritual_stories_v3');
+        if (local) {
+          const list = JSON.parse(local);
+          const found = Array.isArray(list) ? list.find((s: any) => s.id === storyId) : null;
+          if (found) {
+            if (found.title) storyTitle = `📖 ${found.title} | Bhakti Ananda Odia TV`;
+            if (found.summary || found.content) {
+              const raw = found.summary || found.content;
+              storyDesc = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
+            }
+            if (found.imageUrl && typeof found.imageUrl === 'string' && found.imageUrl.trim()) {
+              storyImg = found.imageUrl.trim();
+            }
+          }
+        }
+      }
+    } catch {}
+
     return {
-      title: 'ଆଧ୍ୟାତ୍ମିକ କଥା ଓ ବ୍ଲଗ୍ | Bhakti Ananda Odia TV',
-      description: 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ, ସନାତନ ଧର୍ମ ନୀତି ଓ ଉତ୍ସବ ସମ୍ପର୍କିତ ବିଶେଷ ଆଧ୍ୟାତ୍ମିକ ଲେଖା।',
-      canonicalUrl: `${origin}/?view=blog&storyId=${encodeURIComponent(storyId)}`,
-      ogImage: OFFICIAL_BRAND_LOGO_URL,
+      title: storyTitle,
+      description: storyDesc,
+      canonicalUrl: `${origin}/story/${encodeURIComponent(storyId)}`,
+      ogImage: resolveAbsoluteImageUrl(storyImg),
       ogType: 'article',
     };
   }
