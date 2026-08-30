@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#701a1e"/>
+      <stop offset="50%" stop-color="#9a3412"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="38%" r="40%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#701a1e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  <rect width="1200" height="630" fill="url(#sunGlow)"/>
+
+  <!-- Border Frame -->
+  <rect x="24" y="24" width="1152" height="582" rx="16" fill="none" stroke="#fbbf24" stroke-width="4" stroke-opacity="0.6"/>
+  <rect x="36" y="36" width="1128" height="558" rx="12" fill="none" stroke="#fef08a" stroke-width="1.5" stroke-opacity="0.4"/>
+
+  <!-- Sacred Om Emblem Circle -->
+  <circle cx="600" cy="220" r="105" fill="#78350f" stroke="#fbbf24" stroke-width="5"/>
+  <circle cx="600" cy="220" r="92" fill="#9a3412" stroke="#fef08a" stroke-width="2"/>
+  <text x="600" y="258" font-family="'Noto Sans Odia', 'Segoe UI', serif" font-size="120" font-weight="bold" fill="#fef08a" text-anchor="middle">ॐ</text>
+
+  <!-- Brand Typography -->
+  <text x="600" y="405" font-family="'Noto Sans Odia', sans-serif" font-size="54" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="1">
+    ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV
+  </text>
+  
+  <text x="600" y="465" font-family="'Segoe UI', sans-serif" font-size="28" font-weight="600" fill="#fef08a" text-anchor="middle" letter-spacing="4">
+    BHAKTI ANANDA ODIA TV OFFICIAL
+  </text>
+
+  <!-- Tagline / Features Pill -->
+  <rect x="250" y="505" width="700" height="46" rx="23" fill="#450a0a" fill-opacity="0.7" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="600" y="536" font-family="'Noto Sans Odia', sans-serif" font-size="20" font-weight="500" fill="#fed7aa" text-anchor="middle">
+    ପବିତ୍ର ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ • ଓଡ଼ିଆ ପାଞ୍ଜି • ମନ୍ଦିର ଦର୍ଶନ • ଆଧ୍ୟାତ୍ମିକ କଥା
+  </text>
+</svg>

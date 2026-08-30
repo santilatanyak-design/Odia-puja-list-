@@ -2,17 +2,19 @@ import { Temple, DistrictItem, SpiritualStory, StoreProduct, UnifiedFeedItem } f
 
 /**
  * Official Brand Logo / Fallback Open Graph Banner Image URL
- * High-resolution 1200x630 spiritual image that ensures Facebook and WhatsApp link previews never fail
+ * High-resolution 1200x630 official spiritual brand banner for Bhakti Ananda Odia TV.
+ * Ensures Facebook, WhatsApp, Twitter link previews strictly show the official brand logo if no post image exists.
  */
 export const OFFICIAL_BRAND_LOGO_URL =
-  'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+  'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
 
 /**
  * Resolves any image URL to a valid, secure absolute URL.
  * Strictly falls back to OFFICIAL_BRAND_LOGO_URL if missing, null, or empty.
+ * Never allows Unsplash demo placeholders.
  */
 export const resolveAbsoluteImageUrl = (url?: string | null): string => {
-  if (!url || typeof url !== 'string' || !url.trim()) {
+  if (!url || typeof url !== 'string' || !url.trim() || url.includes('images.unsplash.com')) {
     return OFFICIAL_BRAND_LOGO_URL;
   }
   const clean = url.trim();
@@ -23,7 +25,7 @@ export const resolveAbsoluteImageUrl = (url?: string | null): string => {
     const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
     return `${origin}${clean.startsWith('/') ? '' : '/'}${clean}`;
   }
-  return OFFICIAL_BRAND_LOGO_URL;
+  return `https://www.bhaktianandaodiatvofficial.blog${clean.startsWith('/') ? '' : '/'}${clean}`;
 };
 
 const setOrCreateMeta = (attrName: 'name' | 'property' | 'itemprop', attrValue: string, contentValue: string) => {

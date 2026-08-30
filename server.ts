@@ -702,6 +702,23 @@ app.post('/api/stories', (req, res) => {
   if (Array.isArray(stories)) {
     db.stories = stories;
     saveDb(db);
+    // Sync to posts.json for static and dynamic scrapers
+    try {
+      const postsJsonPath = path.join(process.cwd(), 'posts.json');
+      const postsData = fs.existsSync(postsJsonPath) ? JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8')) : {};
+      stories.forEach((s: SpiritualStory) => {
+        if (s && s.id) {
+          postsData[`/story/${s.id}`] = {
+            title: s.title || '',
+            description: (s.summary || s.content || '').slice(0, 160),
+            image: s.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg',
+          };
+        }
+      });
+      fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('Error syncing posts.json:', e);
+    }
     return res.json({ success: true, stories: db.stories });
   }
   if (story && story.id) {
@@ -712,6 +729,19 @@ app.post('/api/stories', (req, res) => {
       db.stories.unshift(story);
     }
     saveDb(db);
+    // Sync to posts.json
+    try {
+      const postsJsonPath = path.join(process.cwd(), 'posts.json');
+      const postsData = fs.existsSync(postsJsonPath) ? JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8')) : {};
+      postsData[`/story/${story.id}`] = {
+        title: story.title || '',
+        description: (story.summary || story.content || '').slice(0, 160),
+        image: story.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg',
+      };
+      fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('Error syncing posts.json:', e);
+    }
     return res.json({ success: true, story, stories: db.stories });
   }
   res.json({ success: false, message: 'Invalid story payload' });
@@ -722,6 +752,14 @@ app.delete('/api/stories/:id', (req, res) => {
   if (db.stories) {
     db.stories = db.stories.filter((s) => s.id !== id);
     saveDb(db);
+    try {
+      const postsJsonPath = path.join(process.cwd(), 'posts.json');
+      if (fs.existsSync(postsJsonPath)) {
+        const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
+        delete postsData[`/story/${id}`];
+        fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
+      }
+    } catch {}
   }
   res.json({ success: true, message: 'Story deleted' });
 });
@@ -957,7 +995,8 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
 
     let title = 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ, ପଞ୍ଜିକା ଓ ଆଧ୍ୟାତ୍ମିକ କଥା';
     let description = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ।';
-    let imageUrl = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+    const DEFAULT_BRAND_IMAGE = `${origin}/brand-banner.svg`;
+    let imageUrl = DEFAULT_BRAND_IMAGE;
     let canonicalUrl = `${origin}${url}`;
     let ogType = 'website';
 
@@ -968,18 +1007,20 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
 
     if (directTitle) title = directTitle;
     if (directDesc) description = directDesc;
-    if (directImg) imageUrl = directImg;
+    if (directImg && !directImg.includes('images.unsplash.com')) imageUrl = directImg;
 
     // Check if posts.json has a direct record for this path/story
     try {
       const postsJsonPath = path.join(process.cwd(), 'posts.json');
       if (fs.existsSync(postsJsonPath)) {
         const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
-        const matchedPost = postsData[pathname] || postsData[url] || Object.entries(postsData).find(([k]) => pathname.includes(k.toLowerCase()))?.[1];
+        const matchedPost = postsData[pathname] || postsData[url] || Object.entries(postsData).find(([k]) => pathname.includes(k.toLowerCase()) || (url && url.includes(k)))?.[1];
         if (matchedPost) {
           if (matchedPost.title) title = `📖 ${matchedPost.title} | Bhakti Ananda Odia TV`;
           if (matchedPost.description) description = matchedPost.description;
-          if (matchedPost.image) imageUrl = matchedPost.image;
+          if (matchedPost.image && !matchedPost.image.includes('images.unsplash.com')) {
+            imageUrl = matchedPost.image;
+          }
           ogType = 'article';
         }
       }
@@ -1002,7 +1043,9 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
         title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
         const rawDesc = story.summary || story.content || description;
         description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-        if (story.imageUrl) imageUrl = story.imageUrl;
+        if (story.imageUrl && !story.imageUrl.includes('images.unsplash.com')) {
+          imageUrl = story.imageUrl;
+        }
         canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
         ogType = 'article';
       }
