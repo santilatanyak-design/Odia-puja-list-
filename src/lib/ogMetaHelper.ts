@@ -14,11 +14,11 @@ export const OFFICIAL_BRAND_LOGO_URL =
  * Never allows Unsplash demo placeholders.
  */
 export const resolveAbsoluteImageUrl = (url?: string | null): string => {
-  if (!url || typeof url !== 'string' || !url.trim() || url.includes('images.unsplash.com')) {
+  if (!url || typeof url !== 'string' || !url.trim()) {
     return OFFICIAL_BRAND_LOGO_URL;
   }
   const clean = url.trim();
-  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+  if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('data:')) {
     return clean;
   }
   if (typeof window !== 'undefined' && window.location) {

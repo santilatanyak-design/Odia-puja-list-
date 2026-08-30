@@ -1007,7 +1007,7 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
 
     if (directTitle) title = directTitle;
     if (directDesc) description = directDesc;
-    if (directImg && !directImg.includes('images.unsplash.com')) imageUrl = directImg;
+    if (directImg && directImg.trim()) imageUrl = directImg.trim();
 
     // Check if posts.json has a direct record for this path/story
     try {
@@ -1018,8 +1018,8 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
         if (matchedPost) {
           if (matchedPost.title) title = `📖 ${matchedPost.title} | Bhakti Ananda Odia TV`;
           if (matchedPost.description) description = matchedPost.description;
-          if (matchedPost.image && !matchedPost.image.includes('images.unsplash.com')) {
-            imageUrl = matchedPost.image;
+          if (matchedPost.image && typeof matchedPost.image === 'string' && matchedPost.image.trim()) {
+            imageUrl = matchedPost.image.trim();
           }
           ogType = 'article';
         }
@@ -1043,8 +1043,8 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
         title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
         const rawDesc = story.summary || story.content || description;
         description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-        if (story.imageUrl && !story.imageUrl.includes('images.unsplash.com')) {
-          imageUrl = story.imageUrl;
+        if (story.imageUrl && typeof story.imageUrl === 'string' && story.imageUrl.trim()) {
+          imageUrl = story.imageUrl.trim();
         }
         canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
         ogType = 'article';

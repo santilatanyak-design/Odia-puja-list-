@@ -37,14 +37,23 @@ export const createStoryExcerpt = (text: string, maxLen = 150): string => {
 
 export const getSeoConfigForView = (
   viewMode: 'home' | 'login' | 'store' | 'portal' | 'temple' | 'shorts' | 'panchang' | 'blog' | 'admin',
-  searchQuery?: string
+  searchQuery?: string,
+  explicitTargetId?: string | null
 ): PageSeoConfig => {
   const origin = getBaseOrigin();
   const search = searchQuery !== undefined ? searchQuery : (typeof window !== 'undefined' ? window.location.search : '');
   const params = new URLSearchParams(search);
 
-  // Check specific deep links
-  const storyId = params.get('storyId') || params.get('story');
+  // Extract storyId from explicit param, query params, or URL path (/story/:id or /blog/:id)
+  let storyId = explicitTargetId || params.get('storyId') || params.get('story') || params.get('id');
+  if (!storyId && typeof window !== 'undefined') {
+    const pathname = window.location.pathname || '';
+    const parts = pathname.split('/').filter(Boolean);
+    if (parts[0] === 'story' || parts[0] === 'blog' || parts[0] === 'stories') {
+      storyId = parts[1] ? decodeURIComponent(parts[1]) : null;
+    }
+  }
+
   const templeId = params.get('templeId') || params.get('temple');
   const productId = params.get('product_id') || params.get('product');
   const districtId = params.get('district');
@@ -56,19 +65,21 @@ export const getSeoConfigForView = (
     let storyDesc = 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ, ସନାତନ ଧର୍ମ ନୀତି ଓ ଉତ୍ସବ ସମ୍ପର୍କିତ ବିଶେଷ ଆଧ୍ୟାତ୍ମିକ ଲେଖା।';
     try {
       if (typeof window !== 'undefined') {
-        const local = localStorage.getItem('odia_spiritual_stories_v3');
-        if (local) {
-          const list = JSON.parse(local);
-          const found = Array.isArray(list) ? list.find((s: any) => s.id === storyId) : null;
-          if (found) {
-            if (found.title) storyTitle = `📖 ${found.title} | Bhakti Ananda Odia TV`;
-            if (found.summary || found.content) {
-              const raw = found.summary || found.content;
-              storyDesc = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
-            }
-            if (found.imageUrl && typeof found.imageUrl === 'string' && found.imageUrl.trim()) {
-              storyImg = found.imageUrl.trim();
-            }
+        const localV3 = localStorage.getItem('odia_spiritual_stories_v3');
+        const localBase = localStorage.getItem('odisha_spiritual_stories');
+        const candidateList = [
+          ...(localV3 ? JSON.parse(localV3) : []),
+          ...(localBase ? JSON.parse(localBase) : []),
+        ];
+        const found = candidateList.find((s: any) => s && (s.id === storyId || s.id === decodeURIComponent(storyId || '')));
+        if (found) {
+          if (found.title) storyTitle = `📖 ${found.title} | Bhakti Ananda Odia TV`;
+          if (found.summary || found.content) {
+            const raw = found.summary || found.content;
+            storyDesc = raw.length > 160 ? `${raw.slice(0, 157)}...` : raw;
+          }
+          if (found.imageUrl && typeof found.imageUrl === 'string' && found.imageUrl.trim()) {
+            storyImg = found.imageUrl.trim();
           }
         }
       }

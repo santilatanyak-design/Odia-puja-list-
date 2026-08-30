@@ -358,7 +358,7 @@ export default function App() {
       }
 
       // 3. Dynamically update <title>, <meta name="description">, <link rel="canonical"> and OG tags
-      const seoConfig = getSeoConfigForView(viewMode, targetQuery);
+      const seoConfig = getSeoConfigForView(viewMode, targetQuery, selectedStoryId);
       updateDocumentSeoAndCanonical(seoConfig);
     } catch (err) {
       console.warn('SEO & Canonical synchronization error:', err);

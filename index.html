@@ -104,11 +104,11 @@
         }
 
         function resolveUrl(url) {
-          if (!url || typeof url !== 'string' || !url.trim() || url.indexOf('images.unsplash.com') !== -1) {
+          if (!url || typeof url !== 'string' || !url.trim()) {
             return DEFAULT_BRAND_LOGO;
           }
           var clean = url.trim();
-          if (clean.indexOf('http://') === 0 || clean.indexOf('https://') === 0) return clean;
+          if (clean.indexOf('http://') === 0 || clean.indexOf('https://') === 0 || clean.indexOf('data:') === 0) return clean;
           return window.location.origin + (clean.indexOf('/') === 0 ? '' : '/') + clean;
         }
 
@@ -131,17 +131,16 @@
           // Check if localStorage has cached story data
           if (targetStoryId) {
             try {
+              var rawV3 = localStorage.getItem('odia_spiritual_stories_v3');
               var rawStories = localStorage.getItem('odisha_spiritual_stories');
-              if (rawStories) {
-                var parsedStories = JSON.parse(rawStories);
-                if (Array.isArray(parsedStories)) {
-                  var match = parsedStories.find(function(s) { return s.id === targetStoryId; });
-                  if (match) {
-                    if (!customTitle && match.title) customTitle = '📖 ' + match.title + ' | Bhakti Ananda Odia TV';
-                    if (!customDesc && (match.summary || match.content)) customDesc = (match.summary || match.content).slice(0, 157);
-                    if (!customImg && match.imageUrl) customImg = match.imageUrl;
-                  }
-                }
+              var listV3 = rawV3 ? JSON.parse(rawV3) : [];
+              var listBase = rawStories ? JSON.parse(rawStories) : [];
+              var merged = (Array.isArray(listV3) ? listV3 : []).concat(Array.isArray(listBase) ? listBase : []);
+              var match = merged.find(function(s) { return s && (s.id === targetStoryId || s.id === decodeURIComponent(targetStoryId)); });
+              if (match) {
+                if (!customTitle && match.title) customTitle = '📖 ' + match.title + ' | Bhakti Ananda Odia TV';
+                if (!customDesc && (match.summary || match.content)) customDesc = (match.summary || match.content).slice(0, 157);
+                if (!customImg && match.imageUrl) customImg = match.imageUrl;
               }
             } catch(e) {}
           }
