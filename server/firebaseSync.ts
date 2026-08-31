@@ -70,7 +70,7 @@ export function updatePostsJson(story: SpiritualStory) {
 
     const title = story.title || 'Bhakti Ananda Odia TV';
     const description = (story.summary || story.content || '').slice(0, 160);
-    const image = story.imageUrl || 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067389102_8acy9q.jpg';
+    const image = story.imageUrl || 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176622987_4bud51.jpg';
 
     const postObj = {
       id: cleanId,

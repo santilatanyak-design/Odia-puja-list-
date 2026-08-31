@@ -21,7 +21,7 @@ const BOT_USER_AGENTS = [
   'google-structured-data-testing-tool'
 ];
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+const DEFAULT_IMAGE = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176622987_4bud51.jpg';
 const DEFAULT_TITLE = 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ ଓ ଆଧ୍ୟାତ୍ମିକ କଥା';
 const DEFAULT_DESC = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ।';
 
@@ -193,6 +193,17 @@ exports.handler = async (event) => {
         break;
       }
     }
+  }
+
+  // 2.8. Final Dynamic Override: Direct URL Query Parameters Always Win
+  if (searchParams.get('og_title') || searchParams.get('title')) {
+    title = searchParams.get('og_title') || searchParams.get('title');
+  }
+  if (searchParams.get('og_desc') || searchParams.get('desc')) {
+    description = searchParams.get('og_desc') || searchParams.get('desc');
+  }
+  if (searchParams.get('og_image') || searchParams.get('img') || searchParams.get('image')) {
+    imageUrl = searchParams.get('og_image') || searchParams.get('img') || searchParams.get('image');
   }
 
   // 3. Return clean raw HTML with Open Graph and Twitter tags directly to the bot

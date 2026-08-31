@@ -1031,9 +1031,15 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
     const directTitle = searchParams.get('og_title') || searchParams.get('title');
     const directDesc = searchParams.get('og_desc') || searchParams.get('desc');
 
-    if (directTitle) title = directTitle;
-    if (directDesc) description = directDesc;
-    if (directImg && directImg.trim()) imageUrl = directImg.trim();
+    if (directTitle && directTitle.trim()) {
+      title = directTitle.trim().startsWith('📖') ? directTitle.trim() : `📖 ${directTitle.trim()} | Bhakti Ananda Odia TV`;
+    }
+    if (directDesc && directDesc.trim()) {
+      description = directDesc.trim().slice(0, 160);
+    }
+    if (directImg && directImg.trim()) {
+      imageUrl = directImg.trim();
+    }
 
     // 1. Check Story / Blog Post
     let storyId = '';
@@ -1054,80 +1060,74 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
         .trim();
     }
 
-    // Check posts.json first for direct static record
-    let foundPostInJson = false;
-    try {
-      const postsJsonPath = path.join(process.cwd(), 'posts.json');
-      if (fs.existsSync(postsJsonPath)) {
-        const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
-        const matchedPost =
-          (storyId
-            ? postsData[`/story/${storyId}`] ||
-              postsData[`/story/${storyId}.html`] ||
-              postsData[`/story/${storyId}/index.html`] ||
-              postsData[storyId] ||
-              postsData[`${storyId}.html`]
-            : null) ||
-          postsData[pathname] ||
-          postsData[url] ||
-          Object.entries(postsData).find(([k]) =>
-            (storyId && k.toLowerCase().includes(storyId.toLowerCase())) ||
-            pathname.includes(k.toLowerCase()) ||
-            (url && url.includes(k))
-          )?.[1];
-
-        if (matchedPost) {
-          foundPostInJson = true;
-          if (matchedPost.title) title = `📖 ${matchedPost.title} | Bhakti Ananda Odia TV`;
-          if (matchedPost.description) description = matchedPost.description;
-          if (matchedPost.image && typeof matchedPost.image === 'string' && matchedPost.image.trim()) {
-            imageUrl = matchedPost.image.trim();
-          }
-          canonicalUrl = `${origin}/story/${encodeURIComponent(storyId || matchedPost.id || '')}.html`;
-          ogType = 'article';
-        }
-      }
-    } catch (postsErr) {
-      console.warn('Could not read posts.json:', postsErr);
-    }
-
-    // Check database stories or live Firestore if not fully resolved from posts.json
     if (storyId) {
       const cleanStoryId = storyId.replace(/\.html?$/i, '').trim();
-      const allStories = currentDb.stories || [];
-      let story = allStories.find((s) => {
-        if (!s || !s.id) return false;
-        const sid = s.id.replace(/\.html?$/i, '').trim();
-        return (
-          sid === cleanStoryId ||
-          s.id === cleanStoryId ||
-          sid.toLowerCase() === cleanStoryId.toLowerCase() ||
-          cleanStoryId.toLowerCase().includes(sid.toLowerCase())
-        );
-      });
-      
-      // If not found in local DB/posts.json, perform fast live Firestore lookup
-      if (!story) {
+      canonicalUrl = `${origin}/story/${encodeURIComponent(cleanStoryId)}.html`;
+      ogType = 'article';
+
+      let storyObj: any = null;
+
+      // 1a. Check posts.json by EXACT keys only (never loose substring)
+      try {
+        const postsJsonPath = path.join(process.cwd(), 'posts.json');
+        if (fs.existsSync(postsJsonPath)) {
+          const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
+          const matched =
+            postsData[`/story/${cleanStoryId}`] ||
+            postsData[`/story/${cleanStoryId}.html`] ||
+            postsData[`/story/${cleanStoryId}/index.html`] ||
+            postsData[cleanStoryId] ||
+            postsData[`${cleanStoryId}.html`];
+          if (matched && (matched.id ? matched.id.toLowerCase() === cleanStoryId.toLowerCase() : true)) {
+            storyObj = matched;
+          }
+        }
+      } catch (postsErr) {
+        console.warn('Could not read posts.json:', postsErr);
+      }
+
+      // 1b. Check in-memory DB by exact ID
+      if (!storyObj) {
+        const allStories = currentDb.stories || [];
+        const matched = allStories.find((s) => {
+          if (!s || !s.id) return false;
+          const sid = s.id.replace(/\.html?$/i, '').trim().toLowerCase();
+          return sid === cleanStoryId.toLowerCase();
+        });
+        if (matched) {
+          storyObj = matched;
+        }
+      }
+
+      // 1c. Check live Firestore document directly
+      if (!storyObj) {
         try {
           const liveStory = await getStoryById(cleanStoryId);
           if (liveStory) {
-            story = liveStory;
+            storyObj = liveStory;
           }
         } catch (liveErr) {
           console.warn('[Live Story Lookup Error]:', liveErr);
         }
       }
 
-      if (story) {
-        title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
-        const rawDesc = story.summary || story.content || description;
+      // If story is found, populate exact metadata
+      if (storyObj) {
+        if (storyObj.title) title = `📖 ${storyObj.title} | Bhakti Ananda Odia TV`;
+        const rawDesc = storyObj.summary || storyObj.content || storyObj.description || description;
         description = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
-        if (story.imageUrl && typeof story.imageUrl === 'string' && story.imageUrl.trim()) {
-          imageUrl = story.imageUrl.trim();
+        const sImg = storyObj.imageUrl || storyObj.image;
+        if (sImg && typeof sImg === 'string' && sImg.trim()) {
+          imageUrl = sImg.trim();
         }
-        canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}.html`;
-        ogType = 'article';
       }
+
+      // If direct URL params were provided (from share URL), prioritize them as the ultimate fresh override
+      if (directImg && directImg.trim()) imageUrl = directImg.trim();
+      if (directTitle && directTitle.trim()) {
+        title = directTitle.trim().startsWith('📖') ? directTitle.trim() : `📖 ${directTitle.trim()} | Bhakti Ananda Odia TV`;
+      }
+      if (directDesc && directDesc.trim()) description = directDesc.trim().slice(0, 160);
     }
 
     // 2. Check Temple

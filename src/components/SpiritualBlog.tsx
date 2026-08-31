@@ -12,6 +12,7 @@ import {
 import {
   shareStoryNative,
   setDynamicStoryMeta,
+  getStoryShareUrl,
   openFacebookShare,
   openWhatsAppDirectShare,
   openShareChatShare,
@@ -708,8 +709,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
-                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  const shareUrl = getStoryShareUrl(selectedStory);
                   const excerpt = selectedStory.summary || selectedStory.content ? `${(selectedStory.summary || selectedStory.content).slice(0, 120)}...` : '';
                   openWhatsAppDirectShare(`📖 *${selectedStory.title}*\n${excerpt}`, shareUrl);
                 }}
@@ -722,8 +722,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               <button
                 type="button"
                 onClick={async () => {
-                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
-                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  const shareUrl = getStoryShareUrl(selectedStory);
                   const excerpt = selectedStory.summary || selectedStory.content ? `${(selectedStory.summary || selectedStory.content).slice(0, 120)}...` : '';
                   await openShareChatShare(excerpt, shareUrl, selectedStory.title);
                 }}
@@ -736,8 +735,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
-                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  const shareUrl = getStoryShareUrl(selectedStory);
                   openFacebookShare(shareUrl, selectedStory.title);
                 }}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
@@ -749,8 +747,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
-                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  const shareUrl = getStoryShareUrl(selectedStory);
                   const excerpt = selectedStory.summary || selectedStory.content ? `${(selectedStory.summary || selectedStory.content).slice(0, 100)}...` : '';
                   openThreadsShare(excerpt, shareUrl, selectedStory.title);
                 }}

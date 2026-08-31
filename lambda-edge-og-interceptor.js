@@ -15,7 +15,7 @@ const BOT_USER_AGENTS = [
   'applebot'
 ];
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+const DEFAULT_IMAGE = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176622987_4bud51.jpg';
 const DEFAULT_TITLE = 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ ଓ ଆଧ୍ୟାତ୍ମିକ କଥା';
 const DEFAULT_DESC = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ ଏବଂ ଆଧ୍ୟାତ୍ମିକ କଥା।';
 
@@ -105,6 +105,17 @@ exports.handler = async (event) => {
     title = '📅 ଆଜିର ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ଓ ପଞ୍ଜିକା | Bhakti Ananda Odia TV';
   } else if (uri.includes('/store')) {
     title = '🛍️ ଶୁଦ୍ଧ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ଷ୍ଟୋର୍ | Bhakti Ananda Odia TV';
+  }
+
+  // Direct parameter overrides take final precedence
+  if (searchParams.get('og_title') || searchParams.get('title')) {
+    title = searchParams.get('og_title') || searchParams.get('title');
+  }
+  if (searchParams.get('og_desc') || searchParams.get('desc')) {
+    description = searchParams.get('og_desc') || searchParams.get('desc');
+  }
+  if (searchParams.get('og_image') || searchParams.get('img') || searchParams.get('image')) {
+    imageUrl = searchParams.get('og_image') || searchParams.get('img') || searchParams.get('image');
   }
 
   // Generate bot-friendly HTML
