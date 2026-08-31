@@ -41,7 +41,17 @@ export async function uploadAllStoryHtmlToS3() {
               CacheControl: 'public, max-age=0, must-revalidate',
             })
           );
-          // 2. Upload to story/[storyId] (direct object key for clean URLs)
+          // 2. Upload to story/[storyId].html
+          await s3.send(
+            new PutObjectCommand({
+              Bucket: bucket,
+              Key: `story/${storyId}.html`,
+              Body: body,
+              ContentType: 'text/html; charset=utf-8',
+              CacheControl: 'public, max-age=0, must-revalidate',
+            })
+          );
+          // 3. Upload to story/[storyId] (direct object key for clean URLs)
           await s3.send(
             new PutObjectCommand({
               Bucket: bucket,
@@ -51,7 +61,7 @@ export async function uploadAllStoryHtmlToS3() {
               CacheControl: 'public, max-age=0, must-revalidate',
             })
           );
-          console.log(`[S3 HTML Sync] 🚀 Uploaded static HTML for story: ${storyId} to s3://${bucket}`);
+          console.log(`[S3 HTML Sync] 🚀 Uploaded static HTML for story: ${storyId} (.html, /index.html, clean) to s3://${bucket}`);
         } catch (err: any) {
           console.warn(`[S3 HTML Sync] Failed to upload ${storyId}:`, err?.message);
         }

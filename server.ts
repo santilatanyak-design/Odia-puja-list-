@@ -1039,9 +1039,19 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
     let storyId = '';
     if (pathname.startsWith('/story/') || pathname.startsWith('/blog/') || pathname.startsWith('/stories/')) {
       const parts = urlObj.pathname.split('/').filter(Boolean);
-      if (parts[1]) storyId = decodeURIComponent(parts[1]);
+      if (parts[1]) {
+        storyId = decodeURIComponent(parts[1])
+          .replace(/^(\/)?story\//i, '')
+          .replace(/\.html?$/i, '')
+          .replace(/\/$/, '')
+          .trim();
+      }
     } else if (searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id')) {
-      storyId = searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id') || '';
+      storyId = (searchParams.get('storyId') || searchParams.get('story') || searchParams.get('id') || '')
+        .replace(/^(\/)?story\//i, '')
+        .replace(/\.html?$/i, '')
+        .replace(/\/$/, '')
+        .trim();
     }
 
     // Check posts.json first for direct static record
@@ -1051,11 +1061,19 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
       if (fs.existsSync(postsJsonPath)) {
         const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
         const matchedPost =
-          (storyId ? postsData[`/story/${storyId}`] || postsData[storyId] : null) ||
+          (storyId
+            ? postsData[`/story/${storyId}`] ||
+              postsData[`/story/${storyId}.html`] ||
+              postsData[`/story/${storyId}/index.html`] ||
+              postsData[storyId] ||
+              postsData[`${storyId}.html`]
+            : null) ||
           postsData[pathname] ||
           postsData[url] ||
           Object.entries(postsData).find(([k]) =>
-            (storyId && k.includes(storyId)) || pathname.includes(k.toLowerCase()) || (url && url.includes(k))
+            (storyId && k.toLowerCase().includes(storyId.toLowerCase())) ||
+            pathname.includes(k.toLowerCase()) ||
+            (url && url.includes(k))
           )?.[1];
 
         if (matchedPost) {
@@ -1075,13 +1093,23 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
 
     // Check database stories or live Firestore if not fully resolved from posts.json
     if (storyId) {
+      const cleanStoryId = storyId.replace(/\.html?$/i, '').trim();
       const allStories = currentDb.stories || [];
-      let story = allStories.find((s) => s.id === storyId || s.id === decodeURIComponent(storyId) || (s.id && s.id.toLowerCase() === storyId.toLowerCase()));
+      let story = allStories.find((s) => {
+        if (!s || !s.id) return false;
+        const sid = s.id.replace(/\.html?$/i, '').trim();
+        return (
+          sid === cleanStoryId ||
+          s.id === cleanStoryId ||
+          sid.toLowerCase() === cleanStoryId.toLowerCase() ||
+          cleanStoryId.toLowerCase().includes(sid.toLowerCase())
+        );
+      });
       
       // If not found in local DB/posts.json, perform fast live Firestore lookup
-      if (!story && !foundPostInJson) {
+      if (!story) {
         try {
-          const liveStory = await getStoryById(storyId);
+          const liveStory = await getStoryById(cleanStoryId);
           if (liveStory) {
             story = liveStory;
           }
@@ -1106,13 +1134,25 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
     let templeId = '';
     if (pathname.startsWith('/temple/') || pathname.startsWith('/temples/')) {
       const parts = urlObj.pathname.split('/').filter(Boolean);
-      if (parts[1]) templeId = decodeURIComponent(parts[1]);
+      if (parts[1]) {
+        templeId = decodeURIComponent(parts[1])
+          .replace(/\.html?$/i, '')
+          .replace(/\/$/, '')
+          .trim();
+      }
     } else if (searchParams.get('templeId') || searchParams.get('temple')) {
-      templeId = searchParams.get('templeId') || searchParams.get('temple') || '';
+      templeId = (searchParams.get('templeId') || searchParams.get('temple') || '')
+        .replace(/\.html?$/i, '')
+        .replace(/\/$/, '')
+        .trim();
     }
 
     if (templeId) {
-      const temple = (currentDb.temples || DEFAULT_TEMPLES).find((t) => t.id === templeId || t.id === decodeURIComponent(templeId));
+      const temple = (currentDb.temples || DEFAULT_TEMPLES).find((t) => {
+        if (!t || !t.id) return false;
+        const tid = t.id.replace(/\.html?$/i, '').trim();
+        return tid === templeId || t.id === templeId || tid.toLowerCase() === templeId.toLowerCase();
+      });
       if (temple) {
         title = `🚩 ${temple.name} (${temple.location || 'Odisha'}) - ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ`;
         const rawDesc = temple.description || temple.history || `ପ୍ରସିଦ୍ଧ ${temple.name} ରେ ଅନଲାଇନ୍ ଜଳାଭିଷେକ ଓ ପୂଜା ବୁକ୍ କରନ୍ତୁ।`;
@@ -1127,11 +1167,11 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
     let itemId = '';
     if (pathname.startsWith('/district/') || pathname.startsWith('/districts/')) {
       const parts = urlObj.pathname.split('/').filter(Boolean);
-      if (parts[1]) districtId = decodeURIComponent(parts[1]);
-      if (parts[2]) itemId = decodeURIComponent(parts[2]);
+      if (parts[1]) districtId = decodeURIComponent(parts[1]).replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+      if (parts[2]) itemId = decodeURIComponent(parts[2]).replace(/\.html?$/i, '').replace(/\/$/, '').trim();
     } else {
-      districtId = searchParams.get('district') || '';
-      itemId = searchParams.get('item') || '';
+      districtId = (searchParams.get('district') || '').replace(/\.html?$/i, '').trim();
+      itemId = (searchParams.get('item') || '').replace(/\.html?$/i, '').trim();
     }
 
     if (districtId || itemId) {
@@ -1273,13 +1313,23 @@ async function startServer() {
     // Intercept HTML requests in development to inject dynamic OG meta tags
     app.use(async (req, res, next) => {
       const url = req.originalUrl || req.url;
+      const cleanPath = url.split('?')[0];
+      const isAsset =
+        cleanPath.startsWith('/api') ||
+        cleanPath.startsWith('/@') ||
+        cleanPath.startsWith('/src') ||
+        cleanPath.startsWith('/node_modules') ||
+        cleanPath.startsWith('/dist') ||
+        /\.(js|ts|tsx|jsx|css|json|png|jpe?g|gif|svg|ico|webp|woff2?|ttf|map)$/i.test(cleanPath);
+
       const isHtmlRequest =
-        !url.startsWith('/api') &&
-        !url.startsWith('/@') &&
-        !url.startsWith('/src') &&
-        !url.startsWith('/node_modules') &&
-        !url.includes('.') &&
-        (req.headers.accept?.includes('text/html') || req.headers.accept?.includes('*/*'));
+        !isAsset &&
+        (req.headers.accept?.includes('text/html') ||
+          req.headers.accept?.includes('*/*') ||
+          cleanPath.startsWith('/story/') ||
+          cleanPath.startsWith('/temple/') ||
+          cleanPath.startsWith('/district/') ||
+          cleanPath.endsWith('.html'));
 
       if (isHtmlRequest) {
         try {

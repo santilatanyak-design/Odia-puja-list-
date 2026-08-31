@@ -78,14 +78,15 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
 
     const outputDirs = [
       targetBaseDir || path.join(process.cwd(), 'dist'),
+      path.join(process.cwd(), 'public'),
     ];
 
     storyMap.forEach((story) => {
-      const storyId = story.id;
+      const storyId = story.id.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
       const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
       const description = story.description || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।';
       const imageUrl = story.imageUrl.startsWith('http') ? story.imageUrl : `${DOMAIN}/${story.imageUrl.replace(/^\//, '')}`;
-      const canonicalUrl = `${DOMAIN}/story/${storyId}/index.html`;
+      const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}`;
 
       let imageType = 'image/jpeg';
       if (imageUrl.includes('.png')) imageType = 'image/png';

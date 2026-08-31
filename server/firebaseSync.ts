@@ -59,6 +59,7 @@ let cachedStories: Map<string, SpiritualStory> = new Map();
 export function updatePostsJson(story: SpiritualStory) {
   if (!story || !story.id) return;
   try {
+    const cleanId = story.id.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
     const postsJsonPath = path.join(process.cwd(), 'posts.json');
     let postsData: Record<string, any> = {};
     if (fs.existsSync(postsJsonPath)) {
@@ -71,14 +72,20 @@ export function updatePostsJson(story: SpiritualStory) {
     const description = (story.summary || story.content || '').slice(0, 160);
     const image = story.imageUrl || 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=1200&auto=format&fit=crop';
 
-    postsData[`/story/${story.id}`] = {
-      id: story.id,
+    const postObj = {
+      id: cleanId,
       title,
       description,
       image,
       author: story.author || 'Bhakti Ananda Odia TV',
     };
-    postsData[story.id] = postsData[`/story/${story.id}`];
+
+    postsData[`/story/${cleanId}`] = postObj;
+    postsData[`/story/${cleanId}.html`] = postObj;
+    postsData[`/story/${cleanId}/`] = postObj;
+    postsData[`/story/${cleanId}/index.html`] = postObj;
+    postsData[cleanId] = postObj;
+    postsData[`${cleanId}.html`] = postObj;
 
     fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
   } catch (err) {
@@ -97,8 +104,11 @@ export async function syncAllStoriesFromFirestore(): Promise<SpiritualStory[]> {
       snap.docs.forEach((docSnap) => {
         const data = docSnap.data() as SpiritualStory;
         if (data && data.id) {
+          const cleanId = data.id.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
           cachedStories.set(data.id, data);
-          cachedStories.set(data.id.toLowerCase(), data);
+          cachedStories.set(cleanId, data);
+          cachedStories.set(cleanId.toLowerCase(), data);
+          cachedStories.set(`${cleanId}.html`, data);
           updatePostsJson(data);
           stories.push(data);
         }
@@ -117,7 +127,7 @@ export async function syncAllStoriesFromFirestore(): Promise<SpiritualStory[]> {
  */
 export async function getStoryById(storyId: string): Promise<SpiritualStory | null> {
   if (!storyId) return null;
-  const cleanId = storyId.trim();
+  const cleanId = storyId.trim().replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
 
   // 1. Check in-memory cache
   if (cachedStories.has(cleanId)) {
@@ -125,6 +135,9 @@ export async function getStoryById(storyId: string): Promise<SpiritualStory | nu
   }
   if (cachedStories.has(cleanId.toLowerCase())) {
     return cachedStories.get(cleanId.toLowerCase()) || null;
+  }
+  if (cachedStories.has(storyId.trim())) {
+    return cachedStories.get(storyId.trim()) || null;
   }
 
   // 2. Fetch directly from Firestore doc
@@ -135,6 +148,8 @@ export async function getStoryById(storyId: string): Promise<SpiritualStory | nu
       const data = snap.data() as SpiritualStory;
       if (data) {
         cachedStories.set(data.id, data);
+        cachedStories.set(cleanId, data);
+        cachedStories.set(cleanId.toLowerCase(), data);
         updatePostsJson(data);
         return data;
       }
@@ -151,8 +166,11 @@ export async function getStoryById(storyId: string): Promise<SpiritualStory | nu
  */
 export function cacheStory(story: SpiritualStory) {
   if (story && story.id) {
+    const cleanId = story.id.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
     cachedStories.set(story.id, story);
-    cachedStories.set(story.id.toLowerCase(), story);
+    cachedStories.set(cleanId, story);
+    cachedStories.set(cleanId.toLowerCase(), story);
+    cachedStories.set(`${cleanId}.html`, story);
     updatePostsJson(story);
   }
 }

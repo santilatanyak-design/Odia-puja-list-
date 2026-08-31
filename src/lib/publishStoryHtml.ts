@@ -19,12 +19,12 @@ function escapeHtml(str: string = ''): string {
  * Contains exact Open Graph, Twitter, SEO meta tags and client SPA app shell.
  */
 export function buildStoryHtml(story: SpiritualStory): string {
-  const storyId = story.id;
+  const storyId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
   const description = (story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।').slice(0, 200);
   const rawImg = story.imageUrl || DEFAULT_BRAND_LOGO;
   const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
-  const canonicalUrl = `${DOMAIN}/story/${storyId}/index.html`;
+  const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}`;
 
   let imageType = 'image/jpeg';
   if (imageUrl.includes('.png')) imageType = 'image/png';

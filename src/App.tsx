@@ -174,10 +174,11 @@ export default function App() {
         const pathname = window.location.pathname.toLowerCase();
         const parts = pathname.split('/').filter(Boolean);
         if (parts[0] === 'story' || parts[0] === 'blog' || parts[0] === 'stories') {
-          return parts[1] || null;
+          return (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
         }
         const params = new URLSearchParams(window.location.search);
-        return params.get('storyId') || params.get('story') || null;
+        const sid = params.get('storyId') || params.get('story');
+        return sid ? sid.replace(/\.html?$/i, '').replace(/\/$/, '').trim() : null;
       }
     } catch {
       // Fallback
@@ -194,10 +195,11 @@ export default function App() {
         const pathname = window.location.pathname.toLowerCase();
         const parts = pathname.split('/').filter(Boolean);
         if (parts[0] === 'temple' || parts[0] === 'temples') {
-          return parts[1] || null;
+          return (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
         }
         const params = new URLSearchParams(window.location.search);
-        return params.get('templeId') || params.get('temple') || null;
+        const tid = params.get('templeId') || params.get('temple');
+        return tid ? tid.replace(/\.html?$/i, '').replace(/\/$/, '').trim() : null;
       }
     } catch {
       // Fallback
@@ -373,13 +375,13 @@ export default function App() {
           const pathname = window.location.pathname.toLowerCase();
           const parts = pathname.split('/').filter(Boolean);
           if (parts[0] === 'story' || parts[0] === 'blog' || parts[0] === 'stories') {
-            const sid = parts[1] || null;
+            const sid = (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
             setSelectedStoryId(sid);
             setViewMode('blog');
             return;
           }
           if (parts[0] === 'temple' || parts[0] === 'temples') {
-            const tid = parts[1] || null;
+            const tid = (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
             setSelectedTempleId(tid);
             setViewMode('temple');
             return;
@@ -390,11 +392,13 @@ export default function App() {
           }
 
           const params = new URLSearchParams(window.location.search);
-          const storyParam = params.get('storyId') || params.get('story');
+          const rawStoryParam = params.get('storyId') || params.get('story');
+          const storyParam = rawStoryParam ? rawStoryParam.replace(/\.html?$/i, '').replace(/\/$/, '').trim() : null;
           if (storyParam) {
             setSelectedStoryId(storyParam);
           }
-          const templeParam = params.get('templeId') || params.get('temple');
+          const rawTempleParam = params.get('templeId') || params.get('temple');
+          const templeParam = rawTempleParam ? rawTempleParam.replace(/\.html?$/i, '').replace(/\/$/, '').trim() : null;
           if (templeParam) {
             setSelectedTempleId(templeParam);
           }

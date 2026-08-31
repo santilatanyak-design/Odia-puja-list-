@@ -268,7 +268,8 @@ export const shareStoryNative = async (
   }
 
   const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
-  const shareUrl = `${origin}/story/${encodeURIComponent(story.id)}.html`;
+  const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+  const shareUrl = `${origin}/story/${encodeURIComponent(cleanId)}`;
   const shareTitle = `📖 ${story.title}`;
   const excerpt = story.summary || story.content ? `${(story.summary || story.content).slice(0, 100)}...` : '';
   const shareText = `📖 *${story.title}*\n${excerpt}\n\n👇 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପଢ଼ନ୍ତୁ:\n${shareUrl}`;
