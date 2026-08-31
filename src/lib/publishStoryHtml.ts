@@ -87,6 +87,27 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
     console.warn('Could not fetch index.html template from origin', err);
   }
 
+  // Extract scripts and links from active DOM if available
+  let domScriptsAndStyles = '';
+  if (typeof document !== 'undefined') {
+    const scripts = Array.from(document.querySelectorAll('script[src]'));
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"]'));
+    styles.forEach((s) => {
+      const href = s.getAttribute('href');
+      if (href) {
+        const fullUrl = href.startsWith('http') ? href : `${DOMAIN}/${href.replace(/^\//, '')}`;
+        domScriptsAndStyles += `<link rel="stylesheet" crossorigin href="${fullUrl}" />\n`;
+      }
+    });
+    scripts.forEach((s) => {
+      const src = s.getAttribute('src');
+      if (src && !src.includes('gtag') && !src.includes('googletagmanager')) {
+        const fullUrl = src.startsWith('http') ? src : `${DOMAIN}/${src.replace(/^\//, '')}`;
+        domScriptsAndStyles += `<script type="module" crossorigin src="${fullUrl}"></script>\n`;
+      }
+    });
+  }
+
   if (!template || !template.includes('<head>')) {
     template = `<!doctype html><html lang="or" class="h-full">
   <head>
@@ -94,11 +115,14 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
     <link rel="icon" type="image/svg+xml" href="/brand-banner.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <title>Bhakti Ananda Odia TV</title>
+    ${domScriptsAndStyles}
   </head>
   <body>
     <div id="root"></div>
   </body>
 </html>`;
+  } else if (domScriptsAndStyles && !template.includes('/assets/')) {
+    template = template.replace('</head>', `${domScriptsAndStyles}\n</head>`);
   }
 
   let finalHtml = template
@@ -116,22 +140,80 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
   }
 
   const storyHtml = `
-    <div id="root" style="background-color: #FFFBF0; min-height: 100vh;">
-      <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: sans-serif; color: #333;">
-        <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">${escapeHtml(story.title)}</h1>
-        ${imageUrl ? `<img src="${imageUrl}" alt="${escapeHtml(story.title)}" style="width: 100%; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />` : ''}
-        <div style="line-height: 1.6; font-size: 16px;">
-          ${(story.content || story.summary || (story as any).description || '').split('\n\n').map(p => '<p style="margin-bottom: 15px;">' + escapeHtml(p.replace(/^###\s*/, '')) + '</p>').join('')}
+    <div id="root" style="background-color: #FFFBF0; min-height: 100vh; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+      <!-- Top Website Header -->
+      <header style="background: linear-gradient(135deg, #701a1e 0%, #8B0000 100%); color: #ffffff; padding: 12px 16px; border-bottom: 3px solid #f59e0b; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <div style="max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <a href="${DOMAIN}/?view=home" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #ffffff;">
+            <img src="${DEFAULT_BRAND_LOGO}" alt="Bhakti Ananda Logo" style="height: 40px; width: auto; border-radius: 8px; background: #ffffff; padding: 2px;" />
+            <div>
+              <div style="font-size: 18px; font-weight: 800; color: #fbbf24; line-height: 1.2;">ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV</div>
+              <div style="font-size: 11px; color: #fde68a; opacity: 0.9;">Bhakti Ananda Odia TV - Official</div>
+            </div>
+          </a>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <a href="${DOMAIN}/?view=home" style="background: rgba(255,255,255,0.15); color: #ffffff; text-decoration: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid rgba(255,255,255,0.25);">🏠 ମୁଖ୍ୟ ପୃଷ୍ଠା</a>
+            <a href="${DOMAIN}/?view=store" style="background: #f59e0b; color: #701a1e; text-decoration: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800;">🛒 ପୂଜା ଷ୍ଟୋର</a>
+            <a href="${DOMAIN}/?view=panchang" style="background: rgba(255,255,255,0.15); color: #ffffff; text-decoration: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid rgba(255,255,255,0.25);">📅 ପାଞ୍ଜି</a>
+            <a href="${DOMAIN}/?view=shorts" style="background: rgba(255,255,255,0.15); color: #ffffff; text-decoration: none; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: 1px solid rgba(255,255,255,0.25);">🎬 ଶୋର୍ଟ୍ସ</a>
+          </div>
         </div>
-        <p style="text-align: center; margin-top: 40px; color: #888; font-size: 12px;">ଅଧିକ ପଢିବାକୁ ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ...</p>
+      </header>
+
+      <!-- Website Callout Banner -->
+      <div style="background: #fef3c7; border-bottom: 1px solid #fde68a; padding: 10px 16px; text-align: center; color: #92400e; font-size: 13px; font-weight: 700;">
+        🚩 ଆପଣ ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV ଆଧ୍ୟାତ୍ମିକ ପୋଷ୍ଟ ପଢୁଛନ୍ତି। 
+        <a href="${DOMAIN}/?view=blog&storyId=${encodeURIComponent(storyId)}" style="color: #701a1e; font-weight: 900; text-decoration: underline; margin-left: 6px;">ସମ୍ପୂର୍ଣ୍ଣ ୱେବସାଇଟ୍ ଖୋଲନ୍ତୁ (Open Full Website) →</a>
       </div>
+
+      <!-- Main Article Area -->
+      <main style="max-width: 850px; margin: 24px auto; padding: 0 16px;">
+        <article style="background: #ffffff; border-radius: 16px; border: 1px solid #fef3c7; box-shadow: 0 4px 15px rgba(0,0,0,0.06); padding: 24px; overflow: hidden;">
+          <div style="margin-bottom: 12px; display: flex; items-center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <span style="background: #fef3c7; color: #92400e; font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 12px;">📖 ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ / ବ୍ରତକଥା</span>
+            <span style="color: #78716c; font-size: 12px;">Bhakti Ananda Odia TV</span>
+          </div>
+
+          <h1 style="font-size: 26px; font-weight: 800; color: #701a1e; margin: 0 0 16px 0; line-height: 1.35;">${escapeHtml(story.title)}</h1>
+          
+          ${imageUrl ? `<div style="margin-bottom: 20px; text-align: center;"><img src="${imageUrl}" alt="${escapeHtml(story.title)}" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" /></div>` : ''}
+
+          <div style="line-height: 1.8; font-size: 17px; color: #292524; margin-bottom: 24px;">
+            ${(story.content || story.summary || (story as any).description || '').split('\n\n').map(p => '<p style="margin-bottom: 16px;">' + escapeHtml(p.replace(/^###\s*/, '')) + '</p>').join('')}
+          </div>
+
+          <!-- Direct Interactive Action Buttons -->
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #f3f4f6; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+            <a href="${DOMAIN}/?view=blog&storyId=${encodeURIComponent(storyId)}" style="background: linear-gradient(135deg, #701a1e, #8B0000); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 800; font-size: 14px; box-shadow: 0 4px 10px rgba(112,26,30,0.3); display: inline-flex; align-items: center; gap: 8px;">
+              🌐 ସମ୍ପୂର୍ଣ୍ଣ ୱେବସାଇଟ୍‌ରେ ପଢ଼ନ୍ତୁ (Open Full Website)
+            </a>
+            <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(story.title + ' ' + canonicalUrl)}" target="_blank" rel="noopener noreferrer" style="background: #25D366; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;">
+              📲 WhatsApp ରେ ସେୟାର୍ କରନ୍ତୁ
+            </a>
+          </div>
+        </article>
+      </main>
+
+      <!-- Website Footer -->
+      <footer style="background: #701a1e; color: #fef3c7; text-align: center; padding: 28px 16px; margin-top: 40px; border-top: 3px solid #f59e0b;">
+        <div style="max-width: 800px; margin: 0 auto;">
+          <h3 style="font-size: 18px; font-weight: 800; color: #fbbf24; margin: 0 0 8px 0;">ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV</h3>
+          <p style="font-size: 13px; color: #fde68a; margin: 0 0 16px 0;">ଓଡ଼ିଶାର ନଂ. ୧ ଆଧ୍ୟାତ୍ମିକ ପୋର୍ଟାଲ - ପୂଜା ସାମଗ୍ରୀ, ମନ୍ଦିର ବୁକିଂ, ପାଞ୍ଜି ଏବଂ ବ୍ରତକଥା।</p>
+          <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; font-size: 13px; font-weight: 700; margin-bottom: 16px;">
+            <a href="${DOMAIN}/?view=home" style="color: #ffffff; text-decoration: none;">ମୁଖ୍ୟ ପୃଷ୍ଠା</a> |
+            <a href="${DOMAIN}/?view=store" style="color: #ffffff; text-decoration: none;">ପୂଜା ଷ୍ଟୋର</a> |
+            <a href="${DOMAIN}/?view=panchang" style="color: #ffffff; text-decoration: none;">ଓଡ଼ିଆ ପାଞ୍ଜି</a> |
+            <a href="${DOMAIN}/?view=blog" style="color: #ffffff; text-decoration: none;">ସମସ୍ତ ଲେଖା</a>
+          </div>
+          <p style="font-size: 11px; color: #fcd34d; opacity: 0.8; margin: 0;">© Bhakti Ananda Odia TV. All Rights Reserved.</p>
+        </div>
+      </footer>
     </div>
   `;
-  finalHtml = finalHtml.replace(/<div id="root"[^>]*>.*?<\/div>/, storyHtml);
+  finalHtml = finalHtml.replace(/<div id="root"[^>]*>.*?<\/div>/s, storyHtml);
 
   finalHtml = finalHtml.replace(/<!-- Synchronous Immediate Pre-Render OG Tag Injector.*?<\/script>/gis, '');
 
-  
   return finalHtml;
 }
 
