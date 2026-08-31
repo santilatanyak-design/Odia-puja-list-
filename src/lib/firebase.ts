@@ -43,7 +43,6 @@ export const db = (() => {
     return initializeFirestore(
       app,
       {
-        experimentalForceLongPolling: true,
       },
       customDbId
     );

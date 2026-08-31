@@ -18,7 +18,7 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
   const storyId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
   const description = (story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।').replace(/<[^>]*>?/gm, '').slice(0, 200);
-  const rawImg = story.imageUrl || story.image || DEFAULT_BRAND_LOGO;
+  const rawImg = (story as any).imageUrl || (story as any).image || DEFAULT_BRAND_LOGO;
   const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
   const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}.html`;
 
@@ -110,6 +110,21 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
     finalHtml = finalHtml.replace(/(<meta\s+name=["']viewport["'][^>]*>)/i, `$1\n${metaTags}`);
   } else {
     finalHtml = finalHtml.replace('<head>', `<head>\n${metaTags}`);
+
+    const storyHtml = `
+      <div id="root" style="background-color: #FFFBF0; min-height: 100vh;">
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: sans-serif; color: #333;">
+          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">${escapeHtml(story.title)}</h1>
+          ${imageUrl ? `<img src="${imageUrl}" alt="${escapeHtml(story.title)}" style="width: 100%; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />` : ''}
+          <div style="line-height: 1.6; font-size: 16px;">
+            ${(story.content || '').split('\n\n').map(p => '<p style="margin-bottom: 15px;">' + escapeHtml(p.replace(/^###\s*/, '')) + '</p>').join('')}
+          </div>
+          <p style="text-align: center; margin-top: 40px; color: #888; font-size: 12px;">ଅଧିକ ପଢିବାକୁ ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ... Loading interactive features...</p>
+        </div>
+      </div>
+    `;
+    finalHtml = finalHtml.replace(/<div id="root"[^>]*>.*?<\/div>/, storyHtml);
+
   }
 
   finalHtml = finalHtml.replace(/<!-- Synchronous Immediate Pre-Render OG Tag Injector.*?<\/script>/gis, '');
@@ -126,7 +141,7 @@ export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<b
     const htmlContent = await buildStoryHtml(story);
     const storyId = (story.id || '').replace(/^(\/)?story\//i, '');
 
-    console.log('[Auto S3 Story HTML] 🚀 Built HTML for:', storyId, '| Image URL:', story.imageUrl);
+    console.log('[Auto S3 Story HTML] 🚀 Built HTML for:', storyId, '| Image URL:', (story as any).imageUrl);
 
     if (awsConfig.isDirectReady) {
       console.log('[Auto S3 Story HTML] Directly pushing to S3 bucket:', awsConfig.bucket);

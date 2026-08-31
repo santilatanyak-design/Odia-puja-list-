@@ -141,15 +141,28 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
     </script>
   `;
 
+      
       let finalHtml = cleaned;
       if (finalHtml.includes('name="viewport"')) {
         finalHtml = finalHtml.replace(/(<meta\s+name=["']viewport["'][^>]*>)/i, `$1\n${metaTags}`);
       } else {
         finalHtml = finalHtml.replace('<head>', `<head>\n${metaTags}`);
       }
+
+      const storyHtml = `
+        <div id="root" style="background-color: #FFFBF0; min-height: 100vh;">
+          <div style="max-width: 800px; margin: 0 auto; padding: 20px; font-family: sans-serif; color: #333;">
+            <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">${escapeHtml(story.title)}</h1>
+            ${imageUrl ? `<img src="${imageUrl}" alt="${escapeHtml(story.title)}" style="width: 100%; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />` : ''}
+            <div style="line-height: 1.6; font-size: 16px;">
+              ${(story.content || '').split('\n\n').map(p => '<p style="margin-bottom: 15px;">' + escapeHtml(p.replace(/^###\s*/, '')) + '</p>').join('')}
+            </div>
+            <p style="text-align: center; margin-top: 40px; color: #888; font-size: 12px;">ଅଧିକ ପଢିବାକୁ ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ... Loading interactive features...</p>
+          </div>
+        </div>
+      `;
+      finalHtml = finalHtml.replace(/<div id="root"[^>]*>.*?<\/div>/, storyHtml);
       
-      
-      // Write to each target directory
       outputDirs.forEach((outDir) => {
         try {
           if (!fs.existsSync(outDir)) {
