@@ -51,6 +51,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
   const [stories, setStories] = useState<SpiritualStory[]>([]);
   const [editingStory, setEditingStory] = useState<Partial<SpiritualStory> | null>(null);
   const [savingStory, setSavingStory] = useState(false);
+  const [syncingOgMeta, setSyncingOgMeta] = useState(false);
   const [storyMsg, setStoryMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
@@ -101,11 +102,35 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
       await saveSpiritualStory(editingStory);
       setEditingStory(null);
       setStoryMsg({ text: '✅ ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ ସଫଳତାର ସହ ସଂରକ୍ଷଣ ହେଲା (Story saved)!', type: 'success' });
+      // Trigger server-side social metadata synchronization
+      fetch('/api/sync-og-meta', { method: 'POST' }).catch(() => {});
       setTimeout(() => setStoryMsg(null), 4000);
     } catch (err) {
       setStoryMsg({ text: '❌ କାହାଣୀ ସଂରକ୍ଷଣରେ ତ୍ରୁଟି ଘଟିଲା।', type: 'error' });
     } finally {
       setSavingStory(false);
+    }
+  };
+
+  const handleSyncOgMeta = async () => {
+    setSyncingOgMeta(true);
+    setStoryMsg(null);
+    try {
+      const res = await fetch('/api/sync-og-meta', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setStoryMsg({
+          text: `⚡ ସୋସିଆଲ୍ ଶେୟାର୍ ମେଟା ସିଙ୍କ୍ ସଫଳ (${data.count || stories.length} ଟି ପୋଷ୍ଟ Facebook/WhatsApp ପାଇଁ ଅପଡେଟ୍ ହେଲା)!`,
+          type: 'success',
+        });
+        setTimeout(() => setStoryMsg(null), 5000);
+      } else {
+        setStoryMsg({ text: '❌ ସିଙ୍କ୍ ବିଫଳ: ' + (data.message || 'Error'), type: 'error' });
+      }
+    } catch (err) {
+      setStoryMsg({ text: '❌ ସିଙ୍କ୍ ବିଫଳ ହେଲା।', type: 'error' });
+    } finally {
+      setSyncingOgMeta(false);
     }
   };
 
@@ -940,7 +965,18 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
               </div>
             </form>
           ) : (
-            <div className="flex justify-end">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleSyncOgMeta}
+                disabled={syncingOgMeta}
+                className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold rounded-2xl text-xs flex items-center gap-2 border border-amber-300 shadow-xs cursor-pointer disabled:opacity-50 transition"
+                title="Force update all story cards for Facebook, WhatsApp & Twitter previews"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-amber-800 ${syncingOgMeta ? 'animate-spin' : ''}`} />
+                <span>{syncingOgMeta ? 'ସିଙ୍କ୍ ହେଉଛି...' : '⚡ ସୋସିଆଲ୍ ଶେୟାର୍ ମେଟା ସିଙ୍କ୍ (Sync Social Meta)'}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() =>

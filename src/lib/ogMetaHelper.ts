@@ -185,6 +185,7 @@ export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) =
   setOrCreateMeta('name', 'description', metaDescription);
 
   // 2. Open Graph Tags (Required 5 Properties)
+  setOrCreateMeta('property', 'fb:app_id', '1082236902872');
   setOrCreateMeta('property', 'og:title', metaTitle);
   setOrCreateMeta('property', 'og:description', metaDescription);
   setOrCreateMeta('property', 'og:image', imageUrl);

@@ -9,6 +9,7 @@ import { DEFAULT_DISTRICT_ITEMS } from './src/data/defaultDistrictItems';
 import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, SpiritualStory, DistrictItem, ODISHA_DISTRICTS } from './src/types';
 import { uploadToS3, createPresignedUploadUrl, getAwsConfig } from './server/s3';
 import { isBotRequest, proxyToPrerender, PRERENDER_TOKEN } from './server/prerender';
+import { syncAllStoriesFromFirestore, getStoryById, cacheStory, updatePostsJson } from './server/firebaseSync';
 
 const app = express();
 const PORT = 3000;
@@ -696,29 +697,33 @@ app.get('/api/stories', (req, res) => {
   res.json({ success: true, stories: db.stories || [] });
 });
 
+// Manual / Automated OpenGraph & Posts sync endpoint
+app.all(['/api/sync-og-meta', '/api/sync-stories'], async (req, res) => {
+  try {
+    const stories = await syncAllStoriesFromFirestore();
+    if (stories && stories.length > 0) {
+      db.stories = stories;
+      saveDb(db);
+    }
+    res.json({ success: true, message: `Successfully synchronized ${stories.length} stories for social sharing`, count: stories.length });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Sync failed', error: String(err) });
+  }
+});
+
 app.post('/api/stories', (req, res) => {
   const { story, stories } = req.body;
   if (!db.stories) db.stories = [];
   if (Array.isArray(stories)) {
     db.stories = stories;
     saveDb(db);
-    // Sync to posts.json for static and dynamic scrapers
-    try {
-      const postsJsonPath = path.join(process.cwd(), 'posts.json');
-      const postsData = fs.existsSync(postsJsonPath) ? JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8')) : {};
-      stories.forEach((s: SpiritualStory) => {
-        if (s && s.id) {
-          postsData[`/story/${s.id}`] = {
-            title: s.title || '',
-            description: (s.summary || s.content || '').slice(0, 160),
-            image: s.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg',
-          };
-        }
-      });
-      fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
-    } catch (e) {
-      console.warn('Error syncing posts.json:', e);
-    }
+    // Sync to memory and posts.json for static and dynamic scrapers
+    stories.forEach((s: SpiritualStory) => {
+      if (s && s.id) {
+        cacheStory(s);
+        updatePostsJson(s);
+      }
+    });
     return res.json({ success: true, stories: db.stories });
   }
   if (story && story.id) {
@@ -729,19 +734,8 @@ app.post('/api/stories', (req, res) => {
       db.stories.unshift(story);
     }
     saveDb(db);
-    // Sync to posts.json
-    try {
-      const postsJsonPath = path.join(process.cwd(), 'posts.json');
-      const postsData = fs.existsSync(postsJsonPath) ? JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8')) : {};
-      postsData[`/story/${story.id}`] = {
-        title: story.title || '',
-        description: (story.summary || story.content || '').slice(0, 160),
-        image: story.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg',
-      };
-      fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
-    } catch (e) {
-      console.warn('Error syncing posts.json:', e);
-    }
+    cacheStory(story);
+    updatePostsJson(story);
     return res.json({ success: true, story, stories: db.stories });
   }
   res.json({ success: false, message: 'Invalid story payload' });
@@ -757,6 +751,7 @@ app.delete('/api/stories/:id', (req, res) => {
       if (fs.existsSync(postsJsonPath)) {
         const postsData = JSON.parse(fs.readFileSync(postsJsonPath, 'utf-8'));
         delete postsData[`/story/${id}`];
+        delete postsData[id];
         fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
       }
     } catch {}
@@ -982,7 +977,7 @@ app.all('/api/*', (req, res) => {
 export { app };
 
 // Helper to generate dynamic OpenGraph & Twitter tags for social media scrapers
-function injectDynamicOgTags(html: string, req: express.Request): string {
+async function injectDynamicOgTags(html: string, req: express.Request): Promise<string> {
   try {
     const currentDb = loadDb();
     const url = req.originalUrl || req.url;
@@ -997,7 +992,7 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     let description = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ, ଓଡ଼ିଶାର ୩୦ ଜିଲ୍ଲା ଦର୍ଶନ ଏବଂ ଆଧ୍ୟାତ୍ମିକ ଭିଡିଓ।';
     const DEFAULT_BRAND_IMAGE = `${origin}/brand-banner.svg`;
     let imageUrl = DEFAULT_BRAND_IMAGE;
-    let canonicalUrl = `${origin}${url}`;
+    let canonicalUrl = `${origin}${pathname}`;
     let ogType = 'website';
 
     // 0. Direct URL query overrides (takes precedence if explicitly supplied in share link)
@@ -1047,10 +1042,23 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
       console.warn('Could not read posts.json:', postsErr);
     }
 
-    // Check database stories if not fully resolved from posts.json
+    // Check database stories or live Firestore if not fully resolved from posts.json
     if (storyId) {
       const allStories = currentDb.stories || [];
-      const story = allStories.find((s) => s.id === storyId || s.id === decodeURIComponent(storyId) || (s.id && s.id.toLowerCase() === storyId.toLowerCase()));
+      let story = allStories.find((s) => s.id === storyId || s.id === decodeURIComponent(storyId) || (s.id && s.id.toLowerCase() === storyId.toLowerCase()));
+      
+      // If not found in local DB/posts.json, perform fast live Firestore lookup
+      if (!story && !foundPostInJson) {
+        try {
+          const liveStory = await getStoryById(storyId);
+          if (liveStory) {
+            story = liveStory;
+          }
+        } catch (liveErr) {
+          console.warn('[Live Story Lookup Error]:', liveErr);
+        }
+      }
+
       if (story) {
         title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
         const rawDesc = story.summary || story.content || description;
@@ -1143,6 +1151,7 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
     <title>${title}</title>
     <meta name="description" content="${description}" />
     <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="fb:app_id" content="1082236902872" />
     <meta property="og:site_name" content="Bhakti Ananda Odia TV & Puja Samagri Portal" />
     <meta property="og:type" content="${ogType}" />
     <meta property="og:title" content="${title}" />
@@ -1175,9 +1184,31 @@ function injectDynamicOgTags(html: string, req: express.Request): string {
 // VITE MIDDLEWARE & SERVER START
 // ----------------------------------------------------
 async function startServer() {
+  // Initial sync from Firestore on startup
+  try {
+    const initialSyncedStories = await syncAllStoriesFromFirestore();
+    if (initialSyncedStories.length > 0) {
+      db.stories = initialSyncedStories;
+      saveDb(db);
+    }
+  } catch (syncErr) {
+    console.warn('[Startup Story Sync Error]:', syncErr);
+  }
+
+  // Periodic background synchronization every 30 seconds
+  setInterval(async () => {
+    try {
+      const refreshed = await syncAllStoriesFromFirestore();
+      if (refreshed.length > 0) {
+        db.stories = refreshed;
+        saveDb(db);
+      }
+    } catch {}
+  }, 30000);
+
   // 1. Direct Static Meta Tag Injection for Social Crawlers (Facebook, WhatsApp, Twitter/X, Telegram, etc.)
   // Web crawlers receive the pre-injected raw HTML immediately without client-side JS dependency
-  app.use((req, res, next) => {
+  app.use(async (req, res, next) => {
     if (isBotRequest(req)) {
       try {
         const isProd = process.env.NODE_ENV === 'production';
@@ -1187,7 +1218,7 @@ async function startServer() {
 
         if (fs.existsSync(htmlFilePath)) {
           const rawTemplate = fs.readFileSync(htmlFilePath, 'utf-8');
-          const injectedHtml = injectDynamicOgTags(rawTemplate, req);
+          const injectedHtml = await injectDynamicOgTags(rawTemplate, req);
           const userAgent = req.headers['user-agent'] || 'Bot';
           console.log(`[Static OG Injector] 🤖 Served static meta tags to bot (${userAgent.slice(0, 45)}...): ${req.originalUrl || req.url}`);
           return res.status(200).set({
@@ -1225,7 +1256,7 @@ async function startServer() {
           const indexHtmlPath = path.join(process.cwd(), 'index.html');
           let template = fs.readFileSync(indexHtmlPath, 'utf-8');
           template = await vite.transformIndexHtml(url, template);
-          const finalHtml = injectDynamicOgTags(template, req);
+          const finalHtml = await injectDynamicOgTags(template, req);
           return res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
         } catch (e) {
           vite.ssrFixStacktrace(e as Error);
@@ -1240,12 +1271,12 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath, { index: false }));
-    app.get('*', (req, res) => {
+    app.get('*', async (req, res) => {
       try {
         const indexHtmlPath = path.join(distPath, 'index.html');
         if (fs.existsSync(indexHtmlPath)) {
           const rawHtml = fs.readFileSync(indexHtmlPath, 'utf-8');
-          const finalHtml = injectDynamicOgTags(rawHtml, req);
+          const finalHtml = await injectDynamicOgTags(rawHtml, req);
           return res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
         }
         res.sendFile(indexHtmlPath);
