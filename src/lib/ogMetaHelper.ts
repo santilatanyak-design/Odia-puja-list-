@@ -6,7 +6,7 @@ import { Temple, DistrictItem, SpiritualStory, StoreProduct, UnifiedFeedItem } f
  * Ensures Facebook, WhatsApp, Twitter link previews strictly show the official brand logo if no post image exists.
  */
 export const OFFICIAL_BRAND_LOGO_URL =
-  'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
+  'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
 
 /**
  * Resolves any image URL to a valid, secure absolute URL.
