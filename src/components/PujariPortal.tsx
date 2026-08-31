@@ -191,9 +191,9 @@ export const PujariPortal: React.FC<PujariPortalProps> = ({
   const [complaintError, setComplaintError] = useState('');
 
   // EmailJS Credentials (Can be passed via env vars or configured directly)
-  const EMAILJS_SERVICE_ID = (import.meta as any).env?.VITE_EMAILJS_SERVICE_ID || 'service_pujasamagri';
-  const EMAILJS_TEMPLATE_ID = (import.meta as any).env?.VITE_EMAILJS_TEMPLATE_ID || 'template_complaint';
-  const EMAILJS_PUBLIC_KEY = (import.meta as any).env?.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
+  const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_pujasamagri';
+  const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_complaint';
+  const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
 
   const handleSendComplaint = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,5 +1,5 @@
-import 'core-js/stable';
-import 'whatwg-fetch';
+
+
 
 /**
  * Universal Backward Compatibility & Polyfill Layer

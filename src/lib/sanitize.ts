@@ -73,7 +73,7 @@ export const GENERIC_ODIA_ERROR_MESSAGE = 'କିଛି ସମସ୍ୟା ଦ�
  * Utility function to format unknown catch errors safely
  */
 export function getSafeErrorMessage(error: unknown, fallbackMessage: string = GENERIC_ODIA_ERROR_MESSAGE): string {
-  if (Boolean((import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV)) {
+  if (Boolean(import.meta.env.DEV)) {
     console.error('[Internal System Error]:', error);
   } else {
     console.error('[System Failure Logged]');

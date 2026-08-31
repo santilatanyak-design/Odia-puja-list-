@@ -21,7 +21,7 @@ export interface S3UploadResponse {
  * Retrieves AWS S3 Credentials and Bucket info from build/runtime environment or localStorage
  */
 export function getClientAwsConfig() {
-  const env = (typeof import.meta !== 'undefined' && (import.meta as any).env) || {};
+  const env = import.meta.env || {};
   const globalEnv = (typeof window !== 'undefined' && (window as any).__AWS_ENV__) || {};
   let localKeys: any = {};
   if (typeof window !== 'undefined' && window.localStorage) {
