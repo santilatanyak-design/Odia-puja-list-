@@ -156,9 +156,42 @@ function isDummyStory(s: SpiritualStory): boolean {
   );
 }
 
-function sanitizeStoryList(stories: SpiritualStory[]): SpiritualStory[] {
+export function normalizeStory(item: any): SpiritualStory | null {
+  if (!item) return null;
+  const rawId = String(item.id || item.storyId || '');
+  const cleanId = rawId.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+  if (!cleanId) return null;
+
+  const contentText = item.content || item.description || item.summary || item.excerpt || 'ପବିତ୍ର ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ...';
+  const summaryText = item.summary || item.description || (contentText ? contentText.slice(0, 150) + '...' : '');
+
+  return {
+    id: cleanId,
+    title: item.title || 'ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ',
+    summary: summaryText,
+    content: contentText,
+    imageUrl: item.imageUrl || item.image || item.photoUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg',
+    author: item.author || 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV',
+    category: item.category || 'ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ',
+    readTimeMinutes: Number(item.readTimeMinutes) || 3,
+    publishedAt: item.publishedAt || item.createdAt || new Date().toISOString().split('T')[0],
+    likesCount: Number(item.likesCount) || 12,
+    affiliateAd: item.affiliateAd || undefined,
+  };
+}
+
+function sanitizeStoryList(stories: any[]): SpiritualStory[] {
   if (!Array.isArray(stories)) return [];
-  return stories.filter((s) => !isDummyStory(s));
+  const map = new Map<string, SpiritualStory>();
+  stories.forEach((s) => {
+    if (s && !isDummyStory(s)) {
+      const normalized = normalizeStory(s);
+      if (normalized && normalized.id && !map.has(normalized.id)) {
+        map.set(normalized.id, normalized);
+      }
+    }
+  });
+  return Array.from(map.values());
 }
 
 export async function getSpiritualStories(): Promise<SpiritualStory[]> {
@@ -166,10 +199,12 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
     const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         const clean = sanitizeStoryList(parsed);
-        localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(clean));
-        return clean;
+        if (clean.length > 0) {
+          localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(clean));
+          return clean;
+        }
       }
     }
   } catch (err) {
@@ -179,7 +214,7 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
   try {
     const snap = await getDocs(collection(db, 'spiritual_stories'));
     if (!snap.empty) {
-      const allDocs = snap.docs.map((d) => d.data() as SpiritualStory);
+      const allDocs = snap.docs.map((d) => d.data());
       const clean = sanitizeStoryList(allDocs);
       // Clean up legacy dummy docs from Firestore
       for (const d of snap.docs) {
@@ -189,28 +224,36 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
       }
       localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(clean));
       return clean;
-    } else {
-      localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify([]));
-      return [];
     }
   } catch (err) {
     console.warn('Firestore stories error, bypassing:', err);
-    try {
-      const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
-      if (raw) return sanitizeStoryList(JSON.parse(raw));
-    } catch {}
-    
-    // Also try fetch from posts.json
-    try {
-      const res = await fetch('/posts.json');
-      if (res.ok) {
-        const posts = await res.json();
-        const arr = Object.values(posts);
-        return sanitizeStoryList(arr);
-      }
-    } catch {}
-    return [];
   }
+
+  // Fallback to local storage if available
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const clean = sanitizeStoryList(parsed);
+      if (clean.length > 0) return clean;
+    }
+  } catch {}
+
+  // Fallback to fetch /posts.json
+  try {
+    const res = await fetch('/posts.json');
+    if (res.ok) {
+      const posts = await res.json();
+      const arr = Object.values(posts);
+      const clean = sanitizeStoryList(arr);
+      if (clean.length > 0) {
+        localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(clean));
+        return clean;
+      }
+    }
+  } catch {}
+
+  return [];
 }
 
 export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) => void): () => void {
@@ -221,7 +264,7 @@ export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) 
       collection(db, 'spiritual_stories'),
       (snap) => {
         if (!snap.empty) {
-          const stories = sanitizeStoryList(snap.docs.map((d) => d.data() as SpiritualStory));
+          const stories = sanitizeStoryList(snap.docs.map((d) => d.data()));
           localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(stories));
           if (stories.length > 0) {
             try {
@@ -234,21 +277,45 @@ export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) 
           }
           callback(stories);
         } else {
-          localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify([]));
-          callback([]);
+          // If Firestore is empty, try posts.json fallback
+          fetch('/posts.json')
+            .then((r) => r.json())
+            .then((posts) => {
+              const clean = sanitizeStoryList(Object.values(posts));
+              callback(clean);
+            })
+            .catch(() => callback([]));
         }
       },
       (err) => {
-        console.warn('Stories subscription warning:', err);
-        // Fallback to local
+        console.warn('Stories subscription warning, trying posts.json fallback:', err);
+        // Fallback to local or posts.json
         try {
-           const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
-           if (raw) callback(JSON.parse(raw));
+          const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
+          if (raw) {
+            const clean = sanitizeStoryList(JSON.parse(raw));
+            if (clean.length > 0) {
+              callback(clean);
+              return;
+            }
+          }
         } catch {}
+
+        fetch('/posts.json')
+          .then((r) => r.json())
+          .then((posts) => {
+            const clean = sanitizeStoryList(Object.values(posts));
+            callback(clean);
+          })
+          .catch(() => callback([]));
       }
     );
   } catch (err) {
     console.warn('Stories listener setup error:', err);
+    fetch('/posts.json')
+      .then((r) => r.json())
+      .then((posts) => callback(sanitizeStoryList(Object.values(posts))))
+      .catch(() => callback([]));
     return () => {};
   }
 }

@@ -86,7 +86,8 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
       const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
       const description = story.description || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।';
       
-      const rawImg = story.imageUrl || story.image || DEFAULT_BRAND_LOGO;
+      const DEFAULT_BRAND_LOGO = 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
+      const rawImg = (story as any).imageUrl || (story as any).image || DEFAULT_BRAND_LOGO;
       const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
   
       const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}.html`;
@@ -126,6 +127,9 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
     <meta name="twitter:description" content="${escapeHtml(description)}" />
     <meta name="twitter:image" content="${imageUrl}" />
     <meta name="twitter:image:src" content="${imageUrl}" />
+    <script>
+      window.__PRELOADED_STATE__ = { viewMode: 'blog', storyId: "${escapeHtml(storyId)}" };
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -155,7 +159,7 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
             <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 15px;">${escapeHtml(story.title)}</h1>
             ${imageUrl ? `<img src="${imageUrl}" alt="${escapeHtml(story.title)}" style="width: 100%; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />` : ''}
             <div style="line-height: 1.6; font-size: 16px;">
-              ${(story.content || '').split('\n\n').map(p => '<p style="margin-bottom: 15px;">' + escapeHtml(p.replace(/^###\s*/, '')) + '</p>').join('')}
+              ${((story as any).content || story.description || '').split('\n\n').map((p: string) => '<p style="margin-bottom: 15px;">' + escapeHtml(p.replace(/^###\s*/, '')) + '</p>').join('')}
             </div>
             <p style="text-align: center; margin-top: 40px; color: #888; font-size: 12px;">ଅଧିକ ପଢିବାକୁ ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ... Loading interactive features...</p>
           </div>

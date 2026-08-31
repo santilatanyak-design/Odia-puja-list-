@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SpiritualStory, AffiliateProductAd } from '../types';
-import { subscribeSpiritualStories, likeSpiritualStory, DEFAULT_STORIES } from '../lib/contentApi';
+import { subscribeSpiritualStories, likeSpiritualStory, DEFAULT_STORIES, normalizeStory } from '../lib/contentApi';
 import { getDistrictItems } from '../lib/districtApi';
 import {
   updateStorySeoAndJsonLd,
@@ -126,26 +126,60 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
       if (!targetId) return;
 
+      const cleanTargetId = String(targetId)
+        .replace(/^(\/)?story\//i, '')
+        .replace(/\.html?$/i, '')
+        .replace(/\/$/, '')
+        .trim();
+
+      if (!cleanTargetId) return;
+
       // 1. Check in regular stories
-      const matched = stories.find((s) => s.id === targetId);
+      const matched = stories.find(
+        (s) => s.id === cleanTargetId || s.id === targetId || s.id.endsWith(cleanTargetId)
+      );
       if (matched) {
         setSelectedStory(matched);
         return;
       }
 
       // 2. Check in DEFAULT_STORIES fallback
-      const defaultMatch = DEFAULT_STORIES.find((s) => s.id === targetId);
+      const defaultMatch = DEFAULT_STORIES.find(
+        (s) => s.id === cleanTargetId || s.id === targetId
+      );
       if (defaultMatch) {
         setSelectedStory(defaultMatch);
         return;
       }
 
-      // 3. Check if district heritage / purana item
-      if (targetId.startsWith('district-') || targetId.length > 0) {
+      // 3. Check in posts.json directly for immediate resolution
+      try {
+        const res = await fetch('/posts.json');
+        if (res.ok) {
+          const posts = await res.json();
+          const rawItem =
+            posts[cleanTargetId] ||
+            posts[`/story/${cleanTargetId}`] ||
+            posts[`/story/${cleanTargetId}.html`] ||
+            posts[`story-${cleanTargetId}`];
+          if (rawItem) {
+            const normalized = normalizeStory(rawItem);
+            if (normalized) {
+              setSelectedStory(normalized);
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('posts.json lookup error:', err);
+      }
+
+      // 4. Check if district heritage / purana item
+      if (cleanTargetId.startsWith('district-') || cleanTargetId.length > 0) {
         try {
           const dItems = await getDistrictItems();
-          const rawId = targetId.replace('district-', '');
-          const dMatch = dItems.find((d) => d.id === rawId || `district-${d.id}` === targetId);
+          const rawId = cleanTargetId.replace('district-', '');
+          const dMatch = dItems.find((d) => d.id === rawId || `district-${d.id}` === cleanTargetId);
           if (dMatch) {
             const isPurana = dMatch.category === 'story' || dMatch.districtNameOdia.includes('ପୁରାଣ');
             setSelectedStory({
@@ -547,7 +581,8 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               let triggerRenderedInBody = false;
               const triggerWord = activeAd?.adTriggerText;
 
-              return selectedStory.content.split('\n\n').map((para, idx) => {
+              const bodyText = selectedStory.content || selectedStory.summary || 'ପବିତ୍ର ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ...';
+              return bodyText.split('\n\n').map((para, idx) => {
                 const trimmed = para.trim();
                 if (trimmed.startsWith('### ')) {
                   return (
