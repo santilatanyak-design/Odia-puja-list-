@@ -257,26 +257,15 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
 };
 
 /**
- * Generates an infallible direct canonical share URL for any story with query param fallback.
- * This guarantees 100% correct photo and title in Facebook, WhatsApp, and social scrapers for any newly posted content.
+ * Generates clean, short, professional canonical share URL for any story.
+ * Guaranteed to work smoothly with Facebook, WhatsApp, and all social platforms without long ugly parameters.
  */
 export const getStoryShareUrl = (story: SpiritualStory): string => {
   const origin = typeof window !== 'undefined' && window.location.origin
     ? window.location.origin
     : 'https://www.bhaktianandaodiatvofficial.blog';
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
-  
-  const rawImg = (story.imageUrl || '').trim();
-  const rawTitle = (story.title || '').trim();
-  const rawDesc = (story.summary || story.content || '').slice(0, 140).trim();
-
-  const params = new URLSearchParams();
-  if (rawImg) params.set('og_image', rawImg);
-  if (rawTitle) params.set('og_title', rawTitle);
-  if (rawDesc) params.set('og_desc', rawDesc);
-
-  const qs = params.toString();
-  return `${origin}/story/${encodeURIComponent(cleanId)}.html${qs ? `?${qs}` : ''}`;
+  return `${origin}/story/${encodeURIComponent(cleanId)}.html`;
 };
 
 /**
@@ -594,12 +583,17 @@ export const openFacebookDebugger = (url: string) => {
 /**
  * Directly opens Facebook Share Dialog for a URL
  */
-export const openFacebookShare = (url: string, quote?: string) => {
-  let shareEndpoint = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-  if (quote) {
-    shareEndpoint += `&quote=${encodeURIComponent(quote)}`;
+export const openFacebookShare = (url: string, _quote?: string) => {
+  const cleanUrl = url.split('?')[0];
+  const shareEndpoint = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(cleanUrl)}`;
+  if (typeof window !== 'undefined') {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+    if (isMobile) {
+      window.location.href = shareEndpoint;
+    } else {
+      window.open(shareEndpoint, '_blank', 'noopener,noreferrer,width=650,height=550');
+    }
   }
-  window.open(shareEndpoint, '_blank', 'noopener,noreferrer,width=600,height=500');
 };
 
 /**
