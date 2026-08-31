@@ -132,7 +132,7 @@
 
         function resolveUrl(url) {
           if (!url || typeof url !== 'string' || !url.trim()) {
-            return DEFAULT_BRAND_LOGO;
+            return null;
           }
           var clean = url.trim();
           if (clean.indexOf('http://') === 0 || clean.indexOf('https://') === 0 || clean.indexOf('data:') === 0) return clean;
@@ -183,7 +183,11 @@
             setOrCreateMeta('property', 'og:url', window.location.origin);
           }
 
-          var finalImg = resolveUrl(customImg);
+          var existingOgEl = document.querySelector('meta[property="og:image"]');
+          var existingOgContent = existingOgEl ? existingOgEl.getAttribute('content') : '';
+
+          var resolvedCustom = resolveUrl(customImg);
+          var finalImg = resolvedCustom || existingOgContent || DEFAULT_BRAND_LOGO;
 
           if (customTitle) {
             document.title = customTitle;
@@ -196,21 +200,22 @@
             setOrCreateMeta('name', 'twitter:description', customDesc);
           }
 
-          // Force inject valid absolute og:image tags synchronously
-          setOrCreateMeta('property', 'og:image', finalImg);
-          setOrCreateMeta('property', 'og:image:secure_url', finalImg);
-          setOrCreateMeta('property', 'og:image:url', finalImg);
-          setOrCreateMeta('property', 'og:image:type', 'image/jpeg');
-          setOrCreateMeta('property', 'og:image:width', '1200');
-          setOrCreateMeta('property', 'og:image:height', '630');
-          setOrCreateMeta('name', 'twitter:image', finalImg);
-          setOrCreateMeta('name', 'twitter:image:src', finalImg);
-          setOrCreateMeta('name', 'image', finalImg);
-          setOrCreateMeta('itemprop', 'image', finalImg);
-          setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+          if (finalImg) {
+            var imgType = finalImg.indexOf('.png') !== -1 ? 'image/png' : finalImg.indexOf('.svg') !== -1 ? 'image/svg+xml' : 'image/jpeg';
+            setOrCreateMeta('property', 'og:image', finalImg);
+            setOrCreateMeta('property', 'og:image:secure_url', finalImg);
+            setOrCreateMeta('property', 'og:image:url', finalImg);
+            setOrCreateMeta('property', 'og:image:type', imgType);
+            setOrCreateMeta('property', 'og:image:width', '1200');
+            setOrCreateMeta('property', 'og:image:height', '630');
+            setOrCreateMeta('name', 'twitter:image', finalImg);
+            setOrCreateMeta('name', 'twitter:image:src', finalImg);
+            setOrCreateMeta('name', 'image', finalImg);
+            setOrCreateMeta('itemprop', 'image', finalImg);
+            setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+          }
         } catch(err) {
-          // Fallback to default brand logo
-          setOrCreateMeta('property', 'og:image', DEFAULT_BRAND_LOGO);
+          // Do not overwrite existing meta tags on error
         }
       })();
     </script>
