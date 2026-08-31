@@ -85,7 +85,10 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
       const storyId = story.id.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
       const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
       const description = story.description || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।';
-      const imageUrl = story.imageUrl.startsWith('http') ? story.imageUrl : `${DOMAIN}/${story.imageUrl.replace(/^\//, '')}`;
+      
+      const rawImg = story.imageUrl || story.image || DEFAULT_BRAND_LOGO;
+      const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
+  
       const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}.html`;
 
       let imageType = 'image/jpeg';
@@ -123,9 +126,20 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
     <meta name="twitter:description" content="${escapeHtml(description)}" />
     <meta name="twitter:image" content="${imageUrl}" />
     <meta name="twitter:image:src" content="${imageUrl}" />
-    <meta name="image" content="${imageUrl}" />
-    <meta itemprop="image" content="${imageUrl}" />
-      `;
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "headline": "${escapeHtml(story.title)}",
+      "image": ["${imageUrl}"],
+      "datePublished": "${new Date().toISOString()}",
+      "author": [{
+        "@type": "Person",
+        "name": "Bhakti Ananda Odia TV"
+      }]
+    }
+    </script>
+  `;
 
       let finalHtml = cleaned;
       if (finalHtml.includes('name="viewport"')) {
@@ -133,7 +147,8 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
       } else {
         finalHtml = finalHtml.replace('<head>', `<head>\n${metaTags}`);
       }
-
+      
+      
       // Write to each target directory
       outputDirs.forEach((outDir) => {
         try {

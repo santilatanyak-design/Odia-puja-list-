@@ -186,7 +186,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         updateStorySeoAndJsonLd(selectedStory);
 
         // Sync URL to exact canonical story URL
-        const targetUrl = `/story/${encodeURIComponent(selectedStory.id)}`;
+        const targetUrl = `/story/${encodeURIComponent(selectedStory.id)}.html`;
         if (
           window.location.pathname !== targetUrl &&
           window.location.search !== `?view=blog&storyId=${encodeURIComponent(selectedStory.id)}`

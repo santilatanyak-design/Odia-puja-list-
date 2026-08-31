@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getClientAwsConfig, triggerAmplifyRebuild } from './s3Upload';
+import { getClientAwsConfig } from './s3Upload';
 import type { SpiritualStory } from '../types';
 
 const DOMAIN = 'https://www.bhaktianandaodiatvofficial.blog';
@@ -14,15 +14,11 @@ function escapeHtml(str: string = ''): string {
     .replace(/'/g, '&#039;');
 }
 
-/**
- * Builds the complete standalone HTML document for any story
- * Contains exact Open Graph, Twitter, SEO meta tags and client SPA app shell.
- */
 export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
   const storyId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
-  const description = (story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।').slice(0, 200);
-  const rawImg = story.imageUrl || DEFAULT_BRAND_LOGO;
+  const description = (story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।').replace(/<[^>]*>?/gm, '').slice(0, 200);
+  const rawImg = story.imageUrl || story.image || DEFAULT_BRAND_LOGO;
   const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
   const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}.html`;
 
@@ -30,43 +26,6 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
   if (imageUrl.includes('.png')) imageType = 'image/png';
   else if (imageUrl.includes('.webp')) imageType = 'image/webp';
   else if (imageUrl.includes('.svg')) imageType = 'image/svg+xml';
-
-  let template = '';
-  try {
-    if (typeof window !== 'undefined') {
-      const res = await fetch(window.location.origin + '/');
-      if (res.ok) {
-        template = await res.text();
-      }
-    }
-  } catch (err) {
-    console.warn('Could not fetch index.html template from origin', err);
-  }
-
-  // Fallback template if fetch fails
-  if (!template) {
-    template = `<!doctype html>
-<html lang="or" class="h-full">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/brand-banner.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-    <title>Bhakti Ananda Odia TV</title>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-</html>`;
-  }
-
-  // Clean template of existing meta tags (same logic as generateStaticStories.ts)
-  let cleaned = template
-    .replace(/<meta\s+property=["']og:[^"']*["'][^>]*>/gi, '')
-    .replace(/<meta\s+name=["']twitter:[^"']*["'][^>]*>/gi, '')
-    .replace(/<meta\s+name=["']description["'][^>]*>/gi, '')
-    .replace(/<meta\s+property=["']fb:app_id["'][^>]*>/gi, '')
-    .replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '')
-    .replace(/<title>.*?<\/title>/gi, '');
 
   const metaTags = `
     <title>${escapeHtml(title)}</title>
@@ -89,8 +48,6 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
     <meta name="twitter:description" content="${escapeHtml(description)}" />
     <meta name="twitter:image" content="${imageUrl}" />
     <meta name="twitter:image:src" content="${imageUrl}" />
-    <meta name="image" content="${imageUrl}" />
-    <meta itemprop="image" content="${imageUrl}" />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -115,101 +72,100 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
     </script>
   `;
 
-  let finalHtml = cleaned;
+  let template = '';
+  try {
+    if (typeof window !== 'undefined') {
+      const res = await fetch(window.location.origin + '/');
+      if (res.ok) {
+        template = await res.text();
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch index.html template from origin', err);
+  }
+
+  if (!template || !template.includes('<head>')) {
+    template = `<!doctype html><html lang="or" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/brand-banner.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <title>Bhakti Ananda Odia TV</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>`;
+  }
+
+  let finalHtml = template
+    .replace(/<meta\s+property=["']og:[^"']*["'][^>]*>/gi, '')
+    .replace(/<meta\s+name=["']twitter:[^"']*["'][^>]*>/gi, '')
+    .replace(/<meta\s+name=["']description["'][^>]*>/gi, '')
+    .replace(/<meta\s+property=["']fb:app_id["'][^>]*>/gi, '')
+    .replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '')
+    .replace(/<title>.*?<\/title>/gi, '');
+
   if (finalHtml.includes('name="viewport"')) {
     finalHtml = finalHtml.replace(/(<meta\s+name=["']viewport["'][^>]*>)/i, `$1\n${metaTags}`);
   } else {
     finalHtml = finalHtml.replace('<head>', `<head>\n${metaTags}`);
   }
 
-  // Also remove the client-side pre-render script that might override these tags
   finalHtml = finalHtml.replace(/<!-- Synchronous Immediate Pre-Render OG Tag Injector.*?<\/script>/gis, '');
 
+  
   return finalHtml;
 }
 
-/**
- * Automatically uploads story static HTML directly to AWS S3
- * This guarantees that ANY newly published story gets instant, zero-delay preview on Facebook & WhatsApp!
- */
+const triggerAmplifyRebuild = async () => {};
+
 export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<boolean> {
   try {
     const awsConfig = getClientAwsConfig();
     const htmlContent = await buildStoryHtml(story);
-    const storyId = story.id;
+    const storyId = (story.id || '').replace(/^(\/)?story\//i, '');
 
-    // 1. If Direct AWS S3 Client SDK is configured, upload directly
+    console.log('[Auto S3 Story HTML] 🚀 Built HTML for:', storyId, '| Image URL:', story.imageUrl);
+
     if (awsConfig.isDirectReady) {
+      console.log('[Auto S3 Story HTML] Directly pushing to S3 bucket:', awsConfig.bucket);
       const s3Client = new S3Client({
         region: awsConfig.region,
         credentials: {
           accessKeyId: awsConfig.accessKeyId,
           secretAccessKey: awsConfig.secretAccessKey,
         },
-        maxAttempts: 2,
+        maxAttempts: 3,
       });
 
       const bodyBytes = new TextEncoder().encode(htmlContent);
-
       const uploadTasks = [
-        // 1. story/[id]/index.html
-        s3Client.send(
-          new PutObjectCommand({
-            Bucket: awsConfig.bucket,
-            Key: `story/${storyId}/index.html`,
-            Body: bodyBytes,
-            ContentType: 'text/html; charset=utf-8',
-            CacheControl: 'public, max-age=0, must-revalidate',
-          })
-        ),
-        // 2. story/[id]
-        s3Client.send(
-          new PutObjectCommand({
-            Bucket: awsConfig.bucket,
-            Key: `story/${storyId}`,
-            Body: bodyBytes,
-            ContentType: 'text/html; charset=utf-8',
-            CacheControl: 'public, max-age=0, must-revalidate',
-          })
-        ),
-        // 3. story/[id].html
-        s3Client.send(
-          new PutObjectCommand({
-            Bucket: awsConfig.bucket,
-            Key: `story/${storyId}.html`,
-            Body: bodyBytes,
-            ContentType: 'text/html; charset=utf-8',
-            CacheControl: 'public, max-age=0, must-revalidate',
-          })
-        ),
+        s3Client.send(new PutObjectCommand({ Bucket: awsConfig.bucket, Key: `story/${storyId}/index.html`, Body: bodyBytes, ContentType: 'text/html; charset=utf-8', CacheControl: 'public, max-age=0, must-revalidate' })),
+        s3Client.send(new PutObjectCommand({ Bucket: awsConfig.bucket, Key: `story/${storyId}`, Body: bodyBytes, ContentType: 'text/html; charset=utf-8', CacheControl: 'public, max-age=0, must-revalidate' })),
+        s3Client.send(new PutObjectCommand({ Bucket: awsConfig.bucket, Key: `story/${storyId}.html`, Body: bodyBytes, ContentType: 'text/html; charset=utf-8', CacheControl: 'public, max-age=0, must-revalidate' }))
       ];
-
-      await Promise.allSettled(uploadTasks);
-      console.log(`[Auto S3 Story HTML] 🚀 Successfully published story HTML to AWS S3: story/${storyId}`);
+      await Promise.all(uploadTasks);
+      console.log(`[Auto S3 Story HTML] ✅ Successfully pushed static HTML files for ${storyId}`);
+    } else {
+      console.warn('[Auto S3 Story HTML] ⚠️ AWS Keys missing on client! Facebook Share will NOT show original photo because S3 HTML upload is skipped.');
     }
 
-    // 2. Trigger Amplify build webhook if configured
-    triggerAmplifyRebuild().catch(() => {});
-
-    // 3. Also notify backend API (if running in fullstack)
     try {
-      fetch('/api/sync-story-html', {
+      await fetch('/api/sync-story-html', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ story, html: htmlContent }),
-      }).catch(() => {});
+      });
     } catch {}
 
     return true;
   } catch (err: any) {
-    console.warn('[Auto S3 Story HTML] Auto-publish warning:', err?.message || err);
+    console.error('[Auto S3 Story HTML] ❌ Error:', err?.message || err);
     return false;
   }
 }
 
-/**
- * Bulk uploads all given stories to S3 directly
- */
 export async function bulkPublishAllStoriesToS3(
   stories: SpiritualStory[],
   onProgress?: (done: number, total: number) => void
@@ -217,7 +173,6 @@ export async function bulkPublishAllStoriesToS3(
   let success = 0;
   let failed = 0;
   const total = stories.length;
-
   for (let i = 0; i < total; i++) {
     const s = stories[i];
     const ok = await autoPublishStoryHtmlToS3(s);
@@ -225,9 +180,5 @@ export async function bulkPublishAllStoriesToS3(
     else failed++;
     if (onProgress) onProgress(i + 1, total);
   }
-
-  // Trigger Amplify rebuild to refresh CDN
-  await triggerAmplifyRebuild();
-
   return { success, failed };
 }
