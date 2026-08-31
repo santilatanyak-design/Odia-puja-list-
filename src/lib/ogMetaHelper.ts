@@ -268,7 +268,7 @@ export const shareStoryNative = async (
   }
 
   const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
-  const shareUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
+  const shareUrl = `${origin}/story/${encodeURIComponent(story.id)}.html`;
   const shareTitle = `📖 ${story.title}`;
   const excerpt = story.summary || story.content ? `${(story.summary || story.content).slice(0, 100)}...` : '';
   const shareText = `📖 *${story.title}*\n${excerpt}\n\n👇 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପଢ଼ନ୍ତୁ:\n${shareUrl}`;
