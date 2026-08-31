@@ -764,6 +764,20 @@ app.delete('/api/stories/:id', (req, res) => {
   res.json({ success: true, message: 'Story deleted' });
 });
 
+app.post('/api/sync-story-html', async (req, res) => {
+  try {
+    const { story } = req.body;
+    if (story && story.id) {
+      cacheStory(story);
+      updatePostsJson(story);
+    }
+    generateStaticStoryPages().catch(() => {});
+    res.json({ success: true, message: 'Story HTML synchronization started' });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || String(err) });
+  }
+});
+
 // District Items Endpoints
 app.get('/api/district-items', (req, res) => {
   const { districtId } = req.query;

@@ -3,6 +3,7 @@ import { db, sanitizeFirestoreData } from './firebase';
 import { collection, doc, setDoc, getDocs, getDoc, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 import { getTemplesFromLocal } from './templeApi';
 import { getDistrictItems } from './districtApi';
+import { autoPublishStoryHtmlToS3 } from './publishStoryHtml';
 
 const LOCAL_STORAGE_PANCHANG = 'odisha_daily_panchang';
 const LOCAL_STORAGE_STORIES = 'odisha_spiritual_stories';
@@ -291,6 +292,13 @@ export async function saveSpiritualStory(story: Partial<SpiritualStory>): Promis
   } catch (err) {
     console.warn('Firestore save story error:', err);
   }
+
+  // Automatically publish static HTML directly to AWS S3 storage for instant social preview
+  try {
+    autoPublishStoryHtmlToS3(updatedStory).catch((s3Err) => {
+      console.warn('Auto S3 HTML publish background error:', s3Err);
+    });
+  } catch {}
 
   return updatedStory;
 }

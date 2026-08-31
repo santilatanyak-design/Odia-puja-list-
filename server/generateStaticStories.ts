@@ -3,6 +3,7 @@ import path from 'path';
 import { SpiritualStory } from '../src/types';
 import { serverFirestore, syncAllStoriesFromFirestore } from './firebaseSync';
 import { collection, getDocs } from 'firebase/firestore';
+import { uploadAllStoryHtmlToS3 } from './uploadStoriesToS3';
 
 const DOMAIN = 'https://www.bhaktianandaodiatvofficial.blog';
 const DEFAULT_IMAGE = `${DOMAIN}/brand-banner.svg`;
@@ -160,6 +161,13 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
         }
       });
     });
+
+    // Auto-upload all generated story HTML pages directly to AWS S3 if credentials exist
+    try {
+      await uploadAllStoryHtmlToS3();
+    } catch (s3Err) {
+      console.warn('[Static Page Generator] S3 upload error:', s3Err);
+    }
 
     console.log('[Static Page Generator] ✅ Static HTML story pages generated successfully!');
   } catch (err) {
