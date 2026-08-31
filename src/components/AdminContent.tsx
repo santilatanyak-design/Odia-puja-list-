@@ -26,8 +26,14 @@ import {
   Clock,
   Image,
   RefreshCw,
+  Share2,
+  Key,
+  Globe,
+  Settings,
 } from 'lucide-react';
 import { S3PhotoUploader } from './S3PhotoUploader';
+import { autoPublishStoryHtmlToS3, bulkPublishAllStoriesToS3 } from '../lib/publishStoryHtml';
+import { getClientAwsConfig, saveClientAwsConfig, triggerAmplifyRebuild } from '../lib/s3Upload';
 
 interface AdminContentProps {
   defaultSection?: 'panchang' | 'stories';
@@ -53,6 +59,11 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
   const [savingStory, setSavingStory] = useState(false);
   const [syncingOgMeta, setSyncingOgMeta] = useState(false);
   const [storyMsg, setStoryMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // AWS & Social Share Config State
+  const [showAwsSettings, setShowAwsSettings] = useState(false);
+  const [awsConfigState, setAwsConfigState] = useState(() => getClientAwsConfig());
+  const [savingAwsConfig, setSavingAwsConfig] = useState(false);
 
   useEffect(() => {
     const unsubPanchang = subscribeDailyPanchang((data) => {
@@ -99,12 +110,22 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
     setSavingStory(true);
     setStoryMsg(null);
     try {
-      await saveSpiritualStory(editingStory);
+      const savedStory = await saveSpiritualStory(editingStory);
       setEditingStory(null);
-      setStoryMsg({ text: '✅ ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ ସଫଳତାର ସହ ସଂରକ୍ଷଣ ହେଲା (Story saved)!', type: 'success' });
-      // Trigger server-side social metadata synchronization
-      fetch('/api/sync-og-meta', { method: 'POST' }).catch(() => {});
-      setTimeout(() => setStoryMsg(null), 4000);
+
+      // Instantly upload static HTML to AWS S3 so Facebook & WhatsApp get exact photo and title!
+      const storyToPublish = (savedStory as SpiritualStory) || {
+        ...editingStory,
+        id: editingStory.id || `story-${Date.now()}`,
+      } as SpiritualStory;
+
+      await autoPublishStoryHtmlToS3(storyToPublish);
+
+      setStoryMsg({
+        text: '✅ ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ ସଫଳତାର ସହ ସଂରକ୍ଷଣ ହେଲା ଏବଂ Facebook/WhatsApp ପାଇଁ ସ୍ୱୟଂକ୍ରିୟ ପବ୍ଲିଶ୍ ହେଲା!',
+        type: 'success',
+      });
+      setTimeout(() => setStoryMsg(null), 5000);
     } catch (err) {
       setStoryMsg({ text: '❌ କାହାଣୀ ସଂରକ୍ଷଣରେ ତ୍ରୁଟି ଘଟିଲା।', type: 'error' });
     } finally {
@@ -116,22 +137,29 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
     setSyncingOgMeta(true);
     setStoryMsg(null);
     try {
-      const res = await fetch('/api/sync-og-meta', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        setStoryMsg({
-          text: `⚡ ସୋସିଆଲ୍ ଶେୟାର୍ ମେଟା ସିଙ୍କ୍ ସଫଳ (${data.count || stories.length} ଟି ପୋଷ୍ଟ Facebook/WhatsApp ପାଇଁ ଅପଡେଟ୍ ହେଲା)!`,
-          type: 'success',
-        });
-        setTimeout(() => setStoryMsg(null), 5000);
-      } else {
-        setStoryMsg({ text: '❌ ସିଙ୍କ୍ ବିଫଳ: ' + (data.message || 'Error'), type: 'error' });
-      }
-    } catch (err) {
-      setStoryMsg({ text: '❌ ସିଙ୍କ୍ ବିଫଳ ହେଲା।', type: 'error' });
+      const result = await bulkPublishAllStoriesToS3(stories);
+      setStoryMsg({
+        text: `⚡ ସମସ୍ତ ${result.success} ଟି କାହାଣୀ AWS S3 ଓ Facebook/WhatsApp ପାଇଁ ସଫଳତାର ସହିତ ସିଙ୍କ୍ ହେଲା!`,
+        type: 'success',
+      });
+      setTimeout(() => setStoryMsg(null), 6000);
+    } catch (err: any) {
+      setStoryMsg({ text: '❌ ସିଙ୍କ୍ ବିଫଳ: ' + (err?.message || 'Error'), type: 'error' });
     } finally {
       setSyncingOgMeta(false);
     }
+  };
+
+  const handleSaveAwsConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingAwsConfig(true);
+    saveClientAwsConfig(awsConfigState);
+    setTimeout(() => {
+      setSavingAwsConfig(false);
+      setStoryMsg({ text: '✅ AWS S3 ଓ ସୋସିଆଲ୍ ଶେୟାର୍ ସେଟିଂସ୍ ସେଭ୍ ହୋଇଗଲା!', type: 'success' });
+      setShowAwsSettings(false);
+      setTimeout(() => setStoryMsg(null), 4000);
+    }, 400);
   };
 
   const handleDeleteStory = async (storyId: string) => {
@@ -510,6 +538,111 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
               {storyMsg.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
               <span>{storyMsg.text}</span>
             </div>
+          )}
+
+          {/* AWS S3 & Instant Social Share Configuration Drawer/Card */}
+          {showAwsSettings && (
+            <form
+              onSubmit={handleSaveAwsConfig}
+              className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-400 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4 animate-in fade-in"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-amber-200">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-amber-600 text-white rounded-xl shadow-xs">
+                    <Key className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-amber-950">
+                      ⚡ Facebook/WhatsApp ସୋସିଆଲ୍ ଶେୟାର୍ ଓ AWS S3 ସେଟିଂସ୍ (Social Preview & S3 Setup)
+                    </h3>
+                    <p className="text-xs text-amber-800 font-medium">
+                      ନୂଆ ପୋଷ୍ଟ ଶେୟାର କଲେ ଯେପରି ଡେମୋ ଫଟୋ ବଦଳରେ ପୋଷ୍ଟର ଅସଲ ଫଟୋ ଆସିବ, ସେଥିପାଇଁ AWS Keys ଏଠାରେ ସେଭ୍ କରନ୍ତୁ।
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAwsSettings(false)}
+                  className="px-3 py-1.5 bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold rounded-xl text-xs transition cursor-pointer"
+                >
+                  Close (ବନ୍ଦ କରନ୍ତୁ)
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-800">
+                    🔑 AWS Access Key ID
+                  </label>
+                  <input
+                    type="text"
+                    value={awsConfigState.accessKeyId}
+                    onChange={(e) => setAwsConfigState({ ...awsConfigState, accessKeyId: e.target.value })}
+                    placeholder="AKIAIOSFODNN7EXAMPLE"
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-800">
+                    🔒 AWS Secret Access Key
+                  </label>
+                  <input
+                    type="password"
+                    value={awsConfigState.secretAccessKey}
+                    onChange={(e) => setAwsConfigState({ ...awsConfigState, secretAccessKey: e.target.value })}
+                    placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-800">
+                    🪣 S3 Bucket Name
+                  </label>
+                  <input
+                    type="text"
+                    value={awsConfigState.bucket}
+                    onChange={(e) => setAwsConfigState({ ...awsConfigState, bucket: e.target.value })}
+                    placeholder="bhakti-ananda-photos"
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-800">
+                    🔗 Amplify Incoming Webhook URL (Optional for 100% CDN Sync)
+                  </label>
+                  <input
+                    type="text"
+                    value={awsConfigState.amplifyWebhookUrl}
+                    onChange={(e) => setAwsConfigState({ ...awsConfigState, amplifyWebhookUrl: e.target.value })}
+                    placeholder="https://webhooks.amplify.ap-south-1.amazonaws.com/prod/webhooks?..."
+                    className="w-full px-3 py-2 rounded-xl border border-amber-300 font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <div className="text-[11px] text-amber-900 font-semibold flex items-center gap-1.5">
+                  <span className={`w-2.5 h-2.5 rounded-full ${awsConfigState.isDirectReady ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                  <span>
+                    {awsConfigState.isDirectReady
+                      ? '✅ AWS S3 ସିଧାସଳଖ ସଂଯୁକ୍ତ (Direct S3 Connected)'
+                      : '⚠️ AWS Keys ଦିଅନ୍ତୁ ଯାହାଦ୍ୱାରା ନୂଆ ପୋଷ୍ଟ ସଙ୍ଗେ ସଙ୍ଗେ S3 କୁ ଅପଲୋଡ୍ ହେବ।'}
+                  </span>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={savingAwsConfig}
+                  className="px-6 py-2.5 bg-gradient-to-r from-amber-700 to-amber-900 text-white font-extrabold rounded-xl text-xs shadow-md flex items-center gap-2 hover:from-amber-800 hover:to-amber-950 cursor-pointer"
+                >
+                  <Save className="w-4 h-4 text-amber-300" />
+                  <span>{savingAwsConfig ? 'Saving...' : 'Save Settings (ସେଟିଂସ୍ ସେଭ୍ କରନ୍ତୁ)'}</span>
+                </button>
+              </div>
+            </form>
           )}
 
           {/* Add / Edit Story Form Modal/Section */}
@@ -966,16 +1099,31 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
             </form>
           ) : (
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={handleSyncOgMeta}
-                disabled={syncingOgMeta}
-                className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold rounded-2xl text-xs flex items-center gap-2 border border-amber-300 shadow-xs cursor-pointer disabled:opacity-50 transition"
-                title="Force update all story cards for Facebook, WhatsApp & Twitter previews"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 text-amber-800 ${syncingOgMeta ? 'animate-spin' : ''}`} />
-                <span>{syncingOgMeta ? 'ସିଙ୍କ୍ ହେଉଛି...' : '⚡ ସୋସିଆଲ୍ ଶେୟାର୍ ମେଟା ସିଙ୍କ୍ (Sync Social Meta)'}</span>
-              </button>
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleSyncOgMeta}
+                  disabled={syncingOgMeta}
+                  className="px-4 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold rounded-2xl text-xs flex items-center gap-2 border border-amber-300 shadow-xs cursor-pointer disabled:opacity-50 transition"
+                  title="Force update all story cards for Facebook, WhatsApp & Twitter previews"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-amber-800 ${syncingOgMeta ? 'animate-spin' : ''}`} />
+                  <span>{syncingOgMeta ? 'ସିଙ୍କ୍ ହେଉଛି...' : '⚡ ସୋସିଆଲ୍ ଶେୟାର୍ ମେଟା ସିଙ୍କ୍ (Sync S3 Meta)'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAwsSettings(!showAwsSettings)}
+                  className={`px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 border transition cursor-pointer ${
+                    showAwsSettings
+                      ? 'bg-amber-800 text-white border-amber-900 shadow-md'
+                      : 'bg-white hover:bg-amber-50 text-slate-800 border-amber-300 shadow-xs'
+                  }`}
+                >
+                  <Key className="w-3.5 h-3.5 text-amber-600" />
+                  <span>AWS S3 / Social Settings</span>
+                </button>
+              </div>
 
               <button
                 type="button"

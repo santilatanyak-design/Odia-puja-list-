@@ -18,11 +18,18 @@ export interface S3UploadResponse {
 }
 
 /**
- * Retrieves AWS S3 Credentials and Bucket info from build/runtime environment
+ * Retrieves AWS S3 Credentials and Bucket info from build/runtime environment or localStorage
  */
 export function getClientAwsConfig() {
   const env = (typeof import.meta !== 'undefined' && (import.meta as any).env) || {};
   const globalEnv = (typeof window !== 'undefined' && (window as any).__AWS_ENV__) || {};
+  let localKeys: any = {};
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const raw = localStorage.getItem('odia_aws_admin_config');
+      if (raw) localKeys = JSON.parse(raw);
+    } catch {}
+  }
 
   const accessKeyId = (
     env.MY_AWS_ACCESS_KEY_ID ||
@@ -30,6 +37,7 @@ export function getClientAwsConfig() {
     env.AWS_ACCESS_KEY_ID ||
     globalEnv.MY_AWS_ACCESS_KEY_ID ||
     globalEnv.AWS_ACCESS_KEY_ID ||
+    localKeys.accessKeyId ||
     ''
   ).trim();
 
@@ -39,6 +47,7 @@ export function getClientAwsConfig() {
     env.AWS_SECRET_ACCESS_KEY ||
     globalEnv.MY_AWS_SECRET_ACCESS_KEY ||
     globalEnv.AWS_SECRET_ACCESS_KEY ||
+    localKeys.secretAccessKey ||
     ''
   ).trim();
 
@@ -48,6 +57,7 @@ export function getClientAwsConfig() {
     env.AWS_REGION ||
     globalEnv.MY_AWS_REGION ||
     globalEnv.AWS_REGION ||
+    localKeys.region ||
     'ap-south-1'
   ).trim();
 
@@ -57,7 +67,14 @@ export function getClientAwsConfig() {
     env.AWS_S3_BUCKET_NAME ||
     globalEnv.MY_AWS_S3_BUCKET_NAME ||
     globalEnv.AWS_S3_BUCKET_NAME ||
+    localKeys.bucket ||
     'bhakti-ananda-photos'
+  ).trim();
+
+  const amplifyWebhookUrl = (
+    env.VITE_AMPLIFY_WEBHOOK_URL ||
+    localKeys.amplifyWebhookUrl ||
+    ''
   ).trim();
 
   return {
@@ -65,8 +82,54 @@ export function getClientAwsConfig() {
     secretAccessKey,
     region,
     bucket,
+    amplifyWebhookUrl,
     isDirectReady: Boolean(accessKeyId && secretAccessKey),
   };
+}
+
+export function saveClientAwsConfig(config: {
+  accessKeyId?: string;
+  secretAccessKey?: string;
+  region?: string;
+  bucket?: string;
+  amplifyWebhookUrl?: string;
+}) {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  const current = getClientAwsConfig();
+  const merged = {
+    accessKeyId: config.accessKeyId !== undefined ? config.accessKeyId : current.accessKeyId,
+    secretAccessKey: config.secretAccessKey !== undefined ? config.secretAccessKey : current.secretAccessKey,
+    region: config.region !== undefined ? config.region : current.region,
+    bucket: config.bucket !== undefined ? config.bucket : current.bucket,
+    amplifyWebhookUrl: config.amplifyWebhookUrl !== undefined ? config.amplifyWebhookUrl : current.amplifyWebhookUrl,
+  };
+  localStorage.setItem('odia_aws_admin_config', JSON.stringify(merged));
+}
+
+/**
+ * Triggers Amplify automated rebuild webhook to refresh all static pages across CDN
+ */
+export async function triggerAmplifyRebuild(customWebhookUrl?: string): Promise<boolean> {
+  const config = getClientAwsConfig();
+  const webhookUrl = (customWebhookUrl || config.amplifyWebhookUrl || '').trim();
+  if (!webhookUrl) return false;
+
+  try {
+    console.log('[Amplify Webhook] 🚀 Pinging Amplify incoming build webhook...');
+    await fetch(webhookUrl, {
+      method: 'POST',
+      mode: 'no-cors', // Amplify webhooks accept POST without CORS headers
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ trigger: 'admin_content_publish', timestamp: new Date().toISOString() }),
+    });
+    console.log('[Amplify Webhook] ✅ Webhook pinged successfully');
+    return true;
+  } catch (err) {
+    console.warn('[Amplify Webhook] Webhook ping notice:', err);
+    return false;
+  }
 }
 
 /**

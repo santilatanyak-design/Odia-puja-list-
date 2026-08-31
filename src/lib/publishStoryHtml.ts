@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getClientAwsConfig } from './s3Upload';
+import { getClientAwsConfig, triggerAmplifyRebuild } from './s3Upload';
 import type { SpiritualStory } from '../types';
 
 const DOMAIN = 'https://www.bhaktianandaodiatvofficial.blog';
@@ -173,7 +173,10 @@ export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<b
       console.log(`[Auto S3 Story HTML] 🚀 Successfully published story HTML to AWS S3: story/${storyId}`);
     }
 
-    // 2. Also notify backend API (if running in fullstack)
+    // 2. Trigger Amplify build webhook if configured
+    triggerAmplifyRebuild().catch(() => {});
+
+    // 3. Also notify backend API (if running in fullstack)
     try {
       fetch('/api/sync-story-html', {
         method: 'POST',
@@ -187,4 +190,29 @@ export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<b
     console.warn('[Auto S3 Story HTML] Auto-publish warning:', err?.message || err);
     return false;
   }
+}
+
+/**
+ * Bulk uploads all given stories to S3 directly
+ */
+export async function bulkPublishAllStoriesToS3(
+  stories: SpiritualStory[],
+  onProgress?: (done: number, total: number) => void
+): Promise<{ success: number; failed: number }> {
+  let success = 0;
+  let failed = 0;
+  const total = stories.length;
+
+  for (let i = 0; i < total; i++) {
+    const s = stories[i];
+    const ok = await autoPublishStoryHtmlToS3(s);
+    if (ok) success++;
+    else failed++;
+    if (onProgress) onProgress(i + 1, total);
+  }
+
+  // Trigger Amplify rebuild to refresh CDN
+  await triggerAmplifyRebuild();
+
+  return { success, failed };
 }
