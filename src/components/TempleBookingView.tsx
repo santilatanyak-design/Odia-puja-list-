@@ -387,8 +387,14 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {temples.map((temple, templeIdx) => (
+        {temples.length === 0 ? (
+          <div className="bg-white rounded-3xl p-8 text-center border-2 border-amber-200/80 shadow-xs space-y-2">
+            <p className="text-sm font-bold text-amber-950">ବର୍ତ୍ତମାନ କୌଣସି ମନ୍ଦିର ତାଲିକାଭୁକ୍ତ ହୋଇନାହିଁ (No temples currently listed)</p>
+            <p className="text-xs text-amber-800">ପ୍ରଶାସକଙ୍କ ଦ୍ୱାରା ନୂତନ ମନ୍ଦିର ଯୋଡ଼ାଗଲେ ଏଠାରେ ଦୃଶ୍ୟମାନ ହେବ।</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {temples.map((temple, templeIdx) => (
             <div
               key={temple.id}
               id={`temple-card-${temple.id}`}
@@ -533,7 +539,8 @@ export const TempleBookingView: React.FC<TempleBookingViewProps> = ({ userPhone 
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* MY SUBMITTED BOOKINGS LIST */}
