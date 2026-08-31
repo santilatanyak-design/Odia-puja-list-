@@ -10,6 +10,7 @@ import { Pujari, PujaList, PaymentRequest, QrConfig, PujaTemplate, Temple, Spiri
 import { uploadToS3, createPresignedUploadUrl, getAwsConfig } from './server/s3';
 import { isBotRequest, proxyToPrerender, PRERENDER_TOKEN } from './server/prerender';
 import { syncAllStoriesFromFirestore, getStoryById, cacheStory, updatePostsJson } from './server/firebaseSync';
+import { generateStaticStoryPages } from './server/generateStaticStories';
 
 const app = express();
 const PORT = 3000;
@@ -705,6 +706,8 @@ app.all(['/api/sync-og-meta', '/api/sync-stories'], async (req, res) => {
       db.stories = stories;
       saveDb(db);
     }
+    // Generate static story pages for static hosting (AWS S3 / CloudFront)
+    generateStaticStoryPages().catch(() => {});
     res.json({ success: true, message: `Successfully synchronized ${stories.length} stories for social sharing`, count: stories.length });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Sync failed', error: String(err) });
@@ -724,6 +727,7 @@ app.post('/api/stories', (req, res) => {
         updatePostsJson(s);
       }
     });
+    generateStaticStoryPages().catch(() => {});
     return res.json({ success: true, stories: db.stories });
   }
   if (story && story.id) {
@@ -736,6 +740,7 @@ app.post('/api/stories', (req, res) => {
     saveDb(db);
     cacheStory(story);
     updatePostsJson(story);
+    generateStaticStoryPages().catch(() => {});
     return res.json({ success: true, story, stories: db.stories });
   }
   res.json({ success: false, message: 'Invalid story payload' });
@@ -1151,7 +1156,6 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
     <title>${title}</title>
     <meta name="description" content="${description}" />
     <link rel="canonical" href="${canonicalUrl}" />
-    <meta property="fb:app_id" content="1082236902872" />
     <meta property="og:site_name" content="Bhakti Ananda Odia TV & Puja Samagri Portal" />
     <meta property="og:type" content="${ogType}" />
     <meta property="og:title" content="${title}" />
