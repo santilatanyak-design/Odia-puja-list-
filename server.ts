@@ -1083,7 +1083,7 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
           if (matchedPost.image && typeof matchedPost.image === 'string' && matchedPost.image.trim()) {
             imageUrl = matchedPost.image.trim();
           }
-          canonicalUrl = `${origin}/story/${encodeURIComponent(storyId || matchedPost.id || '')}`;
+          canonicalUrl = `${origin}/story/${encodeURIComponent(storyId || matchedPost.id || '')}.html`;
           ogType = 'article';
         }
       }
@@ -1125,7 +1125,7 @@ async function injectDynamicOgTags(html: string, req: express.Request): Promise<
         if (story.imageUrl && typeof story.imageUrl === 'string' && story.imageUrl.trim()) {
           imageUrl = story.imageUrl.trim();
         }
-        canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
+        canonicalUrl = `${origin}/story/${encodeURIComponent(story.id)}.html`;
         ogType = 'article';
       }
     }

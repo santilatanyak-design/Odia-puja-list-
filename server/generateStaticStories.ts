@@ -86,7 +86,7 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
       const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
       const description = story.description || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।';
       const imageUrl = story.imageUrl.startsWith('http') ? story.imageUrl : `${DOMAIN}/${story.imageUrl.replace(/^\//, '')}`;
-      const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}`;
+      const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}.html`;
 
       let imageType = 'image/jpeg';
       if (imageUrl.includes('.png')) imageType = 'image/png';

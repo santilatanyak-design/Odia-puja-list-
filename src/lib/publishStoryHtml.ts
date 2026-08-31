@@ -3,7 +3,7 @@ import { getClientAwsConfig, triggerAmplifyRebuild } from './s3Upload';
 import type { SpiritualStory } from '../types';
 
 const DOMAIN = 'https://www.bhaktianandaodiatvofficial.blog';
-const DEFAULT_BRAND_LOGO = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067389102_8acy9q.jpg';
+const DEFAULT_BRAND_LOGO = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176622987_4bud51.jpg';
 
 function escapeHtml(str: string = ''): string {
   return str
@@ -24,7 +24,7 @@ export function buildStoryHtml(story: SpiritualStory): string {
   const description = (story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।').slice(0, 200);
   const rawImg = story.imageUrl || DEFAULT_BRAND_LOGO;
   const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
-  const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}`;
+  const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}.html`;
 
   let imageType = 'image/jpeg';
   if (imageUrl.includes('.png')) imageType = 'image/png';

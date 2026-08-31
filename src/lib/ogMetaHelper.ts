@@ -6,7 +6,7 @@ import { Temple, DistrictItem, SpiritualStory, StoreProduct, UnifiedFeedItem } f
  * Ensures Facebook, WhatsApp, Twitter link previews strictly show the official brand logo if no post image exists.
  */
 export const OFFICIAL_BRAND_LOGO_URL =
-  'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067389102_8acy9q.jpg';
+  'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176622987_4bud51.jpg';
 
 /**
  * Resolves any image URL to a valid, secure absolute URL.
@@ -185,7 +185,6 @@ export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) =
   setOrCreateMeta('name', 'description', metaDescription);
 
   // 2. Open Graph Tags (Required 5 Properties)
-  setOrCreateMeta('property', 'fb:app_id', '1082236902872');
   setOrCreateMeta('property', 'og:title', metaTitle);
   setOrCreateMeta('property', 'og:description', metaDescription);
   setOrCreateMeta('property', 'og:image', imageUrl);
@@ -269,7 +268,7 @@ export const shareStoryNative = async (
 
   const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
-  const shareUrl = `${origin}/story/${encodeURIComponent(cleanId)}`;
+  const shareUrl = `${origin}/story/${encodeURIComponent(cleanId)}.html`;
   const shareTitle = `📖 ${story.title}`;
   const excerpt = story.summary || story.content ? `${(story.summary || story.content).slice(0, 100)}...` : '';
   const shareText = `📖 *${story.title}*\n${excerpt}\n\n👇 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପଢ଼ନ୍ତୁ:\n${shareUrl}`;
