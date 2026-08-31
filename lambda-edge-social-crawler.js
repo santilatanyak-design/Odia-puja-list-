@@ -44,6 +44,25 @@ const TEMPLE_METADATA = {
   }
 };
 
+// 2.5. Lookup dictionary for stories and articles
+const STORY_METADATA = {
+  'story-962286': {
+    title: '📖 ​ମା\' : ଯିଏ ନିଜେ ଉପାସ ରହି ପିଲାଙ୍କୁ ଖୁଆଏ, ଆଜି ସେ ବୃଦ୍ଧାଶ୍ରମରେ କାହିଁକି? | Bhakti Ananda Odia TV',
+    desc: 'ଯେଉଁ ଗର୍ଭରେ ଆମେ ୯ ମାସ ସବୁଠାରୁ ସୁରକ୍ଷିତ ଥିଲେ, ଆଜି ସେହି ମା\' ପାଇଁ ଆମର ବିଶାଳ କୋଠାରେ ଟିକିଏ ଜାଗା ନାହିଁ।',
+    image: 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067389102_8acy9q.jpg'
+  },
+  'story-529058': {
+    title: '📖 ବିବାହରେ ବିଳମ୍ବ ଦୂର କରିବା ଓ ଆଦର୍ଶ ଜୀବନସଙ୍ଗୀନୀ ପାଇବା ପାଇଁ ବିଶେଷ ଉପାୟ: | Bhakti Ananda Odia TV',
+    desc: 'ଆପଣଙ୍କ ବିବାହ ବିଳମ୍ବ ହେଉଛି କି? ବିବାହିତ ଜୀବନରେ ସଦା ତର୍କ ଓ ବିବାଦ ଦୂର କରିବାର ବିଶେଷ ଉପାୟ ପଢ଼ନ୍ତୁ।',
+    image: 'https://cdn.phototourl.com/free/2026-08-18-18fecda2-7349-45ca-90e8-0c39ce0a06a7.jpg'
+  },
+  'story-576843': {
+    title: '📖 ମା’ ଗୋଜ ବାୟାଣୀ - ଚମତ୍କାର ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ | Bhakti Ananda Odia TV',
+    desc: 'ମା’ ଗୋଜ ବାୟାଣୀଙ୍କ ଲୀଳା ଅନନ୍ତ - ଚମତ୍କାର କାହାଣୀ ପଢ଼ନ୍ତୁ।',
+    image: 'https://cdn.phototourl.com/free/2026-08-17-4f4e0173-30b0-460a-8cd7-e897762f0166.jpg'
+  }
+};
+
 // 3. Lookup dictionary for core app sections
 const SECTION_METADATA = {
   panchang: {
@@ -136,8 +155,16 @@ exports.handler = async (event) => {
   // Route: /story/:id or /blog/:id
   else if (uri.startsWith('/story/') || uri.startsWith('/blog/')) {
     const storySlug = uri.replace(/^\/(story|blog)\//, '').split('/')[0];
-    title = `📖 ଧାର୍ମିକ କଥା: ${decodeURIComponent(storySlug).replace(/-/g, ' ')} | Bhakti Ananda Odia TV`;
-    description = 'ପ୍ରଭୁ ଜଗନ୍ନାଥ ଓ ଓଡ଼ିଶାର ପ୍ରାମାଣିକ ପୌରାଣିକ ଆଧ୍ୟାତ୍ମିକ କଥା ପଢ଼ନ୍ତୁ।';
+    const cleanId = decodeURIComponent(storySlug);
+    if (STORY_METADATA[cleanId] || STORY_METADATA[`/story/${cleanId}`]) {
+      const match = STORY_METADATA[cleanId] || STORY_METADATA[`/story/${cleanId}`];
+      title = match.title;
+      description = match.desc || match.description;
+      imageUrl = match.image || match.imageUrl;
+    } else {
+      title = `📖 ଧାର୍ମିକ କଥା: ${cleanId.replace(/-/g, ' ')} | Bhakti Ananda Odia TV`;
+      description = 'ପ୍ରଭୁ ଜଗନ୍ନାଥ ଓ ଓଡ଼ିଶାର ପ୍ରାମାଣିକ ପୌରାଣିକ ଆଧ୍ୟାତ୍ମିକ କଥା ପଢ଼ନ୍ତୁ।';
+    }
   }
 
   // Route: /district/:districtId/:itemId
