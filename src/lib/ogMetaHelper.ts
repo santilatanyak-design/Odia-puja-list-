@@ -261,9 +261,7 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
  * Guaranteed to work smoothly with Facebook, WhatsApp, and all social platforms without long ugly parameters.
  */
 export const getStoryShareUrl = (story: SpiritualStory): string => {
-  const origin = typeof window !== 'undefined' && window.location.origin
-    ? window.location.origin
-    : 'https://www.bhaktianandaodiatvofficial.blog';
+  const origin = 'https://www.bhaktianandaodiatvofficial.blog';
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   return `${origin}/story/${encodeURIComponent(cleanId)}.html`;
 };

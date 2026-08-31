@@ -43,7 +43,7 @@ export const db = (() => {
     return initializeFirestore(
       app,
       {
-        experimentalAutoDetectLongPolling: true,
+        experimentalForceLongPolling: true,
       },
       customDbId
     );
@@ -407,7 +407,7 @@ export function fsSubscribePujaris(callback: (pujaris: Pujari[]) => void): Unsub
       const pujaris = snap.docs.map((d) => d.data() as Pujari);
       callback(pujaris);
     },
-    (err) => console.error('fsSubscribePujaris Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for Pujaris.'); callback([]); }
   );
 }
 
@@ -540,7 +540,7 @@ export function fsSubscribeLists(
       lists.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       callback(lists);
     },
-    (err) => console.error('fsSubscribeLists Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for Lists.'); callback([]); }
   );
 }
 
@@ -903,7 +903,7 @@ export function fsSubscribePayments(callback: (payments: PaymentRequest[]) => vo
       payments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       callback(payments);
     },
-    (err) => console.error('fsSubscribePayments Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for Payments.'); callback([]); }
   );
 }
 
@@ -1264,7 +1264,7 @@ export function fsSubscribeQrConfig(callback: (config: QrConfig) => void): Unsub
         callback(DEFAULT_QR_CONFIG);
       }
     },
-    (err) => console.error('fsSubscribeQrConfig Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for QrConfig.'); callback(DEFAULT_QR_CONFIG); }
   );
 }
 
@@ -1326,7 +1326,7 @@ export function fsSubscribeHomeSliderConfig(callback: (config: HomeSliderConfig)
         callback(DEFAULT_HOME_SLIDER_CONFIG);
       }
     },
-    (err) => console.error('fsSubscribeHomeSliderConfig Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for HomeSliderConfig.'); callback(DEFAULT_HOME_SLIDER_CONFIG); }
   );
 }
 
@@ -1392,7 +1392,7 @@ export function fsSubscribePuriStoreConfig(callback: (config: PuriStoreConfig) =
         callback(DEFAULT_PURI_STORE_CONFIG);
       }
     },
-    (err) => console.error('fsSubscribePuriStoreConfig Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for PuriStoreConfig.'); callback(DEFAULT_PURI_STORE_CONFIG); }
   );
 }
 
@@ -1725,6 +1725,7 @@ export function fsSubscribeSiteLock(callback: (isLocked: boolean) => void): () =
     );
   } catch (err) {
     console.warn('fsSubscribeSiteLock error:', err);
+    callback(false);
     return () => {};
   }
 }
@@ -1852,7 +1853,7 @@ export function fsSubscribePasswordResetRequests(
       requests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       callback(requests);
     },
-    (err) => console.error('fsSubscribePasswordResetRequests Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for PasswordResetRequests.'); callback([]); }
   );
 }
 
@@ -2011,7 +2012,7 @@ export function fsSubscribePwaInstalls(
       installs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
       callback(installs);
     },
-    (err) => console.error('fsSubscribePwaInstalls Error:', err)
+    (err) =>  { console.log('Firebase subscription bypassed for PwaInstalls.'); callback([]); }
   );
 }
 

@@ -18,7 +18,7 @@ function escapeHtml(str: string = ''): string {
  * Builds the complete standalone HTML document for any story
  * Contains exact Open Graph, Twitter, SEO meta tags and client SPA app shell.
  */
-export function buildStoryHtml(story: SpiritualStory): string {
+export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
   const storyId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const title = `📖 ${story.title} | Bhakti Ananda Odia TV`;
   const description = (story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।').slice(0, 200);
@@ -31,14 +31,44 @@ export function buildStoryHtml(story: SpiritualStory): string {
   else if (imageUrl.includes('.webp')) imageType = 'image/webp';
   else if (imageUrl.includes('.svg')) imageType = 'image/svg+xml';
 
-  return `<!doctype html>
+  let template = '';
+  try {
+    if (typeof window !== 'undefined') {
+      const res = await fetch(window.location.origin + '/');
+      if (res.ok) {
+        template = await res.text();
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch index.html template from origin', err);
+  }
+
+  // Fallback template if fetch fails
+  if (!template) {
+    template = `<!doctype html>
 <html lang="or" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/brand-banner.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-    <meta name="theme-color" content="#b45309" />
-    
+    <title>Bhakti Ananda Odia TV</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>`;
+  }
+
+  // Clean template of existing meta tags (same logic as generateStaticStories.ts)
+  let cleaned = template
+    .replace(/<meta\s+property=["']og:[^"']*["'][^>]*>/gi, '')
+    .replace(/<meta\s+name=["']twitter:[^"']*["'][^>]*>/gi, '')
+    .replace(/<meta\s+name=["']description["'][^>]*>/gi, '')
+    .replace(/<meta\s+property=["']fb:app_id["'][^>]*>/gi, '')
+    .replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '')
+    .replace(/<title>.*?<\/title>/gi, '');
+
+  const metaTags = `
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <link rel="canonical" href="${canonicalUrl}" />
@@ -61,12 +91,6 @@ export function buildStoryHtml(story: SpiritualStory): string {
     <meta name="twitter:image:src" content="${imageUrl}" />
     <meta name="image" content="${imageUrl}" />
     <meta itemprop="image" content="${imageUrl}" />
-
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Kalinga&family=Naveen+Odia&family=Anek+Odia:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-    
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -89,28 +113,19 @@ export function buildStoryHtml(story: SpiritualStory): string {
       "description": "${escapeHtml(description)}"
     }
     </script>
-    <script type="module" crossorigin src="/assets/index.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index.css">
-  </head>
-  <body class="h-full bg-slate-50 text-slate-900 font-sans antialiased selection:bg-amber-100 selection:text-amber-900">
-    <div id="root">
-      <noscript>
-        <div style="padding: 24px; font-family: sans-serif; max-width: 800px; margin: 0 auto;">
-          <h1>${escapeHtml(title)}</h1>
-          <img src="${imageUrl}" alt="${escapeHtml(title)}" style="max-width: 100%; border-radius: 8px;" />
-          <p style="margin-top: 16px; font-size: 18px; line-height: 1.6;">${escapeHtml(description)}</p>
-          <p><a href="/" style="color: #b45309; font-weight: bold;">ମୁଖ୍ୟ ପୃଷ୍ଠାକୁ ଯାଆନ୍ତୁ</a></p>
-        </div>
-      </noscript>
-    </div>
-    <script>
-      // Automatically redirect browser to story view if needed
-      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/story/') && !window.location.hash) {
-        window.history.replaceState(null, '', '/story/' + encodeURIComponent('${storyId}'));
-      }
-    </script>
-  </body>
-</html>`;
+  `;
+
+  let finalHtml = cleaned;
+  if (finalHtml.includes('name="viewport"')) {
+    finalHtml = finalHtml.replace(/(<meta\s+name=["']viewport["'][^>]*>)/i, `$1\n${metaTags}`);
+  } else {
+    finalHtml = finalHtml.replace('<head>', `<head>\n${metaTags}`);
+  }
+
+  // Also remove the client-side pre-render script that might override these tags
+  finalHtml = finalHtml.replace(/<!-- Synchronous Immediate Pre-Render OG Tag Injector.*?<\/script>/gis, '');
+
+  return finalHtml;
 }
 
 /**
@@ -120,7 +135,7 @@ export function buildStoryHtml(story: SpiritualStory): string {
 export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<boolean> {
   try {
     const awsConfig = getClientAwsConfig();
-    const htmlContent = buildStoryHtml(story);
+    const htmlContent = await buildStoryHtml(story);
     const storyId = story.id;
 
     // 1. If Direct AWS S3 Client SDK is configured, upload directly

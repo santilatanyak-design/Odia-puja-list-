@@ -41,7 +41,7 @@ export const serverFirestore = (() => {
     return initializeFirestore(
       firebaseServerApp,
       {
-        experimentalAutoDetectLongPolling: true,
+        experimentalForceLongPolling: true,
       },
       customDbId
     );
@@ -117,7 +117,7 @@ export async function syncAllStoriesFromFirestore(): Promise<SpiritualStory[]> {
       return stories;
     }
   } catch (err) {
-    console.warn('[Firebase Server Sync] Could not fetch all stories from Firestore:', err);
+    console.log('[Firebase Server Sync] Fetching bypassed (Quota or Offline). Using cache.');
   }
   return [];
 }
@@ -140,26 +140,62 @@ export async function getStoryById(storyId: string): Promise<SpiritualStory | nu
     return cachedStories.get(storyId.trim()) || null;
   }
 
-  // 2. Fetch directly from Firestore doc
+  // 2. Fetch directly from Firestore doc using REST API to prevent SDK hangs
   try {
-    const docRef = doc(serverFirestore, 'spiritual_stories', cleanId);
-    let snap = await getDoc(docRef);
-    if (!snap.exists()) {
-      const altId = cleanId.startsWith('story-') ? cleanId.replace('story-', '') : `story-${cleanId}`;
-      snap = await getDoc(doc(serverFirestore, 'spiritual_stories', altId));
+    const projectId = firebaseConfig.projectId || 'evident-quality-d40ks';
+    const databaseId = firebaseConfig.firestoreDatabaseId || '(default)';
+    
+    // We try the provided ID first, then fallback to "story-ID"
+    let docId = cleanId;
+    let url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/${databaseId}/documents/spiritual_stories/${docId}`;
+    
+    let res = await fetch(url);
+    if (!res.ok) {
+      docId = cleanId.startsWith('story-') ? cleanId.replace('story-', '') : `story-${cleanId}`;
+      url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/${databaseId}/documents/spiritual_stories/${docId}`;
+      res = await fetch(url);
     }
-    if (snap.exists()) {
-      const data = snap.data() as SpiritualStory;
-      if (data) {
-        cachedStories.set(data.id || cleanId, data);
-        cachedStories.set(cleanId, data);
-        cachedStories.set(cleanId.toLowerCase(), data);
-        updatePostsJson(data);
-        return data;
+    
+    if (res.ok) {
+      const snap = await res.json();
+      if (snap && snap.fields) {
+        // Parse Firestore REST format
+        const parseValue = (val: any): any => {
+          if (!val) return null;
+          if (val.stringValue !== undefined) return val.stringValue;
+          if (val.integerValue !== undefined) return parseInt(val.integerValue, 10);
+          if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
+          if (val.booleanValue !== undefined) return val.booleanValue;
+          if (val.mapValue !== undefined && val.mapValue.fields) {
+            const mapRes: any = {};
+            for (const [k, v] of Object.entries(val.mapValue.fields)) {
+              mapRes[k] = parseValue(v);
+            }
+            return mapRes;
+          }
+          if (val.arrayValue !== undefined && val.arrayValue.values) {
+            return val.arrayValue.values.map((v: any) => parseValue(v));
+          }
+          return null;
+        };
+        
+        const data: any = {};
+        for (const [k, v] of Object.entries(snap.fields)) {
+          data[k] = parseValue(v);
+        }
+        
+        if (data && (data.id || data.title)) {
+          const finalData = data as SpiritualStory;
+          cachedStories.set(finalData.id || cleanId, finalData);
+          cachedStories.set(cleanId, finalData);
+          cachedStories.set(cleanId.toLowerCase(), finalData);
+          updatePostsJson(finalData);
+          return finalData;
+        }
       }
     }
   } catch (err) {
-    console.warn(`[Firebase Server Sync] Error fetching single story (${cleanId}) from Firestore:`, err);
+    console.warn(`[Firebase Server Sync] Error fetching single story (${cleanId}) via REST API:`, err);
   }
 
   return null;

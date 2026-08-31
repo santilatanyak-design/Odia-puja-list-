@@ -213,8 +213,8 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
                 Social OG Active
               </span>
             </div>
-            <p className="text-[11px] font-mono text-slate-700 break-all select-all bg-amber-50/70 p-1.5 rounded-lg border border-amber-200/80 leading-tight">
-              {value}
+            <p className="text-[11px] font-mono text-emerald-700 bg-emerald-50/70 p-1.5 rounded-lg border border-emerald-200/80 leading-tight">
+              ✅ ଫଟୋ ଅପଲୋଡ୍ ହୋଇଛି (Uploaded successfully)
             </p>
           </div>
 

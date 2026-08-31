@@ -194,7 +194,21 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
       return [];
     }
   } catch (err) {
-    console.warn('Firestore stories error, returning empty list:', err);
+    console.warn('Firestore stories error, bypassing:', err);
+    try {
+      const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
+      if (raw) return sanitizeStoryList(JSON.parse(raw));
+    } catch {}
+    
+    // Also try fetch from posts.json
+    try {
+      const res = await fetch('/posts.json');
+      if (res.ok) {
+        const posts = await res.json();
+        const arr = Object.values(posts);
+        return sanitizeStoryList(arr);
+      }
+    } catch {}
     return [];
   }
 }
@@ -226,6 +240,11 @@ export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) 
       },
       (err) => {
         console.warn('Stories subscription warning:', err);
+        // Fallback to local
+        try {
+           const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
+           if (raw) callback(JSON.parse(raw));
+        } catch {}
       }
     );
   } catch (err) {
