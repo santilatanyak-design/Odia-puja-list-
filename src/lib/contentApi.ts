@@ -195,65 +195,64 @@ function sanitizeStoryList(stories: any[]): SpiritualStory[] {
 }
 
 export async function getSpiritualStories(): Promise<SpiritualStory[]> {
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const clean = sanitizeStoryList(parsed);
-        if (clean.length > 0) {
-          localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(clean));
-          return clean;
-        }
-      }
-    }
-  } catch (err) {
-    console.warn('Error reading local stories:', err);
-  }
+  const storyMap = new Map<string, SpiritualStory>();
 
-  try {
-    const snap = await getDocs(collection(db, 'spiritual_stories'));
-    if (!snap.empty) {
-      const allDocs = snap.docs.map((d) => d.data());
-      const clean = sanitizeStoryList(allDocs);
-      // Clean up legacy dummy docs from Firestore
-      for (const d of snap.docs) {
-        if (isDummyStory(d.data() as SpiritualStory)) {
-          deleteDoc(doc(db, 'spiritual_stories', d.id)).catch(() => {});
-        }
-      }
-      localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(clean));
-      return clean;
-    }
-  } catch (err) {
-    console.warn('Firestore stories error, bypassing:', err);
-  }
+  // 1. Add DEFAULT_STORIES as base
+  DEFAULT_STORIES.forEach((s) => {
+    if (s && s.id) storyMap.set(s.id, s);
+  });
 
-  // Fallback to local storage if available
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      const clean = sanitizeStoryList(parsed);
-      if (clean.length > 0) return clean;
-    }
-  } catch {}
-
-  // Fallback to fetch /posts.json
+  // 2. Load all posts from /posts.json
   try {
     const res = await fetch('/posts.json');
     if (res.ok) {
       const posts = await res.json();
       const arr = Object.values(posts);
       const clean = sanitizeStoryList(arr);
-      if (clean.length > 0) {
-        localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(clean));
-        return clean;
+      clean.forEach((s) => {
+        if (s && s.id) storyMap.set(s.id, s);
+      });
+    }
+  } catch (err) {
+    console.warn('Error loading /posts.json:', err);
+  }
+
+  // 3. Merge with localStorage cache (user/admin created stories)
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const clean = sanitizeStoryList(parsed);
+        clean.forEach((s) => {
+          if (s && s.id) storyMap.set(s.id, s);
+        });
       }
     }
+  } catch (err) {
+    console.warn('Error reading local stories:', err);
+  }
+
+  // 4. Merge with Firestore if accessible
+  try {
+    const snap = await getDocs(collection(db, 'spiritual_stories'));
+    if (!snap.empty) {
+      const allDocs = snap.docs.map((d) => d.data());
+      const clean = sanitizeStoryList(allDocs);
+      clean.forEach((s) => {
+        if (s && s.id) storyMap.set(s.id, s);
+      });
+    }
+  } catch (err) {
+    console.warn('Firestore stories bypassed:', err);
+  }
+
+  const allStories = Array.from(storyMap.values());
+  try {
+    localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(allStories));
   } catch {}
 
-  return [];
+  return allStories;
 }
 
 export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) => void): () => void {
@@ -262,60 +261,29 @@ export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) 
   try {
     return onSnapshot(
       collection(db, 'spiritual_stories'),
-      (snap) => {
+      async (snap) => {
         if (!snap.empty) {
-          const stories = sanitizeStoryList(snap.docs.map((d) => d.data()));
-          localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(stories));
-          if (stories.length > 0) {
-            try {
-              fetch('/api/stories', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ stories }),
-              }).catch(() => {});
-            } catch {}
-          }
-          callback(stories);
-        } else {
-          // If Firestore is empty, try posts.json fallback
-          fetch('/posts.json')
-            .then((r) => r.json())
-            .then((posts) => {
-              const clean = sanitizeStoryList(Object.values(posts));
-              callback(clean);
-            })
-            .catch(() => callback([]));
+          const fsStories = sanitizeStoryList(snap.docs.map((d) => d.data()));
+          const allStories = await getSpiritualStories();
+          const storyMap = new Map<string, SpiritualStory>();
+          allStories.forEach((s) => storyMap.set(s.id, s));
+          fsStories.forEach((s) => storyMap.set(s.id, s));
+
+          const merged = Array.from(storyMap.values());
+          try {
+            localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(merged));
+          } catch {}
+          callback(merged);
         }
       },
       (err) => {
-        console.warn('Stories subscription warning, trying posts.json fallback:', err);
-        // Fallback to local or posts.json
-        try {
-          const raw = localStorage.getItem(LOCAL_STORAGE_STORIES);
-          if (raw) {
-            const clean = sanitizeStoryList(JSON.parse(raw));
-            if (clean.length > 0) {
-              callback(clean);
-              return;
-            }
-          }
-        } catch {}
-
-        fetch('/posts.json')
-          .then((r) => r.json())
-          .then((posts) => {
-            const clean = sanitizeStoryList(Object.values(posts));
-            callback(clean);
-          })
-          .catch(() => callback([]));
+        console.warn('Stories subscription warning, keeping full dataset:', err);
+        getSpiritualStories().then(callback).catch(() => callback([]));
       }
     );
   } catch (err) {
     console.warn('Stories listener setup error:', err);
-    fetch('/posts.json')
-      .then((r) => r.json())
-      .then((posts) => callback(sanitizeStoryList(Object.values(posts))))
-      .catch(() => callback([]));
+    getSpiritualStories().then(callback).catch(() => callback([]));
     return () => {};
   }
 }
