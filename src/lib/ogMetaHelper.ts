@@ -268,16 +268,13 @@ export const shareStoryNative = async (
   }
 
   const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
-  const imgParam = story.imageUrl ? `&img=${encodeURIComponent(story.imageUrl)}` : '';
-  const titleParam = story.title ? `?title=${encodeURIComponent(story.title)}` : '';
-  const shareUrl = `${origin}/story/${encodeURIComponent(story.id)}${titleParam}${imgParam}`;
-  const cleanUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
+  const shareUrl = `${origin}/story/${encodeURIComponent(story.id)}`;
   const shareTitle = `📖 ${story.title}`;
-  const excerpt = story.summary || story.content ? `${(story.summary || story.content).slice(0, 120)}...` : '';
-  const shareText = `📖 *${story.title}*\n${excerpt}\n\n✍️ ଲେଖକ: ${story.author || 'Bhakti Ananda Odia TV'}\n\n👇 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପଢ଼ନ୍ତୁ ଏହି ଲିଙ୍କ୍ ରେ:\n${shareUrl}`;
+  const excerpt = story.summary || story.content ? `${(story.summary || story.content).slice(0, 100)}...` : '';
+  const shareText = `📖 *${story.title}*\n${excerpt}\n\n👇 ସମ୍ପୂର୍ଣ୍ଣ କାହାଣୀ ପଢ଼ନ୍ତୁ:\n${shareUrl}`;
 
   // Update dynamic OG meta tags immediately
-  setDynamicStoryMeta(story, cleanUrl);
+  setDynamicStoryMeta(story, shareUrl);
 
   // 1. Try Native Web Share API
   if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
