@@ -70,7 +70,7 @@ export function updatePostsJson(story: SpiritualStory) {
 
     const title = story.title || 'Bhakti Ananda Odia TV';
     const description = (story.summary || story.content || '').slice(0, 160);
-    const image = story.imageUrl || 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176622987_4bud51.jpg';
+    const image = story.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
 
     const postObj = {
       id: cleanId,
@@ -143,11 +143,15 @@ export async function getStoryById(storyId: string): Promise<SpiritualStory | nu
   // 2. Fetch directly from Firestore doc
   try {
     const docRef = doc(serverFirestore, 'spiritual_stories', cleanId);
-    const snap = await getDoc(docRef);
+    let snap = await getDoc(docRef);
+    if (!snap.exists()) {
+      const altId = cleanId.startsWith('story-') ? cleanId.replace('story-', '') : `story-${cleanId}`;
+      snap = await getDoc(doc(serverFirestore, 'spiritual_stories', altId));
+    }
     if (snap.exists()) {
       const data = snap.data() as SpiritualStory;
       if (data) {
-        cachedStories.set(data.id, data);
+        cachedStories.set(data.id || cleanId, data);
         cachedStories.set(cleanId, data);
         cachedStories.set(cleanId.toLowerCase(), data);
         updatePostsJson(data);

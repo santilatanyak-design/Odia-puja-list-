@@ -15,7 +15,7 @@ const BOT_USER_AGENTS = [
   'applebot'
 ];
 
-const DEFAULT_IMAGE = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176622987_4bud51.jpg';
+const DEFAULT_IMAGE = 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
 const DEFAULT_TITLE = 'Bhakti Ananda Odia TV | ଶ୍ରୀ ମନ୍ଦିର ଅନଲାଇନ୍ ପୂଜା ବୁକିଂ, ଓଡ଼ିଶା ଦର୍ଶନ ଓ ଆଧ୍ୟାତ୍ମିକ କଥା';
 const DEFAULT_DESC = 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV - ସମ୍ପୂର୍ଣ୍ଣ ବୈଦିକ ପୂଜା ସାମଗ୍ରୀ ସୂଚୀ, ପ୍ରାମାଣିକ ଓଡ଼ିଆ କ୍ୟାଲେଣ୍ଡର ପାଞ୍ଜି, ଅନଲାଇନ୍ ମନ୍ଦିର ପୂଜା ବୁକିଂ ଏବଂ ଆଧ୍ୟାତ୍ମିକ କଥା।';
 

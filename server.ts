@@ -1350,6 +1350,43 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+
+    // Intercept ALL HTML requests (including /story/*, /temple/*, /district/*, /*.html, etc.)
+    // BEFORE express.static so injectDynamicOgTags is ALWAYS executed fresh for every story/post!
+    app.use(async (req, res, next) => {
+      const url = req.originalUrl || req.url;
+      const cleanPath = url.split('?')[0];
+      const isAsset =
+        cleanPath.startsWith('/api') ||
+        cleanPath.startsWith('/assets') ||
+        /\.(js|ts|tsx|jsx|css|json|png|jpe?g|gif|svg|ico|webp|woff2?|ttf|map)$/i.test(cleanPath);
+
+      const isHtmlRequest =
+        !isAsset &&
+        (req.headers.accept?.includes('text/html') ||
+          req.headers.accept?.includes('*/*') ||
+          cleanPath.startsWith('/story/') ||
+          cleanPath.startsWith('/temple/') ||
+          cleanPath.startsWith('/district/') ||
+          cleanPath.endsWith('.html') ||
+          cleanPath === '/' ||
+          !cleanPath.includes('.'));
+
+      if (isHtmlRequest) {
+        try {
+          const indexHtmlPath = path.join(distPath, 'index.html');
+          if (fs.existsSync(indexHtmlPath)) {
+            const rawHtml = fs.readFileSync(indexHtmlPath, 'utf-8');
+            const finalHtml = await injectDynamicOgTags(rawHtml, req);
+            return res.status(200).set({ 'Content-Type': 'text/html; charset=utf-8' }).end(finalHtml);
+          }
+        } catch (err) {
+          console.warn('[Production HTML Injection Warning]:', err);
+        }
+      }
+      next();
+    });
+
     app.use(express.static(distPath, { index: false }));
     app.get('*', async (req, res) => {
       try {
@@ -1357,7 +1394,7 @@ async function startServer() {
         if (fs.existsSync(indexHtmlPath)) {
           const rawHtml = fs.readFileSync(indexHtmlPath, 'utf-8');
           const finalHtml = await injectDynamicOgTags(rawHtml, req);
-          return res.status(200).set({ 'Content-Type': 'text/html' }).end(finalHtml);
+          return res.status(200).set({ 'Content-Type': 'text/html; charset=utf-8' }).end(finalHtml);
         }
         res.sendFile(indexHtmlPath);
       } catch (err) {
