@@ -15,6 +15,7 @@ import {
   Flame,
   Compass,
 } from 'lucide-react';
+import { openWhatsAppDirectShare, openShareChatShare, openThreadsShare } from '../lib/ogMetaHelper';
 
 interface PanchangPageProps {
   onBack: () => void;
@@ -89,22 +90,60 @@ export const PanchangPage: React.FC<PanchangPageProps> = ({ onBack, onNavigateTo
         </button>
 
         {hasData && (
-          <button
-            onClick={handleShare}
-            className="px-4 py-2 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white font-extrabold rounded-xl text-xs flex items-center gap-1.5 transition cursor-pointer shadow-md"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-300" />
-                <span>Copied to Clipboard</span>
-              </>
-            ) : (
-              <>
-                <Share2 className="w-3.5 h-3.5 text-amber-300" />
-                <span>Share Panchang (ସେୟାର କରନ୍ତୁ)</span>
-              </>
-            )}
-          </button>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              onClick={() => {
+                if (!panchang) return;
+                const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                const shareText = `🚩 *ଓଡ଼ିଆ ଦୈନିକ ପଞ୍ଜିକା (Daily Odia Panchang)* 🚩\n📅 ତାରିଖ: ${panchang.date || ''} (${panchang.odiaDateText || panchang.odiaMonth || ''})\n✨ ତିଥି: ${panchang.paksha || ''} • ${panchang.tithi || ''}\n🌟 ନକ୍ଷତ୍ର: ${panchang.nakshatra || ''}\n🎉 ଆଜିର ପର୍ବ: ${panchang.specialFestival || 'ଶୁଭ ଦିବସ'}`;
+                openWhatsAppDirectShare(shareText, origin ? `${origin}/?panchang=true` : '');
+              }}
+              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center gap-1 transition cursor-pointer shadow-sm"
+            >
+              <span>💬 WhatsApp</span>
+            </button>
+
+            <button
+              onClick={async () => {
+                if (!panchang) return;
+                const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                const shareText = `📅 ତାରିଖ: ${panchang.date || ''} (${panchang.odiaDateText || panchang.odiaMonth || ''})\n✨ ତିଥି: ${panchang.paksha || ''} • ${panchang.tithi || ''}\n🌟 ନକ୍ଷତ୍ର: ${panchang.nakshatra || ''}\n🎉 ପର୍ବ: ${panchang.specialFestival || 'ଶୁଭ ଦିବସ'}`;
+                await openShareChatShare(shareText, origin ? `${origin}/?panchang=true` : '', 'ଓଡ଼ିଆ ଦୈନିକ ପଞ୍ଜିକା');
+              }}
+              className="px-3 py-2 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white font-bold rounded-xl text-xs flex items-center gap-1 transition cursor-pointer shadow-sm"
+            >
+              <span>✨ ShareChat</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (!panchang) return;
+                const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                const shareText = `📅 ତାରିଖ: ${panchang.date || ''} (${panchang.odiaDateText || panchang.odiaMonth || ''})\n✨ ତିଥି: ${panchang.paksha || ''} • ${panchang.tithi || ''}\n🌟 ନକ୍ଷତ୍ର: ${panchang.nakshatra || ''}\n🎉 ପର୍ବ: ${panchang.specialFestival || 'ଶୁଭ ଦିବସ'}`;
+                openThreadsShare(shareText, origin ? `${origin}/?panchang=true` : '', 'ଓଡ଼ିଆ ଦୈନିକ ପଞ୍ଜିକା');
+              }}
+              className="px-3 py-2 bg-black hover:bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center gap-1 transition cursor-pointer shadow-sm border border-slate-700"
+            >
+              <span>🧵 Threads</span>
+            </button>
+
+            <button
+              onClick={handleShare}
+              className="px-3 py-2 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold rounded-xl text-xs flex items-center gap-1 transition cursor-pointer border border-amber-300"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Share2 className="w-3.5 h-3.5 text-amber-800" />
+                  <span>More</span>
+                </>
+              )}
+            </button>
+          </div>
         )}
       </div>
 

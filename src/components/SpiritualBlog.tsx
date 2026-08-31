@@ -9,7 +9,16 @@ import {
   getSeoConfigForView,
   getBaseOrigin,
 } from '../lib/seoHelper';
-import { shareStoryNative, setDynamicStoryMeta } from '../lib/ogMetaHelper';
+import {
+  shareStoryNative,
+  setDynamicStoryMeta,
+  openFacebookShare,
+  openWhatsAppDirectShare,
+  openShareChatShare,
+  openThreadsShare,
+  openFacebookDebugger,
+  refreshFacebookOgCache,
+} from '../lib/ogMetaHelper';
 import {
   BookOpen,
   Search,
@@ -676,8 +685,118 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               </div>
             )}
 
+          {/* Dedicated High-Visibility Social Share Box (WhatsApp & Facebook Real Preview) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100 border border-amber-200 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-orange-600 text-white rounded-lg">
+                  <Share2 className="w-4 h-4" />
+                </span>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                    ଏହି ପବିତ୍ର କଥା ସାଙ୍ଗସାଥୀଙ୍କ ସହ ଶେୟାର୍ କରନ୍ତୁ (Share this Story)
+                  </h4>
+                  <p className="text-[11px] text-slate-600 font-medium">
+                    WhatsApp ଓ Facebook ରେ ପୋଷ୍ଟର ଅସଲ ଫଟୋ ଓ ଶୀର୍ଷକ ସହିତ ପଠାନ୍ତୁ
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {/* WhatsApp Direct Share Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
+                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  const excerpt = selectedStory.summary || selectedStory.content ? `${(selectedStory.summary || selectedStory.content).slice(0, 120)}...` : '';
+                  openWhatsAppDirectShare(`📖 *${selectedStory.title}*\n${excerpt}`, shareUrl);
+                }}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <span>💬 WhatsApp ଶେୟାର୍</span>
+              </button>
+
+              {/* ShareChat Direct Share Button */}
+              <button
+                type="button"
+                onClick={async () => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
+                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  const excerpt = selectedStory.summary || selectedStory.content ? `${(selectedStory.summary || selectedStory.content).slice(0, 120)}...` : '';
+                  await openShareChatShare(excerpt, shareUrl, selectedStory.title);
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <span>✨ ShareChat ଶେୟାର୍</span>
+              </button>
+
+              {/* Facebook Direct Share Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
+                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  openFacebookShare(shareUrl, selectedStory.title);
+                }}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <span>📘 Facebook</span>
+              </button>
+
+              {/* Threads (by Instagram) Direct Share Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
+                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  const excerpt = selectedStory.summary || selectedStory.content ? `${(selectedStory.summary || selectedStory.content).slice(0, 100)}...` : '';
+                  openThreadsShare(excerpt, shareUrl, selectedStory.title);
+                }}
+                className="px-4 py-2 bg-black hover:bg-slate-900 text-white font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer border border-slate-700"
+              >
+                <span>🧵 Threads</span>
+              </button>
+
+              {/* Copy Link Button */}
+              <button
+                type="button"
+                onClick={(e) => handleShareStory(e, selectedStory)}
+                className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                {copiedStoryId === selectedStory.id ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>କପି ହୋଇଗଲା!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-3.5 h-3.5 text-slate-600" />
+                    <span>ଲିଙ୍କ୍ କପି</span>
+                  </>
+                )}
+              </button>
+
+              {/* Facebook Cache Re-scrape / Debugger */}
+              <button
+                type="button"
+                onClick={async () => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.bhaktianandaodiatvofficial.blog';
+                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}.html`;
+                  await refreshFacebookOgCache(shareUrl);
+                  openFacebookDebugger(shareUrl);
+                }}
+                className="px-3 py-2 bg-amber-200/80 hover:bg-amber-300 text-amber-950 font-bold text-xs rounded-xl transition cursor-pointer ml-auto text-[11px] flex items-center gap-1"
+                title="ଫେସବୁକ୍ ରେ ପୁରୁଣା ଡେମୋ ଫଟୋ ଦେଖାଗଲେ ଏଠାରେ କ୍ଲିକ୍ କରି ଫଟୋ ରିଫ୍ରେସ୍ କରନ୍ତୁ"
+              >
+                <span>🔄 ଫେସବୁକ୍ ଫଟୋ ରିଫ୍ରେସ୍</span>
+              </button>
+            </div>
+          </div>
+
           {/* Social Share & Interaction Footer */}
-          <div className="pt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={(e) => handleLike(e, selectedStory.id)}

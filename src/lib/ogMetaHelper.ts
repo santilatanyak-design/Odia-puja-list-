@@ -547,3 +547,93 @@ export const shareTempleNative = async (
     method: clipboardCopied ? 'clipboard' : 'whatsapp',
   };
 };
+
+/**
+ * Triggers Facebook Graph API to immediately re-scrape and clear cached OpenGraph metadata for a URL.
+ */
+export const refreshFacebookOgCache = async (url: string): Promise<boolean> => {
+  try {
+    const endpoint = `https://graph.facebook.com/?id=${encodeURIComponent(url)}&scrape=true`;
+    await fetch(endpoint, { method: 'POST', mode: 'no-cors' });
+    return true;
+  } catch (err) {
+    console.warn('Facebook cache scrape warning:', err);
+    return false;
+  }
+};
+
+/**
+ * Opens official Facebook Debugger tool for a specific story URL so user can inspect and force scrape
+ */
+export const openFacebookDebugger = (url: string) => {
+  const debuggerUrl = `https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(url)}`;
+  window.open(debuggerUrl, '_blank', 'noopener,noreferrer');
+};
+
+/**
+ * Directly opens Facebook Share Dialog for a URL
+ */
+export const openFacebookShare = (url: string, quote?: string) => {
+  let shareEndpoint = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  if (quote) {
+    shareEndpoint += `&quote=${encodeURIComponent(quote)}`;
+  }
+  window.open(shareEndpoint, '_blank', 'noopener,noreferrer,width=600,height=500');
+};
+
+/**
+ * Directly opens WhatsApp Share with formatted text and link
+ */
+export const openWhatsAppDirectShare = (text: string, url: string) => {
+  const message = `${text}\n\n👇 ଏଠାରେ ପଢ଼ନ୍ତୁ:\n${url}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+};
+
+/**
+ * Directly opens ShareChat share dialog or launches native mobile share sheet for ShareChat
+ */
+export const openShareChatShare = async (text: string, url: string, title?: string): Promise<boolean> => {
+  const fullShareText = `${title ? `🚩 *${title}*\n` : ''}${text}\n\n👇 ଏଠାରେ ଦେଖନ୍ତୁ:\n${url}`;
+
+  // 1. First copy text to clipboard so it's always ready to paste in ShareChat
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(fullShareText);
+    }
+  } catch {}
+
+  // 2. Try Native Share API (allows selecting ShareChat app directly on mobile devices)
+  if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+    try {
+      await navigator.share({
+        title: title || 'ଭକ୍ତି ଆନନ୍ଦ - ଶେୟାର୍ କରନ୍ତୁ',
+        text: fullShareText,
+        url: url,
+      });
+      return true;
+    } catch (err: any) {
+      if (err && (err.name === 'AbortError' || err.message?.includes('Abort'))) {
+        return false;
+      }
+    }
+  }
+
+  // 3. Fallback: Open ShareChat Web
+  try {
+    const shareChatUrl = `https://sharechat.com`;
+    window.open(shareChatUrl, '_blank', 'noopener,noreferrer');
+  } catch {}
+
+  return true;
+};
+
+/**
+ * Directly opens Threads (by Instagram / Meta) post intent with formatted text and link
+ */
+export const openThreadsShare = (text: string, url: string, title?: string) => {
+  const fullShareText = `${title ? `🚩 ${title}\n` : ''}${text}\n\n👇 ଏଠାରେ ପଢ଼ନ୍ତୁ:\n${url}`;
+  const threadsUrl = `https://www.threads.net/intent/post?text=${encodeURIComponent(fullShareText)}`;
+  window.open(threadsUrl, '_blank', 'noopener,noreferrer');
+};
+
