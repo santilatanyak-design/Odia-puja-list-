@@ -69,7 +69,7 @@ export function updatePostsJson(story: SpiritualStory) {
 
     const title = story.title || 'Bhakti Ananda Odia TV';
     const description = (story.summary || story.content || '').slice(0, 160);
-    const image = story.imageUrl || 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+    const image = story.imageUrl || 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=1200&auto=format&fit=crop';
 
     postsData[`/story/${story.id}`] = {
       id: story.id,

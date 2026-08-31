@@ -781,23 +781,23 @@ app.post('/api/sync-story-html', async (req, res) => {
 // District Items Endpoints
 app.get('/api/district-items', (req, res) => {
   const { districtId } = req.query;
-  const items = db.districtItems && db.districtItems.length > 0 ? db.districtItems : DEFAULT_DISTRICT_ITEMS;
+  const items = Array.isArray(db.districtItems) ? db.districtItems : DEFAULT_DISTRICT_ITEMS;
   if (districtId && districtId !== 'all') {
-    return res.json({ success: true, items: items.filter((i) => i.districtId === districtId) });
+    return res.json({ success: true, items: items.filter((i: any) => i.districtId === districtId) });
   }
   res.json({ success: true, items });
 });
 
 app.post('/api/district-items', (req, res) => {
   const { item, items } = req.body;
-  if (Array.isArray(items) && items.length > 0) {
+  if (Array.isArray(items)) {
     db.districtItems = items;
     saveDb(db);
     return res.json({ success: true, items: db.districtItems });
   }
   if (item && item.id) {
-    if (!db.districtItems) db.districtItems = [...DEFAULT_DISTRICT_ITEMS];
-    const idx = db.districtItems.findIndex((i) => i.id === item.id);
+    if (!Array.isArray(db.districtItems)) db.districtItems = [...DEFAULT_DISTRICT_ITEMS];
+    const idx = db.districtItems.findIndex((i: any) => i.id === item.id);
     if (idx >= 0) {
       db.districtItems[idx] = item;
     } else {
@@ -809,10 +809,22 @@ app.post('/api/district-items', (req, res) => {
   res.json({ success: false, message: 'Invalid district item payload' });
 });
 
+app.post('/api/district-items/clear-all', (req, res) => {
+  db.districtItems = [];
+  saveDb(db);
+  res.json({ success: true, message: 'All district items cleared', items: [] });
+});
+
+app.post('/api/district-items/restore-defaults', (req, res) => {
+  db.districtItems = [...DEFAULT_DISTRICT_ITEMS];
+  saveDb(db);
+  res.json({ success: true, message: 'Default district items restored', items: db.districtItems });
+});
+
 app.delete('/api/district-items/:id', (req, res) => {
   const { id } = req.params;
-  if (db.districtItems) {
-    db.districtItems = db.districtItems.filter((i) => i.id !== id);
+  if (Array.isArray(db.districtItems)) {
+    db.districtItems = db.districtItems.filter((i: any) => i.id !== id);
     saveDb(db);
   }
   res.json({ success: true, message: 'District item deleted' });

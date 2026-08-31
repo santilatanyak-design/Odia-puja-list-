@@ -6,7 +6,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { uploadAllStoryHtmlToS3 } from './uploadStoriesToS3';
 
 const DOMAIN = 'https://www.bhaktianandaodiatvofficial.blog';
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=1200&auto=format&fit=crop';
 
 function escapeHtml(str: string): string {
   if (!str) return '';

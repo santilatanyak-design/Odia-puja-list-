@@ -3,7 +3,7 @@ import { getClientAwsConfig, triggerAmplifyRebuild } from './s3Upload';
 import type { SpiritualStory } from '../types';
 
 const DOMAIN = 'https://www.bhaktianandaodiatvofficial.blog';
-const DEFAULT_BRAND_LOGO = 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop';
+const DEFAULT_BRAND_LOGO = 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=1200&auto=format&fit=crop';
 
 function escapeHtml(str: string = ''): string {
   return str

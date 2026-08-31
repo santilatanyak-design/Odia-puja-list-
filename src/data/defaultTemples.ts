@@ -19,7 +19,7 @@ export const DEFAULT_TEMPLES: Temple[] = [
     name: 'ଶ୍ରୀ ଜଗନ୍ନାଥ ମନ୍ଦିର (Shree Jagannath Temple)',
     location: 'ଶ୍ରୀକ୍ଷେତ୍ର ଧାମ, ପୁରୀ (Puri, Odisha)',
     pujariPhone: '',
-    imageUrl: 'https://images.unsplash.com/photo-1608889175123-8ee362201f81?q=80&w=1200&auto=format&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?q=80&w=1200&auto=format&fit=crop',
     qrCodeUrl: '',
     description: 'ଶ୍ରୀ ଜଗନ୍ନାଥ ମନ୍ଦିର ସ୍ୱତନ୍ତ୍ର ନୀତିକାନ୍ତି ଓ ମହାପ୍ରସାଦ ପୂଜା ବୁକିଂ।',
     history: 'ଶ୍ରୀ ଜଗନ୍ନାଥ ମନ୍ଦିର ଚାରି ଧାମ ମଧ୍ୟରୁ ଅନ୍ୟତମ ପବିତ୍ର ପୁରୀ ଶ୍ରୀକ୍ଷେତ୍ରରେ ଅବସ୍ଥିତ। ଏହି ପ୍ରସିଦ୍ଧ ଦେବାଳୟ ଦ୍ୱାଦଶ ଶତାବ୍ଦୀରେ ଗଙ୍ଗବଂଶର ରାଜା ଅନନ୍ତବର୍ମନ ଚୋଡ଼ଗଙ୍ଗ ଦେବଙ୍କ ଦ୍ୱାରା ପ୍ରତିଷ୍ଠିତ ହୋଇଥିଲା। ଏଠାରେ ଚତୁର୍ଦ୍ଧା ମୂର୍ତ୍ତିଙ୍କ ବିଶ୍ୱପ୍ରସିଦ୍ଧ ରଥଯାତ୍ରା ଅନୁଷ୍ଠିତ ହୁଏ।',

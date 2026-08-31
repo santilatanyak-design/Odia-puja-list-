@@ -5,6 +5,8 @@ import {
   saveDistrictItem,
   deleteDistrictItem,
   subscribeDistrictItems,
+  clearAllDistrictItems,
+  restoreDefaultDistrictItems,
 } from '../lib/districtApi';
 import {
   MapPin,
@@ -22,6 +24,7 @@ import {
   Calendar,
   BookOpen,
   Filter,
+  RotateCcw,
 } from 'lucide-react';
 import { S3PhotoUploader } from './S3PhotoUploader';
 
@@ -128,7 +131,8 @@ export const AdminDistrictManagement: React.FC = () => {
     setSaving(true);
     setMessage(null);
     try {
-      await saveDistrictItem(editingItem);
+      const saved = await saveDistrictItem(editingItem);
+      setItems((prev) => [saved, ...prev.filter((i) => i.id !== saved.id)]);
       setMessage({
         text: '✅ ଜିଲ୍ଲା ସୂଚନା ସଫଳତାର ସହ ସଂରକ୍ଷଣ ହେଲା (District content saved successfully)!',
         type: 'success',
@@ -151,6 +155,9 @@ export const AdminDistrictManagement: React.FC = () => {
       return;
     }
 
+    // Optimistic UI update: instantly remove from screen
+    setItems((prev) => prev.filter((i) => i.id !== itemId));
+
     try {
       await deleteDistrictItem(itemId);
       setMessage({
@@ -160,6 +167,42 @@ export const AdminDistrictManagement: React.FC = () => {
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {
       alert('ଡିଲିଟ୍ କରିବାରେ ତ୍ରୁଟି: ' + err?.message);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm('ଆପଣ ନିଶ୍ଚିତ କି ସମସ୍ତ ଡେମୋ ଏବଂ ଜିଲ୍ଲା ତଥ୍ୟ ସଫା କରିବାକୁ ଚାହାନ୍ତି? (Are you sure you want to clear all district items?)')) {
+      return;
+    }
+
+    setItems([]);
+    try {
+      await clearAllDistrictItems();
+      setMessage({
+        text: '🗑️ ସମସ୍ତ ଡେମୋ ତଥ୍ୟ ସଫା କରାଗଲା (All demo content cleared successfully)!',
+        type: 'success',
+      });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err: any) {
+      alert('ସଫା କରିବାରେ ତ୍ରୁଟି: ' + err?.message);
+    }
+  };
+
+  const handleRestoreDefaults = async () => {
+    if (!window.confirm('ଆପଣ ଓଡ଼ିଶାର ପ୍ରମୁଖ ମନ୍ଦିର ତଥ୍ୟ ପୁନଃସ୍ଥାପନ କରିବାକୁ ଚାହାନ୍ତି କି? (Restore authentic temple data?)')) {
+      return;
+    }
+
+    try {
+      const restored = await restoreDefaultDistrictItems();
+      setItems(restored);
+      setMessage({
+        text: '🔄 ପ୍ରାମାଣିକ ମନ୍ଦିର ତଥ୍ୟ ପୁନଃସ୍ଥାପିତ ହେଲା (Authentic content restored)!',
+        type: 'success',
+      });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err: any) {
+      alert('ପୁନଃସ୍ଥାପନରେ ତ୍ରୁଟି: ' + err?.message);
     }
   };
 
@@ -198,13 +241,35 @@ export const AdminDistrictManagement: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => handleOpenAddModal(selectedDistrictFilter)}
-          className="px-4 py-2.5 bg-gradient-to-r from-[#701a1e] to-[#8B0000] hover:from-[#8B0000] hover:to-[#a00000] text-amber-100 hover:text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition active:scale-95 shrink-0 border border-amber-400/50"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ ନୂତନ ତଥ୍ୟ ଯୋଡ଼ନ୍ତୁ (Add Content)</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {items.length > 0 ? (
+            <button
+              onClick={handleClearAll}
+              className="px-3.5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition active:scale-95 shrink-0"
+              title="ସମସ୍ତ ଡେମୋ ତଥ୍ୟ ଡିଲିଟ୍ କରନ୍ତୁ"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+              <span>ଡେମୋ ସଫା କରନ୍ତୁ (Clear Demo)</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleRestoreDefaults}
+              className="px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition active:scale-95 shrink-0"
+              title="ଡିଫଲ୍ଟ ତଥ୍ୟ ପୁନଃସ୍ଥାପନ କରନ୍ତୁ"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+              <span>ଡିଫଲ୍ଟ ପୁନଃସ୍ଥାପନ (Restore)</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => handleOpenAddModal(selectedDistrictFilter)}
+            className="px-4 py-2.5 bg-gradient-to-r from-[#701a1e] to-[#8B0000] hover:from-[#8B0000] hover:to-[#a00000] text-amber-100 hover:text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 cursor-pointer transition active:scale-95 shrink-0 border border-amber-400/50"
+          >
+            <Plus className="w-4 h-4" />
+            <span>+ ନୂତନ ତଥ୍ୟ ଯୋଡ଼ନ୍ତୁ (Add Content)</span>
+          </button>
+        </div>
       </div>
 
       {/* Feedback Banner */}

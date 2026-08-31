@@ -11,16 +11,55 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
 } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'district_content';
 const LOCAL_STORAGE_KEY = 'odisha_district_content';
+const LOCAL_STORAGE_DELETED_KEY = 'odisha_district_deleted_ids';
+const LOCAL_STORAGE_CLEARED_FLAG = 'odisha_district_cleared_flag';
+
+function getDeletedIds(): string[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_DELETED_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function addDeletedId(id: string) {
+  try {
+    const current = getDeletedIds();
+    if (!current.includes(id)) {
+      const updated = [...current, id];
+      localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(updated));
+    }
+  } catch {}
+}
+
+function removeDeletedId(id: string) {
+  try {
+    const current = getDeletedIds();
+    const updated = current.filter((x) => x !== id);
+    localStorage.setItem(LOCAL_STORAGE_DELETED_KEY, JSON.stringify(updated));
+  } catch {}
+}
+
+function isClearedFlag(): boolean {
+  try {
+    return localStorage.getItem(LOCAL_STORAGE_CLEARED_FLAG) === 'true';
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Fetch all district items or items for a specific district
  */
 export async function getDistrictItems(districtId?: string): Promise<DistrictItem[]> {
+  const deletedIds = getDeletedIds();
+  const cleared = isClearedFlag();
+
   try {
     const colRef = collection(db, COLLECTION_NAME);
     let q = query(colRef);
@@ -30,34 +69,50 @@ export async function getDistrictItems(districtId?: string): Promise<DistrictIte
 
     const snap = await getDocs(q);
     if (!snap.empty) {
-      const items = snap.docs.map((d) => ({
-        id: d.id,
-        ...d.data(),
-      })) as DistrictItem[];
-      return items;
+      const items = snap.docs
+        .map((d) => ({
+          id: d.id,
+          ...d.data(),
+        })) as DistrictItem[];
+      const validItems = items.filter((i) => !deletedIds.includes(i.id));
+      return validItems;
     }
-    // If empty, return defaults
+
+    // If Firestore collection is empty
+    if (cleared || deletedIds.length > 0) {
+      const remainingDefaults = DEFAULT_DISTRICT_ITEMS.filter((i) => !deletedIds.includes(i.id));
+      if (districtId && districtId !== 'all') {
+        return remainingDefaults.filter((i) => i.districtId === districtId);
+      }
+      return remainingDefaults;
+    }
+
+    // Initial defaults
     if (districtId && districtId !== 'all') {
       return DEFAULT_DISTRICT_ITEMS.filter((i) => i.districtId === districtId);
     }
     return DEFAULT_DISTRICT_ITEMS;
   } catch (err) {
     console.warn('Firestore getDistrictItems error:', err);
-    // Fallback to local cache if offline
     try {
       const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (cached) {
-        const allItems = JSON.parse(cached) as DistrictItem[];
+        const allItems = (JSON.parse(cached) as DistrictItem[]).filter(
+          (i) => !deletedIds.includes(i.id)
+        );
         if (districtId && districtId !== 'all') {
           return allItems.filter((i) => i.districtId === districtId);
         }
         return allItems;
       }
     } catch {}
+
+    if (cleared) return [];
+    const remaining = DEFAULT_DISTRICT_ITEMS.filter((i) => !deletedIds.includes(i.id));
     if (districtId && districtId !== 'all') {
-      return DEFAULT_DISTRICT_ITEMS.filter((i) => i.districtId === districtId);
+      return remaining.filter((i) => i.districtId === districtId);
     }
-    return DEFAULT_DISTRICT_ITEMS;
+    return remaining;
   }
 }
 
@@ -68,6 +123,9 @@ export function subscribeDistrictItems(
   callback: (items: DistrictItem[]) => void,
   districtId?: string
 ): () => void {
+  const deletedIds = getDeletedIds();
+  const cleared = isClearedFlag();
+
   try {
     const colRef = collection(db, COLLECTION_NAME);
     let q = query(colRef);
@@ -78,16 +136,23 @@ export function subscribeDistrictItems(
     return onSnapshot(
       q,
       (snap) => {
+        const currentDeleted = getDeletedIds();
         let items: DistrictItem[] = [];
         if (!snap.empty) {
-          items = snap.docs.map((d) => ({
-            id: d.id,
-            ...d.data(),
-          })) as DistrictItem[];
+          items = snap.docs
+            .map((d) => ({
+              id: d.id,
+              ...d.data(),
+            })) as DistrictItem[];
+          items = items.filter((i) => !currentDeleted.includes(i.id));
         } else {
-          items = DEFAULT_DISTRICT_ITEMS;
+          if (isClearedFlag()) {
+            items = [];
+          } else {
+            items = DEFAULT_DISTRICT_ITEMS.filter((i) => !currentDeleted.includes(i.id));
+          }
         }
-        
+
         // Cache locally for offline resiliency
         if (!districtId || districtId === 'all') {
           try {
@@ -103,13 +168,16 @@ export function subscribeDistrictItems(
       },
       (err) => {
         console.warn('subscribeDistrictItems warning:', err);
-        // Fallback to initial get
-        getDistrictItems(districtId).then(callback).catch(() => callback(DEFAULT_DISTRICT_ITEMS));
+        getDistrictItems(districtId)
+          .then(callback)
+          .catch(() => callback([]));
       }
     );
   } catch (err) {
     console.warn('subscribeDistrictItems setup error:', err);
-    getDistrictItems(districtId).then(callback).catch(() => callback(DEFAULT_DISTRICT_ITEMS));
+    getDistrictItems(districtId)
+      .then(callback)
+      .catch(() => callback([]));
     return () => {};
   }
 }
@@ -120,6 +188,12 @@ export function subscribeDistrictItems(
 export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<DistrictItem> {
   const now = new Date().toISOString();
   const id = item.id || 'dist-item-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
+  // If re-saving an item that was previously deleted, un-delete it
+  removeDeletedId(id);
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_CLEARED_FLAG);
+  } catch {}
 
   const affiliateProductTitle =
     item.adTitle?.trim() ||
@@ -197,8 +271,12 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
     affiliateAd,
   };
 
-  const docRef = doc(db, COLLECTION_NAME, id);
-  await setDoc(docRef, sanitizeFirestoreData(fullItem), { merge: true });
+  try {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    await setDoc(docRef, sanitizeFirestoreData(fullItem), { merge: true });
+  } catch (dbErr) {
+    console.warn('Firestore setDoc warning:', dbErr);
+  }
 
   // Update local cache
   try {
@@ -217,14 +295,22 @@ export async function saveDistrictItem(item: Partial<DistrictItem>): Promise<Dis
 }
 
 /**
- * Delete a district item (Admin action)
+ * Delete a single district item (Admin action)
  */
 export async function deleteDistrictItem(itemId: string): Promise<boolean> {
   try {
-    const docRef = doc(db, COLLECTION_NAME, itemId);
-    await deleteDoc(docRef);
+    // 1. Mark as deleted permanently
+    addDeletedId(itemId);
 
-    // Update local cache
+    // 2. Delete from Firestore if exists
+    try {
+      const docRef = doc(db, COLLECTION_NAME, itemId);
+      await deleteDoc(docRef);
+    } catch (fsErr) {
+      console.warn('Firestore deleteDoc warning:', fsErr);
+    }
+
+    // 3. Update local cache
     try {
       const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (cached) {
@@ -241,5 +327,69 @@ export async function deleteDistrictItem(itemId: string): Promise<boolean> {
   } catch (err) {
     console.error('deleteDistrictItem error:', err);
     return false;
+  }
+}
+
+/**
+ * Clear all demo & existing district content (Admin action)
+ */
+export async function clearAllDistrictItems(): Promise<boolean> {
+  try {
+    // 1. Mark all default items as deleted
+    DEFAULT_DISTRICT_ITEMS.forEach((i) => addDeletedId(i.id));
+    localStorage.setItem(LOCAL_STORAGE_CLEARED_FLAG, 'true');
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify([]));
+
+    // 2. Delete from Firestore
+    try {
+      const colRef = collection(db, COLLECTION_NAME);
+      const snap = await getDocs(colRef);
+      const deletePromises = snap.docs.map((d) => deleteDoc(d.ref));
+      await Promise.all(deletePromises);
+    } catch (fsErr) {
+      console.warn('Firestore batch delete warning:', fsErr);
+    }
+
+    // 3. Sync to server
+    try {
+      await fetch('/api/district-items/clear-all', { method: 'POST' });
+    } catch {}
+
+    return true;
+  } catch (err) {
+    console.error('clearAllDistrictItems error:', err);
+    return false;
+  }
+}
+
+/**
+ * Restore default authentic district items (Admin action)
+ */
+export async function restoreDefaultDistrictItems(): Promise<DistrictItem[]> {
+  try {
+    // 1. Clear deleted list and cleared flag
+    localStorage.removeItem(LOCAL_STORAGE_DELETED_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_CLEARED_FLAG);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_DISTRICT_ITEMS));
+
+    // 2. Seed to Firestore
+    try {
+      for (const item of DEFAULT_DISTRICT_ITEMS) {
+        const docRef = doc(db, COLLECTION_NAME, item.id);
+        await setDoc(docRef, sanitizeFirestoreData(item), { merge: true });
+      }
+    } catch (fsErr) {
+      console.warn('Firestore restore defaults warning:', fsErr);
+    }
+
+    // 3. Sync to server
+    try {
+      await fetch('/api/district-items/restore-defaults', { method: 'POST' });
+    } catch {}
+
+    return DEFAULT_DISTRICT_ITEMS;
+  } catch (err) {
+    console.error('restoreDefaultDistrictItems error:', err);
+    return DEFAULT_DISTRICT_ITEMS;
   }
 }
