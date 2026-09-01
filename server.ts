@@ -96,6 +96,19 @@ app.get("/api/temples", (req, res) => res.json([]));
 app.get("/api/stories", (req, res) => res.json([]));
 app.post("/api/stories", (req, res) => res.json({success: true}));
 
+// Serve SPA index.html for direct story URLs so latest JS assets load and app interface renders immediately
+app.get(['/story/*', '/story'], (req, res, next) => {
+  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|json)$/)) {
+    return next();
+  }
+  const distPath = path.join(process.cwd(), 'dist');
+  const indexPath = path.join(distPath, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  next();
+});
+
 // Vite middleware for development
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {

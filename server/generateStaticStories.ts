@@ -62,15 +62,18 @@ export async function generateStaticStoryPages(targetBaseDir?: string) {
       }
     });
 
-    Object.keys(postsData).forEach((k) => {
-      const item = postsData[k];
-      if (item && item.id && !storyMap.has(item.id)) {
-        storyMap.set(item.id, {
-          id: item.id,
-          title: item.title || 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV',
-          description: item.description || '',
-          imageUrl: item.image || DEFAULT_IMAGE,
-        });
+    const postsList = Array.isArray(postsData) ? postsData : Object.values(postsData);
+    postsList.forEach((item: any) => {
+      if (item && item.id) {
+        const cleanId = item.id.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+        if (cleanId && !storyMap.has(cleanId)) {
+          storyMap.set(cleanId, {
+            id: cleanId,
+            title: item.title || 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV',
+            description: item.description || item.content || '',
+            imageUrl: item.image || item.imageUrl || DEFAULT_IMAGE,
+          });
+        }
       }
     });
 
