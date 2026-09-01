@@ -413,10 +413,15 @@ export async function cancelStoreOrder(
 // 3. STORE CONFIG & SUSPENSION API
 // ----------------------------------------------------------------------
 
+const DEFAULT_DISTRICT_COD: Record<string, boolean> = {};
+ODISHA_DISTRICTS.forEach((d) => {
+  DEFAULT_DISTRICT_COD[d] = true;
+});
+
 export const DEFAULT_STORE_CONFIG: StoreConfig = {
   bannerImageUrl: DEFAULT_BANNER_IMAGE,
   suspendedMobiles: [],
-  districtCodStatus: {},
+  districtCodStatus: DEFAULT_DISTRICT_COD,
 
   // Global Settings & Feature Toggles
   enableFestivalBanner: true,
