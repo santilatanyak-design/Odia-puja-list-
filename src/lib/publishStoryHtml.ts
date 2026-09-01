@@ -20,7 +20,7 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
   const description = (story.summary || story.content || 'ପବିତ୍ର ଓଡ଼ିଆ ବ୍ରତକଥା, ଠାକୁରଙ୍କ ମାହାତ୍ମ୍ୟ ଓ ଆଧ୍ୟାତ୍ମିକ ଲେଖା ପଢ଼ନ୍ତୁ।').replace(/<[^>]*>?/gm, '').slice(0, 200);
   const rawImg = (story as any).imageUrl || (story as any).image || DEFAULT_BRAND_LOGO;
   const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
-  const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}.html`;
+  const canonicalUrl = `${DOMAIN}/story/${encodeURIComponent(storyId)}`;
 
   let imageType = 'image/jpeg';
   if (imageUrl.includes('.png')) imageType = 'image/png';

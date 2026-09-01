@@ -108,6 +108,7 @@ app.post("/api/stories", (req, res) => res.json({success: true}));
 
 // Serve SPA index.html for direct story URLs so latest JS assets load and app interface renders immediately
 app.get(['/story/*', '/story'], (req, res, next) => {
+  console.log("INTERCEPTED STORY ROUTE:", req.path);
   if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|json)$/)) {
     return next();
   }
@@ -140,7 +141,7 @@ app.get(['/story/*', '/story'], (req, res, next) => {
                        
             const newMeta = `
               <title>${title}</title>
-              <meta property="og:url" content="https://www.bhaktianandaodiatvofficial.blog/story/${cleanId}.html" />
+              <meta property="og:url" content="https://www.bhaktianandaodiatvofficial.blog/story/${cleanId}" />
               <meta property="og:title" content="${title}" />
               <meta property="og:description" content="${desc}" />
               <meta property="og:image" content="${img}" />

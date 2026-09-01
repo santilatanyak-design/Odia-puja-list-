@@ -263,7 +263,7 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
 export const getStoryShareUrl = (story: SpiritualStory): string => {
   const origin = 'https://www.bhaktianandaodiatvofficial.blog';
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
-  return `${origin}/story/${encodeURIComponent(cleanId)}.html`;
+  return `${origin}/story/${encodeURIComponent(cleanId)}`;
 };
 
 /**

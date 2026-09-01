@@ -328,7 +328,7 @@ export default function App() {
         const storyId = selectedStoryId || currentParams.get('storyId') || currentParams.get('story');
         if (storyId) {
           if (window.location.pathname.startsWith('/story/')) {
-            targetPath = `/story/${encodeURIComponent(storyId)}.html`;
+            targetPath = `/story/${encodeURIComponent(storyId)}`;
             targetQuery = '';
           } else {
             targetQuery = `?view=blog&storyId=${encodeURIComponent(storyId)}`;
@@ -438,7 +438,7 @@ export default function App() {
     if (storyId) {
       setSelectedStoryId(storyId);
       if (typeof window !== 'undefined') {
-        window.history.pushState({ viewMode: 'blog', storyId }, '', `/story/${encodeURIComponent(storyId)}.html`);
+        window.history.pushState({ viewMode: 'blog', storyId }, '', `/story/${encodeURIComponent(storyId)}`);
       }
     } else {
       setSelectedStoryId(null);
