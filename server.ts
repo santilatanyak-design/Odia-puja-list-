@@ -35,10 +35,20 @@ app.post('/api/sync-story-html', async (req, res) => {
     // Also save to posts.json just in case
     const postsPath = path.join(process.cwd(), 'posts.json');
     if (fs.existsSync(postsPath)) {
-      let posts = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
-      if (Array.isArray(posts)) {
-        posts = [story, ...posts.filter((p: any) => p.id !== story.id)];
-        fs.writeFileSync(postsPath, JSON.stringify(posts, null, 2));
+      try {
+        let postsData = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
+        if (Array.isArray(postsData)) {
+          postsData = [story, ...postsData.filter((p: any) => p.id !== story.id)];
+          fs.writeFileSync(postsPath, JSON.stringify(postsData, null, 2));
+        } else {
+          // It's an object dictionary
+          const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+          postsData[story.id] = story;
+          postsData[cleanId] = story;
+          fs.writeFileSync(postsPath, JSON.stringify(postsData, null, 2));
+        }
+      } catch (e) {
+        console.error("Error updating posts.json:", e);
       }
     }
 
@@ -104,7 +114,50 @@ app.get(['/story/*', '/story'], (req, res, next) => {
   const distPath = path.join(process.cwd(), 'dist');
   const indexPath = path.join(distPath, 'index.html');
   if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
+    let html = fs.readFileSync(indexPath, 'utf-8');
+    
+    const storyIdMatch = req.path.match(/\/story\/([^\/.]+)/);
+    if (storyIdMatch && storyIdMatch[1]) {
+      let cleanId = storyIdMatch[1];
+      if (cleanId.startsWith('story-')) cleanId = cleanId.replace('story-', '');
+      
+      const postsPath = path.join(process.cwd(), 'posts.json');
+      if (fs.existsSync(postsPath)) {
+        try {
+          const postsRaw = fs.readFileSync(postsPath, 'utf-8');
+          const postsData = JSON.parse(postsRaw);
+          const posts = Array.isArray(postsData) ? postsData : Object.values(postsData);
+          
+          const story = posts.find((p: any) => p.id === cleanId || p.id === `story-${cleanId}` || p.id === `story/${cleanId}`);
+          if (story) {
+            const title = (story.title || 'Bhakti Ananda Odia TV').replace(/"/g, '&quot;');
+            const desc = (story.description || story.content || '').substring(0, 250).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const img = story.image || story.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
+            
+            html = html.replace(/<meta property="og:[^>]+>/gi, '')
+                       .replace(/<meta name="twitter:[^>]+>/gi, '')
+                       .replace(/<title>.*?<\/title>/gi, '');
+                       
+            const newMeta = `
+              <title>${title}</title>
+              <meta property="og:url" content="https://www.bhaktianandaodiatvofficial.blog/story/${cleanId}.html" />
+              <meta property="og:title" content="${title}" />
+              <meta property="og:description" content="${desc}" />
+              <meta property="og:image" content="${img}" />
+              <meta property="og:type" content="article" />
+              <meta name="twitter:card" content="summary_large_image" />
+              <meta name="twitter:title" content="${title}" />
+              <meta name="twitter:image" content="${img}" />
+              <script>window.__PRELOADED_STATE__ = { viewMode: 'blog', storyId: '${cleanId}' };</script>
+            `;
+            html = html.replace('</head>', `${newMeta}\n</head>`);
+          }
+        } catch (e) {
+          console.error("Error parsing posts.json in /story route:", e);
+        }
+      }
+    }
+    return res.send(html);
   }
   next();
 });
