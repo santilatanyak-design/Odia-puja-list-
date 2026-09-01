@@ -814,8 +814,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               <button
                 type="button"
                 onClick={async () => {
-                  const origin = 'https://www.bhaktianandaodiatvofficial.blog';
-                  const shareUrl = `${origin}/story/${encodeURIComponent(selectedStory.id)}`;
+                  const shareUrl = getStoryShareUrl(selectedStory);
                   await refreshFacebookOgCache(shareUrl);
                   openFacebookDebugger(shareUrl);
                 }}

@@ -317,11 +317,9 @@ export async function uploadPhotoToS3(
     console.warn('[AWS S3 API Upload] Backend route unavailable on static host:', apiErr?.message || apiErr);
   }
 
-  // Method 3: Resilient in-memory Base64 fallback (prevents ever blocking or freezing the user)
-  if (onProgress) onProgress(90, 'ଡାଟା ସୁରକ୍ଷିତ ଭାବରେ ପ୍ରସ୍ତୁତ ହେଉଛି...');
-  const base64Url = await fileToBase64(file);
-  if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
-  return base64Url;
+  // Method 3: Remove Base64 fallback entirely to prevent "long URL" bugs.
+  // If we reach here, both Direct S3 and API upload failed.
+  throw new Error("AWS S3 କ୍ରେଡେନ୍ସିଆଲ୍ ନାହିଁ! ଦୟାକରି ଆଡମିନ୍ ପ୍ୟାନେଲ୍ ସେଟିଂସ୍ ରେ AWS S3 Access Key ଏବଂ Secret Key ଦିଅନ୍ତୁ ନଚେତ୍ ଫଟୋ ସେଭ୍ ହେବ ନାହିଁ।");
 }
 
 /**

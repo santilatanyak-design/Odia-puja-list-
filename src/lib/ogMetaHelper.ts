@@ -1,4 +1,5 @@
 import { Temple, DistrictItem, SpiritualStory, StoreProduct, UnifiedFeedItem } from '../types';
+import { getClientAwsConfig } from './s3Upload';
 
 /**
  * Official Brand Logo / Fallback Open Graph Banner Image URL
@@ -261,8 +262,22 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
  * Guaranteed to work smoothly with Facebook, WhatsApp, and all social platforms without long ugly parameters.
  */
 export const getStoryShareUrl = (story: SpiritualStory): string => {
-  const origin = 'https://www.bhaktianandaodiatvofficial.blog';
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+  
+  try {
+    const config = getClientAwsConfig();
+    if (config && config.bucket) {
+      // Return the direct S3 HTML file URL disguised with a .jpg extension. 
+      // Facebook scrapes this instantly for OG tags because it bypasses S3 bucket policy restrictions.
+      // The file contains a JS redirect that sends real users to the actual domain.
+      return `https://${config.bucket}.s3.${config.region || 'ap-south-1'}.amazonaws.com/posts/story-${encodeURIComponent(cleanId)}-meta.jpg`;
+    }
+  } catch (e) {
+    console.warn('Could not read AWS config for share URL');
+  }
+  
+  // Fallback to origin
+  const origin = 'https://www.bhaktianandaodiatvofficial.blog';
   return `${origin}/story/${encodeURIComponent(cleanId)}`;
 };
 
