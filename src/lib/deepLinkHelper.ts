@@ -7,7 +7,7 @@ export const getSmartAppUrl = (url: string, store: 'amazon' | 'flipkart' | 'mees
     const isAndroid = /android/i.test(userAgent);
     const isInstagram = /instagram/i.test(userAgent);
     const isFacebook = /FBAN|FBAV/i.test(userAgent);
-    const isThreads = /Threads/i.test(userAgent);
+    const isThreads = /Threads|barcelona/i.test(userAgent);
     const isShareChat = /ShareChat/i.test(userAgent);
 
     const isInAppBrowser = isInstagram || isFacebook || isThreads || isShareChat;
@@ -28,3 +28,37 @@ export const getSmartAppUrl = (url: string, store: 'amazon' | 'flipkart' | 'mees
   return url;
 };
 
+export const handleSmartAppClick = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, url: string, store: 'amazon' | 'flipkart' | 'meesho' | 'generic') => {
+  if (!url) return;
+  if (typeof window === 'undefined') return;
+
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+  const isAndroid = /android/i.test(userAgent);
+  const isInstagram = /instagram/i.test(userAgent);
+  const isFacebook = /FBAN|FBAV/i.test(userAgent);
+  const isThreads = /Threads|barcelona/i.test(userAgent);
+  const isShareChat = /ShareChat/i.test(userAgent);
+  
+  const isInAppBrowser = isInstagram || isFacebook || isThreads || isShareChat;
+
+  if (isAndroid && isInAppBrowser) {
+    e.preventDefault(); // Stop normal navigation
+    const intentUrl = getSmartAppUrl(url, store);
+    
+    // Attempt top location redirect to breakout
+    try {
+      if (window.top) {
+        window.top.location.href = intentUrl;
+      } else {
+        window.location.href = intentUrl;
+      }
+    } catch (err) {
+      window.location.href = intentUrl;
+    }
+
+    // Fallback: If intent fails silently, redirect to the normal URL after a short delay
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1200);
+  }
+};

@@ -11,7 +11,7 @@ import {
   Flame,
 } from 'lucide-react';
 import { SmartImage } from './SmartImage';
-import { getSmartAppUrl } from '../lib/deepLinkHelper';
+import { getSmartAppUrl, handleSmartAppClick } from '../lib/deepLinkHelper';
 
 interface AffiliateAdModalProps {
   ad: AffiliateProductAd | null | undefined;
@@ -83,10 +83,13 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
     return null;
   }
 
-  const handleOrderClick = () => {
+  const handleOrderClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     try {
+      handleSmartAppClick(e as any, affiliateUrl, 'generic');
       const smartUrl = getSmartAppUrl(affiliateUrl, 'generic');
-      window.open(smartUrl, '_blank', 'noopener,noreferrer');
+      if (!e.defaultPrevented) {
+        window.open(smartUrl, '_blank', 'noopener,noreferrer');
+      }
     } catch {
       window.location.href = affiliateUrl;
     }
@@ -200,7 +203,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
               href={getSmartAppUrl(ad.amazonLink, 'amazon')}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={onClose}
+              onClick={(e) => { handleSmartAppClick(e, ad.amazonLink!, 'amazon'); if(!e.defaultPrevented) onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-[#ff9900] via-[#ffaa00] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-amber-600/40"
             >
               <ShoppingBag className="w-4 h-4 text-slate-950" />
@@ -214,7 +217,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
               href={getSmartAppUrl(ad.flipkartLink, 'flipkart')}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={onClose}
+              onClick={(e) => { handleSmartAppClick(e, ad.flipkartLink!, 'flipkart'); if(!e.defaultPrevented) onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-blue-400"
             >
               <ShoppingBag className="w-4 h-4 text-white" />
@@ -228,7 +231,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
               href={getSmartAppUrl(ad.meeshoLink, 'meesho')}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={onClose}
+              onClick={(e) => { handleSmartAppClick(e, ad.meeshoLink!, 'meesho'); if(!e.defaultPrevented) onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-pink-400"
             >
               <ShoppingBag className="w-4 h-4 text-white" />
