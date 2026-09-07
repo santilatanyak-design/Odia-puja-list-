@@ -88,12 +88,57 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
   // Smart Affiliate Ad Pop-up State (Time Delay & Scroll Depth Cliffhanger Trigger)
   const [isAdOpen, setIsAdOpen] = useState<boolean>(false);
   const [activeAd, setActiveAd] = useState<AffiliateProductAd | null>(null);
+
+  // AWS S3 Comments State
+  const [comments, setComments] = useState<any[]>([]);
+  const [newCommentName, setNewCommentName] = useState<string>('');
+  const [newCommentText, setNewCommentText] = useState<string>('');
+  const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
+
   const adTriggeredForStoryRef = useRef<Record<string, boolean>>({});
   const articleContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleCloseAd = React.useCallback(() => {
     setIsAdOpen(false);
   }, []);
+
+  // Fetch comments from S3 API
+  useEffect(() => {
+    if (selectedStory && selectedStory.id) {
+      setComments([]);
+      fetch(`/api/comments/${selectedStory.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.comments) {
+            setComments(data.comments);
+          }
+        })
+        .catch(err => console.warn('Failed to load comments', err));
+    }
+  }, [selectedStory]);
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStory || !newCommentName.trim() || !newCommentText.trim()) return;
+    setIsSubmittingComment(true);
+    try {
+      const res = await fetch(`/api/comments/${selectedStory.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCommentName, text: newCommentText })
+      });
+      const data = await res.json();
+      if (data.success && data.comments) {
+        setComments(data.comments);
+        setNewCommentName('');
+        setNewCommentText('');
+      }
+    } catch (err) {
+      console.warn('Failed to post comment', err);
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
 
   // 1. Subscribe to spiritual stories
   useEffect(() => {
@@ -118,7 +163,12 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         let pathStoryId = '';
         if (pathParts[0] === 'story' || pathParts[0] === 'blog' || pathParts[0] === 'stories') {
-          pathStoryId = pathParts[1] || '';
+          const rawSlug = pathParts.slice(1).join('/');
+          try {
+            pathStoryId = decodeURIComponent(rawSlug) || '';
+          } catch {
+            pathStoryId = rawSlug || '';
+          }
         }
         const params = new URLSearchParams(window.location.search);
         targetId = preloadedId || pathStoryId || params.get('storyId') || params.get('story');
@@ -136,7 +186,10 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
       // 1. Check in regular stories
       const matched = stories.find(
-        (s) => s.id === cleanTargetId || s.id === targetId || s.id.endsWith(cleanTargetId)
+        (s) => s.id === cleanTargetId || 
+               s.id === targetId || 
+               s.id.endsWith(cleanTargetId) ||
+               (s.imageUrl && (s.imageUrl === targetId || s.imageUrl === cleanTargetId || s.imageUrl.includes(cleanTargetId)))
       );
       if (matched) {
         setSelectedStory(matched);
@@ -157,11 +210,18 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         const res = await fetch('/posts.json');
         if (res.ok) {
           const posts = await res.json();
-          const rawItem =
+          let rawItem =
             posts[cleanTargetId] ||
             posts[`/story/${cleanTargetId}`] ||
             posts[`/story/${cleanTargetId}.html`] ||
             posts[`story-${cleanTargetId}`];
+            
+          if (!rawItem) {
+            rawItem = Object.values(posts).find(
+              (p: any) => p.image === targetId || p.image === cleanTargetId || p.imageUrl === targetId || p.imageUrl === cleanTargetId || (p.image && p.image.includes(cleanTargetId))
+            );
+          }
+
           if (rawItem) {
             const normalized = normalizeStory(rawItem);
             if (normalized) {
@@ -873,8 +933,74 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
             </div>
           </div>
 
+          {/* Reader Comments Section (AWS S3 Persistence) */}
+          <div className="mt-8 pt-6 border-t border-slate-200">
+            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
+              <span>💬</span>
+              <span>ମତାମତ ଓ ଆଲୋଚନା (Comments)</span>
+            </h3>
+            
+            <div className="space-y-4 mb-6">
+              {comments.length > 0 ? (
+                comments.map((comment: any) => (
+                  <div key={comment.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-orange-200 text-orange-800 flex items-center justify-center text-xs">
+                          {comment.name.charAt(0).toUpperCase()}
+                        </span>
+                        {comment.name}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-slate-700 text-sm leading-relaxed pl-8">{comment.text}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 bg-orange-50/50 rounded-xl border border-orange-100 text-center">
+                  <p className="text-orange-800 text-sm italic font-medium">ଏହି ପୋଷ୍ଟରେ ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ମତାମତ ନାହିଁ। ପ୍ରଥମ ମତାମତ ଦିଅନ୍ତୁ!</p>
+                </div>
+              )}
+            </div>
+            
+            <form onSubmit={handleSubmitComment} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+              <h4 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">ନିଜର ମତାମତ ଲେଖନ୍ତୁ (Leave a Comment)</h4>
+              <div>
+                <input
+                  type="text"
+                  placeholder="ଆପଣଙ୍କ ନାମ (Your Name)"
+                  value={newCommentName}
+                  onChange={(e) => setNewCommentName(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition-colors"
+                />
+              </div>
+              <div>
+                <textarea
+                  placeholder="ଆପଣଙ୍କ ମତାମତ (Your thoughts...)"
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
+                  required
+                  rows={3}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 focus:bg-white transition-colors resize-none"
+                ></textarea>
+              </div>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmittingComment}
+                  className="px-6 py-2.5 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition cursor-pointer shadow-xs active:scale-95"
+                >
+                  {isSubmittingComment ? 'ପଠାଯାଉଛି (Submitting)...' : 'ମତାମତ ପଠାନ୍ତୁ (Post Comment)'}
+                </button>
+              </div>
+            </form>
+          </div>
+
           {/* Social Share & Interaction Footer */}
-          <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div className="pt-4 mt-8 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <button
                 onClick={(e) => handleLike(e, selectedStory.id)}

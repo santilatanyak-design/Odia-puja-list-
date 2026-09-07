@@ -176,7 +176,12 @@ export default function App() {
         const parts = rawPathname.split('/').filter(Boolean);
         const lowerParts = pathname.split('/').filter(Boolean);
         if (lowerParts[0] === 'story' || lowerParts[0] === 'blog' || lowerParts[0] === 'stories') {
-          return (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
+          const rawSlug = parts.slice(1).join('/');
+          try {
+            return decodeURIComponent(rawSlug).replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
+          } catch {
+            return rawSlug.replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
+          }
         }
         const params = new URLSearchParams(window.location.search);
         const sid = params.get('storyId') || params.get('story');
@@ -199,7 +204,7 @@ export default function App() {
         const parts = rawPathname.split('/').filter(Boolean);
         const lowerParts = pathname.split('/').filter(Boolean);
         if (lowerParts[0] === 'temple' || lowerParts[0] === 'temples') {
-          return (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
+          return parts.slice(1).join('/').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
         }
         const params = new URLSearchParams(window.location.search);
         const tid = params.get('templeId') || params.get('temple');

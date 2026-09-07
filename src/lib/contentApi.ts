@@ -238,8 +238,20 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
     console.warn('Error reading local stories:', err);
   }
 
-  // 4. Firestore integration removed as per user instruction. All data comes from AWS JSON/static files.
-  
+  // 4. Fetch full stories from Firestore
+  try {
+    const querySnapshot = await getDocs(collection(db, 'spiritual_stories'));
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const s = normalizeStory({ ...data, id: docSnap.id });
+      if (s && s.id) {
+        storyMap.set(s.id, s);
+      }
+    });
+  } catch (err) {
+    console.warn('Error reading from Firestore:', err);
+  }
+
   const allStories = Array.from(storyMap.values());
   try {
     localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(allStories));

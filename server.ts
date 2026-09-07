@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import fs from 'fs';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import dotenv from 'dotenv';
 
@@ -94,6 +94,108 @@ app.get('/api/district-items', (req, res) => {
     return res.json({ success: true, items: items.filter((i: any) => i.districtId === districtId) });
   }
   return res.json({ success: true, items });
+});
+
+app.get('/api/comments/:storyId', async (req, res) => {
+  try {
+    const { storyId } = req.params;
+    const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION;
+    const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME;
+    const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
+    const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
+    
+    if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
+      const s3Client = new S3Client({
+        region: AWS_REGION,
+        credentials: {
+          accessKeyId: AWS_ACCESS_KEY,
+          secretAccessKey: AWS_SECRET_KEY,
+        }
+      });
+      
+      try {
+        const response = await s3Client.send(new GetObjectCommand({
+          Bucket: AWS_BUCKET,
+          Key: `comments/${storyId}.json`
+        }));
+        const bodyContents = await response.Body?.transformToString();
+        if (bodyContents) {
+          return res.json({ success: true, comments: JSON.parse(bodyContents) });
+        }
+      } catch (err: any) {
+        if (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404) {
+          return res.json({ success: true, comments: [] });
+        }
+        throw err;
+      }
+    }
+    res.json({ success: true, comments: [] });
+  } catch (err: any) {
+    console.error('Error fetching comments:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/comments/:storyId', async (req, res) => {
+  try {
+    const { storyId } = req.params;
+    const { name, text } = req.body;
+    
+    if (!name || !text) return res.status(400).json({ error: 'Name and text required' });
+
+    const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION;
+    const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME;
+    const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
+    const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
+    
+    if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
+      const s3Client = new S3Client({
+        region: AWS_REGION,
+        credentials: {
+          accessKeyId: AWS_ACCESS_KEY,
+          secretAccessKey: AWS_SECRET_KEY,
+        }
+      });
+      
+      let comments: any[] = [];
+      try {
+        const response = await s3Client.send(new GetObjectCommand({
+          Bucket: AWS_BUCKET,
+          Key: `comments/${storyId}.json`
+        }));
+        const bodyContents = await response.Body?.transformToString();
+        if (bodyContents) {
+          comments = JSON.parse(bodyContents);
+        }
+      } catch (err: any) {
+        // file doesn't exist, start new array
+      }
+
+      const newComment = {
+        id: Date.now().toString(),
+        name,
+        text,
+        createdAt: new Date().toISOString()
+      };
+      comments.push(newComment);
+
+      const bodyBytes = new TextEncoder().encode(JSON.stringify(comments, null, 2));
+      await s3Client.send(new PutObjectCommand({
+        Bucket: AWS_BUCKET,
+        Key: `comments/${storyId}.json`,
+        Body: bodyBytes,
+        ContentType: 'application/json',
+        CacheControl: 'public, max-age=0, must-revalidate'
+      }));
+
+      return res.json({ success: true, comment: newComment, comments });
+    } else {
+      return res.status(500).json({ error: 'S3 Configuration missing' });
+    }
+  } catch (err: any) {
+    console.error('Error adding comment:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get("/api/pujaris", (req, res) => res.json([]));
