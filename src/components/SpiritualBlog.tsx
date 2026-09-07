@@ -231,6 +231,9 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         // Configure per-post Affiliate Ad ONLY if BOTH valid link & image exist in database
         const adConfig = selectedStory.affiliateAd;
         const affiliateUrl = (
+          adConfig?.amazonLink ||
+          adConfig?.flipkartLink ||
+          adConfig?.meeshoLink ||
           adConfig?.affiliateUrl ||
           (adConfig as any)?.affiliateLink ||
           (adConfig as any)?.affiliateTargetUrl ||

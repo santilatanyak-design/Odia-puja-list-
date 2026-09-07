@@ -171,9 +171,11 @@ export default function App() {
         const preloaded = (window as any).__PRELOADED_STATE__;
         if (preloaded && preloaded.storyId) return preloaded.storyId;
 
-        const pathname = window.location.pathname.toLowerCase();
-        const parts = pathname.split('/').filter(Boolean);
-        if (parts[0] === 'story' || parts[0] === 'blog' || parts[0] === 'stories') {
+        const rawPathname = window.location.pathname;
+        const pathname = rawPathname.toLowerCase();
+        const parts = rawPathname.split('/').filter(Boolean);
+        const lowerParts = pathname.split('/').filter(Boolean);
+        if (lowerParts[0] === 'story' || lowerParts[0] === 'blog' || lowerParts[0] === 'stories') {
           return (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
         }
         const params = new URLSearchParams(window.location.search);
@@ -192,9 +194,11 @@ export default function App() {
         const preloaded = (window as any).__PRELOADED_STATE__;
         if (preloaded && preloaded.templeId) return preloaded.templeId;
 
-        const pathname = window.location.pathname.toLowerCase();
-        const parts = pathname.split('/').filter(Boolean);
-        if (parts[0] === 'temple' || parts[0] === 'temples') {
+        const rawPathname = window.location.pathname;
+        const pathname = rawPathname.toLowerCase();
+        const parts = rawPathname.split('/').filter(Boolean);
+        const lowerParts = pathname.split('/').filter(Boolean);
+        if (lowerParts[0] === 'temple' || lowerParts[0] === 'temples') {
           return (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
         }
         const params = new URLSearchParams(window.location.search);
