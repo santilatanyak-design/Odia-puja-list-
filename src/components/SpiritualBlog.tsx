@@ -20,7 +20,7 @@ import {
   openFacebookDebugger,
   refreshFacebookOgCache,
 } from '../lib/ogMetaHelper';
-import { getSmartAppUrl, handleSmartAppClick } from '../lib/deepLinkHelper';
+import { getSmartAppUrl } from '../lib/deepLinkHelper';
 import {
   BookOpen,
   Search,
@@ -775,7 +775,6 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
                       {selectedStory.affiliateAd.amazonLink && (
                         <a
                           href={getSmartAppUrl(selectedStory.affiliateAd.amazonLink, 'amazon')}
-                          onClick={(e) => handleSmartAppClick(e, selectedStory.affiliateAd.amazonLink!, 'amazon')}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
@@ -789,7 +788,6 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
                       {selectedStory.affiliateAd.flipkartLink && (
                         <a
                           href={getSmartAppUrl(selectedStory.affiliateAd.flipkartLink, 'flipkart')}
-                          onClick={(e) => handleSmartAppClick(e, selectedStory.affiliateAd.flipkartLink!, 'flipkart')}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
@@ -803,7 +801,6 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
                       {selectedStory.affiliateAd.meeshoLink && (
                         <a
                           href={getSmartAppUrl(selectedStory.affiliateAd.meeshoLink, 'meesho')}
-                          onClick={(e) => handleSmartAppClick(e, selectedStory.affiliateAd.meeshoLink!, 'meesho')}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
@@ -817,7 +814,6 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
                       {!selectedStory.affiliateAd.amazonLink && !selectedStory.affiliateAd.flipkartLink && !selectedStory.affiliateAd.meeshoLink && selectedStory.affiliateAd.affiliateUrl && (
                         <a
                           href={getSmartAppUrl(selectedStory.affiliateAd.affiliateUrl || 'https://www.amazon.in', 'generic')}
-                          onClick={(e) => handleSmartAppClick(e, selectedStory.affiliateAd.affiliateUrl || 'https://www.amazon.in', 'generic')}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"

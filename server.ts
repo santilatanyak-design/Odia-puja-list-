@@ -105,15 +105,15 @@ app.get('/api/comments/:storyId', async (req, res) => {
     const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
     
     if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
-      const s3Client = new S3Client({
-        region: AWS_REGION,
-        credentials: {
-          accessKeyId: AWS_ACCESS_KEY,
-          secretAccessKey: AWS_SECRET_KEY,
-        }
-      });
-      
       try {
+        const s3Client = new S3Client({
+          region: AWS_REGION,
+          credentials: {
+            accessKeyId: AWS_ACCESS_KEY,
+            secretAccessKey: AWS_SECRET_KEY,
+          }
+        });
+        
         const response = await s3Client.send(new GetObjectCommand({
           Bucket: AWS_BUCKET,
           Key: `comments/${storyId}.json`
@@ -123,14 +123,11 @@ app.get('/api/comments/:storyId', async (req, res) => {
           return res.json({ success: true, comments: JSON.parse(bodyContents) });
         }
       } catch (err: any) {
-        if (err.name === 'NoSuchKey' || err.$metadata?.httpStatusCode === 404) {
-          return res.json({ success: true, comments: [] });
-        }
-        throw err;
+        console.warn('S3 fetch comments failed, falling back to local:', err.message);
       }
     }
     
-    // Fallback to local file system if AWS is not configured
+    // Fallback to local file system if AWS is not configured or failed
     const localCommentsPath = path.join(process.cwd(), 'comments.json');
     if (fs.existsSync(localCommentsPath)) {
       try {
@@ -178,37 +175,41 @@ app.post('/api/comments/:storyId', async (req, res) => {
     fs.writeFileSync(localCommentsPath, JSON.stringify(localData, null, 2), 'utf-8');
 
     if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
-      const s3Client = new S3Client({
-        region: AWS_REGION,
-        credentials: {
-          accessKeyId: AWS_ACCESS_KEY,
-          secretAccessKey: AWS_SECRET_KEY,
-        }
-      });
-      
       try {
-        const response = await s3Client.send(new GetObjectCommand({
-          Bucket: AWS_BUCKET,
-          Key: `comments/${storyId}.json`
-        }));
-        const bodyContents = await response.Body?.transformToString();
-        if (bodyContents) {
-          const s3Comments = JSON.parse(bodyContents);
-          s3Comments.push(newComment);
-          comments = s3Comments; // Prefer S3 state if exists
+        const s3Client = new S3Client({
+          region: AWS_REGION,
+          credentials: {
+            accessKeyId: AWS_ACCESS_KEY,
+            secretAccessKey: AWS_SECRET_KEY,
+          }
+        });
+        
+        try {
+          const response = await s3Client.send(new GetObjectCommand({
+            Bucket: AWS_BUCKET,
+            Key: `comments/${storyId}.json`
+          }));
+          const bodyContents = await response.Body?.transformToString();
+          if (bodyContents) {
+            const s3Comments = JSON.parse(bodyContents);
+            s3Comments.push(newComment);
+            comments = s3Comments; // Prefer S3 state if exists
+          }
+        } catch (err: any) {
+          // file doesn't exist, start new array with local comments
         }
+  
+        const bodyBytes = new TextEncoder().encode(JSON.stringify(comments, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: AWS_BUCKET,
+          Key: `comments/${storyId}.json`,
+          Body: bodyBytes,
+          ContentType: 'application/json',
+          CacheControl: 'public, max-age=0, must-revalidate'
+        }));
       } catch (err: any) {
-        // file doesn't exist, start new array with local comments
+        console.warn('S3 save comments failed (saved locally though):', err.message);
       }
-
-      const bodyBytes = new TextEncoder().encode(JSON.stringify(comments, null, 2));
-      await s3Client.send(new PutObjectCommand({
-        Bucket: AWS_BUCKET,
-        Key: `comments/${storyId}.json`,
-        Body: bodyBytes,
-        ContentType: 'application/json',
-        CacheControl: 'public, max-age=0, must-revalidate'
-      }));
     }
     
     return res.json({ success: true, comment: newComment, comments });
@@ -227,6 +228,57 @@ app.get("/api/templates", (req, res) => res.json([]));
 app.get("/api/temples", (req, res) => res.json([]));
 app.get("/api/stories", (req, res) => res.json([]));
 app.post("/api/stories", (req, res) => res.json({success: true}));
+
+app.delete('/api/stories/:storyId', async (req, res) => {
+  try {
+    const { storyId } = req.params;
+    
+    // Remove from local posts.json
+    const postsPath = path.join(process.cwd(), 'posts.json');
+    if (fs.existsSync(postsPath)) {
+      try {
+        let postsData = JSON.parse(fs.readFileSync(postsPath, 'utf-8'));
+        if (Array.isArray(postsData)) {
+          postsData = postsData.filter((p: any) => p.id !== storyId);
+          fs.writeFileSync(postsPath, JSON.stringify(postsData, null, 2));
+        } else {
+          delete postsData[storyId];
+          const cleanId = (storyId || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+          delete postsData[cleanId];
+          fs.writeFileSync(postsPath, JSON.stringify(postsData, null, 2));
+        }
+      } catch (e) {
+        console.error("Error deleting from posts.json:", e);
+      }
+    }
+
+    const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION;
+    const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME;
+    const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
+    const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
+    
+    if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
+      try {
+        const s3Client = new S3Client({
+          region: AWS_REGION,
+          credentials: { accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY }
+        });
+        
+        const cleanId = (storyId || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+        // Fire and forget deletes
+        Promise.all([
+          s3Client.send(new PutObjectCommand({ Bucket: AWS_BUCKET, Key: `story/${cleanId}/index.html`, Body: '', ContentType: 'text/html' })).catch(()=>{}),
+          s3Client.send(new PutObjectCommand({ Bucket: AWS_BUCKET, Key: `story/${cleanId}.html`, Body: '', ContentType: 'text/html' })).catch(()=>{})
+        ]);
+      } catch (e) {}
+    }
+
+    res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error deleting story:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Serve SPA index.html for direct story URLs so latest JS assets load and app interface renders immediately
 app.get(['/story/*', '/story'], (req, res, next) => {
