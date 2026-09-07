@@ -77,6 +77,13 @@ export function updatePostsJson(story: SpiritualStory) {
       title,
       description,
       image,
+      content: story.content || '',
+      category: story.category || '',
+      readTimeMinutes: story.readTimeMinutes || 3,
+      publishedAt: story.publishedAt || '',
+      likesCount: story.likesCount || 0,
+      isFeatured: story.isFeatured || false,
+      affiliateAd: story.affiliateAd || undefined,
       author: story.author || 'Bhakti Ananda Odia TV',
     };
 
@@ -87,7 +94,13 @@ export function updatePostsJson(story: SpiritualStory) {
     postsData[cleanId] = postObj;
     postsData[`${cleanId}.html`] = postObj;
 
-    fs.writeFileSync(postsJsonPath, JSON.stringify(postsData, null, 2), 'utf-8');
+    const rootPath = path.join(process.cwd(), 'posts.json');
+    const publicPath = path.join(process.cwd(), 'public', 'posts.json');
+    const distPath = path.join(process.cwd(), 'dist', 'posts.json');
+    const jsonStr = JSON.stringify(postsData, null, 2);
+    try { fs.writeFileSync(rootPath, jsonStr, 'utf-8'); } catch(e){}
+    try { fs.writeFileSync(publicPath, jsonStr, 'utf-8'); } catch(e){}
+    try { fs.writeFileSync(distPath, jsonStr, 'utf-8'); } catch(e){}
   } catch (err) {
     console.warn('[Firebase Server Sync] Error writing posts.json:', err);
   }

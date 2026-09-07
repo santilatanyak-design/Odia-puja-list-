@@ -238,7 +238,8 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
     console.warn('Error reading local stories:', err);
   }
 
-  // 4. Fetch full stories from Firestore
+  // 4. Fetch full stories from Firestore (Disabled - data loaded from AWS/JSON directly)
+  /*
   try {
     const querySnapshot = await getDocs(collection(db, 'spiritual_stories'));
     querySnapshot.forEach((docSnap) => {
@@ -251,6 +252,7 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
   } catch (err) {
     console.warn('Error reading from Firestore:', err);
   }
+  */
 
   const allStories = Array.from(storyMap.values());
   try {

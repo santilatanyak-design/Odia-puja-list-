@@ -11,6 +11,7 @@ import {
   Flame,
 } from 'lucide-react';
 import { SmartImage } from './SmartImage';
+import { getSmartAppUrl } from '../lib/deepLinkHelper';
 
 interface AffiliateAdModalProps {
   ad: AffiliateProductAd | null | undefined;
@@ -84,7 +85,8 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 
   const handleOrderClick = () => {
     try {
-      window.open(affiliateUrl, '_blank', 'noopener,noreferrer');
+      const smartUrl = getSmartAppUrl(affiliateUrl, 'generic');
+      window.open(smartUrl, '_blank', 'noopener,noreferrer');
     } catch {
       window.location.href = affiliateUrl;
     }
@@ -195,7 +197,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
           
           {ad.amazonLink && (
             <a
-              href={ad.amazonLink}
+              href={getSmartAppUrl(ad.amazonLink, 'amazon')}
               target="_blank"
               rel="noopener noreferrer"
               onClick={onClose}
@@ -209,7 +211,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 
           {ad.flipkartLink && (
             <a
-              href={ad.flipkartLink}
+              href={getSmartAppUrl(ad.flipkartLink, 'flipkart')}
               target="_blank"
               rel="noopener noreferrer"
               onClick={onClose}
@@ -223,7 +225,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 
           {ad.meeshoLink && (
             <a
-              href={ad.meeshoLink}
+              href={getSmartAppUrl(ad.meeshoLink, 'meesho')}
               target="_blank"
               rel="noopener noreferrer"
               onClick={onClose}
