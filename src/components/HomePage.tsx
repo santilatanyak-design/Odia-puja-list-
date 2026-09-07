@@ -14,7 +14,9 @@ import {
   X,
   Download,
   Smartphone,
-  CheckCircle2
+  CheckCircle2,
+  ShoppingBag,
+  ExternalLink
 } from 'lucide-react';
 import {
   TempleAppLogo,
@@ -184,6 +186,31 @@ export const HomePage: React.FC<HomePageProps> = ({
                   (e.target as HTMLImageElement).style.opacity = '0.3';
                 }}
               />
+              {/* Conditional Platform Buy Button */}
+              {slide.linkUrl && slide.linkUrl.trim().length > 0 && (
+                <div className="absolute bottom-10 sm:bottom-12 right-4 sm:right-8 z-30">
+                  <a
+                    href={slide.linkUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-black shadow-xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 ${
+                      slide.platform === 'Amazon'
+                        ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 border border-amber-300'
+                        : slide.platform === 'Flipkart'
+                        ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border border-blue-400'
+                        : slide.platform === 'Meesho'
+                        ? 'bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white border border-pink-400'
+                        : 'bg-gradient-to-r from-orange-500 to-red-500 text-white border border-orange-400'
+                    }`}
+                  >
+                    <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>
+                      Buy on {slide.platform && slide.platform !== 'None' ? slide.platform : 'Store'}
+                    </span>
+                    <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 opacity-80" />
+                  </a>
+                </div>
+              )}
             </div>
           ))}
 

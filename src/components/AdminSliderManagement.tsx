@@ -79,6 +79,8 @@ export const AdminSliderManagement: React.FC = () => {
       url: '',
       title: '',
       subtitle: '',
+      linkUrl: '',
+      platform: 'Amazon',
     };
     setSliderImages((prev) => [...prev, newImg]);
   };
@@ -101,6 +103,7 @@ export const AdminSliderManagement: React.FC = () => {
           title: img.title?.trim() || '',
           subtitle: img.subtitle?.trim() || '',
           linkUrl: img.linkUrl?.trim() || '',
+          platform: img.platform || 'Amazon',
         })),
       });
 
@@ -134,6 +137,7 @@ export const AdminSliderManagement: React.FC = () => {
       nameEng: '',
       photoUrl: '',
       buyLink: '',
+      platform: 'Amazon',
       tag: '',
     };
     setStoreProducts((prev) => [...prev, newProd]);
@@ -380,7 +384,6 @@ export const AdminSliderManagement: React.FC = () => {
                             className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-amber-500"
                           />
                         </div>
-
                         <div>
                           <label className="block text-[11px] font-black text-slate-700 mb-1">
                             ଉପ-ଶୀର୍ଷକ (Banner Subtitle):
@@ -390,6 +393,35 @@ export const AdminSliderManagement: React.FC = () => {
                             value={img.subtitle || ''}
                             onChange={(e) => handleSliderChange(index, 'subtitle', e.target.value)}
                             placeholder="e.g. Your Devotion, Our Service"
+                            className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:ring-2 focus:ring-amber-500"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
+                        <div className="sm:col-span-1">
+                          <label className="block text-[11px] font-black text-slate-700 mb-1">
+                            ପ୍ଲାଟଫର୍ମ (Platform):
+                          </label>
+                          <select
+                            value={img.platform || 'Amazon'}
+                            onChange={(e) => handleSliderChange(index, 'platform', e.target.value)}
+                            className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-amber-500"
+                          >
+                            <option value="">None</option>
+                            <option value="Amazon">Amazon</option>
+                            <option value="Flipkart">Flipkart</option>
+                            <option value="Meesho">Meesho</option>
+                          </select>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-[11px] font-black text-slate-700 mb-1">
+                            କିଣିବା ଲିଙ୍କ୍ (Buy/Link URL):
+                          </label>
+                          <input
+                            type="url"
+                            value={img.linkUrl || ''}
+                            onChange={(e) => handleSliderChange(index, 'linkUrl', e.target.value)}
+                            placeholder="https://amazon.in/..."
                             className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:ring-2 focus:ring-amber-500"
                           />
                         </div>
@@ -618,7 +650,21 @@ export const AdminSliderManagement: React.FC = () => {
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                        <div className="sm:col-span-9">
+                        <div className="sm:col-span-3">
+                          <label className="block text-[11px] font-black text-slate-700 mb-1">
+                            ପ୍ଲାଟଫର୍ମ (Platform):
+                          </label>
+                          <select
+                            value={prod.platform || 'Amazon'}
+                            onChange={(e) => handleStoreProductChange(index, 'platform', e.target.value)}
+                            className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-amber-500"
+                          >
+                            <option value="Amazon">Amazon</option>
+                            <option value="Flipkart">Flipkart</option>
+                            <option value="Meesho">Meesho</option>
+                          </select>
+                        </div>
+                        <div className="sm:col-span-6">
                           <label className="block text-[11px] font-black text-slate-700 mb-1">
                             ୪. କିଣିବା ଲିଙ୍କ୍ (Buy Link - Direct Redirect URL): <span className="text-rose-500">*</span>
                           </label>

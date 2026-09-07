@@ -162,8 +162,13 @@ export function normalizeStory(item: any): SpiritualStory | null {
   const cleanId = rawId.replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   if (!cleanId) return null;
 
-  const contentText = item.content || item.description || item.summary || item.excerpt || 'ପବିତ୍ର ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ...';
-  const summaryText = item.summary || item.description || (contentText ? contentText.slice(0, 150) + '...' : '');
+  let contentText = item.content || item.description || item.summary || item.excerpt || 'ପବିତ୍ର ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ...';
+  if (Array.isArray(contentText)) contentText = contentText.join('\n\n');
+  else contentText = String(contentText);
+  
+  let summaryText = item.summary || item.description || (contentText ? contentText.slice(0, 150) + '...' : '');
+  if (Array.isArray(summaryText)) summaryText = summaryText.join(' ');
+  else summaryText = String(summaryText);
 
   return {
     id: cleanId,
@@ -233,20 +238,8 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
     console.warn('Error reading local stories:', err);
   }
 
-  // 4. Merge with Firestore if accessible
-  try {
-    const snap = await getDocs(collection(db, 'spiritual_stories'));
-    if (!snap.empty) {
-      const allDocs = snap.docs.map((d) => d.data());
-      const clean = sanitizeStoryList(allDocs);
-      clean.forEach((s) => {
-        if (s && s.id) storyMap.set(s.id, s);
-      });
-    }
-  } catch (err) {
-    console.warn('Firestore stories bypassed:', err);
-  }
-
+  // 4. Firestore integration removed as per user instruction. All data comes from AWS JSON/static files.
+  
   const allStories = Array.from(storyMap.values());
   try {
     localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(allStories));
@@ -258,34 +251,14 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
 export function subscribeSpiritualStories(callback: (stories: SpiritualStory[]) => void): () => void {
   getSpiritualStories().then(callback).catch(() => callback([]));
 
-  try {
-    return onSnapshot(
-      collection(db, 'spiritual_stories'),
-      async (snap) => {
-        if (!snap.empty) {
-          const fsStories = sanitizeStoryList(snap.docs.map((d) => d.data()));
-          const allStories = await getSpiritualStories();
-          const storyMap = new Map<string, SpiritualStory>();
-          allStories.forEach((s) => storyMap.set(s.id, s));
-          fsStories.forEach((s) => storyMap.set(s.id, s));
-
-          const merged = Array.from(storyMap.values());
-          try {
-            localStorage.setItem(LOCAL_STORAGE_STORIES, JSON.stringify(merged));
-          } catch {}
-          callback(merged);
-        }
-      },
-      (err) => {
-        console.warn('Stories subscription warning, keeping full dataset:', err);
-        getSpiritualStories().then(callback).catch(() => callback([]));
-      }
-    );
-  } catch (err) {
-    console.warn('Stories listener setup error:', err);
+  const handleUpdate = () => {
     getSpiritualStories().then(callback).catch(() => callback([]));
-    return () => {};
-  }
+  };
+  
+  window.addEventListener('storage', handleUpdate);
+  return () => {
+    window.removeEventListener('storage', handleUpdate);
+  };
 }
 
 export async function saveSpiritualStory(story: Partial<SpiritualStory>): Promise<SpiritualStory> {
@@ -402,10 +375,23 @@ export async function likeSpiritualStory(storyId: string): Promise<number> {
 // =======================================================================
 export async function getAllContent(): Promise<UnifiedFeedItem[]> {
   try {
+    const withTimeout = <T>(promise: Promise<T>, ms = 5000): Promise<T> => {
+      return Promise.race([
+        promise,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
+      ]);
+    };
+
     const [stories, temples, districtItems] = await Promise.all([
-      getSpiritualStories().catch(() => []),
+      withTimeout(getSpiritualStories(), 4000).catch((e) => {
+        console.warn('getSpiritualStories timeout/error:', e);
+        return [];
+      }),
       Promise.resolve(getTemplesFromLocal()).catch(() => []),
-      getDistrictItems().catch(() => []),
+      withTimeout(getDistrictItems(), 4000).catch((e) => {
+        console.warn('getDistrictItems timeout/error:', e);
+        return [];
+      }),
     ]);
 
     const unified: UnifiedFeedItem[] = [];

@@ -42,8 +42,7 @@ export const db = (() => {
   try {
     return initializeFirestore(
       app,
-      {
-      },
+      {},
       customDbId
     );
   } catch {

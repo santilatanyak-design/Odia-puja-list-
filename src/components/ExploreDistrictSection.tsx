@@ -807,10 +807,16 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                       href={activeAffiliateAd?.affiliateUrl || (activeAffiliateAd as any)?.adLink || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
+                      className={`w-full sm:w-auto px-4 py-2.5 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer ${
+                        activeAffiliateAd.storePlatform === 'Flipkart'
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                          : activeAffiliateAd.storePlatform === 'Meesho'
+                          ? 'bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white'
+                          : 'bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950'
+                      }`}
                     >
                       <ShoppingBag className="w-4 h-4" />
-                      <span>Buy on Amazon</span>
+                      <span>Buy on {activeAffiliateAd.storePlatform && activeAffiliateAd.storePlatform !== 'None' ? activeAffiliateAd.storePlatform : 'Amazon'}</span>
                       <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>

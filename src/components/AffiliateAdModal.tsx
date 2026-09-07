@@ -195,15 +195,23 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
           <button
             id="affiliate-ad-cta-btn"
             onClick={handleOrderClick}
-            className="w-full py-3 px-4 bg-gradient-to-r from-[#ff9900] via-[#ffaa00] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-amber-600/40"
+            className={`w-full py-3 px-4 font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer ${
+              ad.storePlatform === 'Flipkart'
+                ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border border-blue-400'
+                : ad.storePlatform === 'Meesho'
+                ? 'bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white border border-pink-400'
+                : 'bg-gradient-to-r from-[#ff9900] via-[#ffaa00] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 border border-amber-600/40'
+            }`}
           >
-            <ShoppingBag className="w-4 h-4 text-slate-950" />
+            <ShoppingBag className={`w-4 h-4 ${ad.storePlatform && ad.storePlatform !== 'Amazon' && ad.storePlatform !== 'None' ? 'text-white' : 'text-slate-950'}`} />
             <span>
-              {lang === 'OD'
+              {ad.storePlatform && ad.storePlatform !== 'None'
+                ? `Buy on ${ad.storePlatform}`
+                : lang === 'OD'
                 ? 'ଏବେ ଅର୍ଡର କରନ୍ତୁ (Order Now)'
                 : 'Order Now'}
             </span>
-            <ExternalLink className="w-4 h-4 text-slate-950" />
+            <ExternalLink className={`w-4 h-4 ${ad.storePlatform && ad.storePlatform !== 'Amazon' && ad.storePlatform !== 'None' ? 'text-white' : 'text-slate-950'}`} />
           </button>
 
           <div className="flex items-center justify-between text-[10px] text-slate-500 px-1 font-medium">

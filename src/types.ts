@@ -127,6 +127,7 @@ export interface SliderImage {
   title?: string;
   subtitle?: string;
   linkUrl?: string;
+  platform?: 'Amazon' | 'Flipkart' | 'Meesho' | string;
 }
 
 export interface HomeSliderConfig {
@@ -140,6 +141,7 @@ export interface PuriStoreProduct {
   nameEng?: string;
   photoUrl: string;
   buyLink: string;
+  platform?: 'Amazon' | 'Flipkart' | 'Meesho' | string;
   tag?: string;
 }
 
@@ -303,6 +305,7 @@ export interface DailyPanchang {
 
 export interface AffiliateProductAd {
   enabled?: boolean;
+  storePlatform?: 'Amazon' | 'Flipkart' | 'Meesho' | string;
   productTitle?: string;
   productImageUrl?: string;
   productDescription?: string;

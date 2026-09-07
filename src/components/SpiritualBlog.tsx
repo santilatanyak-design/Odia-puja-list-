@@ -581,9 +581,12 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               let triggerRenderedInBody = false;
               const triggerWord = activeAd?.adTriggerText;
 
-              const bodyText = selectedStory.content || selectedStory.summary || 'ପବିତ୍ର ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ...';
-              return bodyText.split('\n\n').map((para, idx) => {
+              const rawBodyText = selectedStory.content || selectedStory.summary || 'ପବିତ୍ର ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ...';
+              const bodyText = Array.isArray(rawBodyText) ? rawBodyText.join('\n\n') : String(rawBodyText);
+              
+              return bodyText.split(/\n\s*\n/).map((para, idx) => {
                 const trimmed = para.trim();
+                if (!trimmed) return null;
                 if (trimmed.startsWith('### ')) {
                   return (
                     <h3
@@ -709,10 +712,16 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
                         href={selectedStory.affiliateAd.affiliateUrl || 'https://www.amazon.in'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
+                        className={`inline-flex items-center justify-center gap-2 px-6 py-3 font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer ${
+                          selectedStory.affiliateAd.storePlatform === 'Flipkart'
+                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
+                            : selectedStory.affiliateAd.storePlatform === 'Meesho'
+                            ? 'bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white'
+                            : 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-amber-500 text-white'
+                        }`}
                       >
                         <ShoppingBag className="w-4 h-4" />
-                        <span>ଆମାଜନରୁ ଅର୍ଡର କରନ୍ତୁ (Buy on Amazon)</span>
+                        <span>{selectedStory.affiliateAd.storePlatform && selectedStory.affiliateAd.storePlatform !== 'None' ? `Buy on ${selectedStory.affiliateAd.storePlatform}` : 'ଆମାଜନରୁ ଅର୍ଡର କରନ୍ତୁ (Buy on Amazon)'}</span>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     </div>

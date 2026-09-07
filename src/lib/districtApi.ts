@@ -60,60 +60,26 @@ export async function getDistrictItems(districtId?: string): Promise<DistrictIte
   const deletedIds = getDeletedIds();
   const cleared = isClearedFlag();
 
+  // Firestore integration removed. Fetching purely from local cache / static defaults.
   try {
-    const colRef = collection(db, COLLECTION_NAME);
-    let q = query(colRef);
-    if (districtId && districtId !== 'all') {
-      q = query(colRef, where('districtId', '==', districtId));
-    }
-
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      const items = snap.docs
-        .map((d) => ({
-          id: d.id,
-          ...d.data(),
-        })) as DistrictItem[];
-      const validItems = items.filter((i) => !deletedIds.includes(i.id));
-      return validItems;
-    }
-
-    // If Firestore collection is empty
-    if (cleared || deletedIds.length > 0) {
-      const remainingDefaults = DEFAULT_DISTRICT_ITEMS.filter((i) => !deletedIds.includes(i.id));
+    const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (cached) {
+      const allItems = (JSON.parse(cached) as DistrictItem[]).filter(
+        (i) => !deletedIds.includes(i.id)
+      );
       if (districtId && districtId !== 'all') {
-        return remainingDefaults.filter((i) => i.districtId === districtId);
+        return allItems.filter((i) => i.districtId === districtId);
       }
-      return remainingDefaults;
+      return allItems;
     }
+  } catch {}
 
-    // Initial defaults
-    if (districtId && districtId !== 'all') {
-      return DEFAULT_DISTRICT_ITEMS.filter((i) => i.districtId === districtId);
-    }
-    return DEFAULT_DISTRICT_ITEMS;
-  } catch (err) {
-    console.warn('Firestore getDistrictItems error:', err);
-    try {
-      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (cached) {
-        const allItems = (JSON.parse(cached) as DistrictItem[]).filter(
-          (i) => !deletedIds.includes(i.id)
-        );
-        if (districtId && districtId !== 'all') {
-          return allItems.filter((i) => i.districtId === districtId);
-        }
-        return allItems;
-      }
-    } catch {}
-
-    if (cleared) return [];
-    const remaining = DEFAULT_DISTRICT_ITEMS.filter((i) => !deletedIds.includes(i.id));
-    if (districtId && districtId !== 'all') {
-      return remaining.filter((i) => i.districtId === districtId);
-    }
-    return remaining;
+  if (cleared) return [];
+  const remaining = DEFAULT_DISTRICT_ITEMS.filter((i) => !deletedIds.includes(i.id));
+  if (districtId && districtId !== 'all') {
+    return remaining.filter((i) => i.districtId === districtId);
   }
+  return remaining;
 }
 
 /**

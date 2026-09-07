@@ -918,6 +918,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                           affiliateAd: {
                             ...(editingStory.affiliateAd || {}),
                             enabled: e.target.checked,
+                            storePlatform: editingStory.affiliateAd?.storePlatform || 'Amazon',
                             triggerDelaySeconds: editingStory.affiliateAd?.triggerDelaySeconds || 4,
                             countdownSeconds: editingStory.affiliateAd?.countdownSeconds || 5,
                             productTitle: editingStory.affiliateAd?.productTitle || '',
@@ -937,7 +938,30 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                   <div className="space-y-4 pt-1">
                     <div className="space-y-1">
                       <label className="block text-xs font-bold text-slate-800">
-                        📦 ପ୍ରଡକ୍ଟ ଶୀର୍ଷକ (Amazon Product Title)
+                        🛍️ ଷ୍ଟୋର ପ୍ଲାଟଫର୍ମ (Store Platform)
+                      </label>
+                      <select
+                        value={editingStory.affiliateAd?.storePlatform || 'Amazon'}
+                        onChange={(e) =>
+                          setEditingStory({
+                            ...editingStory,
+                            affiliateAd: {
+                              ...(editingStory.affiliateAd || {}),
+                              storePlatform: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold bg-white"
+                      >
+                        <option value="Amazon">Amazon</option>
+                        <option value="Flipkart">Flipkart</option>
+                        <option value="Meesho">Meesho</option>
+                      </select>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <label className="block text-xs font-bold text-slate-800">
+                        📦 ପ୍ରଡକ୍ଟ ଶୀର୍ଷକ (Product Title)
                       </label>
                       <input
                         type="text"
@@ -959,7 +983,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                       <div className="space-y-1 sm:col-span-7">
                         <label className="block text-xs font-bold text-slate-800">
-                          🔗 Amazon Affiliate Target Link (ଅର୍ଡର ଲିଙ୍କ୍)
+                          🔗 Target Link (ଅର୍ଡର ଲିଙ୍କ୍)
                         </label>
                         <input
                           type="url"
