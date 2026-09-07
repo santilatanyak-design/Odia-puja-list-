@@ -5,14 +5,9 @@ export const getSmartAppUrl = (url: string, store: 'amazon' | 'flipkart' | 'mees
   try {
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
     const isAndroid = /android/i.test(userAgent);
-    const isInstagram = /instagram/i.test(userAgent);
-    const isFacebook = /FBAN|FBAV/i.test(userAgent);
-    const isThreads = /Threads|barcelona/i.test(userAgent);
-    const isShareChat = /ShareChat/i.test(userAgent);
 
-    const isInAppBrowser = isInstagram || isFacebook || isThreads || isShareChat;
-
-    if (isAndroid && isInAppBrowser) {
+    // Apply Android intent broadly for all Android requests to guarantee app open
+    if (isAndroid) {
       const urlWithoutProtocol = url.replace(/^https?:\/\//, '');
       let packageName = 'com.android.chrome';
       
@@ -34,18 +29,14 @@ export const handleSmartAppClick = (e: React.MouseEvent<HTMLAnchorElement | HTML
 
   const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
   const isAndroid = /android/i.test(userAgent);
-  const isInstagram = /instagram/i.test(userAgent);
-  const isFacebook = /FBAN|FBAV/i.test(userAgent);
-  const isThreads = /Threads|barcelona/i.test(userAgent);
-  const isShareChat = /ShareChat/i.test(userAgent);
-  
-  const isInAppBrowser = isInstagram || isFacebook || isThreads || isShareChat;
 
-  if (isAndroid && isInAppBrowser) {
-    e.preventDefault(); // Stop normal navigation
+  if (isAndroid) {
+    // Prevent the default link behavior to stop target="_blank" from breaking the intent
+    e.preventDefault(); 
+    
     const intentUrl = getSmartAppUrl(url, store);
     
-    // Attempt top location redirect to breakout
+    // Direct top-level navigation is the most aggressive and reliable breakout method
     try {
       if (window.top) {
         window.top.location.href = intentUrl;
@@ -56,9 +47,14 @@ export const handleSmartAppClick = (e: React.MouseEvent<HTMLAnchorElement | HTML
       window.location.href = intentUrl;
     }
 
-    // Fallback: If intent fails silently, redirect to the normal URL after a short delay
+    // Fallback: If intent is blocked silently, redirect using the normal URL
     setTimeout(() => {
-      window.location.href = url;
-    }, 1200);
+      try {
+        if (window.top) window.top.location.href = url;
+        else window.location.href = url;
+      } catch (err) {
+        window.location.href = url;
+      }
+    }, 1500);
   }
 };
