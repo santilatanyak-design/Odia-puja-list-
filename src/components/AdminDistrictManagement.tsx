@@ -794,24 +794,70 @@ export const AdminDistrictManagement: React.FC = () => {
                       placeholder="https://... or upload photo"
                     />
                   </div>
-
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                   <div className="space-y-1">
                     <label className="block font-bold text-amber-950 text-xs">
-                      🔗 ଆଫିଲିଏଟ୍ ଲିଙ୍କ୍ (Affiliate Buy Link) *
+                      Amazon Link
                     </label>
                     <input
                       type="url"
-                      placeholder="https://www.amazon.in/dp/...?tag=yourtag-21"
-                      value={editingItem.affiliateTargetUrl || editingItem.affiliateAd?.affiliateUrl || ''}
+                      placeholder="https://amazon.in/..."
+                      value={editingItem.affiliateAd?.amazonLink || ''}
                       onChange={(e) => {
                         const val = e.target.value;
                         setEditingItem((prev) => ({
                           ...prev,
-                          affiliateTargetUrl: val,
+                          affiliateTargetUrl: val, // fallback
                           affiliateAd: {
                             ...(prev?.affiliateAd || {}),
                             enabled: true,
-                            affiliateUrl: val,
+                            amazonLink: val,
+                            affiliateUrl: val, // fallback
+                          },
+                        }));
+                      }}
+                      className="w-full p-2.5 text-xs font-mono border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block font-bold text-amber-950 text-xs">
+                      Flipkart Link
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://flipkart.com/..."
+                      value={editingItem.affiliateAd?.flipkartLink || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingItem((prev) => ({
+                          ...prev,
+                          affiliateAd: {
+                            ...(prev?.affiliateAd || {}),
+                            enabled: true,
+                            flipkartLink: val,
+                          },
+                        }));
+                      }}
+                      className="w-full p-2.5 text-xs font-mono border border-amber-300 rounded-xl bg-white focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block font-bold text-amber-950 text-xs">
+                      Meesho Link
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://meesho.com/..."
+                      value={editingItem.affiliateAd?.meeshoLink || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingItem((prev) => ({
+                          ...prev,
+                          affiliateAd: {
+                            ...(prev?.affiliateAd || {}),
+                            enabled: true,
+                            meeshoLink: val,
                           },
                         }));
                       }}

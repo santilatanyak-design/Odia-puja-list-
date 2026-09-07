@@ -659,7 +659,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
             Boolean(
               (selectedStory.affiliateAd.productImageUrl || (selectedStory.affiliateAd as any).affiliateImageURL) &&
                 ((selectedStory.affiliateAd.productImageUrl || (selectedStory.affiliateAd as any).affiliateImageURL) || '').trim().length > 0 &&
-                (selectedStory.affiliateAd.affiliateUrl || '').trim().length > 0
+                (selectedStory.affiliateAd.amazonLink || selectedStory.affiliateAd.flipkartLink || selectedStory.affiliateAd.meeshoLink || selectedStory.affiliateAd.affiliateUrl || '').trim().length > 0
             ) && (
               <div className="mt-8 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50/90 via-orange-50/80 to-amber-100/60 border-2 border-amber-300 shadow-sm relative overflow-hidden">
                 {/* Header Tag */}
@@ -707,23 +707,58 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
                       </span>
                     </div>
 
-                    <div className="pt-2">
-                      <a
-                        href={selectedStory.affiliateAd.affiliateUrl || 'https://www.amazon.in'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`inline-flex items-center justify-center gap-2 px-6 py-3 font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer ${
-                          selectedStory.affiliateAd.storePlatform === 'Flipkart'
-                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
-                            : selectedStory.affiliateAd.storePlatform === 'Meesho'
-                            ? 'bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white'
-                            : 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-amber-500 text-white'
-                        }`}
-                      >
-                        <ShoppingBag className="w-4 h-4" />
-                        <span>{selectedStory.affiliateAd.storePlatform && selectedStory.affiliateAd.storePlatform !== 'None' ? `Buy on ${selectedStory.affiliateAd.storePlatform}` : 'ଆମାଜନରୁ ଅର୍ଡର କରନ୍ତୁ (Buy on Amazon)'}</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
+                    <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                      {selectedStory.affiliateAd.amazonLink && (
+                        <a
+                          href={selectedStory.affiliateAd.amazonLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
+                        >
+                          <ShoppingBag className="w-4 h-4 text-white" />
+                          <span>Buy on Amazon</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-white" />
+                        </a>
+                      )}
+
+                      {selectedStory.affiliateAd.flipkartLink && (
+                        <a
+                          href={selectedStory.affiliateAd.flipkartLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
+                        >
+                          <ShoppingBag className="w-4 h-4 text-white" />
+                          <span>Buy on Flipkart</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-white" />
+                        </a>
+                      )}
+
+                      {selectedStory.affiliateAd.meeshoLink && (
+                        <a
+                          href={selectedStory.affiliateAd.meeshoLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
+                        >
+                          <ShoppingBag className="w-4 h-4 text-white" />
+                          <span>Buy on Meesho</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-white" />
+                        </a>
+                      )}
+
+                      {!selectedStory.affiliateAd.amazonLink && !selectedStory.affiliateAd.flipkartLink && !selectedStory.affiliateAd.meeshoLink && selectedStory.affiliateAd.affiliateUrl && (
+                        <a
+                          href={selectedStory.affiliateAd.affiliateUrl || 'https://www.amazon.in'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-95 w-full sm:w-auto cursor-pointer"
+                        >
+                          <ShoppingBag className="w-4 h-4 text-white" />
+                          <span>Buy Now</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-white" />
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>

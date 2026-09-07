@@ -306,6 +306,9 @@ export interface DailyPanchang {
 export interface AffiliateProductAd {
   enabled?: boolean;
   storePlatform?: 'Amazon' | 'Flipkart' | 'Meesho' | string;
+  amazonLink?: string;
+  flipkartLink?: string;
+  meeshoLink?: string;
   productTitle?: string;
   productImageUrl?: string;
   productDescription?: string;

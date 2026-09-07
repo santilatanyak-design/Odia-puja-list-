@@ -918,12 +918,13 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                           affiliateAd: {
                             ...(editingStory.affiliateAd || {}),
                             enabled: e.target.checked,
-                            storePlatform: editingStory.affiliateAd?.storePlatform || 'Amazon',
+                            amazonLink: editingStory.affiliateAd?.amazonLink || '',
+                            flipkartLink: editingStory.affiliateAd?.flipkartLink || '',
+                            meeshoLink: editingStory.affiliateAd?.meeshoLink || '',
                             triggerDelaySeconds: editingStory.affiliateAd?.triggerDelaySeconds || 4,
                             countdownSeconds: editingStory.affiliateAd?.countdownSeconds || 5,
                             productTitle: editingStory.affiliateAd?.productTitle || '',
                             productImageUrl: editingStory.affiliateAd?.productImageUrl || '',
-                            affiliateUrl: editingStory.affiliateAd?.affiliateUrl || '',
                             productDescription: editingStory.affiliateAd?.productDescription || '',
                           },
                         })
@@ -936,27 +937,67 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
 
                 {editingStory.affiliateAd?.enabled && (
                   <div className="space-y-4 pt-1">
-                    <div className="space-y-1">
-                      <label className="block text-xs font-bold text-slate-800">
-                        🛍️ ଷ୍ଟୋର ପ୍ଲାଟଫର୍ମ (Store Platform)
-                      </label>
-                      <select
-                        value={editingStory.affiliateAd?.storePlatform || 'Amazon'}
-                        onChange={(e) =>
-                          setEditingStory({
-                            ...editingStory,
-                            affiliateAd: {
-                              ...(editingStory.affiliateAd || {}),
-                              storePlatform: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-bold bg-white"
-                      >
-                        <option value="Amazon">Amazon</option>
-                        <option value="Flipkart">Flipkart</option>
-                        <option value="Meesho">Meesho</option>
-                      </select>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-800">
+                          Amazon Link
+                        </label>
+                        <input
+                          type="url"
+                          value={editingStory.affiliateAd?.amazonLink || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                amazonLink: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="https://amazon.in/..."
+                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-800">
+                          Flipkart Link
+                        </label>
+                        <input
+                          type="url"
+                          value={editingStory.affiliateAd?.flipkartLink || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                flipkartLink: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="https://flipkart.com/..."
+                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-xs font-bold text-slate-800">
+                          Meesho Link
+                        </label>
+                        <input
+                          type="url"
+                          value={editingStory.affiliateAd?.meeshoLink || ''}
+                          onChange={(e) =>
+                            setEditingStory({
+                              ...editingStory,
+                              affiliateAd: {
+                                ...(editingStory.affiliateAd || {}),
+                                meeshoLink: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="https://meesho.com/..."
+                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
+                        />
+                      </div>
                     </div>
                     
                     <div className="space-y-1">
@@ -981,28 +1022,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                      <div className="space-y-1 sm:col-span-7">
-                        <label className="block text-xs font-bold text-slate-800">
-                          🔗 Target Link (ଅର୍ଡର ଲିଙ୍କ୍)
-                        </label>
-                        <input
-                          type="url"
-                          value={editingStory.affiliateAd?.affiliateUrl || ''}
-                          onChange={(e) =>
-                            setEditingStory({
-                              ...editingStory,
-                              affiliateAd: {
-                                ...(editingStory.affiliateAd || {}),
-                                affiliateUrl: e.target.value,
-                              },
-                            })
-                          }
-                          placeholder="https://www.amazon.in/dp/...?tag=youraffiliate-21"
-                          className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
-                        />
-                      </div>
-
-                      <div className="space-y-1 sm:col-span-5">
+                      <div className="space-y-1 sm:col-span-12">
                         <S3PhotoUploader
                           value={editingStory.affiliateAd?.productImageUrl || ''}
                           onChange={(url) =>
@@ -1165,7 +1185,9 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                       enabled: false,
                       productTitle: '',
                       productImageUrl: '',
-                      affiliateUrl: '',
+                      amazonLink: '',
+                      flipkartLink: '',
+                      meeshoLink: '',
                       productDescription: '',
                       triggerDelaySeconds: 4,
                       countdownSeconds: 5,
