@@ -11,12 +11,12 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productImageUrl": "",
+      "countdownSeconds": 5,
       "affiliateUrl": "",
       "productTitle": "",
       "productDescription": "",
-      "countdownSeconds": 5,
+      "productImageUrl": "",
+      "enabled": false,
       "triggerDelaySeconds": 4
     },
     "author": "Bhakti Ananda Odia TV"
@@ -33,12 +33,12 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productImageUrl": "",
+      "countdownSeconds": 5,
       "affiliateUrl": "",
       "productTitle": "",
       "productDescription": "",
-      "countdownSeconds": 5,
+      "productImageUrl": "",
+      "enabled": false,
       "triggerDelaySeconds": 4
     },
     "author": "Bhakti Ananda Odia TV"
@@ -55,12 +55,12 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productImageUrl": "",
+      "countdownSeconds": 5,
       "affiliateUrl": "",
       "productTitle": "",
       "productDescription": "",
-      "countdownSeconds": 5,
+      "productImageUrl": "",
+      "enabled": false,
       "triggerDelaySeconds": 4
     },
     "author": "Bhakti Ananda Odia TV"
@@ -77,12 +77,12 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productImageUrl": "",
+      "countdownSeconds": 5,
       "affiliateUrl": "",
       "productTitle": "",
       "productDescription": "",
-      "countdownSeconds": 5,
+      "productImageUrl": "",
+      "enabled": false,
       "triggerDelaySeconds": 4
     },
     "author": "Bhakti Ananda Odia TV"
@@ -99,12 +99,12 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productImageUrl": "",
+      "countdownSeconds": 5,
       "affiliateUrl": "",
       "productTitle": "",
       "productDescription": "",
-      "countdownSeconds": 5,
+      "productImageUrl": "",
+      "enabled": false,
       "triggerDelaySeconds": 4
     },
     "author": "Bhakti Ananda Odia TV"
@@ -121,12 +121,12 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productImageUrl": "",
+      "countdownSeconds": 5,
       "affiliateUrl": "",
       "productTitle": "",
       "productDescription": "",
-      "countdownSeconds": 5,
+      "productImageUrl": "",
+      "enabled": false,
       "triggerDelaySeconds": 4
     },
     "author": "Bhakti Ananda Odia TV"
@@ -143,14 +143,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "countdownSeconds": 15,
-      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
       "productDescription": "ଘରକୁ ପବିତ୍ର କରିବା: ଏଥିରେ ଲୋବାନ୍, ସାମ୍ବ୍ରାଣୀ, କର୍ପୂର କିମ୍ବା ଧୂପ ଜାଳିବା ଦ୍ୱାରା ଘରର ବାତାବରଣ ପବିତ୍ର ଓ ସୁଗନ୍ଧିତ ହୋଇଥାଏ । ​ପୂଜାପାଠ ଓ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ଏହାକୁ ଘରର ମନ୍ଦିର କିମ୍ବା ଅଫିସରେ ପୂଜାପାଠ ଏବଂ ହବନ ସମୟରେ ଧୂଆଁ ଦେବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ । ​ପୋଡ଼ି ହେବାରୁ ସୁରକ୍ଷା: ଏଥିରେ ଏକ ହ୍ୟାଣ୍ଡେଲ୍ (ହସ୍ତଲଗ୍ନ) ରହିଛି, ଯାହାଦ୍ୱାରା ଏହାକୁ ଗରମ ଥିବା ଅବସ୍ଥାରେ ମଧ୍ୟ ସହଜରେ ଧରି ଘରର ଚାରିଆଡ଼େ ଧୂଆଁ ବୁଲାଇହୁଏ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
+      "countdownSeconds": 15,
+      "enabled": true,
       "affiliateUrl": "https://link.amazon/B009F88ui",
       "adTimerSeconds": 15,
-      "enabled": true
+      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -166,14 +166,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "countdownSeconds": 15,
-      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
       "productDescription": "ଘରକୁ ପବିତ୍ର କରିବା: ଏଥିରେ ଲୋବାନ୍, ସାମ୍ବ୍ରାଣୀ, କର୍ପୂର କିମ୍ବା ଧୂପ ଜାଳିବା ଦ୍ୱାରା ଘରର ବାତାବରଣ ପବିତ୍ର ଓ ସୁଗନ୍ଧିତ ହୋଇଥାଏ । ​ପୂଜାପାଠ ଓ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ଏହାକୁ ଘରର ମନ୍ଦିର କିମ୍ବା ଅଫିସରେ ପୂଜାପାଠ ଏବଂ ହବନ ସମୟରେ ଧୂଆଁ ଦେବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ । ​ପୋଡ଼ି ହେବାରୁ ସୁରକ୍ଷା: ଏଥିରେ ଏକ ହ୍ୟାଣ୍ଡେଲ୍ (ହସ୍ତଲଗ୍ନ) ରହିଛି, ଯାହାଦ୍ୱାରା ଏହାକୁ ଗରମ ଥିବା ଅବସ୍ଥାରେ ମଧ୍ୟ ସହଜରେ ଧରି ଘରର ଚାରିଆଡ଼େ ଧୂଆଁ ବୁଲାଇହୁଏ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
+      "countdownSeconds": 15,
+      "enabled": true,
       "affiliateUrl": "https://link.amazon/B009F88ui",
       "adTimerSeconds": 15,
-      "enabled": true
+      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -189,14 +189,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "countdownSeconds": 15,
-      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
       "productDescription": "ଘରକୁ ପବିତ୍ର କରିବା: ଏଥିରେ ଲୋବାନ୍, ସାମ୍ବ୍ରାଣୀ, କର୍ପୂର କିମ୍ବା ଧୂପ ଜାଳିବା ଦ୍ୱାରା ଘରର ବାତାବରଣ ପବିତ୍ର ଓ ସୁଗନ୍ଧିତ ହୋଇଥାଏ । ​ପୂଜାପାଠ ଓ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ଏହାକୁ ଘରର ମନ୍ଦିର କିମ୍ବା ଅଫିସରେ ପୂଜାପାଠ ଏବଂ ହବନ ସମୟରେ ଧୂଆଁ ଦେବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ । ​ପୋଡ଼ି ହେବାରୁ ସୁରକ୍ଷା: ଏଥିରେ ଏକ ହ୍ୟାଣ୍ଡେଲ୍ (ହସ୍ତଲଗ୍ନ) ରହିଛି, ଯାହାଦ୍ୱାରା ଏହାକୁ ଗରମ ଥିବା ଅବସ୍ଥାରେ ମଧ୍ୟ ସହଜରେ ଧରି ଘରର ଚାରିଆଡ଼େ ଧୂଆଁ ବୁଲାଇହୁଏ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
+      "countdownSeconds": 15,
+      "enabled": true,
       "affiliateUrl": "https://link.amazon/B009F88ui",
       "adTimerSeconds": 15,
-      "enabled": true
+      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -212,14 +212,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "countdownSeconds": 15,
-      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
       "productDescription": "ଘରକୁ ପବିତ୍ର କରିବା: ଏଥିରେ ଲୋବାନ୍, ସାମ୍ବ୍ରାଣୀ, କର୍ପୂର କିମ୍ବା ଧୂପ ଜାଳିବା ଦ୍ୱାରା ଘରର ବାତାବରଣ ପବିତ୍ର ଓ ସୁଗନ୍ଧିତ ହୋଇଥାଏ । ​ପୂଜାପାଠ ଓ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ଏହାକୁ ଘରର ମନ୍ଦିର କିମ୍ବା ଅଫିସରେ ପୂଜାପାଠ ଏବଂ ହବନ ସମୟରେ ଧୂଆଁ ଦେବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ । ​ପୋଡ଼ି ହେବାରୁ ସୁରକ୍ଷା: ଏଥିରେ ଏକ ହ୍ୟାଣ୍ଡେଲ୍ (ହସ୍ତଲଗ୍ନ) ରହିଛି, ଯାହାଦ୍ୱାରା ଏହାକୁ ଗରମ ଥିବା ଅବସ୍ଥାରେ ମଧ୍ୟ ସହଜରେ ଧରି ଘରର ଚାରିଆଡ଼େ ଧୂଆଁ ବୁଲାଇହୁଏ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
+      "countdownSeconds": 15,
+      "enabled": true,
       "affiliateUrl": "https://link.amazon/B009F88ui",
       "adTimerSeconds": 15,
-      "enabled": true
+      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -235,14 +235,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "countdownSeconds": 15,
-      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
       "productDescription": "ଘରକୁ ପବିତ୍ର କରିବା: ଏଥିରେ ଲୋବାନ୍, ସାମ୍ବ୍ରାଣୀ, କର୍ପୂର କିମ୍ବା ଧୂପ ଜାଳିବା ଦ୍ୱାରା ଘରର ବାତାବରଣ ପବିତ୍ର ଓ ସୁଗନ୍ଧିତ ହୋଇଥାଏ । ​ପୂଜାପାଠ ଓ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ଏହାକୁ ଘରର ମନ୍ଦିର କିମ୍ବା ଅଫିସରେ ପୂଜାପାଠ ଏବଂ ହବନ ସମୟରେ ଧୂଆଁ ଦେବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ । ​ପୋଡ଼ି ହେବାରୁ ସୁରକ୍ଷା: ଏଥିରେ ଏକ ହ୍ୟାଣ୍ଡେଲ୍ (ହସ୍ତଲଗ୍ନ) ରହିଛି, ଯାହାଦ୍ୱାରା ଏହାକୁ ଗରମ ଥିବା ଅବସ୍ଥାରେ ମଧ୍ୟ ସହଜରେ ଧରି ଘରର ଚାରିଆଡ଼େ ଧୂଆଁ ବୁଲାଇହୁଏ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
+      "countdownSeconds": 15,
+      "enabled": true,
       "affiliateUrl": "https://link.amazon/B009F88ui",
       "adTimerSeconds": 15,
-      "enabled": true
+      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -258,14 +258,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "countdownSeconds": 15,
-      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
       "productDescription": "ଘରକୁ ପବିତ୍ର କରିବା: ଏଥିରେ ଲୋବାନ୍, ସାମ୍ବ୍ରାଣୀ, କର୍ପୂର କିମ୍ବା ଧୂପ ଜାଳିବା ଦ୍ୱାରା ଘରର ବାତାବରଣ ପବିତ୍ର ଓ ସୁଗନ୍ଧିତ ହୋଇଥାଏ । ​ପୂଜାପାଠ ଓ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ଏହାକୁ ଘରର ମନ୍ଦିର କିମ୍ବା ଅଫିସରେ ପୂଜାପାଠ ଏବଂ ହବନ ସମୟରେ ଧୂଆଁ ଦେବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ । ​ପୋଡ଼ି ହେବାରୁ ସୁରକ୍ଷା: ଏଥିରେ ଏକ ହ୍ୟାଣ୍ଡେଲ୍ (ହସ୍ତଲଗ୍ନ) ରହିଛି, ଯାହାଦ୍ୱାରା ଏହାକୁ ଗରମ ଥିବା ଅବସ୍ଥାରେ ମଧ୍ୟ ସହଜରେ ଧରି ଘରର ଚାରିଆଡ଼େ ଧୂଆଁ ବୁଲାଇହୁଏ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788273462125_igkno9.jpg",
+      "countdownSeconds": 15,
+      "enabled": true,
       "affiliateUrl": "https://link.amazon/B009F88ui",
       "adTimerSeconds": 15,
-      "enabled": true
+      "productTitle": "DSH Home Purifying Hand-Loban Incense Burner, Loban Burner with Handle, ",
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -281,13 +281,13 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": false,
       "affiliateUrl": "",
       "productTitle": "",
-      "triggerDelaySeconds": 4,
       "productImageUrl": "",
-      "productDescription": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -303,13 +303,13 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": false,
       "affiliateUrl": "",
       "productTitle": "",
-      "triggerDelaySeconds": 4,
       "productImageUrl": "",
-      "productDescription": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -325,13 +325,13 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": false,
       "affiliateUrl": "",
       "productTitle": "",
-      "triggerDelaySeconds": 4,
       "productImageUrl": "",
-      "productDescription": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -347,13 +347,13 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": false,
       "affiliateUrl": "",
       "productTitle": "",
-      "triggerDelaySeconds": 4,
       "productImageUrl": "",
-      "productDescription": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -369,13 +369,13 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": false,
       "affiliateUrl": "",
       "productTitle": "",
-      "triggerDelaySeconds": 4,
       "productImageUrl": "",
-      "productDescription": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -391,13 +391,13 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": false,
       "affiliateUrl": "",
       "productTitle": "",
-      "triggerDelaySeconds": 4,
       "productImageUrl": "",
-      "productDescription": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -413,14 +413,14 @@
     "likesCount": 3,
     "isFeatured": true,
     "affiliateAd": {
-      "productTitle": "ପୁଜା ଘୀୟ",
-      "affiliateUrl": "https://link.amazon/B014lp2I9",
-      "adTimerSeconds": 18,
       "enabled": true,
       "productDescription": "",
+      "productTitle": "ପୁଜା ଘୀୟ",
+      "affiliateUrl": "https://link.amazon/B014lp2I9",
       "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg",
       "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg"
+      "adTimerSeconds": 18
     },
     "author": "Maa tarini puja "
   },
@@ -436,14 +436,14 @@
     "likesCount": 3,
     "isFeatured": true,
     "affiliateAd": {
-      "productTitle": "ପୁଜା ଘୀୟ",
-      "affiliateUrl": "https://link.amazon/B014lp2I9",
-      "adTimerSeconds": 18,
       "enabled": true,
       "productDescription": "",
+      "productTitle": "ପୁଜା ଘୀୟ",
+      "affiliateUrl": "https://link.amazon/B014lp2I9",
       "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg",
       "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg"
+      "adTimerSeconds": 18
     },
     "author": "Maa tarini puja "
   },
@@ -459,14 +459,14 @@
     "likesCount": 3,
     "isFeatured": true,
     "affiliateAd": {
-      "productTitle": "ପୁଜା ଘୀୟ",
-      "affiliateUrl": "https://link.amazon/B014lp2I9",
-      "adTimerSeconds": 18,
       "enabled": true,
       "productDescription": "",
+      "productTitle": "ପୁଜା ଘୀୟ",
+      "affiliateUrl": "https://link.amazon/B014lp2I9",
       "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg",
       "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg"
+      "adTimerSeconds": 18
     },
     "author": "Maa tarini puja "
   },
@@ -482,14 +482,14 @@
     "likesCount": 3,
     "isFeatured": true,
     "affiliateAd": {
-      "productTitle": "ପୁଜା ଘୀୟ",
-      "affiliateUrl": "https://link.amazon/B014lp2I9",
-      "adTimerSeconds": 18,
       "enabled": true,
       "productDescription": "",
+      "productTitle": "ପୁଜା ଘୀୟ",
+      "affiliateUrl": "https://link.amazon/B014lp2I9",
       "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg",
       "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg"
+      "adTimerSeconds": 18
     },
     "author": "Maa tarini puja "
   },
@@ -505,14 +505,14 @@
     "likesCount": 3,
     "isFeatured": true,
     "affiliateAd": {
-      "productTitle": "ପୁଜା ଘୀୟ",
-      "affiliateUrl": "https://link.amazon/B014lp2I9",
-      "adTimerSeconds": 18,
       "enabled": true,
       "productDescription": "",
+      "productTitle": "ପୁଜା ଘୀୟ",
+      "affiliateUrl": "https://link.amazon/B014lp2I9",
       "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg",
       "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg"
+      "adTimerSeconds": 18
     },
     "author": "Maa tarini puja "
   },
@@ -528,14 +528,14 @@
     "likesCount": 3,
     "isFeatured": true,
     "affiliateAd": {
-      "productTitle": "ପୁଜା ଘୀୟ",
-      "affiliateUrl": "https://link.amazon/B014lp2I9",
-      "adTimerSeconds": 18,
       "enabled": true,
       "productDescription": "",
+      "productTitle": "ପୁଜା ଘୀୟ",
+      "affiliateUrl": "https://link.amazon/B014lp2I9",
       "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg",
       "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788040457121_kzmehm.jpg"
+      "adTimerSeconds": 18
     },
     "author": "Maa tarini puja "
   },
@@ -629,14 +629,14 @@
     "likesCount": 0,
     "isFeatured": true,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
       "productTitle": "Hem Madhur Chandan Dhoop Cones | Sandalwood Fragrance for Pooja ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
-      "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "adTimerSeconds": 15,
-      "productDescription": ""
+      "productDescription": "",
+      "enabled": true
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -652,14 +652,14 @@
     "likesCount": 0,
     "isFeatured": true,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
       "productTitle": "Hem Madhur Chandan Dhoop Cones | Sandalwood Fragrance for Pooja ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
-      "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "adTimerSeconds": 15,
-      "productDescription": ""
+      "productDescription": "",
+      "enabled": true
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -675,14 +675,14 @@
     "likesCount": 0,
     "isFeatured": true,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
       "productTitle": "Hem Madhur Chandan Dhoop Cones | Sandalwood Fragrance for Pooja ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
-      "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "adTimerSeconds": 15,
-      "productDescription": ""
+      "productDescription": "",
+      "enabled": true
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -698,14 +698,14 @@
     "likesCount": 0,
     "isFeatured": true,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
       "productTitle": "Hem Madhur Chandan Dhoop Cones | Sandalwood Fragrance for Pooja ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
-      "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "adTimerSeconds": 15,
-      "productDescription": ""
+      "productDescription": "",
+      "enabled": true
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -721,14 +721,14 @@
     "likesCount": 0,
     "isFeatured": true,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
       "productTitle": "Hem Madhur Chandan Dhoop Cones | Sandalwood Fragrance for Pooja ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
-      "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "adTimerSeconds": 15,
-      "productDescription": ""
+      "productDescription": "",
+      "enabled": true
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -744,14 +744,14 @@
     "likesCount": 0,
     "isFeatured": true,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
       "productTitle": "Hem Madhur Chandan Dhoop Cones | Sandalwood Fragrance for Pooja ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B0hZrW1ri",
-      "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788176675969_4gh2l0.jpg",
       "adTimerSeconds": 15,
-      "productDescription": ""
+      "productDescription": "",
+      "enabled": true
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -768,12 +768,12 @@
     "isFeatured": false,
     "affiliateAd": {
       "triggerDelaySeconds": 4,
+      "enabled": false,
       "productImageUrl": "",
       "affiliateUrl": "",
-      "productDescription": "",
       "productTitle": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "productDescription": "",
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda Odia TV"
   },
@@ -790,12 +790,12 @@
     "isFeatured": false,
     "affiliateAd": {
       "triggerDelaySeconds": 4,
+      "enabled": false,
       "productImageUrl": "",
       "affiliateUrl": "",
-      "productDescription": "",
       "productTitle": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "productDescription": "",
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda Odia TV"
   },
@@ -812,12 +812,12 @@
     "isFeatured": false,
     "affiliateAd": {
       "triggerDelaySeconds": 4,
+      "enabled": false,
       "productImageUrl": "",
       "affiliateUrl": "",
-      "productDescription": "",
       "productTitle": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "productDescription": "",
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda Odia TV"
   },
@@ -834,12 +834,12 @@
     "isFeatured": false,
     "affiliateAd": {
       "triggerDelaySeconds": 4,
+      "enabled": false,
       "productImageUrl": "",
       "affiliateUrl": "",
-      "productDescription": "",
       "productTitle": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "productDescription": "",
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda Odia TV"
   },
@@ -856,12 +856,12 @@
     "isFeatured": false,
     "affiliateAd": {
       "triggerDelaySeconds": 4,
+      "enabled": false,
       "productImageUrl": "",
       "affiliateUrl": "",
-      "productDescription": "",
       "productTitle": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "productDescription": "",
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda Odia TV"
   },
@@ -878,12 +878,12 @@
     "isFeatured": false,
     "affiliateAd": {
       "triggerDelaySeconds": 4,
+      "enabled": false,
       "productImageUrl": "",
       "affiliateUrl": "",
-      "productDescription": "",
       "productTitle": "",
-      "countdownSeconds": 5,
-      "enabled": false
+      "productDescription": "",
+      "countdownSeconds": 5
     },
     "author": "Bhakti Ananda Odia TV"
   },
@@ -900,13 +900,13 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, ",
-      "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg",
       "affiliateUrl": "https://link.amazon/B08muasU3",
-      "enabled": true,
-      "adTimerSeconds": 15,
       "productTitle": "Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home & Office",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg"
+      "adTimerSeconds": 15,
+      "enabled": true,
+      "countdownSeconds": 15
     },
     "author": "Bhakti Ananda odia TV "
   },
@@ -923,13 +923,13 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, ",
-      "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg",
       "affiliateUrl": "https://link.amazon/B08muasU3",
-      "enabled": true,
-      "adTimerSeconds": 15,
       "productTitle": "Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home & Office",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg"
+      "adTimerSeconds": 15,
+      "enabled": true,
+      "countdownSeconds": 15
     },
     "author": "Bhakti Ananda odia TV "
   },
@@ -946,13 +946,13 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, ",
-      "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg",
       "affiliateUrl": "https://link.amazon/B08muasU3",
-      "enabled": true,
-      "adTimerSeconds": 15,
       "productTitle": "Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home & Office",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg"
+      "adTimerSeconds": 15,
+      "enabled": true,
+      "countdownSeconds": 15
     },
     "author": "Bhakti Ananda odia TV "
   },
@@ -969,13 +969,13 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, ",
-      "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg",
       "affiliateUrl": "https://link.amazon/B08muasU3",
-      "enabled": true,
-      "adTimerSeconds": 15,
       "productTitle": "Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home & Office",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg"
+      "adTimerSeconds": 15,
+      "enabled": true,
+      "countdownSeconds": 15
     },
     "author": "Bhakti Ananda odia TV "
   },
@@ -992,13 +992,13 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, ",
-      "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg",
       "affiliateUrl": "https://link.amazon/B08muasU3",
-      "enabled": true,
-      "adTimerSeconds": 15,
       "productTitle": "Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home & Office",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg"
+      "adTimerSeconds": 15,
+      "enabled": true,
+      "countdownSeconds": 15
     },
     "author": "Bhakti Ananda odia TV "
   },
@@ -1015,13 +1015,13 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, ",
-      "countdownSeconds": 15,
       "triggerDelaySeconds": 4,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg",
       "affiliateUrl": "https://link.amazon/B08muasU3",
-      "enabled": true,
-      "adTimerSeconds": 15,
       "productTitle": "Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home & Office",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg"
+      "adTimerSeconds": 15,
+      "enabled": true,
+      "countdownSeconds": 15
     },
     "author": "Bhakti Ananda odia TV "
   },
@@ -1037,13 +1037,13 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productDescription": "",
-      "countdownSeconds": 5,
       "productImageUrl": "",
       "productTitle": "",
       "affiliateUrl": "",
-      "triggerDelaySeconds": 4
+      "enabled": false,
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 5,
+      "productDescription": ""
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1059,13 +1059,13 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productDescription": "",
-      "countdownSeconds": 5,
       "productImageUrl": "",
       "productTitle": "",
       "affiliateUrl": "",
-      "triggerDelaySeconds": 4
+      "enabled": false,
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 5,
+      "productDescription": ""
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1081,13 +1081,13 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productDescription": "",
-      "countdownSeconds": 5,
       "productImageUrl": "",
       "productTitle": "",
       "affiliateUrl": "",
-      "triggerDelaySeconds": 4
+      "enabled": false,
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 5,
+      "productDescription": ""
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1103,13 +1103,13 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productDescription": "",
-      "countdownSeconds": 5,
       "productImageUrl": "",
       "productTitle": "",
       "affiliateUrl": "",
-      "triggerDelaySeconds": 4
+      "enabled": false,
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 5,
+      "productDescription": ""
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1125,13 +1125,13 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productDescription": "",
-      "countdownSeconds": 5,
       "productImageUrl": "",
       "productTitle": "",
       "affiliateUrl": "",
-      "triggerDelaySeconds": 4
+      "enabled": false,
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 5,
+      "productDescription": ""
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1147,13 +1147,13 @@
     "likesCount": 0,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": false,
-      "productDescription": "",
-      "countdownSeconds": 5,
       "productImageUrl": "",
       "productTitle": "",
       "affiliateUrl": "",
-      "triggerDelaySeconds": 4
+      "enabled": false,
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 5,
+      "productDescription": ""
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1170,10 +1170,10 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "",
-      "enabled": false,
-      "productTitle": "",
-      "productImageUrl": "",
       "affiliateUrl": "",
+      "productImageUrl": "",
+      "productTitle": "",
+      "enabled": false,
       "triggerDelaySeconds": 4,
       "countdownSeconds": 5
     },
@@ -1192,10 +1192,10 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "",
-      "enabled": false,
-      "productTitle": "",
-      "productImageUrl": "",
       "affiliateUrl": "",
+      "productImageUrl": "",
+      "productTitle": "",
+      "enabled": false,
       "triggerDelaySeconds": 4,
       "countdownSeconds": 5
     },
@@ -1214,10 +1214,10 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "",
-      "enabled": false,
-      "productTitle": "",
-      "productImageUrl": "",
       "affiliateUrl": "",
+      "productImageUrl": "",
+      "productTitle": "",
+      "enabled": false,
       "triggerDelaySeconds": 4,
       "countdownSeconds": 5
     },
@@ -1236,10 +1236,10 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "",
-      "enabled": false,
-      "productTitle": "",
-      "productImageUrl": "",
       "affiliateUrl": "",
+      "productImageUrl": "",
+      "productTitle": "",
+      "enabled": false,
       "triggerDelaySeconds": 4,
       "countdownSeconds": 5
     },
@@ -1258,10 +1258,10 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "",
-      "enabled": false,
-      "productTitle": "",
-      "productImageUrl": "",
       "affiliateUrl": "",
+      "productImageUrl": "",
+      "productTitle": "",
+      "enabled": false,
       "triggerDelaySeconds": 4,
       "countdownSeconds": 5
     },
@@ -1280,10 +1280,10 @@
     "isFeatured": false,
     "affiliateAd": {
       "productDescription": "",
-      "enabled": false,
-      "productTitle": "",
-      "productImageUrl": "",
       "affiliateUrl": "",
+      "productImageUrl": "",
+      "productTitle": "",
+      "enabled": false,
       "triggerDelaySeconds": 4,
       "countdownSeconds": 5
     },
@@ -1301,15 +1301,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
-      "productDescription": "",
-      "countdownSeconds": 20,
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B0bc8Rt2e",
       "productTitle": "Decorative Gold Finish Puja Flower Basket with Handle, Traditional Indian Design|",
-      "affiliateUrl": "https://link.amazon/B0bc8Rt2e"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
+      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": true,
+      "countdownSeconds": 20,
+      "adTimerSeconds": 20
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1325,15 +1325,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
-      "productDescription": "",
-      "countdownSeconds": 20,
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B0bc8Rt2e",
       "productTitle": "Decorative Gold Finish Puja Flower Basket with Handle, Traditional Indian Design|",
-      "affiliateUrl": "https://link.amazon/B0bc8Rt2e"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
+      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": true,
+      "countdownSeconds": 20,
+      "adTimerSeconds": 20
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1349,15 +1349,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
-      "productDescription": "",
-      "countdownSeconds": 20,
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B0bc8Rt2e",
       "productTitle": "Decorative Gold Finish Puja Flower Basket with Handle, Traditional Indian Design|",
-      "affiliateUrl": "https://link.amazon/B0bc8Rt2e"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
+      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": true,
+      "countdownSeconds": 20,
+      "adTimerSeconds": 20
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1373,15 +1373,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
-      "productDescription": "",
-      "countdownSeconds": 20,
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B0bc8Rt2e",
       "productTitle": "Decorative Gold Finish Puja Flower Basket with Handle, Traditional Indian Design|",
-      "affiliateUrl": "https://link.amazon/B0bc8Rt2e"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
+      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": true,
+      "countdownSeconds": 20,
+      "adTimerSeconds": 20
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1397,15 +1397,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
-      "productDescription": "",
-      "countdownSeconds": 20,
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B0bc8Rt2e",
       "productTitle": "Decorative Gold Finish Puja Flower Basket with Handle, Traditional Indian Design|",
-      "affiliateUrl": "https://link.amazon/B0bc8Rt2e"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
+      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": true,
+      "countdownSeconds": 20,
+      "adTimerSeconds": 20
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1421,15 +1421,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
-      "productDescription": "",
-      "countdownSeconds": 20,
-      "triggerDelaySeconds": 4,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B0bc8Rt2e",
       "productTitle": "Decorative Gold Finish Puja Flower Basket with Handle, Traditional Indian Design|",
-      "affiliateUrl": "https://link.amazon/B0bc8Rt2e"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788067844575_py5vhc.jpg",
+      "adTriggerText": "ମନ୍ଦିର, କିମ୍ୱା ଘର ପାଇଁ ବହୁତ ଜରୁରି ",
+      "triggerDelaySeconds": 4,
+      "productDescription": "",
+      "enabled": true,
+      "countdownSeconds": 20,
+      "adTimerSeconds": 20
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1445,14 +1445,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "enabled": true,
-      "adTimerSeconds": 16,
+      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "countdownSeconds": 16,
-      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "adTimerSeconds": 16,
       "affiliateUrl": "https://link.amazon/B0cv8YCp1",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg"
+      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg",
+      "triggerDelaySeconds": 4
     },
     "author": "ଲେଖକ:ପୂର୍ଣଚନ୍ଦ୍ର ଶୂରଦେଓ  ନୟାଗଡ଼"
   },
@@ -1468,14 +1468,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "enabled": true,
-      "adTimerSeconds": 16,
+      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "countdownSeconds": 16,
-      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "adTimerSeconds": 16,
       "affiliateUrl": "https://link.amazon/B0cv8YCp1",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg"
+      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg",
+      "triggerDelaySeconds": 4
     },
     "author": "ଲେଖକ:ପୂର୍ଣଚନ୍ଦ୍ର ଶୂରଦେଓ  ନୟାଗଡ଼"
   },
@@ -1491,14 +1491,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "enabled": true,
-      "adTimerSeconds": 16,
+      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "countdownSeconds": 16,
-      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "adTimerSeconds": 16,
       "affiliateUrl": "https://link.amazon/B0cv8YCp1",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg"
+      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg",
+      "triggerDelaySeconds": 4
     },
     "author": "ଲେଖକ:ପୂର୍ଣଚନ୍ଦ୍ର ଶୂରଦେଓ  ନୟାଗଡ଼"
   },
@@ -1514,14 +1514,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "enabled": true,
-      "adTimerSeconds": 16,
+      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "countdownSeconds": 16,
-      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "adTimerSeconds": 16,
       "affiliateUrl": "https://link.amazon/B0cv8YCp1",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg"
+      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg",
+      "triggerDelaySeconds": 4
     },
     "author": "ଲେଖକ:ପୂର୍ଣଚନ୍ଦ୍ର ଶୂରଦେଓ  ନୟାଗଡ଼"
   },
@@ -1537,14 +1537,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "enabled": true,
-      "adTimerSeconds": 16,
+      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "countdownSeconds": 16,
-      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "adTimerSeconds": 16,
       "affiliateUrl": "https://link.amazon/B0cv8YCp1",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg"
+      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg",
+      "triggerDelaySeconds": 4
     },
     "author": "ଲେଖକ:ପୂର୍ଣଚନ୍ଦ୍ର ଶୂରଦେଓ  ନୟାଗଡ଼"
   },
@@ -1560,14 +1560,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "enabled": true,
-      "adTimerSeconds": 16,
+      "productDescription": "ପୂଜା ସାମଗ୍ରୀ ରଖିବା: ଏଥିରେ ଥିବା ୪ଟି ଛୋଟ ବାଟିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଆବଶ୍ୟକ ହେଉଥିବା ସିନ୍ଦୂର (କୁମକୁମ), ହଳଦୀ, ଅକ୍ଷତ (ଚାଉଳ), ଏବଂ ଚନ୍ଦନ ଗୁଣ୍ଡ ଆଦି ସୁବିଧାରେ ରଖାଯାଏ",
       "countdownSeconds": 16,
-      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "adTimerSeconds": 16,
       "affiliateUrl": "https://link.amazon/B0cv8YCp1",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg"
+      "productTitle": "Dual Purpose Brass kankavati with Peacock chowmukh | choupala ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788285215352_favpyx.jpg",
+      "triggerDelaySeconds": 4
     },
     "author": "ଲେଖକ:ପୂର୍ଣଚନ୍ଦ୍ର ଶୂରଦେଓ  ନୟାଗଡ଼"
   },
@@ -1583,15 +1583,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
       "adTriggerText": "ଯେଉଁମାନେ ନିଷ୍ଠାର ସହ ମା’ଙ୍କୁ ଡାକନ୍ତି",
-      "triggerDelaySeconds": 4,
-      "adTimerSeconds": 15,
-      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
-      "countdownSeconds": 15,
       "enabled": true,
+      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
+      "adTimerSeconds": 15,
+      "triggerDelaySeconds": 4,
+      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali ",
       "affiliateUrl": "https://link.amazon/B0209uw64",
-      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali "
+      "countdownSeconds": 15
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1607,15 +1607,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
       "adTriggerText": "ଯେଉଁମାନେ ନିଷ୍ଠାର ସହ ମା’ଙ୍କୁ ଡାକନ୍ତି",
-      "triggerDelaySeconds": 4,
-      "adTimerSeconds": 15,
-      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
-      "countdownSeconds": 15,
       "enabled": true,
+      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
+      "adTimerSeconds": 15,
+      "triggerDelaySeconds": 4,
+      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali ",
       "affiliateUrl": "https://link.amazon/B0209uw64",
-      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali "
+      "countdownSeconds": 15
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1631,15 +1631,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
       "adTriggerText": "ଯେଉଁମାନେ ନିଷ୍ଠାର ସହ ମା’ଙ୍କୁ ଡାକନ୍ତି",
-      "triggerDelaySeconds": 4,
-      "adTimerSeconds": 15,
-      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
-      "countdownSeconds": 15,
       "enabled": true,
+      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
+      "adTimerSeconds": 15,
+      "triggerDelaySeconds": 4,
+      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali ",
       "affiliateUrl": "https://link.amazon/B0209uw64",
-      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali "
+      "countdownSeconds": 15
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1655,15 +1655,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
       "adTriggerText": "ଯେଉଁମାନେ ନିଷ୍ଠାର ସହ ମା’ଙ୍କୁ ଡାକନ୍ତି",
-      "triggerDelaySeconds": 4,
-      "adTimerSeconds": 15,
-      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
-      "countdownSeconds": 15,
       "enabled": true,
+      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
+      "adTimerSeconds": 15,
+      "triggerDelaySeconds": 4,
+      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali ",
       "affiliateUrl": "https://link.amazon/B0209uw64",
-      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali "
+      "countdownSeconds": 15
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1679,15 +1679,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
       "adTriggerText": "ଯେଉଁମାନେ ନିଷ୍ଠାର ସହ ମା’ଙ୍କୁ ଡାକନ୍ତି",
-      "triggerDelaySeconds": 4,
-      "adTimerSeconds": 15,
-      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
-      "countdownSeconds": 15,
       "enabled": true,
+      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
+      "adTimerSeconds": 15,
+      "triggerDelaySeconds": 4,
+      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali ",
       "affiliateUrl": "https://link.amazon/B0209uw64",
-      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali "
+      "countdownSeconds": 15
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1703,15 +1703,15 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
       "adTriggerText": "ଯେଉଁମାନେ ନିଷ୍ଠାର ସହ ମା’ଙ୍କୁ ଡାକନ୍ତି",
-      "triggerDelaySeconds": 4,
-      "adTimerSeconds": 15,
-      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
-      "countdownSeconds": 15,
       "enabled": true,
+      "productDescription": "ପୂଜା ଏବଂ ଧାର୍ମିକ ଅନୁଷ୍ଠାନ: ଏହାକୁ ଘରର ମନ୍ଦିରରେ କିମ୍ବା ପୂଜା ପାଠ ସମୟରେ ତେଲ ବା ଘିଅ ପକାଇ ଦୀପ ଜଳାଇବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ।",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788257470357_1wirdx.jpg",
+      "adTimerSeconds": 15,
+      "triggerDelaySeconds": 4,
+      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali ",
       "affiliateUrl": "https://link.amazon/B0209uw64",
-      "productTitle": "Collectible India Ganesha Diya Oil Lamp - Diwali Diya for Puja Diwali "
+      "countdownSeconds": 15
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1727,14 +1727,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
       "adTimerSeconds": 15,
+      "countdownSeconds": 15,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788260026008_5f8414.jpg",
-      "enabled": true,
-      "affiliateUrl": "https://link.amazon/B0aHX59Io",
       "triggerDelaySeconds": 4,
+      "enabled": true,
       "productDescription": "ଘରେ, ମନ୍ଦିରର ରେ ଆଳତୀ ",
-      "countdownSeconds": 15
+      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
+      "affiliateUrl": "https://link.amazon/B0aHX59Io"
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1750,14 +1750,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
       "adTimerSeconds": 15,
+      "countdownSeconds": 15,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788260026008_5f8414.jpg",
-      "enabled": true,
-      "affiliateUrl": "https://link.amazon/B0aHX59Io",
       "triggerDelaySeconds": 4,
+      "enabled": true,
       "productDescription": "ଘରେ, ମନ୍ଦିରର ରେ ଆଳତୀ ",
-      "countdownSeconds": 15
+      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
+      "affiliateUrl": "https://link.amazon/B0aHX59Io"
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1773,14 +1773,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
       "adTimerSeconds": 15,
+      "countdownSeconds": 15,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788260026008_5f8414.jpg",
-      "enabled": true,
-      "affiliateUrl": "https://link.amazon/B0aHX59Io",
       "triggerDelaySeconds": 4,
+      "enabled": true,
       "productDescription": "ଘରେ, ମନ୍ଦିରର ରେ ଆଳତୀ ",
-      "countdownSeconds": 15
+      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
+      "affiliateUrl": "https://link.amazon/B0aHX59Io"
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1796,14 +1796,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
       "adTimerSeconds": 15,
+      "countdownSeconds": 15,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788260026008_5f8414.jpg",
-      "enabled": true,
-      "affiliateUrl": "https://link.amazon/B0aHX59Io",
       "triggerDelaySeconds": 4,
+      "enabled": true,
       "productDescription": "ଘରେ, ମନ୍ଦିରର ରେ ଆଳତୀ ",
-      "countdownSeconds": 15
+      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
+      "affiliateUrl": "https://link.amazon/B0aHX59Io"
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1819,14 +1819,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
       "adTimerSeconds": 15,
+      "countdownSeconds": 15,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788260026008_5f8414.jpg",
-      "enabled": true,
-      "affiliateUrl": "https://link.amazon/B0aHX59Io",
       "triggerDelaySeconds": 4,
+      "enabled": true,
       "productDescription": "ଘରେ, ମନ୍ଦିରର ରେ ଆଳତୀ ",
-      "countdownSeconds": 15
+      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
+      "affiliateUrl": "https://link.amazon/B0aHX59Io"
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1842,14 +1842,14 @@
     "likesCount": 13,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
       "adTimerSeconds": 15,
+      "countdownSeconds": 15,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788260026008_5f8414.jpg",
-      "enabled": true,
-      "affiliateUrl": "https://link.amazon/B0aHX59Io",
       "triggerDelaySeconds": 4,
+      "enabled": true,
       "productDescription": "ଘରେ, ମନ୍ଦିରର ରେ ଆଳତୀ ",
-      "countdownSeconds": 15
+      "productTitle": "Bhimseni Camphor (Original Solid Kapoor",
+      "affiliateUrl": "https://link.amazon/B0aHX59Io"
     },
     "author": "Bhakti Ananda odia TV official "
   },
@@ -1865,14 +1865,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
+      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
       "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B04qL6MZT",
-      "countdownSeconds": 18,
-      "enabled": true,
       "productTitle": "Lia Agarbatti Special Combo Pack | Pack of 3",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
-      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ"
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 18,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1888,14 +1888,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
+      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
       "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B04qL6MZT",
-      "countdownSeconds": 18,
-      "enabled": true,
       "productTitle": "Lia Agarbatti Special Combo Pack | Pack of 3",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
-      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ"
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 18,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1911,14 +1911,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
+      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
       "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B04qL6MZT",
-      "countdownSeconds": 18,
-      "enabled": true,
       "productTitle": "Lia Agarbatti Special Combo Pack | Pack of 3",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
-      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ"
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 18,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1934,14 +1934,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
+      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
       "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B04qL6MZT",
-      "countdownSeconds": 18,
-      "enabled": true,
       "productTitle": "Lia Agarbatti Special Combo Pack | Pack of 3",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
-      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ"
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 18,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1957,14 +1957,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
+      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
       "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B04qL6MZT",
-      "countdownSeconds": 18,
-      "enabled": true,
       "productTitle": "Lia Agarbatti Special Combo Pack | Pack of 3",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
-      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ"
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 18,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -1980,14 +1980,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
+      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
       "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B04qL6MZT",
-      "countdownSeconds": 18,
-      "enabled": true,
       "productTitle": "Lia Agarbatti Special Combo Pack | Pack of 3",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788495060894_end3yz.jpg",
-      "productDescription": "ଚନ୍ଦନର ମହକ ରହିଛି,ଜୁଇ ବା ମଲ୍ଲୀ ଫୁଲର ସୁଗନ୍ଧ,ଗୋଲାପ ଫୁଲର ମିଠା ଏବଂ କୋମଳ ସୁଗନ୍ଧ"
+      "triggerDelaySeconds": 4,
+      "countdownSeconds": 18,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2005,12 +2005,12 @@
     "affiliateAd": {
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788634268056_x3bo56.jpg",
       "affiliateUrl": "https://link.amazon/B0gMuZA8d",
-      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ",
-      "countdownSeconds": 25,
-      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
       "enabled": true,
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 25,
-      "triggerDelaySeconds": 4
+      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
+      "countdownSeconds": 25,
+      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ"
     },
     "author": "ପୁଜା ରାଣୀ କଟକ "
   },
@@ -2028,12 +2028,12 @@
     "affiliateAd": {
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788634268056_x3bo56.jpg",
       "affiliateUrl": "https://link.amazon/B0gMuZA8d",
-      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ",
-      "countdownSeconds": 25,
-      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
       "enabled": true,
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 25,
-      "triggerDelaySeconds": 4
+      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
+      "countdownSeconds": 25,
+      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ"
     },
     "author": "ପୁଜା ରାଣୀ କଟକ "
   },
@@ -2051,12 +2051,12 @@
     "affiliateAd": {
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788634268056_x3bo56.jpg",
       "affiliateUrl": "https://link.amazon/B0gMuZA8d",
-      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ",
-      "countdownSeconds": 25,
-      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
       "enabled": true,
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 25,
-      "triggerDelaySeconds": 4
+      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
+      "countdownSeconds": 25,
+      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ"
     },
     "author": "ପୁଜା ରାଣୀ କଟକ "
   },
@@ -2074,12 +2074,12 @@
     "affiliateAd": {
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788634268056_x3bo56.jpg",
       "affiliateUrl": "https://link.amazon/B0gMuZA8d",
-      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ",
-      "countdownSeconds": 25,
-      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
       "enabled": true,
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 25,
-      "triggerDelaySeconds": 4
+      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
+      "countdownSeconds": 25,
+      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ"
     },
     "author": "ପୁଜା ରାଣୀ କଟକ "
   },
@@ -2097,12 +2097,12 @@
     "affiliateAd": {
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788634268056_x3bo56.jpg",
       "affiliateUrl": "https://link.amazon/B0gMuZA8d",
-      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ",
-      "countdownSeconds": 25,
-      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
       "enabled": true,
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 25,
-      "triggerDelaySeconds": 4
+      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
+      "countdownSeconds": 25,
+      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ"
     },
     "author": "ପୁଜା ରାଣୀ କଟକ "
   },
@@ -2120,12 +2120,12 @@
     "affiliateAd": {
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788634268056_x3bo56.jpg",
       "affiliateUrl": "https://link.amazon/B0gMuZA8d",
-      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ",
-      "countdownSeconds": 25,
-      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
       "enabled": true,
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 25,
-      "triggerDelaySeconds": 4
+      "productTitle": "Garnier Fresh & Bright Vitamin C Sorbet Gel Face ",
+      "countdownSeconds": 25,
+      "productDescription": "ତୁରନ୍ତ ଉଜ୍ଜ୍ୱଳତା ଆଣେ (Vitamin C): ବ୍ୟସ୍ତବହୁଳ ଜୀବନ ଯୋଗୁଁ ଅନେକ ସମୟରେ ମୁହଁର ଚମକ ଫିକା ପଡ଼ିଯାଏ। ଏଥିରେ ୪.୫% ଭିଟାମିନ୍-ସି (Vitamin C) ଅଛି, ଯାହା ମୁହଁରୁ କଳାଦାଗ କମାଇବା ସହ ତ୍ୱଚାକୁ ଏକ ସତେଜ ଏବଂ ଉଜ୍ଜ୍ୱଳ (ଗ୍ଲୋ) ଲୁକ୍ ଦେଇଥାଏ : ୩. ଲମ୍ବା ସମୟ ଧରି ନରମ ରଖେ (48H Hydrating): ଏଥିରେ ଥିବା ହାୟାଲୁରୋନିକ୍ ଏସିଡ୍ (Hyaluronic Acid) ତ୍ୱଚାକୁ ଭିତରୁ ପୋଷଣ ଦିଏ। ଥରେ ଲଗାଇଲେ ଏହା ୪୮ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ମୁହଁକୁ ଶୁଖିଲା ହେବାକୁ ଦିଏ ନାହିଁ ଏବଂ ତ୍ୱଚାକୁ ନରମ ରଖେ"
     },
     "author": "ପୁଜା ରାଣୀ କଟକ "
   },
@@ -2141,14 +2141,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B02gAdLVO",
       "productDescription": "ପୂଜା ଓ ବନ୍ଦାପନା: ଏହି ଥାଳିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ସିନ୍ଦୂର, ଅରୁଆ ଚାଉଳ, ଫୁଲ ଏବଂ ପ୍ରସାଦ ରଖି ପୂଜା କରାଯାଏ। ​ଆଳତୀ କରିବା: ଥାଳିରେ ଗୋଟିଏ ପଦ୍ମ ଫୁଲ ଆକୃତିର ଦୀପ ରଖିବା ଜାଗା (Tea-Light Holder) ଅଛି। ସେଠାରେ ଆପଣ ଛୋଟ ଦୀପ ବା ଟି-ଲାଇଟ୍ ମହମବତୀ ଜଳାଇ ଦେବଦେବୀଙ୍କ ଆଳତୀ କରିପାରିବେ କିମ୍ବା ବନ୍ଦାପନା କରିପାରିବେ",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
-      "adTimerSeconds": 18,
       "productTitle": "BEHOMA Golden Metal Lotus Pooja Thali with Tea-Light Holder, ",
-      "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
       "enabled": true,
-      "triggerDelaySeconds": 4
+      "countdownSeconds": 18
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2164,14 +2164,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B02gAdLVO",
       "productDescription": "ପୂଜା ଓ ବନ୍ଦାପନା: ଏହି ଥାଳିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ସିନ୍ଦୂର, ଅରୁଆ ଚାଉଳ, ଫୁଲ ଏବଂ ପ୍ରସାଦ ରଖି ପୂଜା କରାଯାଏ। ​ଆଳତୀ କରିବା: ଥାଳିରେ ଗୋଟିଏ ପଦ୍ମ ଫୁଲ ଆକୃତିର ଦୀପ ରଖିବା ଜାଗା (Tea-Light Holder) ଅଛି। ସେଠାରେ ଆପଣ ଛୋଟ ଦୀପ ବା ଟି-ଲାଇଟ୍ ମହମବତୀ ଜଳାଇ ଦେବଦେବୀଙ୍କ ଆଳତୀ କରିପାରିବେ କିମ୍ବା ବନ୍ଦାପନା କରିପାରିବେ",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
-      "adTimerSeconds": 18,
       "productTitle": "BEHOMA Golden Metal Lotus Pooja Thali with Tea-Light Holder, ",
-      "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
       "enabled": true,
-      "triggerDelaySeconds": 4
+      "countdownSeconds": 18
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2187,14 +2187,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B02gAdLVO",
       "productDescription": "ପୂଜା ଓ ବନ୍ଦାପନା: ଏହି ଥାଳିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ସିନ୍ଦୂର, ଅରୁଆ ଚାଉଳ, ଫୁଲ ଏବଂ ପ୍ରସାଦ ରଖି ପୂଜା କରାଯାଏ। ​ଆଳତୀ କରିବା: ଥାଳିରେ ଗୋଟିଏ ପଦ୍ମ ଫୁଲ ଆକୃତିର ଦୀପ ରଖିବା ଜାଗା (Tea-Light Holder) ଅଛି। ସେଠାରେ ଆପଣ ଛୋଟ ଦୀପ ବା ଟି-ଲାଇଟ୍ ମହମବତୀ ଜଳାଇ ଦେବଦେବୀଙ୍କ ଆଳତୀ କରିପାରିବେ କିମ୍ବା ବନ୍ଦାପନା କରିପାରିବେ",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
-      "adTimerSeconds": 18,
       "productTitle": "BEHOMA Golden Metal Lotus Pooja Thali with Tea-Light Holder, ",
-      "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
       "enabled": true,
-      "triggerDelaySeconds": 4
+      "countdownSeconds": 18
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2210,14 +2210,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B02gAdLVO",
       "productDescription": "ପୂଜା ଓ ବନ୍ଦାପନା: ଏହି ଥାଳିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ସିନ୍ଦୂର, ଅରୁଆ ଚାଉଳ, ଫୁଲ ଏବଂ ପ୍ରସାଦ ରଖି ପୂଜା କରାଯାଏ। ​ଆଳତୀ କରିବା: ଥାଳିରେ ଗୋଟିଏ ପଦ୍ମ ଫୁଲ ଆକୃତିର ଦୀପ ରଖିବା ଜାଗା (Tea-Light Holder) ଅଛି। ସେଠାରେ ଆପଣ ଛୋଟ ଦୀପ ବା ଟି-ଲାଇଟ୍ ମହମବତୀ ଜଳାଇ ଦେବଦେବୀଙ୍କ ଆଳତୀ କରିପାରିବେ କିମ୍ବା ବନ୍ଦାପନା କରିପାରିବେ",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
-      "adTimerSeconds": 18,
       "productTitle": "BEHOMA Golden Metal Lotus Pooja Thali with Tea-Light Holder, ",
-      "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
       "enabled": true,
-      "triggerDelaySeconds": 4
+      "countdownSeconds": 18
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2233,14 +2233,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B02gAdLVO",
       "productDescription": "ପୂଜା ଓ ବନ୍ଦାପନା: ଏହି ଥାଳିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ସିନ୍ଦୂର, ଅରୁଆ ଚାଉଳ, ଫୁଲ ଏବଂ ପ୍ରସାଦ ରଖି ପୂଜା କରାଯାଏ। ​ଆଳତୀ କରିବା: ଥାଳିରେ ଗୋଟିଏ ପଦ୍ମ ଫୁଲ ଆକୃତିର ଦୀପ ରଖିବା ଜାଗା (Tea-Light Holder) ଅଛି। ସେଠାରେ ଆପଣ ଛୋଟ ଦୀପ ବା ଟି-ଲାଇଟ୍ ମହମବତୀ ଜଳାଇ ଦେବଦେବୀଙ୍କ ଆଳତୀ କରିପାରିବେ କିମ୍ବା ବନ୍ଦାପନା କରିପାରିବେ",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
-      "adTimerSeconds": 18,
       "productTitle": "BEHOMA Golden Metal Lotus Pooja Thali with Tea-Light Holder, ",
-      "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
       "enabled": true,
-      "triggerDelaySeconds": 4
+      "countdownSeconds": 18
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2256,14 +2256,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
+      "adTimerSeconds": 18,
       "affiliateUrl": "https://link.amazon/B02gAdLVO",
       "productDescription": "ପୂଜା ଓ ବନ୍ଦାପନା: ଏହି ଥାଳିରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ସିନ୍ଦୂର, ଅରୁଆ ଚାଉଳ, ଫୁଲ ଏବଂ ପ୍ରସାଦ ରଖି ପୂଜା କରାଯାଏ। ​ଆଳତୀ କରିବା: ଥାଳିରେ ଗୋଟିଏ ପଦ୍ମ ଫୁଲ ଆକୃତିର ଦୀପ ରଖିବା ଜାଗା (Tea-Light Holder) ଅଛି। ସେଠାରେ ଆପଣ ଛୋଟ ଦୀପ ବା ଟି-ଲାଇଟ୍ ମହମବତୀ ଜଳାଇ ଦେବଦେବୀଙ୍କ ଆଳତୀ କରିପାରିବେ କିମ୍ବା ବନ୍ଦାପନା କରିପାରିବେ",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
-      "adTimerSeconds": 18,
       "productTitle": "BEHOMA Golden Metal Lotus Pooja Thali with Tea-Light Holder, ",
-      "countdownSeconds": 18,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788335738491_t1d63x.jpg",
       "enabled": true,
-      "triggerDelaySeconds": 4
+      "countdownSeconds": 18
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2279,14 +2279,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "adTimerSeconds": 19,
-      "countdownSeconds": 19,
+      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788677809795_wk29b5.jpg",
       "affiliateUrl": "https://link.amazon/B0aWbDvpj",
       "productDescription": "ମନ୍ଦିରର ଫୁଲ (Recycled Temple Flowers): ଏହା ମନ୍ଦିରରେ ପୂଜା ପାଇଁ ବ୍ୟବହାର ହୋଇଥିବା ପବିତ୍ର ଫୁଲକୁ ପୁନର୍ବ୍ୟବହାର କରି ତିଆରି କରାଯାଇଛି। ​ବାଉଁଶ ବିହୀନ (Bambooless): ଏଥିରେ ବାଉଁଶର କାଠି ନାହିଁ, ଯାହାଦ୍ୱାରା ଏହା ଜଳିଲେ ଅଧିକ ସଫା ଏବଂ ପ୍ରାକୃତିକ ଧୂଆଁ ବାହାରିଥାଏ। ​ଚାର୍‌କୋଲ୍ ମୁକ୍ତ (Charcoal Free): ଏଥିରେ ସ୍ୱାସ୍ଥ୍ୟ ପାଇଁ କ୍ଷତିକାରକ ଚାର୍‌କୋଲ୍ (କୋଇଲା ଗୁଣ୍ଡ) ମିଶାଯାଇନାହିଁ, ଯାହା ଘର ଭିତରେ ବ୍ୟବହାର କରିବା ପାଇଁ ସୁରକ୍ଷିତ",
-      "triggerDelaySeconds": 4,
-      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti"
+      "countdownSeconds": 19,
+      "adTimerSeconds": 19
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV Copyright Warning"
   },
@@ -2302,14 +2302,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "adTimerSeconds": 19,
-      "countdownSeconds": 19,
+      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788677809795_wk29b5.jpg",
       "affiliateUrl": "https://link.amazon/B0aWbDvpj",
       "productDescription": "ମନ୍ଦିରର ଫୁଲ (Recycled Temple Flowers): ଏହା ମନ୍ଦିରରେ ପୂଜା ପାଇଁ ବ୍ୟବହାର ହୋଇଥିବା ପବିତ୍ର ଫୁଲକୁ ପୁନର୍ବ୍ୟବହାର କରି ତିଆରି କରାଯାଇଛି। ​ବାଉଁଶ ବିହୀନ (Bambooless): ଏଥିରେ ବାଉଁଶର କାଠି ନାହିଁ, ଯାହାଦ୍ୱାରା ଏହା ଜଳିଲେ ଅଧିକ ସଫା ଏବଂ ପ୍ରାକୃତିକ ଧୂଆଁ ବାହାରିଥାଏ। ​ଚାର୍‌କୋଲ୍ ମୁକ୍ତ (Charcoal Free): ଏଥିରେ ସ୍ୱାସ୍ଥ୍ୟ ପାଇଁ କ୍ଷତିକାରକ ଚାର୍‌କୋଲ୍ (କୋଇଲା ଗୁଣ୍ଡ) ମିଶାଯାଇନାହିଁ, ଯାହା ଘର ଭିତରେ ବ୍ୟବହାର କରିବା ପାଇଁ ସୁରକ୍ଷିତ",
-      "triggerDelaySeconds": 4,
-      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti"
+      "countdownSeconds": 19,
+      "adTimerSeconds": 19
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV Copyright Warning"
   },
@@ -2325,14 +2325,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "adTimerSeconds": 19,
-      "countdownSeconds": 19,
+      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788677809795_wk29b5.jpg",
       "affiliateUrl": "https://link.amazon/B0aWbDvpj",
       "productDescription": "ମନ୍ଦିରର ଫୁଲ (Recycled Temple Flowers): ଏହା ମନ୍ଦିରରେ ପୂଜା ପାଇଁ ବ୍ୟବହାର ହୋଇଥିବା ପବିତ୍ର ଫୁଲକୁ ପୁନର୍ବ୍ୟବହାର କରି ତିଆରି କରାଯାଇଛି। ​ବାଉଁଶ ବିହୀନ (Bambooless): ଏଥିରେ ବାଉଁଶର କାଠି ନାହିଁ, ଯାହାଦ୍ୱାରା ଏହା ଜଳିଲେ ଅଧିକ ସଫା ଏବଂ ପ୍ରାକୃତିକ ଧୂଆଁ ବାହାରିଥାଏ। ​ଚାର୍‌କୋଲ୍ ମୁକ୍ତ (Charcoal Free): ଏଥିରେ ସ୍ୱାସ୍ଥ୍ୟ ପାଇଁ କ୍ଷତିକାରକ ଚାର୍‌କୋଲ୍ (କୋଇଲା ଗୁଣ୍ଡ) ମିଶାଯାଇନାହିଁ, ଯାହା ଘର ଭିତରେ ବ୍ୟବହାର କରିବା ପାଇଁ ସୁରକ୍ଷିତ",
-      "triggerDelaySeconds": 4,
-      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti"
+      "countdownSeconds": 19,
+      "adTimerSeconds": 19
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV Copyright Warning"
   },
@@ -2348,14 +2348,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "adTimerSeconds": 19,
-      "countdownSeconds": 19,
+      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788677809795_wk29b5.jpg",
       "affiliateUrl": "https://link.amazon/B0aWbDvpj",
       "productDescription": "ମନ୍ଦିରର ଫୁଲ (Recycled Temple Flowers): ଏହା ମନ୍ଦିରରେ ପୂଜା ପାଇଁ ବ୍ୟବହାର ହୋଇଥିବା ପବିତ୍ର ଫୁଲକୁ ପୁନର୍ବ୍ୟବହାର କରି ତିଆରି କରାଯାଇଛି। ​ବାଉଁଶ ବିହୀନ (Bambooless): ଏଥିରେ ବାଉଁଶର କାଠି ନାହିଁ, ଯାହାଦ୍ୱାରା ଏହା ଜଳିଲେ ଅଧିକ ସଫା ଏବଂ ପ୍ରାକୃତିକ ଧୂଆଁ ବାହାରିଥାଏ। ​ଚାର୍‌କୋଲ୍ ମୁକ୍ତ (Charcoal Free): ଏଥିରେ ସ୍ୱାସ୍ଥ୍ୟ ପାଇଁ କ୍ଷତିକାରକ ଚାର୍‌କୋଲ୍ (କୋଇଲା ଗୁଣ୍ଡ) ମିଶାଯାଇନାହିଁ, ଯାହା ଘର ଭିତରେ ବ୍ୟବହାର କରିବା ପାଇଁ ସୁରକ୍ଷିତ",
-      "triggerDelaySeconds": 4,
-      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti"
+      "countdownSeconds": 19,
+      "adTimerSeconds": 19
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV Copyright Warning"
   },
@@ -2371,14 +2371,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "adTimerSeconds": 19,
-      "countdownSeconds": 19,
+      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788677809795_wk29b5.jpg",
       "affiliateUrl": "https://link.amazon/B0aWbDvpj",
       "productDescription": "ମନ୍ଦିରର ଫୁଲ (Recycled Temple Flowers): ଏହା ମନ୍ଦିରରେ ପୂଜା ପାଇଁ ବ୍ୟବହାର ହୋଇଥିବା ପବିତ୍ର ଫୁଲକୁ ପୁନର୍ବ୍ୟବହାର କରି ତିଆରି କରାଯାଇଛି। ​ବାଉଁଶ ବିହୀନ (Bambooless): ଏଥିରେ ବାଉଁଶର କାଠି ନାହିଁ, ଯାହାଦ୍ୱାରା ଏହା ଜଳିଲେ ଅଧିକ ସଫା ଏବଂ ପ୍ରାକୃତିକ ଧୂଆଁ ବାହାରିଥାଏ। ​ଚାର୍‌କୋଲ୍ ମୁକ୍ତ (Charcoal Free): ଏଥିରେ ସ୍ୱାସ୍ଥ୍ୟ ପାଇଁ କ୍ଷତିକାରକ ଚାର୍‌କୋଲ୍ (କୋଇଲା ଗୁଣ୍ଡ) ମିଶାଯାଇନାହିଁ, ଯାହା ଘର ଭିତରେ ବ୍ୟବହାର କରିବା ପାଇଁ ସୁରକ୍ଷିତ",
-      "triggerDelaySeconds": 4,
-      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti"
+      "countdownSeconds": 19,
+      "adTimerSeconds": 19
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV Copyright Warning"
   },
@@ -2394,14 +2394,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "adTimerSeconds": 19,
-      "countdownSeconds": 19,
+      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788677809795_wk29b5.jpg",
       "affiliateUrl": "https://link.amazon/B0aWbDvpj",
       "productDescription": "ମନ୍ଦିରର ଫୁଲ (Recycled Temple Flowers): ଏହା ମନ୍ଦିରରେ ପୂଜା ପାଇଁ ବ୍ୟବହାର ହୋଇଥିବା ପବିତ୍ର ଫୁଲକୁ ପୁନର୍ବ୍ୟବହାର କରି ତିଆରି କରାଯାଇଛି। ​ବାଉଁଶ ବିହୀନ (Bambooless): ଏଥିରେ ବାଉଁଶର କାଠି ନାହିଁ, ଯାହାଦ୍ୱାରା ଏହା ଜଳିଲେ ଅଧିକ ସଫା ଏବଂ ପ୍ରାକୃତିକ ଧୂଆଁ ବାହାରିଥାଏ। ​ଚାର୍‌କୋଲ୍ ମୁକ୍ତ (Charcoal Free): ଏଥିରେ ସ୍ୱାସ୍ଥ୍ୟ ପାଇଁ କ୍ଷତିକାରକ ଚାର୍‌କୋଲ୍ (କୋଇଲା ଗୁଣ୍ଡ) ମିଶାଯାଇନାହିଁ, ଯାହା ଘର ଭିତରେ ବ୍ୟବହାର କରିବା ପାଇଁ ସୁରକ୍ଷିତ",
-      "triggerDelaySeconds": 4,
-      "productTitle": "Nirmalaya Premium Sandalwood (Chandan) Dhoop Cones | 60 Bambooless Incense Cones with Stand | Made from Sacred Flowers | Charcoal Free Agarbatti"
+      "countdownSeconds": 19,
+      "adTimerSeconds": 19
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV Copyright Warning"
   },
@@ -2417,14 +2417,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "affiliateUrl": "https://link.amazon/B02ZdJwlo",
+      "enabled": true,
+      "adTimerSeconds": 25,
       "productDescription": "ଦୀର୍ଘସ୍ଥାୟୀ ମଜଭୁତି (Durability): ଏହା ଉନ୍ନତ ମାନର ଟପ୍ ଗ୍ରେନ୍ ଲେଦର (Top grain leather) ଏବଂ ହାତରେ ତିଆରି (Handcrafted) ହୋଇଥିବାରୁ ଏହା ଖୁବ୍ ମଜଭୁତ୍ ଏବଂ ବହୁତ ଦିନ ପର୍ଯ୍ୟନ୍ତ ତିଷ୍ଠି ରହିବ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788712410578_xcmcum.jpg",
       "countdownSeconds": 25,
       "productTitle": "Leather Wallet for Men | Wallets Men with RFID Blocking | Mens Wallet Leather",
       "triggerDelaySeconds": 4,
-      "enabled": true,
-      "adTimerSeconds": 25
+      "affiliateUrl": "https://link.amazon/B02ZdJwlo"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2440,14 +2440,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "affiliateUrl": "https://link.amazon/B02ZdJwlo",
+      "enabled": true,
+      "adTimerSeconds": 25,
       "productDescription": "ଦୀର୍ଘସ୍ଥାୟୀ ମଜଭୁତି (Durability): ଏହା ଉନ୍ନତ ମାନର ଟପ୍ ଗ୍ରେନ୍ ଲେଦର (Top grain leather) ଏବଂ ହାତରେ ତିଆରି (Handcrafted) ହୋଇଥିବାରୁ ଏହା ଖୁବ୍ ମଜଭୁତ୍ ଏବଂ ବହୁତ ଦିନ ପର୍ଯ୍ୟନ୍ତ ତିଷ୍ଠି ରହିବ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788712410578_xcmcum.jpg",
       "countdownSeconds": 25,
       "productTitle": "Leather Wallet for Men | Wallets Men with RFID Blocking | Mens Wallet Leather",
       "triggerDelaySeconds": 4,
-      "enabled": true,
-      "adTimerSeconds": 25
+      "affiliateUrl": "https://link.amazon/B02ZdJwlo"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2463,14 +2463,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "affiliateUrl": "https://link.amazon/B02ZdJwlo",
+      "enabled": true,
+      "adTimerSeconds": 25,
       "productDescription": "ଦୀର୍ଘସ୍ଥାୟୀ ମଜଭୁତି (Durability): ଏହା ଉନ୍ନତ ମାନର ଟପ୍ ଗ୍ରେନ୍ ଲେଦର (Top grain leather) ଏବଂ ହାତରେ ତିଆରି (Handcrafted) ହୋଇଥିବାରୁ ଏହା ଖୁବ୍ ମଜଭୁତ୍ ଏବଂ ବହୁତ ଦିନ ପର୍ଯ୍ୟନ୍ତ ତିଷ୍ଠି ରହିବ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788712410578_xcmcum.jpg",
       "countdownSeconds": 25,
       "productTitle": "Leather Wallet for Men | Wallets Men with RFID Blocking | Mens Wallet Leather",
       "triggerDelaySeconds": 4,
-      "enabled": true,
-      "adTimerSeconds": 25
+      "affiliateUrl": "https://link.amazon/B02ZdJwlo"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2486,14 +2486,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "affiliateUrl": "https://link.amazon/B02ZdJwlo",
+      "enabled": true,
+      "adTimerSeconds": 25,
       "productDescription": "ଦୀର୍ଘସ୍ଥାୟୀ ମଜଭୁତି (Durability): ଏହା ଉନ୍ନତ ମାନର ଟପ୍ ଗ୍ରେନ୍ ଲେଦର (Top grain leather) ଏବଂ ହାତରେ ତିଆରି (Handcrafted) ହୋଇଥିବାରୁ ଏହା ଖୁବ୍ ମଜଭୁତ୍ ଏବଂ ବହୁତ ଦିନ ପର୍ଯ୍ୟନ୍ତ ତିଷ୍ଠି ରହିବ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788712410578_xcmcum.jpg",
       "countdownSeconds": 25,
       "productTitle": "Leather Wallet for Men | Wallets Men with RFID Blocking | Mens Wallet Leather",
       "triggerDelaySeconds": 4,
-      "enabled": true,
-      "adTimerSeconds": 25
+      "affiliateUrl": "https://link.amazon/B02ZdJwlo"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2509,14 +2509,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "affiliateUrl": "https://link.amazon/B02ZdJwlo",
+      "enabled": true,
+      "adTimerSeconds": 25,
       "productDescription": "ଦୀର୍ଘସ୍ଥାୟୀ ମଜଭୁତି (Durability): ଏହା ଉନ୍ନତ ମାନର ଟପ୍ ଗ୍ରେନ୍ ଲେଦର (Top grain leather) ଏବଂ ହାତରେ ତିଆରି (Handcrafted) ହୋଇଥିବାରୁ ଏହା ଖୁବ୍ ମଜଭୁତ୍ ଏବଂ ବହୁତ ଦିନ ପର୍ଯ୍ୟନ୍ତ ତିଷ୍ଠି ରହିବ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788712410578_xcmcum.jpg",
       "countdownSeconds": 25,
       "productTitle": "Leather Wallet for Men | Wallets Men with RFID Blocking | Mens Wallet Leather",
       "triggerDelaySeconds": 4,
-      "enabled": true,
-      "adTimerSeconds": 25
+      "affiliateUrl": "https://link.amazon/B02ZdJwlo"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2532,14 +2532,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "affiliateUrl": "https://link.amazon/B02ZdJwlo",
+      "enabled": true,
+      "adTimerSeconds": 25,
       "productDescription": "ଦୀର୍ଘସ୍ଥାୟୀ ମଜଭୁତି (Durability): ଏହା ଉନ୍ନତ ମାନର ଟପ୍ ଗ୍ରେନ୍ ଲେଦର (Top grain leather) ଏବଂ ହାତରେ ତିଆରି (Handcrafted) ହୋଇଥିବାରୁ ଏହା ଖୁବ୍ ମଜଭୁତ୍ ଏବଂ ବହୁତ ଦିନ ପର୍ଯ୍ୟନ୍ତ ତିଷ୍ଠି ରହିବ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788712410578_xcmcum.jpg",
       "countdownSeconds": 25,
       "productTitle": "Leather Wallet for Men | Wallets Men with RFID Blocking | Mens Wallet Leather",
       "triggerDelaySeconds": 4,
-      "enabled": true,
-      "adTimerSeconds": 25
+      "affiliateUrl": "https://link.amazon/B02ZdJwlo"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2555,14 +2555,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg",
       "productTitle": "Paraayan Organic Kumkum Powder | Pure Haldi Kumkum for Pooja & Tilak ",
-      "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "countdownSeconds": 20,
       "productDescription": "ଶୁଦ୍ଧ ହଳଦୀ: ଏହା ସମ୍ପୂର୍ଣ୍ଣ ରୂପେ ଶୁଦ୍ଧ ହଳଦୀରୁ (Pure Haldi) ପ୍ରସ୍ତୁତ କରାଯାଇଛି , ତିଲକ: ଭଗବାନଙ୍କୁ ଏବଂ ପୂଜା ସମୟରେ ନିଜ ମଥାରେ ତିଲକ (Tilak) ଲଗାଇବା ପାଇଁ",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "countdownSeconds": 20
+      "adTimerSeconds": 20,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2578,14 +2578,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg",
       "productTitle": "Paraayan Organic Kumkum Powder | Pure Haldi Kumkum for Pooja & Tilak ",
-      "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "countdownSeconds": 20,
       "productDescription": "ଶୁଦ୍ଧ ହଳଦୀ: ଏହା ସମ୍ପୂର୍ଣ୍ଣ ରୂପେ ଶୁଦ୍ଧ ହଳଦୀରୁ (Pure Haldi) ପ୍ରସ୍ତୁତ କରାଯାଇଛି , ତିଲକ: ଭଗବାନଙ୍କୁ ଏବଂ ପୂଜା ସମୟରେ ନିଜ ମଥାରେ ତିଲକ (Tilak) ଲଗାଇବା ପାଇଁ",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "countdownSeconds": 20
+      "adTimerSeconds": 20,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2601,14 +2601,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg",
       "productTitle": "Paraayan Organic Kumkum Powder | Pure Haldi Kumkum for Pooja & Tilak ",
-      "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "countdownSeconds": 20,
       "productDescription": "ଶୁଦ୍ଧ ହଳଦୀ: ଏହା ସମ୍ପୂର୍ଣ୍ଣ ରୂପେ ଶୁଦ୍ଧ ହଳଦୀରୁ (Pure Haldi) ପ୍ରସ୍ତୁତ କରାଯାଇଛି , ତିଲକ: ଭଗବାନଙ୍କୁ ଏବଂ ପୂଜା ସମୟରେ ନିଜ ମଥାରେ ତିଲକ (Tilak) ଲଗାଇବା ପାଇଁ",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "countdownSeconds": 20
+      "adTimerSeconds": 20,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2624,14 +2624,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg",
       "productTitle": "Paraayan Organic Kumkum Powder | Pure Haldi Kumkum for Pooja & Tilak ",
-      "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "countdownSeconds": 20,
       "productDescription": "ଶୁଦ୍ଧ ହଳଦୀ: ଏହା ସମ୍ପୂର୍ଣ୍ଣ ରୂପେ ଶୁଦ୍ଧ ହଳଦୀରୁ (Pure Haldi) ପ୍ରସ୍ତୁତ କରାଯାଇଛି , ତିଲକ: ଭଗବାନଙ୍କୁ ଏବଂ ପୂଜା ସମୟରେ ନିଜ ମଥାରେ ତିଲକ (Tilak) ଲଗାଇବା ପାଇଁ",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "countdownSeconds": 20
+      "adTimerSeconds": 20,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2647,14 +2647,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg",
       "productTitle": "Paraayan Organic Kumkum Powder | Pure Haldi Kumkum for Pooja & Tilak ",
-      "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "countdownSeconds": 20,
       "productDescription": "ଶୁଦ୍ଧ ହଳଦୀ: ଏହା ସମ୍ପୂର୍ଣ୍ଣ ରୂପେ ଶୁଦ୍ଧ ହଳଦୀରୁ (Pure Haldi) ପ୍ରସ୍ତୁତ କରାଯାଇଛି , ତିଲକ: ଭଗବାନଙ୍କୁ ଏବଂ ପୂଜା ସମୟରେ ନିଜ ମଥାରେ ତିଲକ (Tilak) ଲଗାଇବା ପାଇଁ",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "countdownSeconds": 20
+      "adTimerSeconds": 20,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2670,14 +2670,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg",
       "productTitle": "Paraayan Organic Kumkum Powder | Pure Haldi Kumkum for Pooja & Tilak ",
-      "triggerDelaySeconds": 4,
-      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "countdownSeconds": 20,
       "productDescription": "ଶୁଦ୍ଧ ହଳଦୀ: ଏହା ସମ୍ପୂର୍ଣ୍ଣ ରୂପେ ଶୁଦ୍ଧ ହଳଦୀରୁ (Pure Haldi) ପ୍ରସ୍ତୁତ କରାଯାଇଛି , ତିଲକ: ଭଗବାନଙ୍କୁ ଏବଂ ପୂଜା ସମୟରେ ନିଜ ମଥାରେ ତିଲକ (Tilak) ଲଗାଇବା ପାଇଁ",
-      "adTimerSeconds": 20,
+      "affiliateUrl": "https://link.amazon/B029dwTUj",
+      "triggerDelaySeconds": 4,
       "enabled": true,
-      "countdownSeconds": 20
+      "adTimerSeconds": 20,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788513653667_5q3r9a.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2693,14 +2693,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B06LmBr0w",
+      "adTimerSeconds": 18,
       "countdownSeconds": 18,
-      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ",
       "enabled": true,
-      "triggerDelaySeconds": 4,
       "productTitle": "Cycle Pure Naivedya Jumbo Sambrani Dhoop Cups ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788507700460_fg123j.jpg",
-      "adTimerSeconds": 18,
-      "affiliateUrl": "https://link.amazon/B06LmBr0w"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2716,14 +2716,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B06LmBr0w",
+      "adTimerSeconds": 18,
       "countdownSeconds": 18,
-      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ",
       "enabled": true,
-      "triggerDelaySeconds": 4,
       "productTitle": "Cycle Pure Naivedya Jumbo Sambrani Dhoop Cups ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788507700460_fg123j.jpg",
-      "adTimerSeconds": 18,
-      "affiliateUrl": "https://link.amazon/B06LmBr0w"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2739,14 +2739,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B06LmBr0w",
+      "adTimerSeconds": 18,
       "countdownSeconds": 18,
-      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ",
       "enabled": true,
-      "triggerDelaySeconds": 4,
       "productTitle": "Cycle Pure Naivedya Jumbo Sambrani Dhoop Cups ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788507700460_fg123j.jpg",
-      "adTimerSeconds": 18,
-      "affiliateUrl": "https://link.amazon/B06LmBr0w"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2762,14 +2762,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B06LmBr0w",
+      "adTimerSeconds": 18,
       "countdownSeconds": 18,
-      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ",
       "enabled": true,
-      "triggerDelaySeconds": 4,
       "productTitle": "Cycle Pure Naivedya Jumbo Sambrani Dhoop Cups ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788507700460_fg123j.jpg",
-      "adTimerSeconds": 18,
-      "affiliateUrl": "https://link.amazon/B06LmBr0w"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2785,14 +2785,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B06LmBr0w",
+      "adTimerSeconds": 18,
       "countdownSeconds": 18,
-      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ",
       "enabled": true,
-      "triggerDelaySeconds": 4,
       "productTitle": "Cycle Pure Naivedya Jumbo Sambrani Dhoop Cups ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788507700460_fg123j.jpg",
-      "adTimerSeconds": 18,
-      "affiliateUrl": "https://link.amazon/B06LmBr0w"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2808,14 +2808,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
+      "affiliateUrl": "https://link.amazon/B06LmBr0w",
+      "adTimerSeconds": 18,
       "countdownSeconds": 18,
-      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ",
       "enabled": true,
-      "triggerDelaySeconds": 4,
       "productTitle": "Cycle Pure Naivedya Jumbo Sambrani Dhoop Cups ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788507700460_fg123j.jpg",
-      "adTimerSeconds": 18,
-      "affiliateUrl": "https://link.amazon/B06LmBr0w"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ପୂଜା ଏବଂ ଆରାଧନା: ଘରେ କିମ୍ବା ମନ୍ଦିରରେ ଦୈନନ୍ଦିନ ପୂଜାପାଠ, ଆଳତୀ, ଛୋଟ ହବନ କିମ୍ବା ପର୍ବପର୍ବାଣୀ ସମୟରେ ଭଗବାନଙ୍କୁ ଧୂପ ଅର୍ପଣ କରିବା ପାଇଁ ଏହାକୁ ବ୍ୟବହାର କରାଯାଏ"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2831,14 +2831,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg",
-      "affiliateUrl": "https://link.amazon/B054RLOy2",
-      "triggerDelaySeconds": 4,
-      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
       "countdownSeconds": 18,
-      "adTimerSeconds": 18,
       "productDescription": "ପୂଜା କାର୍ଯ୍ୟରେ: ମନ୍ଦିର କିମ୍ବା ଘରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଫୁଲ, ତୁଳସୀ, ବେଲପତ୍ର କିମ୍ବା ଅନ୍ୟାନ୍ୟ ପୂଜା ସାମଗ୍ରୀ ରଖିବା ଏବଂ ବୋହି ନେବା ପାଇଁ ଏହା ମୁଖ୍ୟତଃ ବ୍ୟବହାର କରାଯାଏ",
-      "enabled": true
+      "triggerDelaySeconds": 4,
+      "enabled": true,
+      "adTimerSeconds": 18,
+      "affiliateUrl": "https://link.amazon/B054RLOy2",
+      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2854,14 +2854,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg",
-      "affiliateUrl": "https://link.amazon/B054RLOy2",
-      "triggerDelaySeconds": 4,
-      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
       "countdownSeconds": 18,
-      "adTimerSeconds": 18,
       "productDescription": "ପୂଜା କାର୍ଯ୍ୟରେ: ମନ୍ଦିର କିମ୍ବା ଘରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଫୁଲ, ତୁଳସୀ, ବେଲପତ୍ର କିମ୍ବା ଅନ୍ୟାନ୍ୟ ପୂଜା ସାମଗ୍ରୀ ରଖିବା ଏବଂ ବୋହି ନେବା ପାଇଁ ଏହା ମୁଖ୍ୟତଃ ବ୍ୟବହାର କରାଯାଏ",
-      "enabled": true
+      "triggerDelaySeconds": 4,
+      "enabled": true,
+      "adTimerSeconds": 18,
+      "affiliateUrl": "https://link.amazon/B054RLOy2",
+      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2877,14 +2877,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg",
-      "affiliateUrl": "https://link.amazon/B054RLOy2",
-      "triggerDelaySeconds": 4,
-      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
       "countdownSeconds": 18,
-      "adTimerSeconds": 18,
       "productDescription": "ପୂଜା କାର୍ଯ୍ୟରେ: ମନ୍ଦିର କିମ୍ବା ଘରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଫୁଲ, ତୁଳସୀ, ବେଲପତ୍ର କିମ୍ବା ଅନ୍ୟାନ୍ୟ ପୂଜା ସାମଗ୍ରୀ ରଖିବା ଏବଂ ବୋହି ନେବା ପାଇଁ ଏହା ମୁଖ୍ୟତଃ ବ୍ୟବହାର କରାଯାଏ",
-      "enabled": true
+      "triggerDelaySeconds": 4,
+      "enabled": true,
+      "adTimerSeconds": 18,
+      "affiliateUrl": "https://link.amazon/B054RLOy2",
+      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2900,14 +2900,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg",
-      "affiliateUrl": "https://link.amazon/B054RLOy2",
-      "triggerDelaySeconds": 4,
-      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
       "countdownSeconds": 18,
-      "adTimerSeconds": 18,
       "productDescription": "ପୂଜା କାର୍ଯ୍ୟରେ: ମନ୍ଦିର କିମ୍ବା ଘରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଫୁଲ, ତୁଳସୀ, ବେଲପତ୍ର କିମ୍ବା ଅନ୍ୟାନ୍ୟ ପୂଜା ସାମଗ୍ରୀ ରଖିବା ଏବଂ ବୋହି ନେବା ପାଇଁ ଏହା ମୁଖ୍ୟତଃ ବ୍ୟବହାର କରାଯାଏ",
-      "enabled": true
+      "triggerDelaySeconds": 4,
+      "enabled": true,
+      "adTimerSeconds": 18,
+      "affiliateUrl": "https://link.amazon/B054RLOy2",
+      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2923,14 +2923,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg",
-      "affiliateUrl": "https://link.amazon/B054RLOy2",
-      "triggerDelaySeconds": 4,
-      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
       "countdownSeconds": 18,
-      "adTimerSeconds": 18,
       "productDescription": "ପୂଜା କାର୍ଯ୍ୟରେ: ମନ୍ଦିର କିମ୍ବା ଘରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଫୁଲ, ତୁଳସୀ, ବେଲପତ୍ର କିମ୍ବା ଅନ୍ୟାନ୍ୟ ପୂଜା ସାମଗ୍ରୀ ରଖିବା ଏବଂ ବୋହି ନେବା ପାଇଁ ଏହା ମୁଖ୍ୟତଃ ବ୍ୟବହାର କରାଯାଏ",
-      "enabled": true
+      "triggerDelaySeconds": 4,
+      "enabled": true,
+      "adTimerSeconds": 18,
+      "affiliateUrl": "https://link.amazon/B054RLOy2",
+      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2946,14 +2946,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg",
-      "affiliateUrl": "https://link.amazon/B054RLOy2",
-      "triggerDelaySeconds": 4,
-      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
       "countdownSeconds": 18,
-      "adTimerSeconds": 18,
       "productDescription": "ପୂଜା କାର୍ଯ୍ୟରେ: ମନ୍ଦିର କିମ୍ବା ଘରେ ଠାକୁରଙ୍କ ପୂଜା ପାଇଁ ଫୁଲ, ତୁଳସୀ, ବେଲପତ୍ର କିମ୍ବା ଅନ୍ୟାନ୍ୟ ପୂଜା ସାମଗ୍ରୀ ରଖିବା ଏବଂ ବୋହି ନେବା ପାଇଁ ଏହା ମୁଖ୍ୟତଃ ବ୍ୟବହାର କରାଯାଏ",
-      "enabled": true
+      "triggerDelaySeconds": 4,
+      "enabled": true,
+      "adTimerSeconds": 18,
+      "affiliateUrl": "https://link.amazon/B054RLOy2",
+      "productTitle": "PrettyKrafts Pooja Basket for Temple with Handle",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788362906661_85dquj.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2969,17 +2969,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "amazonLink": "https://link.amazon/B07B8tBiW",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
       "countdownSeconds": 27,
-      "enabled": true,
-      "adTimerSeconds": 27,
-      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
       "triggerDelaySeconds": 4,
-      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
-      "meeshoLink": "https://bitli.in/Z19k66G",
       "productDescription": "ଘର ଶୁଦ୍ଧିକରଣ (Home Cleansing): ଘରର ପରିବେଶକୁ ପବିତ୍ର କରିବା ଏବଂ ନକାରାତ୍ମକ ଶକ୍ତି (Negative energy) ଦୂର କରିବା ପାଇଁ ପୂଜା (Pooja): ଦୈନନ୍ଦିନ ଘର ପୂଜା, ଆଳତୀ କିମ୍ବା ଆଧ୍ୟାତ୍ମିକ ନୀତିକାନ୍ତି ପାଇଁ ଗାଈ ଗୋବର (Cow-Dung Base): ଏହି କପ୍‌ର ମୂଳ ଆକାର ଗାଈ ଗୋବରରେ ପ୍ରସ୍ତୁତ କରାଯାଇଛି",
-      "flipkartLink": "https://fktr.in/mehaqzq"
+      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
+      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
+      "meeshoLink": "https://bitli.in/Z19k66G",
+      "adTimerSeconds": 27,
+      "flipkartLink": "https://fktr.in/mehaqzq",
+      "amazonLink": "https://link.amazon/B07B8tBiW",
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -2995,17 +2995,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "amazonLink": "https://link.amazon/B07B8tBiW",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
       "countdownSeconds": 27,
-      "enabled": true,
-      "adTimerSeconds": 27,
-      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
       "triggerDelaySeconds": 4,
-      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
-      "meeshoLink": "https://bitli.in/Z19k66G",
       "productDescription": "ଘର ଶୁଦ୍ଧିକରଣ (Home Cleansing): ଘରର ପରିବେଶକୁ ପବିତ୍ର କରିବା ଏବଂ ନକାରାତ୍ମକ ଶକ୍ତି (Negative energy) ଦୂର କରିବା ପାଇଁ ପୂଜା (Pooja): ଦୈନନ୍ଦିନ ଘର ପୂଜା, ଆଳତୀ କିମ୍ବା ଆଧ୍ୟାତ୍ମିକ ନୀତିକାନ୍ତି ପାଇଁ ଗାଈ ଗୋବର (Cow-Dung Base): ଏହି କପ୍‌ର ମୂଳ ଆକାର ଗାଈ ଗୋବରରେ ପ୍ରସ୍ତୁତ କରାଯାଇଛି",
-      "flipkartLink": "https://fktr.in/mehaqzq"
+      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
+      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
+      "meeshoLink": "https://bitli.in/Z19k66G",
+      "adTimerSeconds": 27,
+      "flipkartLink": "https://fktr.in/mehaqzq",
+      "amazonLink": "https://link.amazon/B07B8tBiW",
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3021,17 +3021,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "amazonLink": "https://link.amazon/B07B8tBiW",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
       "countdownSeconds": 27,
-      "enabled": true,
-      "adTimerSeconds": 27,
-      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
       "triggerDelaySeconds": 4,
-      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
-      "meeshoLink": "https://bitli.in/Z19k66G",
       "productDescription": "ଘର ଶୁଦ୍ଧିକରଣ (Home Cleansing): ଘରର ପରିବେଶକୁ ପବିତ୍ର କରିବା ଏବଂ ନକାରାତ୍ମକ ଶକ୍ତି (Negative energy) ଦୂର କରିବା ପାଇଁ ପୂଜା (Pooja): ଦୈନନ୍ଦିନ ଘର ପୂଜା, ଆଳତୀ କିମ୍ବା ଆଧ୍ୟାତ୍ମିକ ନୀତିକାନ୍ତି ପାଇଁ ଗାଈ ଗୋବର (Cow-Dung Base): ଏହି କପ୍‌ର ମୂଳ ଆକାର ଗାଈ ଗୋବରରେ ପ୍ରସ୍ତୁତ କରାଯାଇଛି",
-      "flipkartLink": "https://fktr.in/mehaqzq"
+      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
+      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
+      "meeshoLink": "https://bitli.in/Z19k66G",
+      "adTimerSeconds": 27,
+      "flipkartLink": "https://fktr.in/mehaqzq",
+      "amazonLink": "https://link.amazon/B07B8tBiW",
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3047,17 +3047,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "amazonLink": "https://link.amazon/B07B8tBiW",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
       "countdownSeconds": 27,
-      "enabled": true,
-      "adTimerSeconds": 27,
-      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
       "triggerDelaySeconds": 4,
-      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
-      "meeshoLink": "https://bitli.in/Z19k66G",
       "productDescription": "ଘର ଶୁଦ୍ଧିକରଣ (Home Cleansing): ଘରର ପରିବେଶକୁ ପବିତ୍ର କରିବା ଏବଂ ନକାରାତ୍ମକ ଶକ୍ତି (Negative energy) ଦୂର କରିବା ପାଇଁ ପୂଜା (Pooja): ଦୈନନ୍ଦିନ ଘର ପୂଜା, ଆଳତୀ କିମ୍ବା ଆଧ୍ୟାତ୍ମିକ ନୀତିକାନ୍ତି ପାଇଁ ଗାଈ ଗୋବର (Cow-Dung Base): ଏହି କପ୍‌ର ମୂଳ ଆକାର ଗାଈ ଗୋବରରେ ପ୍ରସ୍ତୁତ କରାଯାଇଛି",
-      "flipkartLink": "https://fktr.in/mehaqzq"
+      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
+      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
+      "meeshoLink": "https://bitli.in/Z19k66G",
+      "adTimerSeconds": 27,
+      "flipkartLink": "https://fktr.in/mehaqzq",
+      "amazonLink": "https://link.amazon/B07B8tBiW",
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3073,17 +3073,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "amazonLink": "https://link.amazon/B07B8tBiW",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
       "countdownSeconds": 27,
-      "enabled": true,
-      "adTimerSeconds": 27,
-      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
       "triggerDelaySeconds": 4,
-      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
-      "meeshoLink": "https://bitli.in/Z19k66G",
       "productDescription": "ଘର ଶୁଦ୍ଧିକରଣ (Home Cleansing): ଘରର ପରିବେଶକୁ ପବିତ୍ର କରିବା ଏବଂ ନକାରାତ୍ମକ ଶକ୍ତି (Negative energy) ଦୂର କରିବା ପାଇଁ ପୂଜା (Pooja): ଦୈନନ୍ଦିନ ଘର ପୂଜା, ଆଳତୀ କିମ୍ବା ଆଧ୍ୟାତ୍ମିକ ନୀତିକାନ୍ତି ପାଇଁ ଗାଈ ଗୋବର (Cow-Dung Base): ଏହି କପ୍‌ର ମୂଳ ଆକାର ଗାଈ ଗୋବରରେ ପ୍ରସ୍ତୁତ କରାଯାଇଛି",
-      "flipkartLink": "https://fktr.in/mehaqzq"
+      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
+      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
+      "meeshoLink": "https://bitli.in/Z19k66G",
+      "adTimerSeconds": 27,
+      "flipkartLink": "https://fktr.in/mehaqzq",
+      "amazonLink": "https://link.amazon/B07B8tBiW",
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3099,17 +3099,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "amazonLink": "https://link.amazon/B07B8tBiW",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
       "countdownSeconds": 27,
-      "enabled": true,
-      "adTimerSeconds": 27,
-      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
       "triggerDelaySeconds": 4,
-      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
-      "meeshoLink": "https://bitli.in/Z19k66G",
       "productDescription": "ଘର ଶୁଦ୍ଧିକରଣ (Home Cleansing): ଘରର ପରିବେଶକୁ ପବିତ୍ର କରିବା ଏବଂ ନକାରାତ୍ମକ ଶକ୍ତି (Negative energy) ଦୂର କରିବା ପାଇଁ ପୂଜା (Pooja): ଦୈନନ୍ଦିନ ଘର ପୂଜା, ଆଳତୀ କିମ୍ବା ଆଧ୍ୟାତ୍ମିକ ନୀତିକାନ୍ତି ପାଇଁ ଗାଈ ଗୋବର (Cow-Dung Base): ଏହି କପ୍‌ର ମୂଳ ଆକାର ଗାଈ ଗୋବରରେ ପ୍ରସ୍ତୁତ କରାଯାଇଛି",
-      "flipkartLink": "https://fktr.in/mehaqzq"
+      "affiliateUrl": "https://link.amazon/B0ahEAdX0",
+      "productTitle": "Pankhudiyan Natural Sambrani Havan Cups for Home Cleansing, Pooja",
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788765038835_hcmmot.jpg",
+      "meeshoLink": "https://bitli.in/Z19k66G",
+      "adTimerSeconds": 27,
+      "flipkartLink": "https://fktr.in/mehaqzq",
+      "amazonLink": "https://link.amazon/B07B8tBiW",
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3125,14 +3125,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg",
       "productDescription": "ପର୍ବପର୍ବାଣୀରେ ସାଜସଜ୍ଜା (Festive Decoration): ଦୀପାବଳି କିମ୍ବା ଅନ୍ୟ କୌଣସି ଶୁଭ କାର୍ଯ୍ୟ ଓ ପୂଜା ସମୟରେ ଏହାର ଚାରିପାଖରେ ଥିବା ଦୀପଗୁଡ଼ିକୁ ଜଳାଇ ଘରକୁ ଆଲୋକିତ ତଥା ଆକର୍ଷଣୀୟ କରାଯାଏ",
       "adTimerSeconds": 18,
-      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
-      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
-      "countdownSeconds": 18,
       "triggerDelaySeconds": 4,
-      "enabled": true
+      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
+      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
+      "countdownSeconds": 18,
+      "enabled": true,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3148,14 +3148,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg",
       "productDescription": "ପର୍ବପର୍ବାଣୀରେ ସାଜସଜ୍ଜା (Festive Decoration): ଦୀପାବଳି କିମ୍ବା ଅନ୍ୟ କୌଣସି ଶୁଭ କାର୍ଯ୍ୟ ଓ ପୂଜା ସମୟରେ ଏହାର ଚାରିପାଖରେ ଥିବା ଦୀପଗୁଡ଼ିକୁ ଜଳାଇ ଘରକୁ ଆଲୋକିତ ତଥା ଆକର୍ଷଣୀୟ କରାଯାଏ",
       "adTimerSeconds": 18,
-      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
-      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
-      "countdownSeconds": 18,
       "triggerDelaySeconds": 4,
-      "enabled": true
+      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
+      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
+      "countdownSeconds": 18,
+      "enabled": true,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3171,14 +3171,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg",
       "productDescription": "ପର୍ବପର୍ବାଣୀରେ ସାଜସଜ୍ଜା (Festive Decoration): ଦୀପାବଳି କିମ୍ବା ଅନ୍ୟ କୌଣସି ଶୁଭ କାର୍ଯ୍ୟ ଓ ପୂଜା ସମୟରେ ଏହାର ଚାରିପାଖରେ ଥିବା ଦୀପଗୁଡ଼ିକୁ ଜଳାଇ ଘରକୁ ଆଲୋକିତ ତଥା ଆକର୍ଷଣୀୟ କରାଯାଏ",
       "adTimerSeconds": 18,
-      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
-      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
-      "countdownSeconds": 18,
       "triggerDelaySeconds": 4,
-      "enabled": true
+      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
+      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
+      "countdownSeconds": 18,
+      "enabled": true,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3194,14 +3194,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg",
       "productDescription": "ପର୍ବପର୍ବାଣୀରେ ସାଜସଜ୍ଜା (Festive Decoration): ଦୀପାବଳି କିମ୍ବା ଅନ୍ୟ କୌଣସି ଶୁଭ କାର୍ଯ୍ୟ ଓ ପୂଜା ସମୟରେ ଏହାର ଚାରିପାଖରେ ଥିବା ଦୀପଗୁଡ଼ିକୁ ଜଳାଇ ଘରକୁ ଆଲୋକିତ ତଥା ଆକର୍ଷଣୀୟ କରାଯାଏ",
       "adTimerSeconds": 18,
-      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
-      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
-      "countdownSeconds": 18,
       "triggerDelaySeconds": 4,
-      "enabled": true
+      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
+      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
+      "countdownSeconds": 18,
+      "enabled": true,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3217,14 +3217,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg",
       "productDescription": "ପର୍ବପର୍ବାଣୀରେ ସାଜସଜ୍ଜା (Festive Decoration): ଦୀପାବଳି କିମ୍ବା ଅନ୍ୟ କୌଣସି ଶୁଭ କାର୍ଯ୍ୟ ଓ ପୂଜା ସମୟରେ ଏହାର ଚାରିପାଖରେ ଥିବା ଦୀପଗୁଡ଼ିକୁ ଜଳାଇ ଘରକୁ ଆଲୋକିତ ତଥା ଆକର୍ଷଣୀୟ କରାଯାଏ",
       "adTimerSeconds": 18,
-      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
-      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
-      "countdownSeconds": 18,
       "triggerDelaySeconds": 4,
-      "enabled": true
+      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
+      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
+      "countdownSeconds": 18,
+      "enabled": true,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3240,14 +3240,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg",
       "productDescription": "ପର୍ବପର୍ବାଣୀରେ ସାଜସଜ୍ଜା (Festive Decoration): ଦୀପାବଳି କିମ୍ବା ଅନ୍ୟ କୌଣସି ଶୁଭ କାର୍ଯ୍ୟ ଓ ପୂଜା ସମୟରେ ଏହାର ଚାରିପାଖରେ ଥିବା ଦୀପଗୁଡ଼ିକୁ ଜଳାଇ ଘରକୁ ଆଲୋକିତ ତଥା ଆକର୍ଷଣୀୟ କରାଯାଏ",
       "adTimerSeconds": 18,
-      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
-      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
-      "countdownSeconds": 18,
       "triggerDelaySeconds": 4,
-      "enabled": true
+      "affiliateUrl": "https://link.amazon/B0aRbyiMt",
+      "productTitle": "eCraftIndia Golden Metal Handcrafted Flower Decorative Urli with 10 Diyas",
+      "countdownSeconds": 18,
+      "enabled": true,
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788448328053_q1h2pe.jpg"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3263,14 +3263,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship",
-      "triggerDelaySeconds": 4,
+      "enabled": true,
       "countdownSeconds": 21,
-      "affiliateUrl": "https://link.amazon/B0bforicq",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 21,
+      "affiliateUrl": "https://link.amazon/B0bforicq",
       "productDescription": "ଏହା ଏକ \"ଗଣେଶ ପୂଜା ସାମଗ୍ରୀ କିଟ୍\"। ଏହା ବିଶେଷ କରି ଗଣେଶ ଚତୁର୍ଥୀ, ଗଣେଶ ସ୍ଥାପନା ଏବଂ ଘରେ ପ୍ରତିଦିନ ଶ୍ରୀ ଗଣେଶଙ୍କ ପୂଜା କରିବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ। ଏଥିରେ ପୂଜା ପାଇଁ ଦରକାର ହେଉଥିବା ପ୍ରାୟ ସମସ୍ତ ଜରୁରୀ ସାମଗ୍ରୀ ଗୋଟିଏ ବାକ୍ସରେ ଦିଆଯାଇଛି",
-      "enabled": true
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3286,14 +3286,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship",
-      "triggerDelaySeconds": 4,
+      "enabled": true,
       "countdownSeconds": 21,
-      "affiliateUrl": "https://link.amazon/B0bforicq",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 21,
+      "affiliateUrl": "https://link.amazon/B0bforicq",
       "productDescription": "ଏହା ଏକ \"ଗଣେଶ ପୂଜା ସାମଗ୍ରୀ କିଟ୍\"। ଏହା ବିଶେଷ କରି ଗଣେଶ ଚତୁର୍ଥୀ, ଗଣେଶ ସ୍ଥାପନା ଏବଂ ଘରେ ପ୍ରତିଦିନ ଶ୍ରୀ ଗଣେଶଙ୍କ ପୂଜା କରିବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ। ଏଥିରେ ପୂଜା ପାଇଁ ଦରକାର ହେଉଥିବା ପ୍ରାୟ ସମସ୍ତ ଜରୁରୀ ସାମଗ୍ରୀ ଗୋଟିଏ ବାକ୍ସରେ ଦିଆଯାଇଛି",
-      "enabled": true
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3309,14 +3309,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship",
-      "triggerDelaySeconds": 4,
+      "enabled": true,
       "countdownSeconds": 21,
-      "affiliateUrl": "https://link.amazon/B0bforicq",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 21,
+      "affiliateUrl": "https://link.amazon/B0bforicq",
       "productDescription": "ଏହା ଏକ \"ଗଣେଶ ପୂଜା ସାମଗ୍ରୀ କିଟ୍\"। ଏହା ବିଶେଷ କରି ଗଣେଶ ଚତୁର୍ଥୀ, ଗଣେଶ ସ୍ଥାପନା ଏବଂ ଘରେ ପ୍ରତିଦିନ ଶ୍ରୀ ଗଣେଶଙ୍କ ପୂଜା କରିବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ। ଏଥିରେ ପୂଜା ପାଇଁ ଦରକାର ହେଉଥିବା ପ୍ରାୟ ସମସ୍ତ ଜରୁରୀ ସାମଗ୍ରୀ ଗୋଟିଏ ବାକ୍ସରେ ଦିଆଯାଇଛି",
-      "enabled": true
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3332,14 +3332,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship",
-      "triggerDelaySeconds": 4,
+      "enabled": true,
       "countdownSeconds": 21,
-      "affiliateUrl": "https://link.amazon/B0bforicq",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 21,
+      "affiliateUrl": "https://link.amazon/B0bforicq",
       "productDescription": "ଏହା ଏକ \"ଗଣେଶ ପୂଜା ସାମଗ୍ରୀ କିଟ୍\"। ଏହା ବିଶେଷ କରି ଗଣେଶ ଚତୁର୍ଥୀ, ଗଣେଶ ସ୍ଥାପନା ଏବଂ ଘରେ ପ୍ରତିଦିନ ଶ୍ରୀ ଗଣେଶଙ୍କ ପୂଜା କରିବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ। ଏଥିରେ ପୂଜା ପାଇଁ ଦରକାର ହେଉଥିବା ପ୍ରାୟ ସମସ୍ତ ଜରୁରୀ ସାମଗ୍ରୀ ଗୋଟିଏ ବାକ୍ସରେ ଦିଆଯାଇଛି",
-      "enabled": true
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3355,14 +3355,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship",
-      "triggerDelaySeconds": 4,
+      "enabled": true,
       "countdownSeconds": 21,
-      "affiliateUrl": "https://link.amazon/B0bforicq",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 21,
+      "affiliateUrl": "https://link.amazon/B0bforicq",
       "productDescription": "ଏହା ଏକ \"ଗଣେଶ ପୂଜା ସାମଗ୍ରୀ କିଟ୍\"। ଏହା ବିଶେଷ କରି ଗଣେଶ ଚତୁର୍ଥୀ, ଗଣେଶ ସ୍ଥାପନା ଏବଂ ଘରେ ପ୍ରତିଦିନ ଶ୍ରୀ ଗଣେଶଙ୍କ ପୂଜା କରିବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ। ଏଥିରେ ପୂଜା ପାଇଁ ଦରକାର ହେଉଥିବା ପ୍ରାୟ ସମସ୍ତ ଜରୁରୀ ସାମଗ୍ରୀ ଗୋଟିଏ ବାକ୍ସରେ ଦିଆଯାଇଛି",
-      "enabled": true
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3378,14 +3378,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship",
-      "triggerDelaySeconds": 4,
+      "enabled": true,
       "countdownSeconds": 21,
-      "affiliateUrl": "https://link.amazon/B0bforicq",
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "triggerDelaySeconds": 4,
       "adTimerSeconds": 21,
+      "affiliateUrl": "https://link.amazon/B0bforicq",
       "productDescription": "ଏହା ଏକ \"ଗଣେଶ ପୂଜା ସାମଗ୍ରୀ କିଟ୍\"। ଏହା ବିଶେଷ କରି ଗଣେଶ ଚତୁର୍ଥୀ, ଗଣେଶ ସ୍ଥାପନା ଏବଂ ଘରେ ପ୍ରତିଦିନ ଶ୍ରୀ ଗଣେଶଙ୍କ ପୂଜା କରିବା ପାଇଁ ବ୍ୟବହାର କରାଯାଏ। ଏଥିରେ ପୂଜା ପାଇଁ ଦରକାର ହେଉଥିବା ପ୍ରାୟ ସମସ୍ତ ଜରୁରୀ ସାମଗ୍ରୀ ଗୋଟିଏ ବାକ୍ସରେ ଦିଆଯାଇଛି",
-      "enabled": true
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788608132514_n8okpp.jpg",
+      "productTitle": "Pujahome Ganesh Puja Samagri Kit – Complete Ganesh Pujan Essentials | Ganpati Pooja Kit Items | Ideal for Ganesh Chaturthi, Ganesh Sthapana & Daily Worship"
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3401,14 +3401,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788343398111_r1t4hy.jpg",
       "adTimerSeconds": 18,
       "countdownSeconds": 18,
       "affiliateUrl": "https://link.amazon/B0bdHvOrR",
-      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja "
+      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
+      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja ",
+      "enabled": true,
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3424,14 +3424,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788343398111_r1t4hy.jpg",
       "adTimerSeconds": 18,
       "countdownSeconds": 18,
       "affiliateUrl": "https://link.amazon/B0bdHvOrR",
-      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja "
+      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
+      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja ",
+      "enabled": true,
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3447,14 +3447,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788343398111_r1t4hy.jpg",
       "adTimerSeconds": 18,
       "countdownSeconds": 18,
       "affiliateUrl": "https://link.amazon/B0bdHvOrR",
-      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja "
+      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
+      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja ",
+      "enabled": true,
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3470,14 +3470,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788343398111_r1t4hy.jpg",
       "adTimerSeconds": 18,
       "countdownSeconds": 18,
       "affiliateUrl": "https://link.amazon/B0bdHvOrR",
-      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja "
+      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
+      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja ",
+      "enabled": true,
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3493,14 +3493,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788343398111_r1t4hy.jpg",
       "adTimerSeconds": 18,
       "countdownSeconds": 18,
       "affiliateUrl": "https://link.amazon/B0bdHvOrR",
-      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja "
+      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
+      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja ",
+      "enabled": true,
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3516,14 +3516,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "enabled": true,
-      "triggerDelaySeconds": 4,
-      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788343398111_r1t4hy.jpg",
       "adTimerSeconds": 18,
       "countdownSeconds": 18,
       "affiliateUrl": "https://link.amazon/B0bdHvOrR",
-      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja "
+      "productDescription": "ପୂଜା ଏବଂ ଆଳତି: ଘରେ କିମ୍ବା ଅଫିସରେ ଥିବା ମନ୍ଦିରରେ ପ୍ରତିଦିନ ଦେବାଦେବୀଙ୍କ ପୂଜା ଓ ଆଳତି କରିବା ପାଇଁ ଏହା ବ୍ୟବହାର କରାଯାଏ। ​ପୂଜା ସାମଗ୍ରୀ ସଜାଇବା: ଏହି ଥାଳିରେ ଛୋଟ ଛୋଟ ପାତ୍ର ସଂଲଗ୍ନ ହୋଇଛି, ଯେଉଁଥିରେ ସିନ୍ଦୂର, ଚନ୍ଦନ, ଅରୁଆ ଚାଉଳ, ଫୁଲ, ପ୍ରସାଦ ଏବଂ ମଝିରେ ଦୀପ ସଜାଇକରି ରଖାଯାଏ। ଏହାଦ୍ୱାରା ପୂଜା ସମୟରେ ସବୁ ଜିନିଷ ଗୋଟିଏ ଜାଗାରେ ସୁବିଧାରେ ମିଳିଯାଏ",
+      "productTitle": "Chhariya Crafts Metal Pooja Thali With Diya for Home and Office Temple Puja ",
+      "enabled": true,
+      "triggerDelaySeconds": 4
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3539,14 +3539,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Angavasthram with Zari Border, Cotton",
-      "countdownSeconds": 25,
-      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee",
+      "adTimerSeconds": 25,
       "productDescription": "ପୂଜାପାଠ ଏବଂ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ହିନ୍ଦୁ ଧର୍ମରେ ହଳଦିଆ ରଙ୍ଗର ବସ୍ତ୍ରକୁ ବହୁତ ଶୁଭ ଏବଂ ପବିତ୍ର ମାନାଯାଏ। ତେଣୁ ଘରେ କୌଣସି ପୂଜା, ହୋମ, ଯଜ୍ଞ କିମ୍ବା ଶ୍ରାଦ୍ଧ କର୍ମ ସମୟରେ ପୁରୁଷମାନେ ଏହାକୁ ପିନ୍ଧିଥାନ୍ତି",
       "triggerDelaySeconds": 4,
-      "adTimerSeconds": 25,
       "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg",
+      "productTitle": "Angavasthram with Zari Border, Cotton",
+      "countdownSeconds": 25,
+      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee"
     },
     "author": "ମହାଦେବଙ୍କୁ ପ୍ରସନ୍ନ ଓ ସନ୍ତୁଷ୍ଟ କରିବା ପାଇଁ ଆପଣ ଏହି ସବୁ ସରଳ ନିୟମ ପାଳନ କରିପାରିବେ"
   },
@@ -3562,14 +3562,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Angavasthram with Zari Border, Cotton",
-      "countdownSeconds": 25,
-      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee",
+      "adTimerSeconds": 25,
       "productDescription": "ପୂଜାପାଠ ଏବଂ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ହିନ୍ଦୁ ଧର୍ମରେ ହଳଦିଆ ରଙ୍ଗର ବସ୍ତ୍ରକୁ ବହୁତ ଶୁଭ ଏବଂ ପବିତ୍ର ମାନାଯାଏ। ତେଣୁ ଘରେ କୌଣସି ପୂଜା, ହୋମ, ଯଜ୍ଞ କିମ୍ବା ଶ୍ରାଦ୍ଧ କର୍ମ ସମୟରେ ପୁରୁଷମାନେ ଏହାକୁ ପିନ୍ଧିଥାନ୍ତି",
       "triggerDelaySeconds": 4,
-      "adTimerSeconds": 25,
       "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg",
+      "productTitle": "Angavasthram with Zari Border, Cotton",
+      "countdownSeconds": 25,
+      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee"
     },
     "author": "ମହାଦେବଙ୍କୁ ପ୍ରସନ୍ନ ଓ ସନ୍ତୁଷ୍ଟ କରିବା ପାଇଁ ଆପଣ ଏହି ସବୁ ସରଳ ନିୟମ ପାଳନ କରିପାରିବେ"
   },
@@ -3585,14 +3585,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Angavasthram with Zari Border, Cotton",
-      "countdownSeconds": 25,
-      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee",
+      "adTimerSeconds": 25,
       "productDescription": "ପୂଜାପାଠ ଏବଂ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ହିନ୍ଦୁ ଧର୍ମରେ ହଳଦିଆ ରଙ୍ଗର ବସ୍ତ୍ରକୁ ବହୁତ ଶୁଭ ଏବଂ ପବିତ୍ର ମାନାଯାଏ। ତେଣୁ ଘରେ କୌଣସି ପୂଜା, ହୋମ, ଯଜ୍ଞ କିମ୍ବା ଶ୍ରାଦ୍ଧ କର୍ମ ସମୟରେ ପୁରୁଷମାନେ ଏହାକୁ ପିନ୍ଧିଥାନ୍ତି",
       "triggerDelaySeconds": 4,
-      "adTimerSeconds": 25,
       "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg",
+      "productTitle": "Angavasthram with Zari Border, Cotton",
+      "countdownSeconds": 25,
+      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee"
     },
     "author": "ମହାଦେବଙ୍କୁ ପ୍ରସନ୍ନ ଓ ସନ୍ତୁଷ୍ଟ କରିବା ପାଇଁ ଆପଣ ଏହି ସବୁ ସରଳ ନିୟମ ପାଳନ କରିପାରିବେ"
   },
@@ -3608,14 +3608,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Angavasthram with Zari Border, Cotton",
-      "countdownSeconds": 25,
-      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee",
+      "adTimerSeconds": 25,
       "productDescription": "ପୂଜାପାଠ ଏବଂ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ହିନ୍ଦୁ ଧର୍ମରେ ହଳଦିଆ ରଙ୍ଗର ବସ୍ତ୍ରକୁ ବହୁତ ଶୁଭ ଏବଂ ପବିତ୍ର ମାନାଯାଏ। ତେଣୁ ଘରେ କୌଣସି ପୂଜା, ହୋମ, ଯଜ୍ଞ କିମ୍ବା ଶ୍ରାଦ୍ଧ କର୍ମ ସମୟରେ ପୁରୁଷମାନେ ଏହାକୁ ପିନ୍ଧିଥାନ୍ତି",
       "triggerDelaySeconds": 4,
-      "adTimerSeconds": 25,
       "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg",
+      "productTitle": "Angavasthram with Zari Border, Cotton",
+      "countdownSeconds": 25,
+      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee"
     },
     "author": "ମହାଦେବଙ୍କୁ ପ୍ରସନ୍ନ ଓ ସନ୍ତୁଷ୍ଟ କରିବା ପାଇଁ ଆପଣ ଏହି ସବୁ ସରଳ ନିୟମ ପାଳନ କରିପାରିବେ"
   },
@@ -3631,14 +3631,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Angavasthram with Zari Border, Cotton",
-      "countdownSeconds": 25,
-      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee",
+      "adTimerSeconds": 25,
       "productDescription": "ପୂଜାପାଠ ଏବଂ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ହିନ୍ଦୁ ଧର୍ମରେ ହଳଦିଆ ରଙ୍ଗର ବସ୍ତ୍ରକୁ ବହୁତ ଶୁଭ ଏବଂ ପବିତ୍ର ମାନାଯାଏ। ତେଣୁ ଘରେ କୌଣସି ପୂଜା, ହୋମ, ଯଜ୍ଞ କିମ୍ବା ଶ୍ରାଦ୍ଧ କର୍ମ ସମୟରେ ପୁରୁଷମାନେ ଏହାକୁ ପିନ୍ଧିଥାନ୍ତି",
       "triggerDelaySeconds": 4,
-      "adTimerSeconds": 25,
       "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg",
+      "productTitle": "Angavasthram with Zari Border, Cotton",
+      "countdownSeconds": 25,
+      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee"
     },
     "author": "ମହାଦେବଙ୍କୁ ପ୍ରସନ୍ନ ଓ ସନ୍ତୁଷ୍ଟ କରିବା ପାଇଁ ଆପଣ ଏହି ସବୁ ସରଳ ନିୟମ ପାଳନ କରିପାରିବେ"
   },
@@ -3654,14 +3654,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productTitle": "Angavasthram with Zari Border, Cotton",
-      "countdownSeconds": 25,
-      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee",
+      "adTimerSeconds": 25,
       "productDescription": "ପୂଜାପାଠ ଏବଂ ଧାର୍ମିକ କାର୍ଯ୍ୟ: ହିନ୍ଦୁ ଧର୍ମରେ ହଳଦିଆ ରଙ୍ଗର ବସ୍ତ୍ରକୁ ବହୁତ ଶୁଭ ଏବଂ ପବିତ୍ର ମାନାଯାଏ। ତେଣୁ ଘରେ କୌଣସି ପୂଜା, ହୋମ, ଯଜ୍ଞ କିମ୍ବା ଶ୍ରାଦ୍ଧ କର୍ମ ସମୟରେ ପୁରୁଷମାନେ ଏହାକୁ ପିନ୍ଧିଥାନ୍ତି",
       "triggerDelaySeconds": 4,
-      "adTimerSeconds": 25,
       "enabled": true,
-      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg"
+      "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788760192840_82oz0p.jpg",
+      "productTitle": "Angavasthram with Zari Border, Cotton",
+      "countdownSeconds": 25,
+      "affiliateUrl": "https://www.amazon.in/dp/B0BNXPYXSX/ref=cm_sw_r_as_gl_apa_gl_i_B8K785M2468BBEMZQW84?linkCode=ml1&tag=543213024-21&linkId=51eecc94eed4e9d490510b91edaaeaee"
     },
     "author": "ମହାଦେବଙ୍କୁ ପ୍ରସନ୍ନ ଓ ସନ୍ତୁଷ୍ଟ କରିବା ପାଇଁ ଆପଣ ଏହି ସବୁ ସରଳ ନିୟମ ପାଳନ କରିପାରିବେ"
   },
@@ -3677,14 +3677,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788459034418_t4vc3f.jpg",
-      "countdownSeconds": 17,
       "adTimerSeconds": 17,
-      "enabled": true,
       "productTitle": "Cycle Pure Navin Sambrani Dhoop Cups for Pooja (45 pcs) | Havan Cups for Pooja",
       "affiliateUrl": "https://link.amazon/B08ZBnLoQ",
-      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ",
+      "countdownSeconds": 17,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3700,14 +3700,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788459034418_t4vc3f.jpg",
-      "countdownSeconds": 17,
       "adTimerSeconds": 17,
-      "enabled": true,
       "productTitle": "Cycle Pure Navin Sambrani Dhoop Cups for Pooja (45 pcs) | Havan Cups for Pooja",
       "affiliateUrl": "https://link.amazon/B08ZBnLoQ",
-      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ",
+      "countdownSeconds": 17,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3723,14 +3723,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788459034418_t4vc3f.jpg",
-      "countdownSeconds": 17,
       "adTimerSeconds": 17,
-      "enabled": true,
       "productTitle": "Cycle Pure Navin Sambrani Dhoop Cups for Pooja (45 pcs) | Havan Cups for Pooja",
       "affiliateUrl": "https://link.amazon/B08ZBnLoQ",
-      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ",
+      "countdownSeconds": 17,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3746,14 +3746,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788459034418_t4vc3f.jpg",
-      "countdownSeconds": 17,
       "adTimerSeconds": 17,
-      "enabled": true,
       "productTitle": "Cycle Pure Navin Sambrani Dhoop Cups for Pooja (45 pcs) | Havan Cups for Pooja",
       "affiliateUrl": "https://link.amazon/B08ZBnLoQ",
-      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ",
+      "countdownSeconds": 17,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3769,14 +3769,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788459034418_t4vc3f.jpg",
-      "countdownSeconds": 17,
       "adTimerSeconds": 17,
-      "enabled": true,
       "productTitle": "Cycle Pure Navin Sambrani Dhoop Cups for Pooja (45 pcs) | Havan Cups for Pooja",
       "affiliateUrl": "https://link.amazon/B08ZBnLoQ",
-      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ",
+      "countdownSeconds": 17,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3792,14 +3792,14 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "triggerDelaySeconds": 4,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788459034418_t4vc3f.jpg",
-      "countdownSeconds": 17,
       "adTimerSeconds": 17,
-      "enabled": true,
       "productTitle": "Cycle Pure Navin Sambrani Dhoop Cups for Pooja (45 pcs) | Havan Cups for Pooja",
       "affiliateUrl": "https://link.amazon/B08ZBnLoQ",
-      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ"
+      "triggerDelaySeconds": 4,
+      "productDescription": "ଦିବ୍ୟ ସୁଗନ୍ଧ: ଏହାର ପ୍ରାକୃତିକ ସୁଗନ୍ଧ ପୂରା ଘର କିମ୍ବା ମନ୍ଦିରକୁ ମହକାଇ ରଖେ",
+      "countdownSeconds": 17,
+      "enabled": true
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3815,17 +3815,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
       "triggerDelaySeconds": 4,
-      "flipkartLink": "https://fktr.in/lqdyy8X",
-      "enabled": true,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788793260378_4x5x61.jpg",
-      "countdownSeconds": 25,
-      "meeshoLink": "",
-      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
       "productTitle": "boAt Rockerz 255 Pro+",
       "adTimerSeconds": 25,
-      "amazonLink": "https://link.amazon/B0eavbH6P"
+      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
+      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
+      "amazonLink": "https://link.amazon/B0eavbH6P",
+      "countdownSeconds": 25,
+      "enabled": true,
+      "flipkartLink": "https://fktr.in/lqdyy8X",
+      "meeshoLink": ""
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3841,17 +3841,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
       "triggerDelaySeconds": 4,
-      "flipkartLink": "https://fktr.in/lqdyy8X",
-      "enabled": true,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788793260378_4x5x61.jpg",
-      "countdownSeconds": 25,
-      "meeshoLink": "",
-      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
       "productTitle": "boAt Rockerz 255 Pro+",
       "adTimerSeconds": 25,
-      "amazonLink": "https://link.amazon/B0eavbH6P"
+      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
+      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
+      "amazonLink": "https://link.amazon/B0eavbH6P",
+      "countdownSeconds": 25,
+      "enabled": true,
+      "flipkartLink": "https://fktr.in/lqdyy8X",
+      "meeshoLink": ""
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3867,17 +3867,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
       "triggerDelaySeconds": 4,
-      "flipkartLink": "https://fktr.in/lqdyy8X",
-      "enabled": true,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788793260378_4x5x61.jpg",
-      "countdownSeconds": 25,
-      "meeshoLink": "",
-      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
       "productTitle": "boAt Rockerz 255 Pro+",
       "adTimerSeconds": 25,
-      "amazonLink": "https://link.amazon/B0eavbH6P"
+      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
+      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
+      "amazonLink": "https://link.amazon/B0eavbH6P",
+      "countdownSeconds": 25,
+      "enabled": true,
+      "flipkartLink": "https://fktr.in/lqdyy8X",
+      "meeshoLink": ""
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3893,17 +3893,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
       "triggerDelaySeconds": 4,
-      "flipkartLink": "https://fktr.in/lqdyy8X",
-      "enabled": true,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788793260378_4x5x61.jpg",
-      "countdownSeconds": 25,
-      "meeshoLink": "",
-      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
       "productTitle": "boAt Rockerz 255 Pro+",
       "adTimerSeconds": 25,
-      "amazonLink": "https://link.amazon/B0eavbH6P"
+      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
+      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
+      "amazonLink": "https://link.amazon/B0eavbH6P",
+      "countdownSeconds": 25,
+      "enabled": true,
+      "flipkartLink": "https://fktr.in/lqdyy8X",
+      "meeshoLink": ""
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3919,17 +3919,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
       "triggerDelaySeconds": 4,
-      "flipkartLink": "https://fktr.in/lqdyy8X",
-      "enabled": true,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788793260378_4x5x61.jpg",
-      "countdownSeconds": 25,
-      "meeshoLink": "",
-      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
       "productTitle": "boAt Rockerz 255 Pro+",
       "adTimerSeconds": 25,
-      "amazonLink": "https://link.amazon/B0eavbH6P"
+      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
+      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
+      "amazonLink": "https://link.amazon/B0eavbH6P",
+      "countdownSeconds": 25,
+      "enabled": true,
+      "flipkartLink": "https://fktr.in/lqdyy8X",
+      "meeshoLink": ""
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },
@@ -3945,17 +3945,17 @@
     "likesCount": 12,
     "isFeatured": false,
     "affiliateAd": {
-      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
       "triggerDelaySeconds": 4,
-      "flipkartLink": "https://fktr.in/lqdyy8X",
-      "enabled": true,
       "productImageUrl": "https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788793260378_4x5x61.jpg",
-      "countdownSeconds": 25,
-      "meeshoLink": "",
-      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
       "productTitle": "boAt Rockerz 255 Pro+",
       "adTimerSeconds": 25,
-      "amazonLink": "https://link.amazon/B0eavbH6P"
+      "productDescription": "ବ୍ୟାଟେରୀ: ଥରେ ଫୁଲ୍ ଚାର୍ଜ କଲେ ପାଖାପାଖି ୪୦ ଘଣ୍ଟା ପର୍ଯ୍ୟନ୍ତ ଚାଲିବ। ​ବିଶେଷତ୍ୱ: ଏଥିରେ ଫାଷ୍ଟ ଚାର୍ଜିଂ ଅଛି (ମାତ୍ର ୧୦ ମିନିଟ୍ ଚାର୍ଜ କଲେ ୧୦ ଘଣ୍ଟା ଚାଲିବ)। ଏହା ପାଣି ଏବଂ ଝାଳରୁ ମଧ୍ୟ ସୁରକ୍ଷିତ ରହିଥାଏ",
+      "adTriggerText": "​ତ୍ରୁଟିରୁ ଶିକ୍ଷା ଲାଭ କରନ୍ତୁ",
+      "amazonLink": "https://link.amazon/B0eavbH6P",
+      "countdownSeconds": 25,
+      "enabled": true,
+      "flipkartLink": "https://fktr.in/lqdyy8X",
+      "meeshoLink": ""
     },
     "author": "ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV"
   },

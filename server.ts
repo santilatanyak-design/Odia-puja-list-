@@ -129,6 +129,15 @@ app.get('/api/comments/:storyId', async (req, res) => {
         throw err;
       }
     }
+    
+    // Fallback to local file system if AWS is not configured
+    const localCommentsPath = path.join(process.cwd(), 'comments.json');
+    if (fs.existsSync(localCommentsPath)) {
+      try {
+        const localComments = JSON.parse(fs.readFileSync(localCommentsPath, 'utf-8'));
+        return res.json({ success: true, comments: localComments[storyId] || [] });
+      } catch (e) {}
+    }
     res.json({ success: true, comments: [] });
   } catch (err: any) {
     console.error('Error fetching comments:', err);
@@ -143,11 +152,31 @@ app.post('/api/comments/:storyId', async (req, res) => {
     
     if (!name || !text) return res.status(400).json({ error: 'Name and text required' });
 
+    const newComment = {
+      id: Date.now().toString(),
+      name,
+      text,
+      createdAt: new Date().toISOString()
+    };
+
     const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION;
     const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME;
     const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
     const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
     
+    let comments = [];
+
+    // Local fallback save first
+    const localCommentsPath = path.join(process.cwd(), 'comments.json');
+    let localData: Record<string, any[]> = {};
+    if (fs.existsSync(localCommentsPath)) {
+      try { localData = JSON.parse(fs.readFileSync(localCommentsPath, 'utf-8')); } catch(e){}
+    }
+    comments = localData[storyId] || [];
+    comments.push(newComment);
+    localData[storyId] = comments;
+    fs.writeFileSync(localCommentsPath, JSON.stringify(localData, null, 2), 'utf-8');
+
     if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
       const s3Client = new S3Client({
         region: AWS_REGION,
@@ -157,7 +186,6 @@ app.post('/api/comments/:storyId', async (req, res) => {
         }
       });
       
-      let comments: any[] = [];
       try {
         const response = await s3Client.send(new GetObjectCommand({
           Bucket: AWS_BUCKET,
@@ -165,19 +193,13 @@ app.post('/api/comments/:storyId', async (req, res) => {
         }));
         const bodyContents = await response.Body?.transformToString();
         if (bodyContents) {
-          comments = JSON.parse(bodyContents);
+          const s3Comments = JSON.parse(bodyContents);
+          s3Comments.push(newComment);
+          comments = s3Comments; // Prefer S3 state if exists
         }
       } catch (err: any) {
-        // file doesn't exist, start new array
+        // file doesn't exist, start new array with local comments
       }
-
-      const newComment = {
-        id: Date.now().toString(),
-        name,
-        text,
-        createdAt: new Date().toISOString()
-      };
-      comments.push(newComment);
 
       const bodyBytes = new TextEncoder().encode(JSON.stringify(comments, null, 2));
       await s3Client.send(new PutObjectCommand({
@@ -187,11 +209,9 @@ app.post('/api/comments/:storyId', async (req, res) => {
         ContentType: 'application/json',
         CacheControl: 'public, max-age=0, must-revalidate'
       }));
-
-      return res.json({ success: true, comment: newComment, comments });
-    } else {
-      return res.status(500).json({ error: 'S3 Configuration missing' });
     }
+    
+    return res.json({ success: true, comment: newComment, comments });
   } catch (err: any) {
     console.error('Error adding comment:', err);
     res.status(500).json({ error: err.message });
