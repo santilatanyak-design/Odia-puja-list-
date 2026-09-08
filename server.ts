@@ -227,7 +227,59 @@ app.get("/api/qr-config", (req, res) => res.json({}));
 app.get("/api/templates", (req, res) => res.json([]));
 app.get("/api/temples", (req, res) => res.json([]));
 app.get("/api/stories", (req, res) => res.json([]));
-app.post("/api/stories", (req, res) => res.json({success: true}));
+app.post("/api/stories", async (req, res) => {
+  try {
+    const { story } = req.body;
+    if (!story || !story.id) {
+      return res.status(400).json({ error: "Missing story or story.id" });
+    }
+    const cleanId = String(story.id).replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+    const pathsToUpdate = [
+      path.join(process.cwd(), 'posts.json'),
+      path.join(process.cwd(), 'public', 'posts.json'),
+      path.join(process.cwd(), 'dist', 'posts.json')
+    ];
+    for (const p of pathsToUpdate) {
+      if (fs.existsSync(p)) {
+        try {
+          const raw = fs.readFileSync(p, 'utf-8');
+          const data = JSON.parse(raw);
+          if (Array.isArray(data)) {
+            const idx = data.findIndex((item: any) => item.id === cleanId || item.id === `story-${cleanId}`);
+            if (idx >= 0) data[idx] = { ...data[idx], ...story, id: cleanId };
+            else data.unshift({ ...story, id: cleanId });
+            fs.writeFileSync(p, JSON.stringify(data, null, 2));
+          } else if (typeof data === 'object') {
+            const entry = {
+              id: cleanId,
+              title: story.title || '',
+              description: story.summary || story.content || '',
+              content: story.content || '',
+              image: story.imageUrl || story.image || '',
+              imageUrl: story.imageUrl || story.image || '',
+              author: story.author || 'ଭକ୍ତି ଆନନ୍ଦ ଓଡ଼ିଆ TV',
+              category: story.category || 'ଆଧ୍ୟାତ୍ମିକ କାହାଣୀ',
+              readTimeMinutes: Number(story.readTimeMinutes) || 3,
+              publishedAt: story.publishedAt || new Date().toISOString().split('T')[0],
+              likesCount: Number(story.likesCount) || 12,
+              affiliateAd: story.affiliateAd || undefined,
+            };
+            data[cleanId] = entry;
+            data[`story-${cleanId.replace(/^story-/, '')}`] = entry;
+            data[`/story/${cleanId}`] = entry;
+            data[`/story/${cleanId}.html`] = entry;
+            fs.writeFileSync(p, JSON.stringify(data, null, 2));
+          }
+        } catch (e) {
+          console.error(`Error writing to ${p}:`, e);
+        }
+      }
+    }
+    res.json({ success: true, story });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.delete('/api/stories/:storyId', async (req, res) => {
   try {

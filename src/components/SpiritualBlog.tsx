@@ -46,6 +46,7 @@ import { findTriggerInText, logAffiliateDebug } from '../lib/adUtils';
 
 interface SpiritualBlogProps {
   initialStoryId?: string | null;
+  initialStoryData?: any;
   onBack: () => void;
   onNavigateToPanchang?: () => void;
 }
@@ -76,6 +77,7 @@ export const getCategoryBadgeStyle = (category: string = ''): string => {
 
 export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
   initialStoryId,
+  initialStoryData,
   onBack,
   onNavigateToPanchang,
 }) => {
@@ -154,13 +156,30 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     };
   }, []);
 
-  // 2. Resolve initialStoryId or URL params into selectedStory
+  // 2. Resolve initialStoryId, initialStoryData or URL params into selectedStory
   useEffect(() => {
     const resolveTargetStory = async () => {
+      // 0. If direct story data was provided via props or state, use it immediately
+      if (initialStoryData) {
+        const normalized = normalizeStory(initialStoryData);
+        if (normalized) {
+          setSelectedStory(normalized);
+          return;
+        }
+      }
+
+      if (typeof window !== 'undefined' && (window.history.state as any)?.storyData) {
+        const normalized = normalizeStory((window.history.state as any).storyData);
+        if (normalized) {
+          setSelectedStory(normalized);
+          return;
+        }
+      }
+
       let targetId = initialStoryId;
 
       if (!targetId && typeof window !== 'undefined') {
-        const preloadedId = (window as any).__PRELOADED_STATE__?.storyId;
+        const historyStoryId = (window.history.state as any)?.storyId;
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         let pathStoryId = '';
         if (pathParts[0] === 'story' || pathParts[0] === 'blog' || pathParts[0] === 'stories') {
@@ -172,7 +191,12 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
           }
         }
         const params = new URLSearchParams(window.location.search);
-        targetId = preloadedId || pathStoryId || params.get('storyId') || params.get('story');
+        const queryStoryId = params.get('storyId') || params.get('story') || params.get('id');
+
+        const isStoryPath = window.location.pathname.startsWith('/story/') || window.location.pathname.startsWith('/blog/');
+        const preloadedId = isStoryPath ? (window as any).__PRELOADED_STATE__?.storyId : undefined;
+
+        targetId = historyStoryId || pathStoryId || queryStoryId || preloadedId;
       }
 
       if (!targetId) return;
@@ -185,25 +209,58 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
       if (!cleanTargetId) return;
 
-      // 1. Check in regular stories
-      const matched = stories.find(
-        (s) => s.id === cleanTargetId || 
-               s.id === targetId || 
-               s.id.endsWith(cleanTargetId) ||
-               (s.imageUrl && (s.imageUrl === targetId || s.imageUrl === cleanTargetId || s.imageUrl.includes(cleanTargetId)))
-      );
-      if (matched) {
-        setSelectedStory(matched);
-        return;
+      const targetFilename = cleanTargetId.includes('/') ? cleanTargetId.split('/').pop() : cleanTargetId;
+
+      // 1. Check in local storage stories FIRST (ensures freshly edited/created stories take priority over stale JSON)
+      try {
+        const localRaw = localStorage.getItem('spiritual_stories_v1');
+        if (localRaw) {
+          const parsed = JSON.parse(localRaw);
+          if (Array.isArray(parsed)) {
+            const localMatch = parsed.find((s: any) => {
+              if (!s) return false;
+              const sCleanId = String(s.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').trim();
+              const sImg = s.imageUrl || s.image || '';
+              return (
+                s.id === targetId ||
+                s.id === cleanTargetId ||
+                sCleanId === cleanTargetId ||
+                sCleanId === cleanTargetId.replace(/^story-/, '') ||
+                `story-${sCleanId}` === cleanTargetId ||
+                (sImg && (sImg === targetId || sImg === cleanTargetId || (targetFilename && sImg.includes(targetFilename))))
+              );
+            });
+            if (localMatch) {
+              const normalized = normalizeStory(localMatch);
+              if (normalized) {
+                setSelectedStory(normalized);
+                return;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Local storage check error:', err);
       }
 
-      // 2. Check in DEFAULT_STORIES fallback
-      const defaultMatch = DEFAULT_STORIES.find(
-        (s) => s.id === cleanTargetId || s.id === targetId
-      );
-      if (defaultMatch) {
-        setSelectedStory(defaultMatch);
-        return;
+      // 2. Check in regular stories list (from subscribeSpiritualStories)
+      if (stories && stories.length > 0) {
+        const matched = stories.find((s) => {
+          const sCleanId = String(s.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').trim();
+          const sImg = s.imageUrl || '';
+          return (
+            s.id === targetId ||
+            s.id === cleanTargetId ||
+            sCleanId === cleanTargetId ||
+            sCleanId === cleanTargetId.replace(/^story-/, '') ||
+            `story-${sCleanId}` === cleanTargetId ||
+            (sImg && (sImg === targetId || sImg === cleanTargetId || (targetFilename && sImg.includes(targetFilename))))
+          );
+        });
+        if (matched) {
+          setSelectedStory(matched);
+          return;
+        }
       }
 
       // 3. Check in posts.json directly for immediate resolution
@@ -211,16 +268,41 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         const res = await fetch('/posts.json');
         if (res.ok) {
           const posts = await res.json();
+          const numId = cleanTargetId.replace(/^story-/, '');
+          
           let rawItem =
             posts[cleanTargetId] ||
             posts[`/story/${cleanTargetId}`] ||
             posts[`/story/${cleanTargetId}.html`] ||
-            posts[`story-${cleanTargetId}`];
+            posts[`story-${cleanTargetId}`] ||
+            posts[`story-${numId}`] ||
+            posts[`/story/story-${numId}`] ||
+            posts[`/story/story-${numId}.html`];
             
+          const allPosts = Object.values(posts) as any[];
+
           if (!rawItem) {
-            rawItem = Object.values(posts).find(
-              (p: any) => p.image === targetId || p.image === cleanTargetId || p.imageUrl === targetId || p.imageUrl === cleanTargetId || (p.image && p.image.includes(cleanTargetId))
-            );
+            rawItem = allPosts.find((p: any) => {
+              if (!p) return false;
+              const pCleanId = String(p.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').trim();
+              return (
+                p.id === targetId ||
+                p.id === cleanTargetId ||
+                pCleanId === cleanTargetId ||
+                pCleanId === numId ||
+                `story-${pCleanId}` === cleanTargetId
+              );
+            });
+          }
+
+          if (!rawItem && targetFilename) {
+            rawItem = allPosts.find((p: any) => {
+              if (!p) return false;
+              const img = p.image || p.imageUrl || '';
+              if (!img) return false;
+              if (img === targetId || img === cleanTargetId) return true;
+              return img.includes(targetFilename);
+            });
           }
 
           if (rawItem) {
@@ -235,7 +317,17 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         console.warn('posts.json lookup error:', err);
       }
 
-      // 4. Check if district heritage / purana item
+      // 4. Check in DEFAULT_STORIES fallback
+      const defaultMatch = DEFAULT_STORIES.find((s) => {
+        const sCleanId = String(s.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').trim();
+        return s.id === cleanTargetId || s.id === targetId || sCleanId === cleanTargetId;
+      });
+      if (defaultMatch) {
+        setSelectedStory(defaultMatch);
+        return;
+      }
+
+      // 5. Check if district heritage / purana item
       if (cleanTargetId.startsWith('district-') || cleanTargetId.length > 0) {
         try {
           const dItems = await getDistrictItems();
@@ -265,7 +357,7 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     };
 
     resolveTargetStory();
-  }, [initialStoryId, stories]);
+  }, [initialStoryId, initialStoryData, stories]);
 
   // 3. Dynamic SEO, Canonical Link & JSON-LD Schema Synchronizer + Smart Affiliate Ad Setup
   useEffect(() => {
@@ -535,6 +627,9 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
             onClick={() => {
               setSelectedStory(null);
               if (typeof window !== 'undefined') {
+                if ((window as any).__PRELOADED_STATE__) {
+                  (window as any).__PRELOADED_STATE__ = null;
+                }
                 window.history.pushState({ viewMode: 'blog' }, '', '/?view=blog');
               }
             }}
@@ -1033,6 +1128,9 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               onClick={() => {
                 setSelectedStory(null);
                 if (typeof window !== 'undefined') {
+                  if ((window as any).__PRELOADED_STATE__) {
+                    (window as any).__PRELOADED_STATE__ = null;
+                  }
                   window.history.pushState({ viewMode: 'blog' }, '', '/?view=blog');
                 }
               }}
@@ -1054,7 +1152,13 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
               {relatedStories.map((rel) => (
                 <div
                   key={rel.id}
-                  onClick={() => setSelectedStory(rel)}
+                  onClick={() => {
+                    setSelectedStory(rel);
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({ viewMode: 'blog', storyId: rel.id, storyData: rel }, '', `/story/${encodeURIComponent(rel.id)}`);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
                   className="bg-white rounded-2xl p-3.5 border border-slate-200 hover:border-orange-300 hover:shadow-md transition cursor-pointer flex items-center gap-3 group"
                 >
                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0">

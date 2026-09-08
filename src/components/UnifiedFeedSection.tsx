@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 interface UnifiedFeedSectionProps {
-  onNavigateToBlog?: (storyId?: string) => void;
+  onNavigateToBlog?: (storyId?: string, storyData?: any) => void;
   onNavigateToTemple?: (templeId?: string) => void;
 }
 
@@ -90,7 +90,8 @@ export const UnifiedFeedSection: React.FC<UnifiedFeedSectionProps> = ({
   const handleCardClick = (item: UnifiedFeedItem) => {
     if (item.sourceType === 'custom_post') {
       if (onNavigateToBlog) {
-        onNavigateToBlog(item.id);
+        const identifier = item.id || (item.originalData as any)?.id || item.imageUrl;
+        onNavigateToBlog(identifier, item.originalData || item);
       }
     } else if (item.sourceType === 'temple') {
       if (onNavigateToTemple) {
@@ -99,7 +100,8 @@ export const UnifiedFeedSection: React.FC<UnifiedFeedSectionProps> = ({
       }
     } else {
       if (onNavigateToBlog) {
-        onNavigateToBlog(item.id);
+        const identifier = item.id || (item.originalData as any)?.id || item.imageUrl;
+        onNavigateToBlog(identifier, item.originalData || item);
       }
     }
   };
@@ -255,7 +257,16 @@ export const UnifiedFeedSection: React.FC<UnifiedFeedSectionProps> = ({
               {/* Headline & Excerpt Below Large Image */}
               <div className="p-4 sm:p-5 space-y-2">
                 <h3 className="text-base sm:text-lg md:text-xl font-black text-slate-900 leading-snug group-hover:text-orange-600 transition-colors">
-                  {filteredItems[0].title}
+                  <a
+                    href={`/story/${encodeURIComponent(filteredItems[0].id || filteredItems[0].imageUrl)}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleCardClick(filteredItems[0]);
+                    }}
+                    className="hover:underline focus:outline-hidden"
+                  >
+                    {filteredItems[0].title}
+                  </a>
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed line-clamp-2 sm:line-clamp-3">
                   {filteredItems[0].summary}
@@ -280,10 +291,18 @@ export const UnifiedFeedSection: React.FC<UnifiedFeedSectionProps> = ({
                     </span>
                   </div>
 
-                  <span className="inline-flex items-center gap-1 text-orange-600 font-black text-xs group-hover:translate-x-0.5 transition-transform">
+                  <a
+                    href={`/story/${encodeURIComponent(filteredItems[0].id || filteredItems[0].imageUrl)}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleCardClick(filteredItems[0]);
+                    }}
+                    className="inline-flex items-center gap-1 text-orange-600 font-black text-xs group-hover:translate-x-0.5 transition-transform cursor-pointer"
+                  >
                     <span>ସମ୍ପୂର୍ଣ୍ଣ ପଢ଼ନ୍ତୁ</span>
                     <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
+                  </a>
                 </div>
               </div>
             </article>
@@ -345,7 +364,16 @@ export const UnifiedFeedSection: React.FC<UnifiedFeedSectionProps> = ({
 
                           {/* Bold Headline */}
                           <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-orange-600 transition-colors">
-                            {item.title}
+                            <a
+                              href={`/story/${encodeURIComponent(item.id || (item.originalData as any)?.id || item.imageUrl)}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleCardClick(item);
+                              }}
+                              className="hover:underline focus:outline-hidden"
+                            >
+                              {item.title}
+                            </a>
                           </h4>
 
                           {/* 1-Line Description */}
@@ -377,10 +405,18 @@ export const UnifiedFeedSection: React.FC<UnifiedFeedSectionProps> = ({
                             >
                               <Share2 className="w-3 h-3" />
                             </button>
-                            <span className="hidden sm:inline-flex items-center gap-0.5 font-bold text-orange-600 text-[10px]">
+                            <a
+                              href={`/story/${encodeURIComponent(item.id || (item.originalData as any)?.id || item.imageUrl)}`}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleCardClick(item);
+                              }}
+                              className="hidden sm:inline-flex items-center gap-0.5 font-bold text-orange-600 text-[10px] hover:translate-x-0.5 transition-transform cursor-pointer"
+                            >
                               <span>Read</span>
                               <ArrowRight className="w-2.5 h-2.5" />
-                            </span>
+                            </a>
                           </div>
                         </div>
                       </div>

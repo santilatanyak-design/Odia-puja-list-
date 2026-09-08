@@ -40,7 +40,7 @@ interface HomePageProps {
   onNavigateToStore: () => void;
   onNavigateToTemple?: (templeId?: string) => void;
   onNavigateToPanchang?: () => void;
-  onNavigateToBlog?: (storyId?: string) => void;
+  onNavigateToBlog?: (storyId?: string, storyData?: any) => void;
   onNavigateToShorts?: () => void;
   onNavigateToLogin: () => void;
 }

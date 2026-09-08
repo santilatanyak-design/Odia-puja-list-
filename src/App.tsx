@@ -168,9 +168,6 @@ export default function App() {
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(() => {
     try {
       if (typeof window !== 'undefined') {
-        const preloaded = (window as any).__PRELOADED_STATE__;
-        if (preloaded && preloaded.storyId) return preloaded.storyId;
-
         const rawPathname = window.location.pathname;
         const pathname = rawPathname.toLowerCase();
         const parts = rawPathname.split('/').filter(Boolean);
@@ -184,14 +181,21 @@ export default function App() {
           }
         }
         const params = new URLSearchParams(window.location.search);
-        const sid = params.get('storyId') || params.get('story');
-        return sid ? sid.replace(/\.html?$/i, '').replace(/\/$/, '').trim() : null;
+        const sid = params.get('storyId') || params.get('story') || params.get('id');
+        if (sid) return sid.replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+
+        const preloaded = (window as any).__PRELOADED_STATE__;
+        if (preloaded && preloaded.storyId && (lowerParts[0] === 'story' || lowerParts[0] === 'blog')) {
+          return preloaded.storyId;
+        }
       }
     } catch {
       // Fallback
     }
     return null;
   });
+
+  const [selectedStoryData, setSelectedStoryData] = useState<any | null>(null);
 
   const [selectedTempleId, setSelectedTempleId] = useState<string | null>(() => {
     try {
@@ -381,15 +385,24 @@ export default function App() {
     const handlePopState = () => {
       try {
         if (typeof window !== 'undefined') {
-          const pathname = window.location.pathname.toLowerCase();
-          const parts = pathname.split('/').filter(Boolean);
-          if (parts[0] === 'story' || parts[0] === 'blog' || parts[0] === 'stories') {
-            const sid = (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
-            setSelectedStoryId(sid);
+          const rawPathname = window.location.pathname;
+          const pathname = rawPathname.toLowerCase();
+          const parts = rawPathname.split('/').filter(Boolean);
+          const lowerParts = pathname.split('/').filter(Boolean);
+          if (lowerParts[0] === 'story' || lowerParts[0] === 'blog' || lowerParts[0] === 'stories') {
+            const rawSlug = parts.slice(1).join('/');
+            let sid = '';
+            try {
+              sid = decodeURIComponent(rawSlug).replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+            } catch {
+              sid = rawSlug.replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+            }
+            setSelectedStoryId(sid || null);
+            setSelectedStoryData((window.history.state as any)?.storyData || null);
             setViewMode('blog');
             return;
           }
-          if (parts[0] === 'temple' || parts[0] === 'temples') {
+          if (lowerParts[0] === 'temple' || lowerParts[0] === 'temples') {
             const tid = (parts[1] || '').replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
             setSelectedTempleId(tid);
             setViewMode('temple');
@@ -401,10 +414,11 @@ export default function App() {
           }
 
           const params = new URLSearchParams(window.location.search);
-          const rawStoryParam = params.get('storyId') || params.get('story');
+          const rawStoryParam = params.get('storyId') || params.get('story') || params.get('id');
           const storyParam = rawStoryParam ? rawStoryParam.replace(/\.html?$/i, '').replace(/\/$/, '').trim() : null;
           if (storyParam) {
             setSelectedStoryId(storyParam);
+            setSelectedStoryData((window.history.state as any)?.storyData || null);
           }
           const rawTempleParam = params.get('templeId') || params.get('temple');
           const templeParam = rawTempleParam ? rawTempleParam.replace(/\.html?$/i, '').replace(/\/$/, '').trim() : null;
@@ -431,6 +445,10 @@ export default function App() {
             setViewMode('portal');
           } else {
             setSelectedStoryId(null);
+            setSelectedStoryData(null);
+            if ((window as any).__PRELOADED_STATE__) {
+              (window as any).__PRELOADED_STATE__ = null;
+            }
             setViewMode('home');
           }
         }
@@ -443,16 +461,25 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const handleNavigateToBlog = (storyId?: string) => {
+  const handleNavigateToBlog = (storyId?: string, storyData?: any) => {
     if (storyId) {
-      setSelectedStoryId(storyId);
+      const cleanId = String(storyId).replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+      setSelectedStoryId(cleanId);
+      setSelectedStoryData(storyData || null);
       if (typeof window !== 'undefined') {
-        window.history.pushState({ viewMode: 'blog', storyId }, '', `/story/${encodeURIComponent(storyId)}`);
+        window.history.pushState({ viewMode: 'blog', storyId: cleanId, storyData }, '', `/story/${encodeURIComponent(cleanId)}`);
+        if ((window as any).__PRELOADED_STATE__) {
+          (window as any).__PRELOADED_STATE__ = { viewMode: 'blog', storyId: cleanId };
+        }
       }
     } else {
       setSelectedStoryId(null);
+      setSelectedStoryData(null);
       if (typeof window !== 'undefined') {
         window.history.pushState({ viewMode: 'blog' }, '', '/?view=blog');
+        if ((window as any).__PRELOADED_STATE__) {
+          (window as any).__PRELOADED_STATE__ = null;
+        }
       }
     }
     setViewMode('blog');
@@ -746,8 +773,13 @@ export default function App() {
             ) : viewMode === 'blog' ? (
               <SpiritualBlog
                 initialStoryId={selectedStoryId}
+                initialStoryData={selectedStoryData}
                 onBack={() => {
                   setSelectedStoryId(null);
+                  setSelectedStoryData(null);
+                  if (typeof window !== 'undefined' && (window as any).__PRELOADED_STATE__) {
+                    (window as any).__PRELOADED_STATE__ = null;
+                  }
                   setViewMode('home');
                 }}
                 onNavigateToPanchang={() => setViewMode('panchang')}
