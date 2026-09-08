@@ -131,17 +131,17 @@ export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOp
 
                     {/* White-Label Buy Button: "ଅର୍ଡର୍ କରନ୍ତୁ (Order Now)" */}
                     <div className="p-3.5 pt-0">
-                      <a
-                        href={prod.buyLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button type="button"
+                        
+                        
+                        
                         onClick={(e) => executeSmartNavigation(e, prod.buyLink, 'generic')}
                         className="w-full py-2.5 px-3 bg-gradient-to-r from-[#8B0000] to-[#701a1e] hover:from-[#a00000] hover:to-[#8B0000] text-amber-100 hover:text-white font-extrabold rounded-xl text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer group/btn"
                       >
                         <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />
                         <span>ଅର୍ଡର୍ କରନ୍ତୁ (Order Now)</span>
                         <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform text-amber-200" />
-                      </a>
+                      </button>
                     </div>
                   </div>
                 ))}

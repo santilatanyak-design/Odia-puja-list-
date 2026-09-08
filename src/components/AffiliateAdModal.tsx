@@ -192,45 +192,45 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col gap-2 shrink-0">
           
           {ad.amazonLink && (
-            <a
-              href={getSmartAppUrl(ad.amazonLink, 'amazon')}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button type="button"
+              
+              
+              
               onClick={(e) => { executeSmartNavigation(e, ad.amazonLink!, 'amazon'); onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-[#ff9900] via-[#ffaa00] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-amber-600/40"
             >
               <ShoppingBag className="w-4 h-4 text-slate-950" />
               <span>Buy on Amazon</span>
               <ExternalLink className="w-4 h-4 text-slate-950" />
-            </a>
+            </button>
           )}
 
           {ad.flipkartLink && (
-            <a
-              href={getSmartAppUrl(ad.flipkartLink, 'flipkart')}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button type="button"
+              
+              
+              
               onClick={(e) => { executeSmartNavigation(e, ad.flipkartLink!, 'flipkart'); onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-blue-400"
             >
               <ShoppingBag className="w-4 h-4 text-white" />
               <span>Buy on Flipkart</span>
               <ExternalLink className="w-4 h-4 text-white" />
-            </a>
+            </button>
           )}
 
           {ad.meeshoLink && (
-            <a
-              href={getSmartAppUrl(ad.meeshoLink, 'meesho')}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button type="button"
+              
+              
+              
               onClick={(e) => { executeSmartNavigation(e, ad.meeshoLink!, 'meesho'); onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-pink-400"
             >
               <ShoppingBag className="w-4 h-4 text-white" />
               <span>Buy on Meesho</span>
               <ExternalLink className="w-4 h-4 text-white" />
-            </a>
+            </button>
           )}
 
           {/* Fallback if no specific links are set, but an affiliate URL is set */}
