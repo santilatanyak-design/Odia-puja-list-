@@ -9,7 +9,7 @@ import {
   ExternalLink,
   CheckCircle2,
 } from 'lucide-react';
-import { executeSmartNavigation } from '../lib/deepLinkHelper';
+import { executeSmartNavigation, handleDeepLink } from '../lib/deepLinkHelper';
 
 interface VisitingCardTabProps {
   pujari: Pujari;
@@ -210,7 +210,7 @@ export const VisitingCardTab: React.FC<VisitingCardTabProps> = ({
               
               
               
-              onClick={(e) => executeSmartNavigation(e, ORDER_FORM_URL, 'generic')}
+              onClick={(e) => handleDeepLink(e, ORDER_FORM_URL, 'generic')}
               className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-red-800 via-red-700 to-red-800 hover:from-red-900 hover:to-red-800 text-white font-black text-sm sm:text-base rounded-2xl shadow-lg border-2 border-amber-300 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
             >
               <span>Order Now (ଏବେ ଅର୍ଡର କରନ୍ତୁ)</span>

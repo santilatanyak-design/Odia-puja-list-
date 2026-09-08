@@ -11,7 +11,7 @@ import {
   Flame,
 } from 'lucide-react';
 import { SmartImage } from './SmartImage';
-import { getSmartAppUrl, executeSmartNavigation } from '../lib/deepLinkHelper';
+import { getSmartAppUrl, executeSmartNavigation, handleDeepLink } from '../lib/deepLinkHelper';
 
 interface AffiliateAdModalProps {
   ad: AffiliateProductAd | null | undefined;
@@ -84,7 +84,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
   }
 
   const handleOrderClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    executeSmartNavigation(e as any, affiliateUrl, 'generic');
+    handleDeepLink(e, affiliateUrl, 'generic');
     onClose();
   };
 
@@ -193,10 +193,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
           
           {ad.amazonLink && (
             <button type="button"
-              
-              
-              
-              onClick={(e) => { executeSmartNavigation(e, ad.amazonLink!, 'amazon'); onClose(); }}
+              onClick={(e) => { handleDeepLink(e, ad.amazonLink!, 'amazon'); onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-[#ff9900] via-[#ffaa00] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-amber-600/40"
             >
               <ShoppingBag className="w-4 h-4 text-slate-950" />
@@ -207,10 +204,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 
           {ad.flipkartLink && (
             <button type="button"
-              
-              
-              
-              onClick={(e) => { executeSmartNavigation(e, ad.flipkartLink!, 'flipkart'); onClose(); }}
+              onClick={(e) => { handleDeepLink(e, ad.flipkartLink!, 'flipkart'); onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-blue-400"
             >
               <ShoppingBag className="w-4 h-4 text-white" />
@@ -221,10 +215,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
 
           {ad.meeshoLink && (
             <button type="button"
-              
-              
-              
-              onClick={(e) => { executeSmartNavigation(e, ad.meeshoLink!, 'meesho'); onClose(); }}
+              onClick={(e) => { handleDeepLink(e, ad.meeshoLink!, 'meesho'); onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-pink-400"
             >
               <ShoppingBag className="w-4 h-4 text-white" />

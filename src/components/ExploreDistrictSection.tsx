@@ -3,7 +3,7 @@ import { DistrictItem, DistrictCategory, ODISHA_DISTRICTS, OdishaDistrictInfo, P
 import { subscribeDistrictItems } from '../lib/districtApi';
 import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
 import { shareDistrictItemNative, setDynamicDistrictItemMeta } from '../lib/ogMetaHelper';
-import { getSmartAppUrl, executeSmartNavigation } from '../lib/deepLinkHelper';
+import { getSmartAppUrl, executeSmartNavigation, handleDeepLink } from '../lib/deepLinkHelper';
 import { PuriOnlineStoreModal } from './PuriOnlineStoreModal';
 import { AffiliateAdModal } from './AffiliateAdModal';
 import { findTriggerInText, logAffiliateDebug } from '../lib/adUtils';
@@ -808,7 +808,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                       {activeAffiliateAd.amazonLink && (
                         <button
                           type="button"
-                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.amazonLink!, 'amazon')}
+                          onClick={(e) => handleDeepLink(e, activeAffiliateAd.amazonLink!, 'amazon')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-slate-950" />
@@ -820,7 +820,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                       {activeAffiliateAd.flipkartLink && (
                         <button
                           type="button"
-                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.flipkartLink!, 'flipkart')}
+                          onClick={(e) => handleDeepLink(e, activeAffiliateAd.flipkartLink!, 'flipkart')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-white" />
@@ -832,7 +832,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                       {activeAffiliateAd.meeshoLink && (
                         <button
                           type="button"
-                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.meeshoLink!, 'meesho')}
+                          onClick={(e) => handleDeepLink(e, activeAffiliateAd.meeshoLink!, 'meesho')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-white" />
@@ -844,7 +844,7 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                       {!activeAffiliateAd.amazonLink && !activeAffiliateAd.flipkartLink && !activeAffiliateAd.meeshoLink && activeAffiliateAd.affiliateUrl && (
                         <button
                           type="button"
-                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.affiliateUrl || (activeAffiliateAd as any)?.adLink || '#', 'generic')}
+                          onClick={(e) => handleDeepLink(e, activeAffiliateAd.affiliateUrl || (activeAffiliateAd as any)?.adLink || '#', 'generic')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-slate-950" />

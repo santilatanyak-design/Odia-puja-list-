@@ -1,5 +1,6 @@
 import React from 'react';
 import { ExternalLink, ShoppingBag, Sparkles } from 'lucide-react';
+import { handleDeepLink } from '../lib/deepLinkHelper';
 
 interface HeaderBannerAdProps {
   customBannerUrl?: string;
@@ -25,25 +26,23 @@ export const HeaderBannerAd: React.FC<HeaderBannerAdProps> = ({
       <div className="w-full bg-white border border-slate-200 hover:border-amber-400/80 rounded-lg shadow-xs hover:shadow-sm transition-all duration-200 overflow-hidden group">
         {customBannerUrl ? (
           /* Custom Graphic Banner View (100% full-width standard ratio) */
-          <a
-            href={customTargetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full h-[50px] sm:h-[80px] md:h-[90px] overflow-hidden"
+          <button
+            type="button"
+            onClick={(e) => handleDeepLink(e, customTargetUrl, 'amazon')}
+            className="block w-full h-[50px] sm:h-[80px] md:h-[90px] overflow-hidden border-0 p-0 bg-transparent cursor-pointer text-left"
           >
             <img
               src={customBannerUrl}
               alt="Header Sponsor Banner"
               className="w-full h-full object-cover group-hover:opacity-95 transition-opacity"
             />
-          </a>
+          </button>
         ) : (
           /* Clean Native Editorial Banner Slot */
-          <a
-            href={customTargetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between p-3 sm:py-3.5 sm:px-5 min-h-[58px] sm:min-h-[76px] no-underline select-none"
+          <button
+            type="button"
+            onClick={(e) => handleDeepLink(e, customTargetUrl, 'amazon')}
+            className="w-full flex items-center justify-between p-3 sm:py-3.5 sm:px-5 min-h-[58px] sm:min-h-[76px] no-underline select-none border-0 bg-transparent cursor-pointer text-left"
           >
             {/* Left Column: Icon & Typography */}
             <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
@@ -78,7 +77,7 @@ export const HeaderBannerAd: React.FC<HeaderBannerAdProps> = ({
                 <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
               </span>
             </div>
-          </a>
+          </button>
         )}
       </div>
     </div>

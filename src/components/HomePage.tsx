@@ -28,7 +28,7 @@ import {
   PujaStatusIllustration,
   DevotionalOmIllustration
 } from './AppIcons';
-import { executeSmartNavigation } from '../lib/deepLinkHelper';
+import { executeSmartNavigation, handleDeepLink } from '../lib/deepLinkHelper';
 import { UnifiedFeedSection } from './UnifiedFeedSection';
 import { BreakingNewsTicker } from './BreakingNewsTicker';
 import { triggerPwaInstall } from '../utils/pwaHelper';
@@ -194,7 +194,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     
                     
                     
-                    onClick={(e) => executeSmartNavigation(e, slide.linkUrl, (slide.platform || 'generic').toLowerCase() as any)}
+                    onClick={(e) => handleDeepLink(e, slide.linkUrl, (slide.platform || 'generic').toLowerCase() as any)}
                     className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-black shadow-xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 ${
                       slide.platform === 'Amazon'
                         ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 border border-amber-300'
