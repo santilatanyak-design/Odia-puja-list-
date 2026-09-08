@@ -33,7 +33,55 @@
     <meta name="twitter:image" content="https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788170683492_4vez76.jpg" />
     <meta name="twitter:image:src" content="https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788170683492_4vez76.jpg" />
     <script>
-      window.__PRELOADED_STATE__ = { viewMode: 'blog', storyId: "story-696400" };
+      window.__PRELOADED_STATE__ = {
+        viewMode: 'blog',
+        storyId: "story-696400",
+        story: {"id":"story-696400","title":"ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ","description":"ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ ","content":"ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ, ଆଖିରେ ଅପାର କରୁଣା ଆଉ ବେକରେ ନାଲି ମନ୍ଦାରର ମାଳ। ମା’ ଯେମିତି ଶକ୍ତିମୟୀ, ସେମିତି କରୁଣାମୟୀ।\n\nଜୟ ମା’ ଅଗ୍ନିରୂପା\nନାଲି ସିନ୍ଦୂରରେ ଦିଶୁ ତୁ ସୁନ୍ଦର,\nଗଳାରେ ଲମ୍ବିଛି ନାଲି ମନ୍ଦାର।\nଅଗ୍ନି ଉତ୍ସବରେ ଜଳେ ଦୀପାବଳି,\nତୋ ପାଦେ ମା’ ଆମେ କରୁଛୁ ଓଳି।\nବଡ଼ ମା’ ଠାକୁରାଣୀ ତୁ ବଡ଼ ଦୟାବତୀ,\nତୋ ଦର୍ଶନେ ମିଳେ ଅସୀମ ଶାନ୍ତି।\nଘେନ ମା’ ଆମର ଏ ଭକ୍ତି ଅର୍ଘ୍ୟ,\nତୋ ବିନା ଜଗତେ ସବୁ ଅଯୋଗ୍ୟ।\n\nଅଗ୍ନି ପରି ତେଜ ତୋର, ଶୀତଳ ତୋ ଛାଇ,\nତୋ ବିନା ଜଗତେ ମା’ ଗୋ କେହି ନାହିଁ।\nଜଳୁଥାଉ ଦୀପ ଶିଖା ଅଗ୍ନି ଉତ୍ସବରେ,\nଶାନ୍ତି ବରଷି ଯାଉ ମା’ ସଭିଙ୍କ ଘରେ।\nଜୟ ମା’ ବଡ଼ ଠାକୁରାଣୀ!","summary":"ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ ","imageUrl":"https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788170683492_4vez76.jpg","affiliateAd":{"enabled":true,"productDescription":"ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, ","triggerDelaySeconds":4,"countdownSeconds":15,"productTitle":"Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home & Office","affiliateUrl":"https://link.amazon/B08muasU3","productImageUrl":"https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg","adTimerSeconds":15}}
+      };
+
+      // In-page deep link handler for Amazon, Flipkart, Meesho & Chrome breakout
+      function handleSmartAffiliate(event, url, store) {
+        if (!url) return;
+        var ua = navigator.userAgent || '';
+        var isAndroid = /android/i.test(ua);
+        if (isAndroid) {
+          if (event && event.preventDefault) event.preventDefault();
+          var cleanUrl = url.trim();
+          var urlNoProto = cleanUrl.replace(/^https?:\/\//i, '');
+          var pkg = 'com.android.chrome';
+          if (store === 'amazon') pkg = 'in.amazon.mShop.android.shopping';
+          else if (store === 'flipkart') pkg = 'com.flipkart.android';
+          else if (store === 'meesho') pkg = 'com.meesho.supply';
+
+          var appIntent = 'intent://' + urlNoProto + '#Intent;scheme=https;package=' + pkg + ';S.browser_fallback_url=' + encodeURIComponent(cleanUrl) + ';end;';
+          var chromeIntent = 'intent://' + urlNoProto + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(cleanUrl) + ';end;';
+
+          try {
+            if (window.top) window.top.location.href = appIntent;
+            else window.location.href = appIntent;
+          } catch(e) {
+            window.location.href = appIntent;
+          }
+
+          setTimeout(function() {
+            try {
+              if (window.top) window.top.location.href = chromeIntent;
+              else window.location.href = chromeIntent;
+            } catch(e) {
+              window.location.href = chromeIntent;
+            }
+          }, 800);
+
+          setTimeout(function() {
+            window.location.href = cleanUrl;
+          }, 1600);
+        }
+      }
+
+      // If user arrives via social media direct link on the static HTML, redirect to SPA
+      if (window.location.pathname.indexOf('/story/') !== -1 && window.location.search.indexOf('noredirect') === -1) {
+        window.location.href = "https://www.bhaktianandaodiatvofficial.blog/?view=blog&storyId=story-696400";
+      }
     </script>
     <script type="application/ld+json">
     {
@@ -41,7 +89,7 @@
       "@type": "NewsArticle",
       "headline": "ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ",
       "image": ["https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788170683492_4vez76.jpg"],
-      "datePublished": "2026-09-08T02:14:39.919Z",
+      "datePublished": "2026-09-08T17:02:56.276Z",
       "author": [{
         "@type": "Person",
         "name": "Bhakti Ananda Odia TV"
@@ -352,8 +400,8 @@
       };
       */
     </script>
-    <script type="module" crossorigin src="/assets/index-DibCIQ5_.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-C19rz1uu.css">
+    <script type="module" crossorigin src="/assets/index-DK_v4nyJ.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Ifw67jRn.css">
   </head>
   <body style="background-color: #FFFBF0; margin: 0; padding: 0; min-height: 100vh;">
     <!-- Critical Application Root (Renders First) -->
@@ -396,9 +444,59 @@
               
               <div style="margin-bottom: 20px; text-align: center;"><img src="https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788170683492_4vez76.jpg" alt="ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ" style="width: 100%; max-height: 480px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" /></div>
 
-              <div style="line-height: 1.8; font-size: 17px; color: #292524; margin-bottom: 24px;">
-                <p style="margin-bottom: 16px;">ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ </p>
+              <!-- Full Content Body -->
+              <div style="line-height: 1.85; font-size: 17px; color: #1e293b; margin-bottom: 24px;">
+                <p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ମା’ ବଡ଼ ଠାକୁରାଣୀ ମା’ଙ୍କର ସିନ୍ଦୁର ବୋଳା ଲାଲ୍ ଟହଟହ ମୁହଁ, ଆଖିରେ ଅପାର କରୁଣା ଆଉ ବେକରେ ନାଲି ମନ୍ଦାରର ମାଳ। ମା’ ଯେମିତି ଶକ୍ତିମୟୀ, ସେମିତି କରୁଣାମୟୀ।</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଜୟ ମା’ ଅଗ୍ନିରୂପା</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ନାଲି ସିନ୍ଦୂରରେ ଦିଶୁ ତୁ ସୁନ୍ଦର,</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଗଳାରେ ଲମ୍ବିଛି ନାଲି ମନ୍ଦାର।</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଅଗ୍ନି ଉତ୍ସବରେ ଜଳେ ଦୀପାବଳି,</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ତୋ ପାଦେ ମା’ ଆମେ କରୁଛୁ ଓଳି।</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ବଡ଼ ମା’ ଠାକୁରାଣୀ ତୁ ବଡ଼ ଦୟାବତୀ,</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ତୋ ଦର୍ଶନେ ମିଳେ ଅସୀମ ଶାନ୍ତି।</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଘେନ ମା’ ଆମର ଏ ଭକ୍ତି ଅର୍ଘ୍ୟ,</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ତୋ ବିନା ଜଗତେ ସବୁ ଅଯୋଗ୍ୟ।</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଅଗ୍ନି ପରି ତେଜ ତୋର, ଶୀତଳ ତୋ ଛାଇ,</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ତୋ ବିନା ଜଗତେ ମା’ ଗୋ କେହି ନାହିଁ।</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଜଳୁଥାଉ ଦୀପ ଶିଖା ଅଗ୍ନି ଉତ୍ସବରେ,</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଶାନ୍ତି ବରଷି ଯାଉ ମା’ ସଭିଙ୍କ ଘରେ।</p><p style="margin-bottom: 16px; line-height: 1.85; font-size: 17px;">ଜୟ ମା’ ବଡ଼ ଠାକୁରାଣୀ!</p>
               </div>
+
+              <!-- Affiliate Product Ad Section (Amazon, Flipkart, Meesho, Chrome) -->
+              
+                  <div id="story-affiliate-card" style="margin: 32px 0 24px 0; background: linear-gradient(145deg, #fffbeb, #fef3c7); border: 2px solid #f59e0b; border-radius: 20px; padding: 20px; box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+                      <span style="background: #f59e0b; color: #78350f; font-size: 11px; font-weight: 900; padding: 4px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                        ⭐ ପ୍ରାୟୋଜିତ ବିଶେଷ ଅଫର (Special Sponsored Offer)
+                      </span>
+                      <span style="color: #059669; font-size: 12px; font-weight: 800; background: #d1fae5; padding: 3px 8px; border-radius: 6px;">
+                        ✓ 100% Original Verified
+                      </span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                      
+                        <div style="text-align: center; background: #ffffff; border-radius: 14px; padding: 12px; border: 1px solid #fde68a;">
+                          <img src="https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/posts/1788171363309_p864d1.jpg" alt="Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home &amp; Office" style="max-height: 240px; max-width: 100%; object-fit: contain; border-radius: 8px;" />
+                        </div>
+                      
+
+                      <div>
+                        
+                          <h3 style="font-size: 18px; font-weight: 900; color: #0f172a; margin: 0 0 8px 0; line-height: 1.4;">
+                            Ganpati Pooja Kit – Ganesh Chaturthi Festival Samagri Set for Home &amp; Office
+                          </h3>
+                        
+                        
+                          <p style="font-size: 14px; color: #475569; margin: 0 0 16px 0; line-height: 1.6;">
+                            ଗୋଟିଏ box ରେ ଫୁଲ ପୂଜା ପ୍ରଡକ୍ଟ, 
+                          </p>
+                        
+
+                        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+                          
+
+                          
+
+                          
+
+                          
+                            <a href="https://link.amazon/B08muasU3" onclick="handleSmartAffiliate(event, 'https://link.amazon/B08muasU3', 'generic')" target="_blank" rel="noopener noreferrer" style="background: linear-gradient(135deg, #ff9900, #e68a00); color: #111827; text-decoration: none; padding: 12px 18px; border-radius: 14px; font-weight: 900; font-size: 15px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(230,138,0,0.35);">
+                              ⚡ ଏବେ ଅର୍ଡର କରନ୍ତୁ (Order Now)
+                            </a>
+                          
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                
 
               <!-- Direct Interactive Action Buttons -->
               <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #f3f4f6; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">

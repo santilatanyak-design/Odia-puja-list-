@@ -327,21 +327,30 @@ app.post(['/api/comments', '/api/comments/*', '/api/comments/:storyId'], async (
     if (s3Client && aws.bucket) {
       try {
         const bodyBytes = new TextEncoder().encode(JSON.stringify(comments, null, 2));
-        await s3Client.send(new PutObjectCommand({
-          Bucket: aws.bucket,
-          Key: `comments/${cleanId}.json`,
-          Body: bodyBytes,
-          ContentType: 'application/json',
-          CacheControl: 'public, max-age=0, must-revalidate'
-        }));
-        // Also save alias
-        await s3Client.send(new PutObjectCommand({
-          Bucket: aws.bucket,
-          Key: `comments/story-${cleanId}.json`,
-          Body: bodyBytes,
-          ContentType: 'application/json',
-          CacheControl: 'public, max-age=0, must-revalidate'
-        })).catch(() => {});
+        
+        const uploadS3 = async (key: string, useAcl: boolean) => {
+          try {
+            await s3Client!.send(new PutObjectCommand({
+              Bucket: aws.bucket,
+              Key: key,
+              Body: bodyBytes,
+              ContentType: 'application/json',
+              CacheControl: 'public, max-age=0, must-revalidate',
+              ...(useAcl ? { ACL: 'public-read' } : {})
+            }));
+            return true;
+          } catch {
+            return false;
+          }
+        };
+
+        const keys = [`comments/${cleanId}.json`, `comments/story-${cleanId}.json`];
+        for (const k of keys) {
+          let success = await uploadS3(k, true);
+          if (!success) {
+            await uploadS3(k, false);
+          }
+        }
       } catch (err: any) {
         console.warn('S3 save comments failed (saved locally though):', err.message);
       }
@@ -376,7 +385,7 @@ app.get("/api/stories", (req, res) => {
   return res.json([]);
 });
 
-app.get("/api/stories/:storyId", (req, res) => {
+app.get("/api/stories/:storyId", async (req, res) => {
   const { storyId } = req.params;
   const cleanId = String(storyId).replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const idWithoutStory = cleanId.replace(/^story-/, '').trim();
@@ -402,6 +411,26 @@ app.get("/api/stories/:storyId", (req, res) => {
       }
     } catch {}
   }
+
+  // Fallback to S3 (Using direct HTTP fetch so it works without AWS credentials on the server)
+  const aws = getAwsConfig();
+  if (aws.bucket && aws.region) {
+    const s3Urls = [
+      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json`,
+      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json`,
+      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json`
+    ];
+    for (const url of s3Urls) {
+      try {
+        const fetchRes = await fetch(url);
+        if (fetchRes.ok) {
+          const s3Story = await fetchRes.json();
+          return res.json({ success: true, story: s3Story, from: 's3' });
+        }
+      } catch {}
+    }
+  }
+
   return res.status(404).json({ error: "Story not found" });
 });
 app.post("/api/stories", async (req, res) => {
@@ -645,7 +674,7 @@ app.delete('/api/stories/:storyId', async (req, res) => {
 });
 
 // Serve SPA index.html for direct story URLs so latest JS assets load and app interface renders immediately
-app.get(['/story/*', '/story'], (req, res, next) => {
+app.get(['/story/*', '/story'], async (req, res, next) => {
   console.log("INTERCEPTED STORY ROUTE:", req.path);
   if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|json)$/)) {
     return next();
@@ -660,40 +689,63 @@ app.get(['/story/*', '/story'], (req, res, next) => {
       let cleanId = storyIdMatch[1];
       if (cleanId.startsWith('story-')) cleanId = cleanId.replace('story-', '');
       
+      let story: any = null;
+
       const postsPath = path.join(process.cwd(), 'posts.json');
       if (fs.existsSync(postsPath)) {
         try {
           const postsRaw = fs.readFileSync(postsPath, 'utf-8');
           const postsData = JSON.parse(postsRaw);
           const posts = Array.isArray(postsData) ? postsData : Object.values(postsData);
-          
-          const story = posts.find((p: any) => p.id === cleanId || p.id === `story-${cleanId}` || p.id === `story/${cleanId}`);
-          if (story) {
-            const title = (story.title || 'Bhakti Ananda Odia TV').replace(/"/g, '&quot;');
-            const desc = (story.description || story.content || '').substring(0, 250).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            const img = story.image || story.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
-            
-            html = html.replace(/<meta property="og:[^>]+>/gi, '')
-                       .replace(/<meta name="twitter:[^>]+>/gi, '')
-                       .replace(/<title>.*?<\/title>/gi, '');
-                       
-            const newMeta = `
-              <title>${title}</title>
-              <meta property="og:url" content="https://www.bhaktianandaodiatvofficial.blog/story/${cleanId}" />
-              <meta property="og:title" content="${title}" />
-              <meta property="og:description" content="${desc}" />
-              <meta property="og:image" content="${img}" />
-              <meta property="og:type" content="article" />
-              <meta name="twitter:card" content="summary_large_image" />
-              <meta name="twitter:title" content="${title}" />
-              <meta name="twitter:image" content="${img}" />
-              <script>window.__PRELOADED_STATE__ = { viewMode: 'blog', storyId: '${cleanId}', story: ${JSON.stringify(story).replace(/</g, '\\u003c')} };</script>
-            `;
-            html = html.replace('</head>', `${newMeta}\n</head>`);
-          }
+          story = posts.find((p: any) => p.id === cleanId || p.id === `story-${cleanId}` || p.id === `story/${cleanId}`);
         } catch (e) {
           console.error("Error parsing posts.json in /story route:", e);
         }
+      }
+
+      // Fallback to S3
+      if (!story) {
+        const aws = getAwsConfig();
+        if (aws.bucket && aws.region) {
+          const s3Urls = [
+            `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json`,
+            `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json`,
+            `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json`
+          ];
+          for (const url of s3Urls) {
+            try {
+              const fetchRes = await fetch(url);
+              if (fetchRes.ok) {
+                story = await fetchRes.json();
+                break;
+              }
+            } catch {}
+          }
+        }
+      }
+
+      if (story) {
+        const title = (story.title || 'Bhakti Ananda Odia TV').replace(/"/g, '&quot;');
+        const desc = (story.description || story.content || '').substring(0, 250).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const img = story.image || story.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
+        
+        html = html.replace(/<meta property="og:[^>]+>/gi, '')
+                   .replace(/<meta name="twitter:[^>]+>/gi, '')
+                   .replace(/<title>.*?<\/title>/gi, '');
+                   
+        const newMeta = `
+          <title>${title}</title>
+          <meta property="og:url" content="https://www.bhaktianandaodiatvofficial.blog/story/${cleanId}" />
+          <meta property="og:title" content="${title}" />
+          <meta property="og:description" content="${desc}" />
+          <meta property="og:image" content="${img}" />
+          <meta property="og:type" content="article" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="${title}" />
+          <meta name="twitter:image" content="${img}" />
+          <script>window.__PRELOADED_STATE__ = { viewMode: 'blog', storyId: '${cleanId}', story: ${JSON.stringify(story).replace(/</g, '\\u003c')} };</script>
+        `;
+        html = html.replace('</head>', `${newMeta}\n</head>`);
       }
     }
     return res.send(html);

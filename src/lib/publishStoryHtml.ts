@@ -414,7 +414,7 @@ export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<b
       // Also upload clean story JSON to S3 so any visitor can fetch the exact post directly from S3
       try {
         const jsonBytes = new TextEncoder().encode(JSON.stringify(story, null, 2));
-        const safeUploadJson = async (key: string) => {
+        const safeUploadJson = async (key: string, useAcl: boolean = false) => {
           try {
             await s3Client.send(new PutObjectCommand({
               Bucket: awsConfig.bucket,
@@ -422,12 +422,16 @@ export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<b
               Body: jsonBytes,
               ContentType: 'application/json; charset=utf-8',
               CacheControl: 'public, max-age=0, must-revalidate',
+              ...(useAcl ? { ACL: 'public-read' } : {})
             }));
           } catch {}
         };
-        await safeUploadJson(`posts/story-${storyId}.json`);
-        await safeUploadJson(`story/${storyId}/story.json`);
-        await safeUploadJson(`story/${storyId}.json`);
+        await safeUploadJson(`posts/story-${storyId}.json`, true);
+        await safeUploadJson(`posts/story-${storyId}.json`, false);
+        await safeUploadJson(`story/${storyId}/story.json`, true);
+        await safeUploadJson(`story/${storyId}/story.json`, false);
+        await safeUploadJson(`story/${storyId}.json`, true);
+        await safeUploadJson(`story/${storyId}.json`, false);
 
         // Also upload the updated complete posts.json to S3 bucket
         try {
@@ -436,13 +440,21 @@ export async function autoPublishStoryHtmlToS3(story: SpiritualStory): Promise<b
             const allStoriesData = JSON.parse(allStoriesRaw);
             if (Array.isArray(allStoriesData)) {
               const postsJsonBytes = new TextEncoder().encode(JSON.stringify(allStoriesData, null, 2));
-              await s3Client.send(new PutObjectCommand({
-                Bucket: awsConfig.bucket,
-                Key: 'posts.json',
-                Body: postsJsonBytes,
-                ContentType: 'application/json; charset=utf-8',
-                CacheControl: 'public, max-age=0, must-revalidate',
-              }));
+              
+              const uploadPostsJson = async (useAcl: boolean) => {
+                try {
+                  await s3Client.send(new PutObjectCommand({
+                    Bucket: awsConfig.bucket,
+                    Key: 'posts.json',
+                    Body: postsJsonBytes,
+                    ContentType: 'application/json; charset=utf-8',
+                    CacheControl: 'public, max-age=0, must-revalidate',
+                    ...(useAcl ? { ACL: 'public-read' } : {})
+                  }));
+                } catch {}
+              };
+              await uploadPostsJson(true);
+              await uploadPostsJson(false);
             }
           }
         } catch (postsErr) {

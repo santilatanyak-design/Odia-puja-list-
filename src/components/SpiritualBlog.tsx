@@ -154,8 +154,8 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
     // Initial load
     loadComments();
 
-    // Auto-refresh every 12 seconds so comments from all viewers appear live
-    const interval = setInterval(loadComments, 12000);
+    // Auto-refresh every 8 seconds so comments from all viewers appear live
+    const interval = setInterval(loadComments, 8000);
 
     return () => {
       isMounted = false;
