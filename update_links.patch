@@ -1,0 +1,16 @@
+--- src/lib/deepLinkHelper.ts
++++ src/lib/deepLinkHelper.ts
+@@ -62,2 +62,13 @@
+ };
++
++export const executeSmartNavigation = (e: React.MouseEvent<any>, url: string, store: 'amazon' | 'flipkart' | 'meesho' | 'generic') => {
++  try {
++    handleSmartAppClick(e, url, store);
++    const smartUrl = getSmartAppUrl(url, store);
++    if (!e.defaultPrevented) {
++      window.open(smartUrl, '_blank', 'noopener,noreferrer');
++    }
++  } catch {
++    window.location.href = url;
++  }
++};

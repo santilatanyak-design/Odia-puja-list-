@@ -3,7 +3,7 @@ import { DistrictItem, DistrictCategory, ODISHA_DISTRICTS, OdishaDistrictInfo, P
 import { subscribeDistrictItems } from '../lib/districtApi';
 import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
 import { shareDistrictItemNative, setDynamicDistrictItemMeta } from '../lib/ogMetaHelper';
-import { getSmartAppUrl, handleSmartAppClick } from '../lib/deepLinkHelper';
+import { getSmartAppUrl, executeSmartNavigation } from '../lib/deepLinkHelper';
 import { PuriOnlineStoreModal } from './PuriOnlineStoreModal';
 import { AffiliateAdModal } from './AffiliateAdModal';
 import { findTriggerInText, logAffiliateDebug } from '../lib/adUtils';
@@ -806,59 +806,51 @@ export const ExploreDistrictSection: React.FC<ExploreDistrictSectionProps> = ({
                     </div>
                     <div className="flex flex-col gap-2 shrink-0 w-full sm:w-auto">
                       {activeAffiliateAd.amazonLink && (
-                        <a
-                          href={getSmartAppUrl(activeAffiliateAd.amazonLink, 'amazon')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => handleSmartAppClick(e, activeAffiliateAd.amazonLink!, 'amazon')}
+                        <button
+                          type="button"
+                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.amazonLink!, 'amazon')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-slate-950" />
                           <span>Buy on Amazon</span>
                           <ExternalLink className="w-3 h-3 text-slate-950" />
-                        </a>
+                        </button>
                       )}
                       
                       {activeAffiliateAd.flipkartLink && (
-                        <a
-                          href={getSmartAppUrl(activeAffiliateAd.flipkartLink, 'flipkart')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => handleSmartAppClick(e, activeAffiliateAd.flipkartLink!, 'flipkart')}
+                        <button
+                          type="button"
+                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.flipkartLink!, 'flipkart')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-white" />
                           <span>Buy on Flipkart</span>
                           <ExternalLink className="w-3 h-3 text-white" />
-                        </a>
+                        </button>
                       )}
                       
                       {activeAffiliateAd.meeshoLink && (
-                        <a
-                          href={getSmartAppUrl(activeAffiliateAd.meeshoLink, 'meesho')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => handleSmartAppClick(e, activeAffiliateAd.meeshoLink!, 'meesho')}
+                        <button
+                          type="button"
+                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.meeshoLink!, 'meesho')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-white" />
                           <span>Buy on Meesho</span>
                           <ExternalLink className="w-3 h-3 text-white" />
-                        </a>
+                        </button>
                       )}
 
                       {!activeAffiliateAd.amazonLink && !activeAffiliateAd.flipkartLink && !activeAffiliateAd.meeshoLink && activeAffiliateAd.affiliateUrl && (
-                        <a
-                          href={getSmartAppUrl(activeAffiliateAd.affiliateUrl || (activeAffiliateAd as any)?.adLink || '#', 'generic')}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => handleSmartAppClick(e, activeAffiliateAd.affiliateUrl || (activeAffiliateAd as any)?.adLink || '#', 'generic')}
+                        <button
+                          type="button"
+                          onClick={(e) => executeSmartNavigation(e, activeAffiliateAd.affiliateUrl || (activeAffiliateAd as any)?.adLink || '#', 'generic')}
                           className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-[#ff9900] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 transition shrink-0 cursor-pointer"
                         >
                           <ShoppingBag className="w-4 h-4 text-slate-950" />
                           <span>Buy Now</span>
                           <ExternalLink className="w-3 h-3 text-slate-950" />
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>

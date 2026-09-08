@@ -58,3 +58,21 @@ export const handleSmartAppClick = (e: React.MouseEvent<HTMLAnchorElement | HTML
     }, 1500);
   }
 };
+
+export const executeSmartNavigation = (e: React.MouseEvent<any>, url: string, store: 'amazon' | 'flipkart' | 'meesho' | 'generic') => {
+  e.preventDefault(); // always prevent default if it's an anchor tag
+  try {
+    handleSmartAppClick(e, url, store);
+    
+    // On non-Android devices where handleSmartAppClick does not fire intent:
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isAndroid = /android/i.test(userAgent);
+    
+    if (!isAndroid) {
+      const smartUrl = getSmartAppUrl(url, store);
+      window.open(smartUrl, '_blank', 'noopener,noreferrer');
+    }
+  } catch {
+    window.location.href = url;
+  }
+};

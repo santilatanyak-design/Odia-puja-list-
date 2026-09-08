@@ -3,7 +3,7 @@ import { X, ExternalLink, ShoppingBag, Sparkles, ChevronDown } from 'lucide-reac
 import { PuriStoreConfig, PuriStoreProduct } from '../types';
 import { subscribePuriStoreConfig, DEFAULT_PURI_STORE_CONFIG } from '../lib/api';
 import { SmartImage } from './SmartImage';
-import { handleSmartAppClick } from '../lib/deepLinkHelper';
+import { executeSmartNavigation } from '../lib/deepLinkHelper';
 
 interface PuriOnlineStoreModalProps {
   isOpen: boolean;
@@ -135,7 +135,7 @@ export const PuriOnlineStoreModal: React.FC<PuriOnlineStoreModalProps> = ({ isOp
                         href={prod.buyLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={(e) => handleSmartAppClick(e, prod.buyLink, 'generic')}
+                        onClick={(e) => executeSmartNavigation(e, prod.buyLink, 'generic')}
                         className="w-full py-2.5 px-3 bg-gradient-to-r from-[#8B0000] to-[#701a1e] hover:from-[#a00000] hover:to-[#8B0000] text-amber-100 hover:text-white font-extrabold rounded-xl text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer group/btn"
                       >
                         <ShoppingBag className="w-3.5 h-3.5 text-amber-300" />

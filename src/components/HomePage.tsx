@@ -28,7 +28,7 @@ import {
   PujaStatusIllustration,
   DevotionalOmIllustration
 } from './AppIcons';
-import { handleSmartAppClick } from '../lib/deepLinkHelper';
+import { executeSmartNavigation } from '../lib/deepLinkHelper';
 import { UnifiedFeedSection } from './UnifiedFeedSection';
 import { BreakingNewsTicker } from './BreakingNewsTicker';
 import { triggerPwaInstall } from '../utils/pwaHelper';
@@ -190,11 +190,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               {/* Conditional Platform Buy Button */}
               {slide.linkUrl && slide.linkUrl.trim().length > 0 && (
                 <div className="absolute bottom-10 sm:bottom-12 right-4 sm:right-8 z-30">
-                  <a
-                    href={slide.linkUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => handleSmartAppClick(e, slide.linkUrl, (slide.platform || 'generic').toLowerCase() as any)}
+                  <button type="button"
+                    
+                    
+                    
+                    onClick={(e) => executeSmartNavigation(e, slide.linkUrl, (slide.platform || 'generic').toLowerCase() as any)}
                     className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-black shadow-xl flex items-center gap-2 transition-transform hover:scale-105 active:scale-95 ${
                       slide.platform === 'Amazon'
                         ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 border border-amber-300'
@@ -210,7 +210,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                       Buy on {slide.platform && slide.platform !== 'None' ? slide.platform : 'Store'}
                     </span>
                     <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 opacity-80" />
-                  </a>
+                  </button>
                 </div>
               )}
             </div>
