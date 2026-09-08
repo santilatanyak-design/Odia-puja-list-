@@ -205,38 +205,7 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
     if (s && s.id) storyMap.set(s.id, s);
   });
 
-  // 2. Load all posts from /posts.json with cache busting
-  try {
-    const res = await fetch(`/posts.json?t=${Date.now()}`);
-    if (res.ok) {
-      const posts = await res.json();
-      const arr = Object.values(posts);
-      const clean = sanitizeStoryList(arr);
-      clean.forEach((s) => {
-        if (s && s.id) storyMap.set(s.id, s);
-      });
-    }
-  } catch (err) {
-    console.warn('Error loading /posts.json:', err);
-  }
-
-  // 3. Load from AWS S3 direct posts.json if available
-  try {
-    const config = getClientAwsConfig();
-    const bucket = config.bucket || 'bhakti-ananda-photos';
-    const region = config.region || 'ap-south-1';
-    const s3Res = await fetch(`https://${bucket}.s3.${region}.amazonaws.com/posts.json?t=${Date.now()}`);
-    if (s3Res.ok) {
-      const s3Posts = await s3Res.json();
-      const arr = Object.values(s3Posts);
-      const clean = sanitizeStoryList(arr);
-      clean.forEach((s) => {
-        if (s && s.id) storyMap.set(s.id, s);
-      });
-    }
-  } catch {}
-
-  // 4. Merge with localStorage cache from BOTH storage keys
+  // 2. Merge with localStorage cache from BOTH storage keys (Oldest baseline)
   try {
     for (const key of [LOCAL_STORAGE_STORIES, 'spiritual_stories_v1']) {
       const raw = localStorage.getItem(key);
@@ -254,7 +223,20 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
     console.warn('Error reading local stories:', err);
   }
 
-  // 5. Merge from backend /api/stories
+  // 3. Load all posts from /posts.json with cache busting
+  try {
+    const res = await fetch(`/posts.json?t=${Date.now()}`);
+    if (res.ok) {
+      const posts = await res.json();
+      const arr = Object.values(posts);
+      const clean = sanitizeStoryList(arr);
+      clean.forEach((s) => {
+        if (s && s.id) storyMap.set(s.id, s);
+      });
+    }
+  } catch (err) {}
+
+  // 4. Merge from backend /api/stories
   try {
     const apiRes = await fetch('/api/stories');
     if (apiRes.ok) {
@@ -265,6 +247,22 @@ export async function getSpiritualStories(): Promise<SpiritualStory[]> {
           if (s && s.id) storyMap.set(s.id, s);
         });
       }
+    }
+  } catch {}
+
+  // 5. Load from AWS S3 direct posts.json if available (HIGHEST PRIORITY / TRUEST SOURCE)
+  try {
+    const config = getClientAwsConfig();
+    const bucket = config.bucket || 'bhakti-ananda-photos';
+    const region = config.region || 'ap-south-1';
+    const s3Res = await fetch(`https://${bucket}.s3.${region}.amazonaws.com/posts.json?t=${Date.now()}`);
+    if (s3Res.ok) {
+      const s3Posts = await s3Res.json();
+      const arr = Object.values(s3Posts);
+      const clean = sanitizeStoryList(arr);
+      clean.forEach((s) => {
+        if (s && s.id) storyMap.set(s.id, s);
+      });
     }
   } catch {}
 
@@ -311,28 +309,11 @@ export async function fetchStoryByIdOrQuery(targetIdOrQuery: string): Promise<Sp
   const idWithoutStory = cleanId.replace(/^story-/, '').trim();
   const idWithStory = cleanId.startsWith('story-') ? cleanId : `story-${cleanId}`;
 
-  // Layer 1: Check localStorage first (instant)
-  try {
-    if (typeof window !== 'undefined') {
-      for (const key of [LOCAL_STORAGE_STORIES, 'spiritual_stories_v1']) {
-        const raw = localStorage.getItem(key);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            const match = matchStoryFromExternalQuery(decoded, parsed);
-            if (match) return match;
-          }
-        }
-      }
-    }
-  } catch {}
-
-  // ID variants to check in AWS S3 and server
   const idCandidates = Array.from(new Set([cleanId, idWithStory, idWithoutStory, decoded])).filter(
     (id) => Boolean(id) && id.length > 0 && id !== 'all'
   );
 
-  // Layer 2: Query AWS S3 Direct JSON Files (Bucket: bhakti-ananda-photos)
+  // Layer 1: Query AWS S3 Direct JSON Files (Always fetch latest!)
   try {
     const config = getClientAwsConfig();
     const bucket = config.bucket || 'bhakti-ananda-photos';
@@ -341,9 +322,7 @@ export async function fetchStoryByIdOrQuery(targetIdOrQuery: string): Promise<Sp
       const s3Urls = [
         `https://${bucket}.s3.${region}.amazonaws.com/posts/story-${encodeURIComponent(docId)}.json?t=${Date.now()}`,
         `https://${bucket}.s3.${region}.amazonaws.com/story/${encodeURIComponent(docId)}/story.json?t=${Date.now()}`,
-        `https://${bucket}.s3.${region}.amazonaws.com/story/${encodeURIComponent(docId)}.json?t=${Date.now()}`,
-        `https://${bucket}.s3.${region}.amazonaws.com/posts/story-${encodeURIComponent(docId)}.json`,
-        `https://${bucket}.s3.${region}.amazonaws.com/story/${encodeURIComponent(docId)}.json`
+        `https://${bucket}.s3.${region}.amazonaws.com/story/${encodeURIComponent(docId)}.json?t=${Date.now()}`
       ];
       for (const s3Url of s3Urls) {
         try {
@@ -352,6 +331,7 @@ export async function fetchStoryByIdOrQuery(targetIdOrQuery: string): Promise<Sp
             const s3Data = await res.json();
             const normalized = normalizeStory(s3Data);
             if (normalized) {
+              // Update local storage so feed is updated too
               try {
                 const current = await getSpiritualStories();
                 const updated = [normalized, ...current.filter((s) => s.id !== normalized.id)];
@@ -366,6 +346,22 @@ export async function fetchStoryByIdOrQuery(targetIdOrQuery: string): Promise<Sp
     }
   } catch {}
 
+  // Layer 2: Check backend API /api/stories/:id (Bypasses local cache)
+  try {
+    for (const docId of idCandidates) {
+      try {
+        const res = await fetch(`/api/stories/${encodeURIComponent(docId)}?t=${Date.now()}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.story) {
+            const normalized = normalizeStory(data.story);
+            if (normalized) return normalized;
+          }
+        }
+      } catch {}
+    }
+  } catch {}
+
   // Layer 3: Check posts.json with fresh cache buster
   try {
     const res = await fetch(`/posts.json?t=${Date.now()}`);
@@ -376,14 +372,18 @@ export async function fetchStoryByIdOrQuery(targetIdOrQuery: string): Promise<Sp
     }
   } catch {}
 
-  // Layer 4: Query backend API /api/stories
+  // Layer 4: Check localStorage (Last resort fallback)
   try {
-    const res = await fetch(`/api/stories/${encodeURIComponent(cleanId)}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.story) {
-        const normalized = normalizeStory(data.story);
-        if (normalized) return normalized;
+    if (typeof window !== 'undefined') {
+      for (const key of [LOCAL_STORAGE_STORIES, 'spiritual_stories_v1']) {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const match = matchStoryFromExternalQuery(decoded, parsed);
+            if (match) return match;
+          }
+        }
       }
     }
   } catch {}

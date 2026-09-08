@@ -372,6 +372,10 @@ app.get("/api/qr-config", (req, res) => res.json({}));
 app.get("/api/templates", (req, res) => res.json([]));
 app.get("/api/temples", (req, res) => res.json([]));
 app.get("/api/stories", (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
   const postsPath = path.join(process.cwd(), 'public', 'posts.json');
   const fallbackPath = path.join(process.cwd(), 'posts.json');
   const target = fs.existsSync(postsPath) ? postsPath : (fs.existsSync(fallbackPath) ? fallbackPath : null);
@@ -387,6 +391,10 @@ app.get("/api/stories", (req, res) => {
 });
 
 app.get("/api/stories/:storyId", async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
   const { storyId } = req.params;
   const cleanId = String(storyId).replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const idWithoutStory = cleanId.replace(/^story-/, '').trim();
@@ -416,11 +424,12 @@ app.get("/api/stories/:storyId", async (req, res) => {
   // Fallback to S3 (Using direct HTTP fetch so it works without AWS credentials on the server)
   const aws = getAwsConfig();
   if (aws.bucket && aws.region) {
-    const s3Urls = [
-      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json`,
-      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json`,
-      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json`
-    ];
+    const nowT = Date.now();
+        const s3Urls = [
+          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json?t=${nowT}`,
+          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json?t=${nowT}`,
+          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json?t=${nowT}`
+        ];
     for (const url of s3Urls) {
       try {
         const fetchRes = await fetch(url);
@@ -697,11 +706,12 @@ app.get(['/story/*', '/story'], async (req, res, next) => {
 
       const aws = getAwsConfig();
       if (aws.bucket && aws.region) {
-        const s3Urls = [
-          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json`,
-          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json`,
-          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json`
-        ];
+        const nowT = Date.now();
+    const s3Urls = [
+      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json?t=${nowT}`,
+      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json?t=${nowT}`,
+      `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json?t=${nowT}`
+    ];
         for (const url of s3Urls) {
           try {
             const fetchRes = await fetch(url);
@@ -753,6 +763,10 @@ app.get(['/story/*', '/story'], async (req, res, next) => {
         html = html.replace('</head>', `${newMeta}\n</head>`);
       }
     }
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
     return res.send(html);
   }
   next();
