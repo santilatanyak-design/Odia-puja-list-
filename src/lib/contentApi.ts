@@ -327,22 +327,12 @@ export async function fetchStoryByIdOrQuery(targetIdOrQuery: string): Promise<Sp
     }
   } catch {}
 
-  // Layer 2: Check posts.json with fresh cache buster
-  try {
-    const res = await fetch(`/posts.json?t=${Date.now()}`);
-    if (res.ok) {
-      const posts = await res.json();
-      const match = matchStoryFromExternalQuery(decoded, posts);
-      if (match) return match;
-    }
-  } catch {}
-
   // ID variants to check in AWS S3 and server
   const idCandidates = Array.from(new Set([cleanId, idWithStory, idWithoutStory, decoded])).filter(
     (id) => Boolean(id) && id.length > 0 && id !== 'all'
   );
 
-  // Layer 3: Query AWS S3 Direct JSON Files (Bucket: bhakti-ananda-photos)
+  // Layer 2: Query AWS S3 Direct JSON Files (Bucket: bhakti-ananda-photos)
   try {
     const config = getClientAwsConfig();
     const bucket = config.bucket || 'bhakti-ananda-photos';
@@ -373,6 +363,16 @@ export async function fetchStoryByIdOrQuery(targetIdOrQuery: string): Promise<Sp
           }
         } catch {}
       }
+    }
+  } catch {}
+
+  // Layer 3: Check posts.json with fresh cache buster
+  try {
+    const res = await fetch(`/posts.json?t=${Date.now()}`);
+    if (res.ok) {
+      const posts = await res.json();
+      const match = matchStoryFromExternalQuery(decoded, posts);
+      if (match) return match;
     }
   } catch {}
 

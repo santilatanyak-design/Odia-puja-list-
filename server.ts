@@ -88,10 +88,11 @@ app.post('/api/sync-story-html', async (req, res) => {
       }
     }
 
-    const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION;
-    const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME;
-    const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
-    const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
+    const awsConf = getAwsConfig();
+    const AWS_REGION = awsConf.region || 'ap-south-1';
+    const AWS_BUCKET = awsConf.bucket || 'bhakti-ananda-photos';
+    const AWS_ACCESS_KEY = awsConf.accessKeyId;
+    const AWS_SECRET_KEY = awsConf.secretAccessKey;
     
     if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
       console.log('[Backend] Uploading received static HTML to S3 for', story.id);
@@ -483,10 +484,11 @@ app.post("/api/stories", async (req, res) => {
     }
 
     // Sync directly to AWS S3 (Bucket: bhakti-ananda-photos) if server credentials available
-    const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION || 'ap-south-1';
-    const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos';
-    const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
-    const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
+    const awsConf = getAwsConfig();
+    const AWS_REGION = awsConf.region || 'ap-south-1';
+    const AWS_BUCKET = awsConf.bucket || 'bhakti-ananda-photos';
+    const AWS_ACCESS_KEY = awsConf.accessKeyId;
+    const AWS_SECRET_KEY = awsConf.secretAccessKey;
     
     if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
       try {
@@ -595,10 +597,11 @@ app.post('/api/panchang', async (req, res) => {
       } catch {}
     }
 
-    const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION || 'ap-south-1';
-    const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME || 'bhakti-ananda-photos';
-    const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
-    const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
+    const awsConf = getAwsConfig();
+    const AWS_REGION = awsConf.region || 'ap-south-1';
+    const AWS_BUCKET = awsConf.bucket || 'bhakti-ananda-photos';
+    const AWS_ACCESS_KEY = awsConf.accessKeyId;
+    const AWS_SECRET_KEY = awsConf.secretAccessKey;
     if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
       try {
         const s3Client = new S3Client({
@@ -645,10 +648,11 @@ app.delete('/api/stories/:storyId', async (req, res) => {
       }
     }
 
-    const AWS_REGION = process.env.VITE_AWS_REGION || process.env.AWS_REGION || process.env.MY_AWS_REGION;
-    const AWS_BUCKET = process.env.VITE_AWS_BUCKET || process.env.AWS_BUCKET || process.env.MY_AWS_S3_BUCKET_NAME;
-    const AWS_ACCESS_KEY = process.env.VITE_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.MY_AWS_ACCESS_KEY_ID;
-    const AWS_SECRET_KEY = process.env.VITE_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.MY_AWS_SECRET_ACCESS_KEY;
+    const awsConf = getAwsConfig();
+    const AWS_REGION = awsConf.region || 'ap-south-1';
+    const AWS_BUCKET = awsConf.bucket || 'bhakti-ananda-photos';
+    const AWS_ACCESS_KEY = awsConf.accessKeyId;
+    const AWS_SECRET_KEY = awsConf.secretAccessKey;
     
     if (AWS_REGION && AWS_BUCKET && AWS_ACCESS_KEY && AWS_SECRET_KEY) {
       try {
@@ -691,35 +695,36 @@ app.get(['/story/*', '/story'], async (req, res, next) => {
       
       let story: any = null;
 
-      const postsPath = path.join(process.cwd(), 'posts.json');
-      if (fs.existsSync(postsPath)) {
-        try {
-          const postsRaw = fs.readFileSync(postsPath, 'utf-8');
-          const postsData = JSON.parse(postsRaw);
-          const posts = Array.isArray(postsData) ? postsData : Object.values(postsData);
-          story = posts.find((p: any) => p.id === cleanId || p.id === `story-${cleanId}` || p.id === `story/${cleanId}`);
-        } catch (e) {
-          console.error("Error parsing posts.json in /story route:", e);
+      const aws = getAwsConfig();
+      if (aws.bucket && aws.region) {
+        const s3Urls = [
+          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json`,
+          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json`,
+          `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json`
+        ];
+        for (const url of s3Urls) {
+          try {
+            const fetchRes = await fetch(url);
+            if (fetchRes.ok) {
+              story = await fetchRes.json();
+              console.log(`[SSR] Found story ${cleanId} from S3!`);
+              break;
+            }
+          } catch (e) {}
         }
       }
 
-      // Fallback to S3
+      // Fallback to local posts.json
       if (!story) {
-        const aws = getAwsConfig();
-        if (aws.bucket && aws.region) {
-          const s3Urls = [
-            `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/posts/story-${cleanId}.json`,
-            `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}/story.json`,
-            `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/story/${cleanId}.json`
-          ];
-          for (const url of s3Urls) {
-            try {
-              const fetchRes = await fetch(url);
-              if (fetchRes.ok) {
-                story = await fetchRes.json();
-                break;
-              }
-            } catch {}
+        const postsPath = path.join(process.cwd(), 'posts.json');
+        if (fs.existsSync(postsPath)) {
+          try {
+            const postsRaw = fs.readFileSync(postsPath, 'utf-8');
+            const postsData = JSON.parse(postsRaw);
+            const posts = Array.isArray(postsData) ? postsData : Object.values(postsData);
+            story = posts.find((p) => p && (p.id === cleanId || p.id === `story-${cleanId}` || p.id === `/story/${cleanId}`));
+          } catch (e) {
+            console.error("Error parsing posts.json in /story route:", e);
           }
         }
       }
