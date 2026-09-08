@@ -11,6 +11,7 @@ import { getSeoConfigForView, updateDocumentSeoAndCanonical } from './lib/seoHel
 import { sanitizeIdentifier, isActionThrottled, GENERIC_ODIA_ERROR_MESSAGE } from './lib/sanitize';
 import { ShieldCheck, KeyRound, AlertCircle } from 'lucide-react';
 import { AdminInstallSection } from './components/AdminInstallSection';
+import { extractExternalStoryParam, fetchAndMatchStory } from './lib/storyUrlMatcher';
 
 // Safe lazy loading wrapper with automatic dynamic import recovery
 const lazyWithRetry = (componentImport: () => Promise<{ default: React.ComponentType<any> }>) =>
@@ -168,24 +169,14 @@ export default function App() {
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(() => {
     try {
       if (typeof window !== 'undefined') {
-        const rawPathname = window.location.pathname;
-        const pathname = rawPathname.toLowerCase();
-        const parts = rawPathname.split('/').filter(Boolean);
-        const lowerParts = pathname.split('/').filter(Boolean);
-        if (lowerParts[0] === 'story' || lowerParts[0] === 'blog' || lowerParts[0] === 'stories') {
-          const rawSlug = parts.slice(1).join('/');
-          try {
-            return decodeURIComponent(rawSlug).replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
-          } catch {
-            return rawSlug.replace(/\.html?$/i, '').replace(/\/$/, '').trim() || null;
-          }
+        // Priority 1: External social media links (?url=..., ?image=..., ?storyId=..., /story/..., etc.)
+        const externalStory = extractExternalStoryParam();
+        if (externalStory) {
+          return externalStory;
         }
-        const params = new URLSearchParams(window.location.search);
-        const sid = params.get('storyId') || params.get('story') || params.get('id');
-        if (sid) return sid.replace(/\.html?$/i, '').replace(/\/$/, '').trim();
 
         const preloaded = (window as any).__PRELOADED_STATE__;
-        if (preloaded && preloaded.storyId && (lowerParts[0] === 'story' || lowerParts[0] === 'blog')) {
+        if (preloaded && preloaded.storyId) {
           return preloaded.storyId;
         }
       }
@@ -230,6 +221,12 @@ export default function App() {
         // Explicit PWA Admin parameter
         if (pwaParam === 'admin') {
           return 'admin';
+        }
+
+        // CRITICAL: Immediately route to 'blog' if external social media link parameters or story path detected
+        const externalStoryParam = extractExternalStoryParam();
+        if (externalStoryParam) {
+          return 'blog';
         }
 
         const preloaded = (window as any).__PRELOADED_STATE__;
@@ -380,11 +377,45 @@ export default function App() {
     }
   }, [viewMode, selectedStoryId, selectedTempleId]);
 
+  // CRITICAL: Explicit check for URL parameters (AWS S3 URL, image URL, slug, storyId) on initial mount
+  useEffect(() => {
+    const externalQuery = extractExternalStoryParam();
+    if (externalQuery) {
+      setViewMode('blog');
+      setSelectedStoryId(externalQuery);
+      fetchAndMatchStory(externalQuery)
+        .then((matched) => {
+          if (matched) {
+            setSelectedStoryId(matched.id);
+            setSelectedStoryData(matched);
+            setViewMode('blog');
+          }
+        })
+        .catch((err) => {
+          console.warn('External story routing error on initial mount:', err);
+        });
+    }
+  }, []);
+
   // Listen to browser Back / Forward (popstate) buttons for seamless navigation
   useEffect(() => {
     const handlePopState = () => {
       try {
         if (typeof window !== 'undefined') {
+          // Priority 1: External story parameter check on popstate
+          const externalStory = extractExternalStoryParam();
+          if (externalStory) {
+            setSelectedStoryId(externalStory);
+            fetchAndMatchStory(externalStory).then((matched) => {
+              if (matched) {
+                setSelectedStoryId(matched.id);
+                setSelectedStoryData(matched);
+              }
+            });
+            setViewMode('blog');
+            return;
+          }
+
           const rawPathname = window.location.pathname;
           const pathname = rawPathname.toLowerCase();
           const parts = rawPathname.split('/').filter(Boolean);

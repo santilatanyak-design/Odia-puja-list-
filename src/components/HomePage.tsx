@@ -33,6 +33,7 @@ import { UnifiedFeedSection } from './UnifiedFeedSection';
 import { BreakingNewsTicker } from './BreakingNewsTicker';
 import { triggerPwaInstall } from '../utils/pwaHelper';
 import { PwaInstallModal } from './PwaInstallModal';
+import { extractExternalStoryParam, fetchAndMatchStory } from '../lib/storyUrlMatcher';
 
 interface HomePageProps {
   activePujari: Pujari | null;
@@ -94,6 +95,22 @@ export const HomePage: React.FC<HomePageProps> = ({
       window.removeEventListener('appinstalled', handleInstalled);
     };
   }, []);
+
+  // CRITICAL: Explicit fail-safe check for external social media URL parameters on initial mount
+  useEffect(() => {
+    const externalQuery = extractExternalStoryParam();
+    if (externalQuery && onNavigateToBlog) {
+      fetchAndMatchStory(externalQuery)
+        .then((matched) => {
+          if (matched) {
+            onNavigateToBlog(matched.id, matched);
+          }
+        })
+        .catch((err) => {
+          console.warn('HomePage initial mount external story routing error:', err);
+        });
+    }
+  }, [onNavigateToBlog]);
 
   const handleInstallPublicApp = async () => {
     await triggerPwaInstall(

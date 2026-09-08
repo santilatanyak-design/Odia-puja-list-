@@ -21,6 +21,7 @@ import {
   refreshFacebookOgCache,
 } from '../lib/ogMetaHelper';
 import { getSmartAppUrl, executeSmartNavigation, handleDeepLink } from '../lib/deepLinkHelper';
+import { extractExternalStoryParam, matchStoryFromExternalQuery } from '../lib/storyUrlMatcher';
 import {
   BookOpen,
   Search,
@@ -179,10 +180,11 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
       let targetId = initialStoryId;
 
       if (!targetId && typeof window !== 'undefined') {
+        const externalParam = extractExternalStoryParam();
         const historyStoryId = (window.history.state as any)?.storyId;
         const pathParts = window.location.pathname.split('/').filter(Boolean);
         let pathStoryId = '';
-        if (pathParts[0] === 'story' || pathParts[0] === 'blog' || pathParts[0] === 'stories') {
+        if (pathParts[0] === 'story' || pathParts[0] === 'blog' || pathParts[0] === 'stories' || pathParts[0] === 'post' || pathParts[0] === 'posts') {
           const rawSlug = pathParts.slice(1).join('/');
           try {
             pathStoryId = decodeURIComponent(rawSlug) || '';
@@ -191,12 +193,12 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
           }
         }
         const params = new URLSearchParams(window.location.search);
-        const queryStoryId = params.get('storyId') || params.get('story') || params.get('id');
+        const queryStoryId = params.get('storyId') || params.get('story') || params.get('id') || params.get('url') || params.get('image');
 
         const isStoryPath = window.location.pathname.startsWith('/story/') || window.location.pathname.startsWith('/blog/');
         const preloadedId = isStoryPath ? (window as any).__PRELOADED_STATE__?.storyId : undefined;
 
-        targetId = historyStoryId || pathStoryId || queryStoryId || preloadedId;
+        targetId = externalParam || historyStoryId || pathStoryId || queryStoryId || preloadedId;
       }
 
       if (!targetId) return;
@@ -216,26 +218,11 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         const localRaw = localStorage.getItem('spiritual_stories_v1');
         if (localRaw) {
           const parsed = JSON.parse(localRaw);
-          if (Array.isArray(parsed)) {
-            const localMatch = parsed.find((s: any) => {
-              if (!s) return false;
-              const sCleanId = String(s.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').trim();
-              const sImg = s.imageUrl || s.image || '';
-              return (
-                s.id === targetId ||
-                s.id === cleanTargetId ||
-                sCleanId === cleanTargetId ||
-                sCleanId === cleanTargetId.replace(/^story-/, '') ||
-                `story-${sCleanId}` === cleanTargetId ||
-                (sImg && (sImg === targetId || sImg === cleanTargetId || (targetFilename && sImg.includes(targetFilename))))
-              );
-            });
-            if (localMatch) {
-              const normalized = normalizeStory(localMatch);
-              if (normalized) {
-                setSelectedStory(normalized);
-                return;
-              }
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const externalMatch = matchStoryFromExternalQuery(targetId, parsed);
+            if (externalMatch) {
+              setSelectedStory(externalMatch);
+              return;
             }
           }
         }
@@ -245,20 +232,9 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
 
       // 2. Check in regular stories list (from subscribeSpiritualStories)
       if (stories && stories.length > 0) {
-        const matched = stories.find((s) => {
-          const sCleanId = String(s.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').trim();
-          const sImg = s.imageUrl || '';
-          return (
-            s.id === targetId ||
-            s.id === cleanTargetId ||
-            sCleanId === cleanTargetId ||
-            sCleanId === cleanTargetId.replace(/^story-/, '') ||
-            `story-${sCleanId}` === cleanTargetId ||
-            (sImg && (sImg === targetId || sImg === cleanTargetId || (targetFilename && sImg.includes(targetFilename))))
-          );
-        });
-        if (matched) {
-          setSelectedStory(matched);
+        const externalMatch = matchStoryFromExternalQuery(targetId, stories);
+        if (externalMatch) {
+          setSelectedStory(externalMatch);
           return;
         }
       }
@@ -268,49 +244,10 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
         const res = await fetch('/posts.json');
         if (res.ok) {
           const posts = await res.json();
-          const numId = cleanTargetId.replace(/^story-/, '');
-          
-          let rawItem =
-            posts[cleanTargetId] ||
-            posts[`/story/${cleanTargetId}`] ||
-            posts[`/story/${cleanTargetId}.html`] ||
-            posts[`story-${cleanTargetId}`] ||
-            posts[`story-${numId}`] ||
-            posts[`/story/story-${numId}`] ||
-            posts[`/story/story-${numId}.html`];
-            
-          const allPosts = Object.values(posts) as any[];
-
-          if (!rawItem) {
-            rawItem = allPosts.find((p: any) => {
-              if (!p) return false;
-              const pCleanId = String(p.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').trim();
-              return (
-                p.id === targetId ||
-                p.id === cleanTargetId ||
-                pCleanId === cleanTargetId ||
-                pCleanId === numId ||
-                `story-${pCleanId}` === cleanTargetId
-              );
-            });
-          }
-
-          if (!rawItem && targetFilename) {
-            rawItem = allPosts.find((p: any) => {
-              if (!p) return false;
-              const img = p.image || p.imageUrl || '';
-              if (!img) return false;
-              if (img === targetId || img === cleanTargetId) return true;
-              return img.includes(targetFilename);
-            });
-          }
-
-          if (rawItem) {
-            const normalized = normalizeStory(rawItem);
-            if (normalized) {
-              setSelectedStory(normalized);
-              return;
-            }
+          const externalMatch = matchStoryFromExternalQuery(targetId, posts);
+          if (externalMatch) {
+            setSelectedStory(externalMatch);
+            return;
           }
         }
       } catch (err) {
