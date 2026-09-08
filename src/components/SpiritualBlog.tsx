@@ -102,6 +102,72 @@ export const SpiritualBlog: React.FC<SpiritualBlogProps> = ({
   const adTriggeredForStoryRef = useRef<Record<string, boolean>>({});
   const articleContainerRef = useRef<HTMLDivElement | null>(null);
 
+  // CRITICAL FIX: Strict initial mount parsing of external URLs
+  useEffect(() => {
+    const parseInitialUrl = async () => {
+      try {
+        if (typeof window === 'undefined') return;
+
+        const href = window.location.href;
+        const search = window.location.search;
+        const params = new URLSearchParams(search);
+
+        // Extract possible URL parameters or slug
+        let extractedParam = params.get('url') || params.get('image') || params.get('storyId') || params.get('id') || params.get('slug');
+
+        if (!extractedParam) {
+          const pathParts = window.location.pathname.split('/').filter(Boolean);
+          if (pathParts[0] === 'story' || pathParts[0] === 'blog') {
+            extractedParam = pathParts.slice(1).join('/');
+          }
+        }
+
+        if (!extractedParam) return; // No external param to process
+
+        const cleanParam = decodeURIComponent(extractedParam).replace(/^https?:\/\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+        const paramFilename = cleanParam.split('/').pop() || '';
+
+        // Fetch JSON data array
+        const res = await fetch('/posts.json');
+        if (!res.ok) return;
+        const postsData = await res.json();
+        const postsArray = Object.values(postsData) as any[];
+
+        // Loop through JSON data array to find the EXACT post
+        let matchedPost = null;
+        for (const post of postsArray) {
+          if (!post) continue;
+          const pImage = String(post.image || post.imageUrl || '').trim();
+          const pId = String(post.id || '').trim();
+          const pCleanId = pId.replace(/^story-/, '');
+
+          // Check if post.image (or ID/slug) includes the extracted URL parameter
+          if (
+            (pImage && (pImage.includes(cleanParam) || pImage.includes(paramFilename))) ||
+            (pId && (pId === cleanParam || pId.includes(cleanParam))) ||
+            (pCleanId && (pCleanId === cleanParam || pCleanId.includes(cleanParam))) ||
+            (cleanParam.includes(pId) || cleanParam.includes(pCleanId))
+          ) {
+            matchedPost = post;
+            break;
+          }
+        }
+
+        if (matchedPost) {
+          const normalized = normalizeStory(matchedPost);
+          if (normalized) {
+            console.log('[CRITICAL FIX] Found matching post from external URL:', normalized.id);
+            setSelectedStory(normalized);
+          }
+        }
+      } catch (err) {
+        console.warn('Error parsing initial URL for external post:', err);
+      }
+    };
+
+    parseInitialUrl();
+  }, []);
+
   const handleCloseAd = React.useCallback(() => {
     setIsAdOpen(false);
   }, []);
