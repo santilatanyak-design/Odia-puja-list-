@@ -1271,23 +1271,28 @@ app.delete('/api/stories/:storyId', async (req, res) => {
 
 // Serve SPA index.html for direct story URLs so latest JS assets load and app interface renders immediately
 
-app.get(['/deal/*', '/deal'], async (req, res, next) => {
-  console.log("INTERCEPTED DEAL ROUTE:", req.path);
-  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|json)$/)) {
+app.get(['/deal/*', '/deal', '/product/*', '/product'], async (req, res, next) => {
+  console.log("INTERCEPTED DEAL/PRODUCT ROUTE:", req.path);
+  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|json|woff2?|map)$/)) {
     return next();
   }
 
-  const distPath = path.join(process.cwd(), 'dist');
-  const indexPath = path.join(distPath, 'index.html');
+  const distIndexPath = path.join(process.cwd(), 'dist', 'index.html');
+  const srcIndexPath = path.join(process.cwd(), 'index.html');
+  const indexPath = fs.existsSync(distIndexPath) ? distIndexPath : (fs.existsSync(srcIndexPath) ? srcIndexPath : null);
 
-  if (fs.existsSync(indexPath)) {
+  if (indexPath) {
     let html = fs.readFileSync(indexPath, 'utf-8');
-    const dealIdMatch = req.path.match(/\/deal\/([^\/.]+)/);
+    const match = req.path.match(/\/(?:deal|product)\/([^\/.]+)/);
+    const queryId = (req.query.deal as string) || (req.query.id as string) || (req.query.productId as string) || '';
+    const cleanId = (match && match[1] ? match[1] : queryId).trim();
     
-    if (dealIdMatch && dealIdMatch[1]) {
-      let cleanId = dealIdMatch[1];
-      let deal = null;
-      
+    let deal: any = null;
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    const host = req.get('host') || 'bhaktistore.com';
+    const canonicalUrl = `${protocol}://${host}${cleanId ? `/deal/${cleanId}` : ''}`;
+    
+    if (cleanId) {
       const aws = getAwsConfig();
       if (aws.bucket && aws.region && aws.accessKeyId && aws.secretAccessKey) {
         try {
@@ -1295,45 +1300,119 @@ app.get(['/deal/*', '/deal'], async (req, res, next) => {
             region: aws.region,
             credentials: { accessKeyId: aws.accessKeyId, secretAccessKey: aws.secretAccessKey },
           });
-          const s3Res = await s3Client.send(new GetObjectCommand({
-            Bucket: aws.bucket,
-            Key: `affiliate/product-${cleanId}.json`,
-          }));
-          if (s3Res.Body) {
-            deal = JSON.parse(await s3Res.Body.transformToString());
-            console.log(`[SSR] Found deal ${cleanId} from S3!`);
+
+          // 1. Try direct S3 file: affiliate/product-${cleanId}.json
+          const possibleKeys = [
+            `affiliate/product-${cleanId}.json`,
+            cleanId.startsWith('prod_') 
+              ? `affiliate/product-${cleanId.replace(/^prod_/, '')}.json`
+              : `affiliate/product-prod_${cleanId}.json`
+          ];
+
+          for (const key of possibleKeys) {
+            try {
+              const s3Res = await s3Client.send(new GetObjectCommand({
+                Bucket: aws.bucket,
+                Key: key,
+              }));
+              if (s3Res.Body) {
+                deal = JSON.parse(await s3Res.Body.transformToString());
+                if (deal && deal.title) {
+                  console.log(`[SSR] Found deal from S3 key: ${key}`);
+                  break;
+                }
+              }
+            } catch (kErr) {}
           }
-        } catch (e) {}
-      }
 
-      if (!deal) {
-        const localList = readLocalProducts();
-        deal = localList.find((p: any) => p.id === cleanId || p.id === `prod_${cleanId}`);
+          // 2. If not found in individual keys, check master catalog: affiliate/index.json
+          if (!deal) {
+            try {
+              const indexRes = await s3Client.send(new GetObjectCommand({
+                Bucket: aws.bucket,
+                Key: 'affiliate/index.json',
+              }));
+              if (indexRes.Body) {
+                const catalog = JSON.parse(await indexRes.Body.transformToString());
+                if (Array.isArray(catalog)) {
+                  deal = catalog.find((p: any) => 
+                    p && (p.id === cleanId || p.id === `prod_${cleanId}` || (p.id && p.id.replace(/^prod_/, '') === cleanId.replace(/^prod_/, '')))
+                  );
+                  if (deal) console.log(`[SSR] Found deal ${cleanId} from S3 affiliate/index.json catalog!`);
+                }
+              }
+            } catch (idxErr) {}
+          }
+        } catch (e) {
+          console.warn('[SSR] S3 deal fetch error:', e);
+        }
       }
+    }
 
-      if (deal) {
-        const title = (deal.title || 'Exclusive Deal').replace(/"/g, '&quot;');
-        const desc = (deal.description || 'Grab this exclusive offer today on Bhakti Ananda.').substring(0, 250).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const img = deal.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
-        
-        html = html.replace(/<meta property="og:[^>]+>/gi, '')
-                   .replace(/<meta name="twitter:[^>]+>/gi, '')
-                   .replace(/<title>.*?<\/title>/gi, '');
-                   
-        const newMeta = `
-          <title>${title}</title>
-          <meta property="og:url" content="https://www.bhaktianandaodiatvofficial.blog/deal/${cleanId}" />
-          <meta property="og:title" content="${title}" />
-          <meta property="og:description" content="${desc}" />
-          <meta property="og:image" content="${img}" />
-          <meta property="og:type" content="product" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="${title}" />
-          <meta name="twitter:image" content="${img}" />
-          <script>window.__PRELOADED_STATE__ = { viewMode: 'deal', dealId: '${cleanId}', deal: ${JSON.stringify(deal).replace(/</g, '\\u003c')} };</script>
-        `;
-        html = html.replace('</head>', `${newMeta}\n</head>`);
-      }
+    // Strip any pre-existing meta tags to prevent duplicates
+    html = html.replace(/<meta property="og:[^>]+>/gi, '')
+               .replace(/<meta name="twitter:[^>]+>/gi, '')
+               .replace(/<title>.*?<\/title>/gi, '')
+               .replace(/<meta name="description"[^>]+>/gi, '');
+
+    if (deal && deal.title) {
+      // Dynamic Open Graph from REAL AWS S3 Product
+      const title = String(deal.title).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const desc = String(deal.description || `Verified authentic deal on ${deal.title} at Bhakti Store.`)
+        .substring(0, 250)
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const img = deal.imageUrl || 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
+
+      const newMeta = `
+        <title>${title} | Bhakti Store</title>
+        <meta name="description" content="${desc}" />
+        <meta property="og:url" content="${canonicalUrl}" />
+        <meta property="og:title" content="${title} | Bhakti Store" />
+        <meta property="og:description" content="${desc}" />
+        <meta property="og:image" content="${img}" />
+        <meta property="og:image:secure_url" content="${img}" />
+        <meta property="og:image:url" content="${img}" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="${title}" />
+        <meta property="og:type" content="product" />
+        <meta property="og:site_name" content="Bhakti Store" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="${title} | Bhakti Store" />
+        <meta name="twitter:description" content="${desc}" />
+        <meta name="twitter:image" content="${img}" />
+        <script>window.__PRELOADED_STATE__ = { viewMode: 'deal', dealId: '${cleanId}', deal: ${JSON.stringify(deal).replace(/</g, '\\u003c')} };</script>
+      `;
+      html = html.replace('</head>', `${newMeta}\n</head>`);
+    } else {
+      // Clean Generic Site Branding (Zero Demo Data Policy)
+      const genericTitle = 'Bhakti Store';
+      const genericDesc = 'Discover verified spiritual products, puja samagri, and authentic spiritual essentials.';
+      const genericImg = 'https://www.bhaktianandaodiatvofficial.blog/brand-banner.svg';
+
+      const newMeta = `
+        <title>${genericTitle}</title>
+        <meta name="description" content="${genericDesc}" />
+        <meta property="og:url" content="${canonicalUrl}" />
+        <meta property="og:title" content="${genericTitle}" />
+        <meta property="og:description" content="${genericDesc}" />
+        <meta property="og:image" content="${genericImg}" />
+        <meta property="og:image:secure_url" content="${genericImg}" />
+        <meta property="og:image:url" content="${genericImg}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="${genericTitle}" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Bhakti Store" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="${genericTitle}" />
+        <meta name="twitter:description" content="${genericDesc}" />
+        <meta name="twitter:image" content="${genericImg}" />
+      `;
+      html = html.replace('</head>', `${newMeta}\n</head>`);
     }
     
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

@@ -679,6 +679,34 @@ export const updateAffiliateProductOgMeta = (product: {
 };
 
 /**
+ * Resets Open Graph and Twitter meta tags to clean, generic site branding
+ * (Zero demo items, zero dummy descriptions)
+ */
+export const resetToGenericSiteOgMeta = () => {
+  if (typeof document === 'undefined') return;
+  const pageTitle = 'Bhakti Store';
+  const desc = 'Discover verified spiritual products, puja samagri, and authentic spiritual essentials.';
+  const shareUrl = typeof window !== 'undefined' ? window.location.origin : 'https://bhaktistore.com';
+  const absImg = resolveAbsoluteImageUrl(OFFICIAL_BRAND_LOGO_URL);
+
+  document.title = pageTitle;
+  setOrCreateMeta('name', 'description', desc);
+  setOrCreateMeta('property', 'og:title', pageTitle);
+  setOrCreateMeta('property', 'og:description', desc);
+  setOrCreateMeta('property', 'og:image', absImg);
+  setOrCreateMeta('property', 'og:image:secure_url', absImg);
+  setOrCreateMeta('property', 'og:image:url', absImg);
+  setOrCreateMeta('property', 'og:url', shareUrl);
+  setOrCreateMeta('property', 'og:type', 'website');
+  setOrCreateMeta('property', 'og:site_name', 'Bhakti Store');
+  setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+  setOrCreateMeta('name', 'twitter:title', pageTitle);
+  setOrCreateMeta('name', 'twitter:description', desc);
+  setOrCreateMeta('name', 'twitter:image', absImg);
+  setCanonicalUrl(shareUrl);
+};
+
+/**
  * Directly opens Threads (by Instagram / Meta) post intent with formatted text and link
  */
 export const openThreadsShare = (text: string, url: string, title?: string) => {

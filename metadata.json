@@ -1,6 +1,6 @@
 {
   "name": "Bhakti Store",
-  "description": "Premium Affiliate E-commerce Website for verified spiritual products, puja samagri, and brass idols.",
+  "description": "Bhakti Store - Verified spiritual products and puja samagri affiliate store.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

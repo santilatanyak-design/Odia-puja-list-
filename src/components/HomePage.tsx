@@ -323,6 +323,8 @@ export function HomePage({ onNavigateToDeal, onNavigateToCategories, searchQuery
                   <ShareButton 
                     productId={featuredProduct.id} 
                     title={featuredProduct.title} 
+                    description={featuredProduct.description}
+                    imageUrl={featuredProduct.imageUrl}
                     variant="icon" 
                     className="p-4 w-14 h-14 bg-white border border-slate-200 shadow-xs" 
                   />
@@ -580,6 +582,8 @@ export function HomePage({ onNavigateToDeal, onNavigateToCategories, searchQuery
                         <ShareButton
                           productId={product.id}
                           title={product.title}
+                          description={product.description}
+                          imageUrl={product.imageUrl}
                           variant="icon"
                           className="p-3 w-11 h-11 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200"
                         />

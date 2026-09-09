@@ -4,11 +4,13 @@ import { Share2, X, MessageCircle, Facebook, Twitter, Link as LinkIcon, Check } 
 interface ShareButtonProps {
   productId: string;
   title: string;
+  description?: string;
+  imageUrl?: string;
   className?: string;
   variant?: 'icon' | 'button';
 }
 
-export function ShareButton({ productId, title, className = "", variant = "icon" }: ShareButtonProps) {
+export function ShareButton({ productId, title, description, imageUrl, className = "", variant = "icon" }: ShareButtonProps) {
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -17,13 +19,17 @@ export function ShareButton({ productId, title, className = "", variant = "icon"
     ? `${window.location.origin}/deal/${productId}` 
     : `https://bhaktistore.com/deal/${productId}`;
 
+  const shareText = description 
+    ? `${title} - ${description.slice(0, 120)}...` 
+    : `Check out this deal on Bhakti Store: ${title}`;
+
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (navigator.share) {
       try {
         await navigator.share({
-          title: title,
-          text: `Check out this premium deal: ${title}`,
+          title: `${title} | Bhakti Store`,
+          text: shareText,
           url: url,
         });
       } catch (err) {
@@ -48,7 +54,8 @@ export function ShareButton({ productId, title, className = "", variant = "icon"
   };
 
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
+  const encodedTitle = encodeURIComponent(`${title} | Bhakti Store`);
+  const encodedFullWhatsapp = encodeURIComponent(`*${title}*\n${url}`);
 
   return (
     <>
@@ -87,7 +94,7 @@ export function ShareButton({ productId, title, className = "", variant = "icon"
             
             <div className="p-6 grid grid-cols-4 gap-4">
               <a 
-                href={`https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`} 
+                href={`https://api.whatsapp.com/send?text=${encodedFullWhatsapp}`} 
                 target="_blank" rel="noreferrer"
                 className="flex flex-col items-center gap-2 group"
               >

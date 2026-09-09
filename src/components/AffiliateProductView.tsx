@@ -15,7 +15,7 @@ import { AffiliateProduct, fetchAffiliateProducts, fetchAffiliateProductById } f
 import { ShareButton } from './ShareButton';
 import { YoutubeEmbed } from './YoutubeEmbed';
 import { handleDeepLink } from '../lib/deepLinkHelper';
-import { updateAffiliateProductOgMeta } from '../lib/ogMetaHelper';
+import { updateAffiliateProductOgMeta, resetToGenericSiteOgMeta } from '../lib/ogMetaHelper';
 
 interface AffiliateProductViewProps {
   productId: string;
@@ -71,6 +71,9 @@ export function AffiliateProductView({ productId, onBack }: AffiliateProductView
           imageUrl: found.imageUrl,
           platform: found.platform,
         });
+      } else {
+        // Reset to clean generic site branding if no product loaded
+        resetToGenericSiteOgMeta();
       }
     } catch (err) {
       console.error('Error loading product details from AWS backend:', err);
@@ -207,6 +210,8 @@ export function AffiliateProductView({ productId, onBack }: AffiliateProductView
               <ShareButton 
                 productId={product.id} 
                 title={product.title} 
+                description={product.description}
+                imageUrl={product.imageUrl}
                 variant="button" 
                 className="w-full bg-white border border-slate-300 text-slate-800 font-bold text-sm py-3.5 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer flex items-center justify-center gap-2" 
               />

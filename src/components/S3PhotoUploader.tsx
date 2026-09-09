@@ -82,26 +82,9 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
     }
   };
 
-  const handleFallbackCompressed = async () => {
+  const handleRetryUpload = async () => {
     if (!lastSelectedFile) return;
-    try {
-      setUploading(true);
-      setProgressStage('କମ୍ପ୍ରେସ୍ ହେଉଛି...');
-      const optimized = await optimizeImage(lastSelectedFile);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        onChange?.(base64);
-        onUploadSuccess?.(base64);
-        setUploading(false);
-        setErrorMsg('');
-        setProgressStage('');
-      };
-      reader.readAsDataURL(optimized);
-    } catch (err: any) {
-      setUploading(false);
-      setErrorMsg('କମ୍ପ୍ରେସନ୍ ବିଫଳ ହେଲା: ' + err.message);
-    }
+    await executeUpload(lastSelectedFile);
   };
 
   const handleClear = (e: React.MouseEvent) => {
@@ -283,12 +266,12 @@ export const S3PhotoUploader: React.FC<S3PhotoUploaderProps> = ({
             {lastSelectedFile && (
               <button
                 type="button"
-                onClick={handleFallbackCompressed}
+                onClick={handleRetryUpload}
                 disabled={uploading}
                 className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded-xl text-[11px] font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>Save As Compressed Image (କମ୍ପ୍ରେସ୍ ଫଟୋ ବ୍ୟବହାର କରନ୍ତୁ)</span>
+                <span>Retry S3 Upload (ପୁନର୍ବାର AWS S3 ଅପଲୋଡ୍ କରନ୍ତୁ)</span>
               </button>
             )}
           </div>
