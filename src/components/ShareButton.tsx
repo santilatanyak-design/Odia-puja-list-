@@ -14,10 +14,10 @@ export function ShareButton({ productId, title, description, imageUrl, className
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Clean canonical live URL with .html extension for 100% reliable S3 static website scraping
+  // Clean canonical live URL for 100% reliable S3 static website scraping
   const LIVE_BASE_URL = 'https://www.bhaktianandaodiatvofficial.blog';
   const cleanId = (productId || '').replace(/\.html?$/i, '').replace(/^(\/)?deal\//i, '').replace(/^(\/)?product\//i, '').trim();
-  const url = `${LIVE_BASE_URL}/deal/${encodeURIComponent(cleanId)}.html`;
+  const url = `${LIVE_BASE_URL}/deal/${encodeURIComponent(cleanId)}`;
 
   const shareTitle = `${title} | Bhakti Store`;
   const shareSummary = description ? `${description.slice(0, 140)}...` : 'Verified spiritual deal on Bhakti Store.';

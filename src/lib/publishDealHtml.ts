@@ -32,7 +32,7 @@ export function buildDealHtml(product: AffiliateProduct): string {
 
   const rawImg = (product.imageUrl || DEFAULT_BRAND_LOGO).trim();
   const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
-  const canonicalUrl = `${DOMAIN}/deal/${encodeURIComponent(dealId)}.html`;
+  const canonicalUrl = `${DOMAIN}/deal/${encodeURIComponent(dealId)}`;
   const directSpaUrl = `${DOMAIN}/?deal=${encodeURIComponent(dealId)}`;
 
   let imageType = 'image/jpeg';
@@ -92,25 +92,13 @@ export function buildDealHtml(product: AffiliateProduct): string {
   }
   </script>
 
-  <!-- Preloaded Data & Instant Routing Script for Human Visitors -->
+  <!-- Preloaded Data for SPA -->
   <script>
     window.__PRELOADED_STATE__ = {
       viewMode: 'deal',
       dealId: "${escapeHtml(dealId)}",
       deal: ${safeJsonPayload}
     };
-
-    // Instant Deep-Link Redirect to live website with this exact product loaded
-    (function() {
-      var isDirectAction = window.location.search.indexOf('no_redirect=1') !== -1;
-      if (!isDirectAction) {
-        var targetSpa = "${directSpaUrl}";
-        // Smoothly transfer to SPA
-        if (window.location.href !== targetSpa) {
-          window.location.replace(targetSpa);
-        }
-      }
-    })();
   </script>
 
   <style>
