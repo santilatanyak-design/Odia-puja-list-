@@ -14,8 +14,8 @@ export function ShareButton({ productId, title, description, imageUrl, className
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Clean canonical live URL for 100% reliable S3 static website scraping
-  const LIVE_BASE_URL = 'https://www.bhaktianandaodiatvofficial.blog';
+  // Use direct S3 domain for 100% reliable social media scraping
+  const LIVE_BASE_URL = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com';
   const cleanId = (productId || '').replace(/\.html?$/i, '').replace(/^(\/)?deal\//i, '').replace(/^(\/)?product\//i, '').trim();
   const url = `${LIVE_BASE_URL}/deal/${encodeURIComponent(cleanId)}.html`;
 

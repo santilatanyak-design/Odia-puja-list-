@@ -264,7 +264,7 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
  */
 export const getStoryShareUrl = (story: SpiritualStory): string => {
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
-  const origin = 'https://www.bhaktianandaodiatvofficial.blog';
+  const origin = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com';
   return `${origin}/story/${encodeURIComponent(cleanId)}.html`;
 };
 
@@ -660,7 +660,7 @@ export const updateAffiliateProductOgMeta = (product: {
   document.title = pageTitle;
 
   // Exact clean URL for production domain and external crawlers
-  const shareUrl = `https://www.bhaktianandaodiatvofficial.blog/deal/${product.id}.html`;
+  const shareUrl = `https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/deal/${product.id}.html`;
   
   // Real product image URL (AWS S3) - strictly prioritize the product image
   const rawImg = (product.imageUrl || '').trim();
