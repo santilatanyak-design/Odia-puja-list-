@@ -17,7 +17,8 @@ export function ShareButton({ productId, title, description, imageUrl, className
   // Use direct S3 domain for 100% reliable social media scraping
   const LIVE_BASE_URL = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com';
   const cleanId = (productId || '').replace(/\.html?$/i, '').replace(/^(\/)?deal\//i, '').replace(/^(\/)?product\//i, '').trim();
-  const url = `${LIVE_BASE_URL}/deal/${encodeURIComponent(cleanId)}.html`;
+  const cacheBuster = Math.floor(Date.now() / 10000); // changes every 10 seconds
+  const url = `${LIVE_BASE_URL}/deal/${encodeURIComponent(cleanId)}.html?v=${cacheBuster}`;
 
   const shareTitle = `${title} | Bhakti Store`;
   const shareSummary = description ? `${description.slice(0, 140)}...` : 'Verified spiritual deal on Bhakti Store.';

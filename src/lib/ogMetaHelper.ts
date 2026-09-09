@@ -265,7 +265,8 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
 export const getStoryShareUrl = (story: SpiritualStory): string => {
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const origin = 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com';
-  return `${origin}/story/${encodeURIComponent(cleanId)}.html`;
+  const cacheBuster = Math.floor(Date.now() / 10000);
+  return `${origin}/story/${encodeURIComponent(cleanId)}.html?v=${cacheBuster}`;
 };
 
 /**
