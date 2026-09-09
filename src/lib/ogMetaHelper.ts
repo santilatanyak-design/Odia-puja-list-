@@ -644,6 +644,8 @@ export const openShareChatShare = async (text: string, url: string, title?: stri
 
 /**
  * Updates dynamic Open Graph (OG) & Twitter meta tags for Affiliate Products
+ * Strictly injects the product's real AWS S3 image URL, title, and description.
+ * Never falls back to generic brand banner when sharing a product.
  */
 export const updateAffiliateProductOgMeta = (product: {
   id: string;
@@ -655,26 +657,43 @@ export const updateAffiliateProductOgMeta = (product: {
   if (typeof document === 'undefined') return;
   const pageTitle = `${product.title} | Bhakti Store`;
   document.title = pageTitle;
-  const absImg = resolveAbsoluteImageUrl(product.imageUrl);
-  const shareUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/deal/${product.id}`
-      : `https://bhaktistore.com/deal/${product.id}`;
+
+  // Exact clean URL for production domain and external crawlers
+  const shareUrl = `https://www.bhaktianandaodiatvofficial.blog/deal/${product.id}`;
+  
+  // Real product image URL (AWS S3) - strictly prioritize the product image
+  const rawImg = (product.imageUrl || '').trim();
+  const absImg = rawImg ? resolveAbsoluteImageUrl(rawImg) : '';
+
   const desc =
-    product.description ||
-    `Get the best deal on ${product.title} via ${product.platform || 'Bhakti Store'}. Verified authentic product with instant delivery.`;
+    product.description?.trim() ||
+    `Verified authentic deal on ${product.title} via ${product.platform || 'Bhakti Store'}.`;
 
   setOrCreateMeta('name', 'description', desc);
   setOrCreateMeta('property', 'og:title', pageTitle);
   setOrCreateMeta('property', 'og:description', desc);
-  setOrCreateMeta('property', 'og:image', absImg);
+  if (absImg) {
+    const isPng = absImg.includes('.png');
+    const isSvg = absImg.includes('.svg');
+    const imgType = isPng ? 'image/png' : isSvg ? 'image/svg+xml' : 'image/jpeg';
+    setOrCreateMeta('property', 'og:image', absImg);
+    setOrCreateMeta('property', 'og:image:secure_url', absImg);
+    setOrCreateMeta('property', 'og:image:url', absImg);
+    setOrCreateMeta('property', 'og:image:type', imgType);
+    setOrCreateMeta('property', 'og:image:width', '1200');
+    setOrCreateMeta('property', 'og:image:height', '630');
+    setOrCreateMeta('property', 'og:image:alt', product.title);
+    setOrCreateMeta('name', 'twitter:image', absImg);
+    setOrCreateMeta('name', 'twitter:image:src', absImg);
+    setOrCreateMeta('name', 'image', absImg);
+    setOrCreateMeta('itemprop', 'image', absImg);
+  }
   setOrCreateMeta('property', 'og:url', shareUrl);
   setOrCreateMeta('property', 'og:type', 'product');
   setOrCreateMeta('property', 'og:site_name', 'Bhakti Store');
   setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
   setOrCreateMeta('name', 'twitter:title', pageTitle);
   setOrCreateMeta('name', 'twitter:description', desc);
-  setOrCreateMeta('name', 'twitter:image', absImg);
   setCanonicalUrl(shareUrl);
 };
 

@@ -128,54 +128,56 @@ export function getClientAwsConfig() {
   let localKeys: any = {};
   if (typeof window !== 'undefined' && window.localStorage) {
     try {
-      const raw = localStorage.getItem('odia_aws_admin_config');
+      const raw = localStorage.getItem('odia_aws_admin_config') || localStorage.getItem('aws_s3_credentials');
       if (raw) localKeys = JSON.parse(raw);
     } catch {}
   }
 
+  // Priority 1: User's saved credentials in localStorage
+  // Priority 2: Injected environment variables
   const accessKeyId = (
+    localKeys.accessKeyId ||
     env.MY_AWS_ACCESS_KEY_ID ||
     env.VITE_MY_AWS_ACCESS_KEY_ID ||
     env.AWS_ACCESS_KEY_ID ||
     globalEnv.MY_AWS_ACCESS_KEY_ID ||
     globalEnv.AWS_ACCESS_KEY_ID ||
-    localKeys.accessKeyId ||
     ''
   ).trim();
 
   const secretAccessKey = (
+    localKeys.secretAccessKey ||
     env.MY_AWS_SECRET_ACCESS_KEY ||
     env.VITE_MY_AWS_SECRET_ACCESS_KEY ||
     env.AWS_SECRET_ACCESS_KEY ||
     globalEnv.MY_AWS_SECRET_ACCESS_KEY ||
     globalEnv.AWS_SECRET_ACCESS_KEY ||
-    localKeys.secretAccessKey ||
     ''
   ).trim();
 
   const region = (
+    localKeys.region ||
     env.MY_AWS_REGION ||
     env.VITE_MY_AWS_REGION ||
     env.AWS_REGION ||
     globalEnv.MY_AWS_REGION ||
     globalEnv.AWS_REGION ||
-    localKeys.region ||
     'ap-south-1'
   ).trim();
 
   const bucket = (
+    localKeys.bucket ||
     env.MY_AWS_S3_BUCKET_NAME ||
     env.VITE_MY_AWS_S3_BUCKET_NAME ||
     env.AWS_S3_BUCKET_NAME ||
     globalEnv.MY_AWS_S3_BUCKET_NAME ||
     globalEnv.AWS_S3_BUCKET_NAME ||
-    localKeys.bucket ||
     'bhakti-ananda-photos'
   ).trim();
 
   const amplifyWebhookUrl = (
-    env.VITE_AMPLIFY_WEBHOOK_URL ||
     localKeys.amplifyWebhookUrl ||
+    env.VITE_AMPLIFY_WEBHOOK_URL ||
     ''
   ).trim();
 
@@ -201,11 +203,12 @@ export function saveClientAwsConfig(config: {
   const merged = {
     accessKeyId: config.accessKeyId !== undefined ? config.accessKeyId.trim() : current.accessKeyId,
     secretAccessKey: config.secretAccessKey !== undefined ? config.secretAccessKey.trim() : current.secretAccessKey,
-    region: config.region !== undefined ? config.region.trim() : current.region,
-    bucket: config.bucket !== undefined ? config.bucket.trim() : current.bucket,
+    region: config.region !== undefined ? config.region.trim() : (current.region || 'ap-south-1'),
+    bucket: config.bucket !== undefined ? config.bucket.trim() : (current.bucket || 'bhakti-ananda-photos'),
     amplifyWebhookUrl: config.amplifyWebhookUrl !== undefined ? config.amplifyWebhookUrl.trim() : current.amplifyWebhookUrl,
   };
   localStorage.setItem('odia_aws_admin_config', JSON.stringify(merged));
+  localStorage.setItem('aws_s3_credentials', JSON.stringify(merged));
 
   // Also sync to server so server-side comments and story storage can write to S3
   try {

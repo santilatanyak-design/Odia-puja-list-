@@ -8,22 +8,37 @@ import { Footer } from './components/Footer';
 type ViewMode = 'home' | 'admin' | 'deal' | 'categories' | 'deals';
 
 export default function App() {
-  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      if ((window as any).__PRELOADED_STATE__?.dealId) {
+        return (window as any).__PRELOADED_STATE__.dealId;
+      }
+      const path = window.location.pathname;
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId');
+      if (queryDeal) return queryDeal;
+      if (path.startsWith('/deal/')) {
+        return path.split('/deal/')[1]?.split('?')[0]?.split('/')[0] || null;
+      }
+      if (path.startsWith('/product/')) {
+        return path.split('/product/')[1]?.split('?')[0]?.split('/')[0] || null;
+      }
+    }
+    return null;
+  });
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
-      const queryDeal = urlParams.get('deal') || urlParams.get('p');
+      const queryDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId');
       
-      if (queryDeal) {
+      if (queryDeal || path.startsWith('/deal/') || path.startsWith('/product/')) {
         return 'deal';
       }
       if (path.startsWith('/admin')) return 'admin';
-      if (path.startsWith('/deal/')) {
-        return 'deal';
-      }
       if (path.startsWith('/categories')) return 'categories';
       if (path.startsWith('/deals')) return 'deals';
     }
@@ -37,7 +52,7 @@ export default function App() {
       
       const path = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
-      const queryDeal = urlParams.get('deal') || urlParams.get('p');
+      const queryDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId');
 
       if (queryDeal) {
         setSelectedDealId(queryDeal);
@@ -46,7 +61,16 @@ export default function App() {
       }
 
       if (path.startsWith('/deal/')) {
-        const id = path.split('/deal/')[1]?.split('?')[0];
+        const id = path.split('/deal/')[1]?.split('?')[0]?.split('/')[0];
+        if (id) {
+          setSelectedDealId(id);
+          setViewMode('deal');
+          return;
+        }
+      }
+
+      if (path.startsWith('/product/')) {
+        const id = path.split('/product/')[1]?.split('?')[0]?.split('/')[0];
         if (id) {
           setSelectedDealId(id);
           setViewMode('deal');

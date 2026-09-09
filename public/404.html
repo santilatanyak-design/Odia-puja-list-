@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bhakti Store - Loading Deal...</title>
+  <script>
+    // Single Page Apps for AWS S3 Static Website Hosting
+    // Redirects deep links (/deal/:id, /product/:id) to index.html with preserved path
+    (function() {
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      
+      // If path is a deal or product route
+      var dealMatch = path.match(/\/(?:deal|product)\/([^\/]+)/);
+      if (dealMatch && dealMatch[1]) {
+        var dealId = dealMatch[1];
+        var redirectUrl = '/?deal=' + encodeURIComponent(dealId) + (hash || '');
+        window.location.replace(redirectUrl);
+        return;
+      }
+      
+      // Generic SPA route redirect
+      if (path && path !== '/') {
+        window.location.replace('/?' + encodeURIComponent(path.slice(1)) + (search ? '&' + search.slice(1) : '') + hash);
+        return;
+      }
+      
+      window.location.replace('/' + search + hash);
+    })();
+  </script>
+</head>
+<body style="margin:0;padding:40px;font-family:system-ui,-apple-system,sans-serif;text-align:center;background:#f8fafc;color:#0f172a;">
+  <div style="max-width:400px;margin:80px auto;background:#fff;border-radius:16px;padding:32px;border:1px solid #e2e8f0;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+    <h2 style="margin:0 0 12px;font-size:20px;font-weight:800;">Redirecting to Deal...</h2>
+    <p style="margin:0;font-size:14px;color:#64748b;">Please wait while we route you directly to the verified product page.</p>
+  </div>
+</body>
+</html>

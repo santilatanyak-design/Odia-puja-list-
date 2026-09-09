@@ -14,10 +14,9 @@ export function ShareButton({ productId, title, description, imageUrl, className
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Safely construct URL (fallback if window is not defined)
-  const url = typeof window !== 'undefined' 
-    ? `${window.location.origin}/deal/${productId}` 
-    : `https://bhaktistore.com/deal/${productId}`;
+  // Clean live production URL for external social sharing and crawlers
+  const LIVE_BASE_URL = 'https://www.bhaktianandaodiatvofficial.blog';
+  const url = `${LIVE_BASE_URL}/deal/${productId}`;
 
   const shareText = description 
     ? `${title} - ${description.slice(0, 120)}...` 

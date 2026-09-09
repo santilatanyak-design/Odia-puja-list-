@@ -1,0 +1,9 @@
+# AWS Amplify & Cloudflare Pages SPA Routing Configuration
+# Ensures deep links like /deal/:id reload without 404
+/deal/*    /index.html   200
+/product/* /index.html   200
+/admin/*   /index.html   200
+/admin     /index.html   200
+/deals     /index.html   200
+/categories /index.html  200
+/*         /index.html   200
