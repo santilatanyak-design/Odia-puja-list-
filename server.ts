@@ -62,6 +62,7 @@ app.post("/api/s3/config", (req, res) => {
 });
 
 app.post("/api/s3/test", async (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
   try {
     const { region, bucket, accessKeyId, secretAccessKey } = req.body || {};
     const cfg = getAwsConfig();
@@ -71,10 +72,10 @@ app.post("/api/s3/test", async (req, res) => {
     const finalSecretAccessKey = (secretAccessKey || cfg.secretAccessKey || '').trim();
 
     if (!finalAccessKeyId || !finalSecretAccessKey) {
-      return res.status(400).json({ success: false, message: 'AWS Access Key ID and Secret Access Key are required.' });
+      return res.status(400).json({ success: false, error: 'AWS Access Key ID and Secret Access Key are required.' });
     }
 
-    const { HeadBucketCommand } = await import('@aws-sdk/client-s3');
+    const { HeadBucketCommand, ListObjectsV2Command } = await import('@aws-sdk/client-s3');
     const s3Client = new S3Client({
       region: finalRegion,
       credentials: {
@@ -84,11 +85,16 @@ app.post("/api/s3/test", async (req, res) => {
       maxAttempts: 1,
     });
 
-    await s3Client.send(new HeadBucketCommand({ Bucket: finalBucket }));
-    res.json({ success: true, message: `Successfully connected to AWS S3 bucket: ${finalBucket}` });
+    try {
+      await s3Client.send(new HeadBucketCommand({ Bucket: finalBucket }));
+    } catch (headErr) {
+      await s3Client.send(new ListObjectsV2Command({ Bucket: finalBucket, MaxKeys: 1 }));
+    }
+
+    return res.json({ success: true, message: "AWS S3 Connected Successfully!" });
   } catch (err: any) {
     console.error('Error testing S3 connection:', err);
-    res.status(400).json({ success: false, message: err.message || 'AWS S3 connection failed' });
+    return res.status(200).json({ success: false, error: err.message || 'AWS S3 connection failed' });
   }
 });
 

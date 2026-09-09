@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, HeadBucketCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
 /**
  * AWS S3 Photo & Media Upload Helper
@@ -15,6 +15,108 @@ export interface S3UploadResponse {
   region?: string;
   isLocalFallback?: boolean;
   message?: string;
+}
+
+/**
+ * Tests AWS S3 connection directly on the client using AWS SDK v3
+ * Strictly returns:
+ * - Success: { success: true, message: "AWS S3 Connected Successfully!" }
+ * - Failure: { success: false, error: error.message }
+ */
+export async function testAwsS3Connection(credentials: {
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucket?: string;
+  region?: string;
+}): Promise<{ success: boolean; message?: string; error?: string }> {
+  const { accessKeyId, secretAccessKey, bucket, region } = credentials;
+
+  if (!accessKeyId?.trim() || !secretAccessKey?.trim()) {
+    return {
+      success: false,
+      error: 'AWS Access Key ID and Secret Access Key are required.',
+    };
+  }
+
+  const cleanBucket = (bucket || 'bhakti-ananda-photos').trim();
+  const cleanRegion = (region || 'ap-south-1').trim();
+
+  // 1. Direct Client-Side S3 Probe with AWS SDK v3
+  try {
+    const s3 = new S3Client({
+      region: cleanRegion,
+      credentials: {
+        accessKeyId: accessKeyId.trim(),
+        secretAccessKey: secretAccessKey.trim(),
+      },
+      maxAttempts: 1,
+    });
+
+    try {
+      await s3.send(new HeadBucketCommand({ Bucket: cleanBucket }));
+      return {
+        success: true,
+        message: 'AWS S3 Connected Successfully!',
+      };
+    } catch (headErr: any) {
+      if (headErr?.name === 'NotFound' || headErr?.$metadata?.httpStatusCode === 404) {
+        return {
+          success: false,
+          error: `Bucket "${cleanBucket}" does not exist in region "${cleanRegion}".`,
+        };
+      }
+
+      // Try ListObjectsV2 (requires only 1 key)
+      try {
+        await s3.send(new ListObjectsV2Command({ Bucket: cleanBucket, MaxKeys: 1 }));
+        return {
+          success: true,
+          message: 'AWS S3 Connected Successfully!',
+        };
+      } catch (listErr: any) {
+        // Fallback: Safe probe via backend API if client direct call is blocked by browser CORS
+        try {
+          const res = await fetch('/api/s3/test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              accessKeyId: accessKeyId.trim(),
+              secretAccessKey: secretAccessKey.trim(),
+              bucket: cleanBucket,
+              region: cleanRegion,
+            }),
+          });
+
+          // Strict content-type validation: NEVER parse HTML as JSON
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            const data = await res.json();
+            if (data && data.success) {
+              return {
+                success: true,
+                message: data.message || 'AWS S3 Connected Successfully!',
+              };
+            } else if (data && (data.error || data.message)) {
+              return {
+                success: false,
+                error: data.error || data.message,
+              };
+            }
+          }
+        } catch {}
+
+        return {
+          success: false,
+          error: listErr?.message || headErr?.message || 'AWS S3 connection failed',
+        };
+      }
+    }
+  } catch (err: any) {
+    return {
+      success: false,
+      error: err?.message || 'Unexpected connection error',
+    };
+  }
 }
 
 /**

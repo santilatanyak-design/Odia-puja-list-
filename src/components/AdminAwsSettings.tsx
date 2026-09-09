@@ -17,7 +17,7 @@ import {
   Zap,
   HardDrive
 } from 'lucide-react';
-import { getClientAwsConfig, saveClientAwsConfig, syncAwsConfigFromServer } from '../lib/s3Upload';
+import { getClientAwsConfig, saveClientAwsConfig, syncAwsConfigFromServer, testAwsS3Connection } from '../lib/s3Upload';
 
 interface AdminAwsSettingsProps {
   isModal?: boolean;
@@ -101,7 +101,7 @@ export const AdminAwsSettings: React.FC<AdminAwsSettingsProps> = ({
     if (!config.accessKeyId || !config.secretAccessKey) {
       setTestResult({
         success: false,
-        message: 'ଦୟାକରି ପ୍ରଥମେ Access Key ID ଏବଂ Secret Key ଦିଅନ୍ତୁ (Please enter Access Key ID & Secret Key first).'
+        message: 'AWS Access Key ID and Secret Access Key are required.'
       });
       return;
     }
@@ -110,28 +110,28 @@ export const AdminAwsSettings: React.FC<AdminAwsSettingsProps> = ({
     setTestResult(null);
 
     try {
-      const res = await fetch('/api/s3/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config)
+      const res = await testAwsS3Connection({
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+        bucket: config.bucket,
+        region: config.region,
       });
 
-      const data = await res.json();
-      if (res.ok && data.success) {
+      if (res.success) {
         setTestResult({
           success: true,
-          message: `✅ AWS S3 ସଫଳତାର ସହ ସଂଯୁକ୍ତ! (${data.message || config.bucket})`
+          message: res.message || 'AWS S3 Connected Successfully!'
         });
       } else {
         setTestResult({
           success: false,
-          message: `❌ ସଂଯୋଗ ବିଫଳ: ${data.message || 'Check credentials and bucket policy'}`
+          message: res.error || 'AWS S3 connection failed'
         });
       }
     } catch (err: any) {
       setTestResult({
         success: false,
-        message: `⚠️ Connection probe error: ${err?.message || 'Network error'}`
+        message: err?.message || 'Connection test failed'
       });
     } finally {
       setTesting(false);
