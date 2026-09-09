@@ -643,6 +643,42 @@ export const openShareChatShare = async (text: string, url: string, title?: stri
 };
 
 /**
+ * Updates dynamic Open Graph (OG) & Twitter meta tags for Affiliate Products
+ */
+export const updateAffiliateProductOgMeta = (product: {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  platform?: string;
+}) => {
+  if (typeof document === 'undefined') return;
+  const pageTitle = `${product.title} | Bhakti Store`;
+  document.title = pageTitle;
+  const absImg = resolveAbsoluteImageUrl(product.imageUrl);
+  const shareUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/deal/${product.id}`
+      : `https://bhaktistore.com/deal/${product.id}`;
+  const desc =
+    product.description ||
+    `Get the best deal on ${product.title} via ${product.platform || 'Bhakti Store'}. Verified authentic product with instant delivery.`;
+
+  setOrCreateMeta('name', 'description', desc);
+  setOrCreateMeta('property', 'og:title', pageTitle);
+  setOrCreateMeta('property', 'og:description', desc);
+  setOrCreateMeta('property', 'og:image', absImg);
+  setOrCreateMeta('property', 'og:url', shareUrl);
+  setOrCreateMeta('property', 'og:type', 'product');
+  setOrCreateMeta('property', 'og:site_name', 'Bhakti Store');
+  setOrCreateMeta('name', 'twitter:card', 'summary_large_image');
+  setOrCreateMeta('name', 'twitter:title', pageTitle);
+  setOrCreateMeta('name', 'twitter:description', desc);
+  setOrCreateMeta('name', 'twitter:image', absImg);
+  setCanonicalUrl(shareUrl);
+};
+
+/**
  * Directly opens Threads (by Instagram / Meta) post intent with formatted text and link
  */
 export const openThreadsShare = (text: string, url: string, title?: string) => {
@@ -650,4 +686,5 @@ export const openThreadsShare = (text: string, url: string, title?: string) => {
   const threadsUrl = `https://www.threads.net/intent/post?text=${encodeURIComponent(fullShareText)}`;
   window.open(threadsUrl, '_blank', 'noopener,noreferrer');
 };
+
 

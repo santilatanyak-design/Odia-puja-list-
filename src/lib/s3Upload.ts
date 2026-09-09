@@ -97,11 +97,11 @@ export function saveClientAwsConfig(config: {
   if (typeof window === 'undefined' || !window.localStorage) return;
   const current = getClientAwsConfig();
   const merged = {
-    accessKeyId: config.accessKeyId !== undefined ? config.accessKeyId : current.accessKeyId,
-    secretAccessKey: config.secretAccessKey !== undefined ? config.secretAccessKey : current.secretAccessKey,
-    region: config.region !== undefined ? config.region : current.region,
-    bucket: config.bucket !== undefined ? config.bucket : current.bucket,
-    amplifyWebhookUrl: config.amplifyWebhookUrl !== undefined ? config.amplifyWebhookUrl : current.amplifyWebhookUrl,
+    accessKeyId: config.accessKeyId !== undefined ? config.accessKeyId.trim() : current.accessKeyId,
+    secretAccessKey: config.secretAccessKey !== undefined ? config.secretAccessKey.trim() : current.secretAccessKey,
+    region: config.region !== undefined ? config.region.trim() : current.region,
+    bucket: config.bucket !== undefined ? config.bucket.trim() : current.bucket,
+    amplifyWebhookUrl: config.amplifyWebhookUrl !== undefined ? config.amplifyWebhookUrl.trim() : current.amplifyWebhookUrl,
   };
   localStorage.setItem('odia_aws_admin_config', JSON.stringify(merged));
 
@@ -113,6 +113,26 @@ export function saveClientAwsConfig(config: {
       body: JSON.stringify(merged)
     }).catch(() => {});
   } catch {}
+}
+
+/**
+ * Syncs AWS config from server to client localStorage
+ */
+export async function syncAwsConfigFromServer() {
+  if (typeof window === 'undefined') return getClientAwsConfig();
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const res = await fetch('/api/s3/config', { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && (data.accessKeyId || data.bucket)) {
+        saveClientAwsConfig(data);
+      }
+    }
+  } catch {}
+  return getClientAwsConfig();
 }
 
 /**
@@ -247,7 +267,12 @@ export async function uploadPhotoToS3(
   const s3Key = `${cleanFolder}/${fileName}`;
   const mimeType = file.type || 'image/jpeg';
 
-  const awsConfig = getClientAwsConfig();
+  let awsConfig = getClientAwsConfig();
+  if (!awsConfig.isDirectReady) {
+    try {
+      awsConfig = await syncAwsConfigFromServer();
+    } catch {}
+  }
 
   // Method 1: Direct AWS S3 Client SDK Upload (Fastest, zero-timeout on AWS Amplify)
   if (awsConfig.isDirectReady) {
@@ -304,7 +329,7 @@ export async function uploadPhotoToS3(
     formData.append('folder', cleanFolder);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout for static hosts
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for file uploads
 
     const res = await fetch('/api/upload', {
       method: 'POST',
@@ -314,7 +339,7 @@ export async function uploadPhotoToS3(
     clearTimeout(timeoutId);
 
     const contentType = res.headers.get('content-type') || '';
-    if (res.ok && contentType.includes('application/json')) {
+    if (contentType.includes('application/json')) {
       const data: S3UploadResponse = await res.json();
       if (data.success && (data.url || data.imageUrl)) {
         const finalUrl = data.url || data.imageUrl;
@@ -326,7 +351,37 @@ export async function uploadPhotoToS3(
     console.warn('[AWS S3 API Upload] Backend route unavailable on static host:', apiErr?.message || apiErr);
   }
 
-  // Method 3: Remove Base64 fallback entirely to prevent "long URL" bugs.
+  // Method 3: JSON base64 upload fallback to /api/upload
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const base64String = btoa(binary);
+
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        base64: `data:${mimeType};base64,${base64String}`,
+        fileName,
+        mimeType,
+        folder: cleanFolder,
+      }),
+    });
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const data = await res.json();
+      if (data.success && (data.url || data.imageUrl)) {
+        const finalUrl = data.url || data.imageUrl;
+        if (onProgress) onProgress(100, 'ଅପଲୋଡ୍ ସମ୍ପୂର୍ଣ୍ଣ ହୋଇଛି!');
+        return finalUrl;
+      }
+    }
+  } catch {}
+
   // If we reach here, both Direct S3 and API upload failed.
   throw new Error("AWS S3 କ୍ରେଡେନ୍ସିଆଲ୍ ନାହିଁ! ଦୟାକରି ଆଡମିନ୍ ପ୍ୟାନେଲ୍ ସେଟିଂସ୍ ରେ AWS S3 Access Key ଏବଂ Secret Key ଦିଅନ୍ତୁ ନଚେତ୍ ଫଟୋ ସେଭ୍ ହେବ ନାହିଁ।");
 }

@@ -2,7 +2,8 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import fs from 'fs';
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import multer from 'multer';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import dotenv from 'dotenv';
 
@@ -11,8 +12,11 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
+const upload = multer({ limits: { fileSize: 25 * 1024 * 1024 } });
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
 function getAwsConfig(): { region: string; bucket: string; accessKeyId: string; secretAccessKey: string } {
   let cfg: any = {};
@@ -30,7 +34,10 @@ function getAwsConfig(): { region: string; bucket: string; accessKeyId: string; 
 
 app.get("/api/s3/config", (req, res) => {
   const cfg = getAwsConfig();
-  res.json(cfg);
+  res.json({
+    ...cfg,
+    isConfigured: Boolean(cfg.accessKeyId && cfg.secretAccessKey),
+  });
 });
 
 app.post("/api/s3/config", (req, res) => {
@@ -42,20 +49,590 @@ app.post("/api/s3/config", (req, res) => {
       try { existing = JSON.parse(fs.readFileSync(localAwsPath, 'utf-8')); } catch {}
     }
     const updated = {
-      region: region || existing.region || 'ap-south-1',
-      bucket: bucket || existing.bucket || 'bhakti-ananda-photos',
-      accessKeyId: accessKeyId || existing.accessKeyId || '',
-      secretAccessKey: secretAccessKey || existing.secretAccessKey || ''
+      region: (region || existing.region || 'ap-south-1').trim(),
+      bucket: (bucket || existing.bucket || 'bhakti-ananda-photos').trim(),
+      accessKeyId: (accessKeyId || existing.accessKeyId || '').trim(),
+      secretAccessKey: (secretAccessKey || existing.secretAccessKey || '').trim()
     };
     fs.writeFileSync(localAwsPath, JSON.stringify(updated, null, 2), 'utf-8');
-    res.json({ success: true, config: updated });
+    res.json({ success: true, config: updated, isConfigured: Boolean(updated.accessKeyId && updated.secretAccessKey) });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
+app.post("/api/s3/test", async (req, res) => {
+  try {
+    const { region, bucket, accessKeyId, secretAccessKey } = req.body || {};
+    const cfg = getAwsConfig();
+    const finalRegion = (region || cfg.region || 'ap-south-1').trim();
+    const finalBucket = (bucket || cfg.bucket || 'bhakti-ananda-photos').trim();
+    const finalAccessKeyId = (accessKeyId || cfg.accessKeyId || '').trim();
+    const finalSecretAccessKey = (secretAccessKey || cfg.secretAccessKey || '').trim();
+
+    if (!finalAccessKeyId || !finalSecretAccessKey) {
+      return res.status(400).json({ success: false, message: 'AWS Access Key ID and Secret Access Key are required.' });
+    }
+
+    const { HeadBucketCommand } = await import('@aws-sdk/client-s3');
+    const s3Client = new S3Client({
+      region: finalRegion,
+      credentials: {
+        accessKeyId: finalAccessKeyId,
+        secretAccessKey: finalSecretAccessKey,
+      },
+      maxAttempts: 1,
+    });
+
+    await s3Client.send(new HeadBucketCommand({ Bucket: finalBucket }));
+    res.json({ success: true, message: `Successfully connected to AWS S3 bucket: ${finalBucket}` });
+  } catch (err: any) {
+    console.error('Error testing S3 connection:', err);
+    res.status(400).json({ success: false, message: err.message || 'AWS S3 connection failed' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+// ==========================================
+// REAL AWS S3 IMAGE UPLOADER API
+// ==========================================
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  try {
+    let fileBuffer: Buffer | null = null;
+    let fileName: string = '';
+    let mimeType: string = 'image/jpeg';
+    let folder: string = 'photos';
+
+    if (req.file) {
+      fileBuffer = req.file.buffer;
+      fileName = req.file.originalname || `upload_${Date.now()}.jpg`;
+      mimeType = req.file.mimetype || 'image/jpeg';
+      folder = req.body.folder || 'photos';
+    } else if (req.body && (req.body.base64 || req.body.file)) {
+      const b64Data = req.body.base64 || req.body.file;
+      const matches = b64Data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        mimeType = matches[1];
+        fileBuffer = Buffer.from(matches[2], 'base64');
+      } else {
+        fileBuffer = Buffer.from(b64Data, 'base64');
+      }
+      folder = req.body.folder || 'photos';
+      const ext = mimeType.split('/')[1] || 'jpg';
+      fileName = `upload_${Date.now()}.${ext}`;
+    }
+
+    if (!fileBuffer) {
+      return res.status(400).json({ error: 'No file provided' });
+    }
+
+    const cleanFolder = folder.replace(/^\/+|\/+$/g, '');
+    const ext = fileName.includes('.') ? fileName.split('.').pop() || 'jpg' : 'jpg';
+    const s3Key = `${cleanFolder}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+
+    const aws = getAwsConfig();
+    const AWS_REGION = aws.region || 'ap-south-1';
+    const AWS_BUCKET = aws.bucket || 'bhakti-ananda-photos';
+
+    // If AWS credentials exist, attempt upload directly to AWS S3 bucket
+    if (aws.accessKeyId && aws.secretAccessKey) {
+      try {
+        const s3Client = new S3Client({
+          region: AWS_REGION,
+          credentials: {
+            accessKeyId: aws.accessKeyId,
+            secretAccessKey: aws.secretAccessKey,
+          },
+        });
+
+        await s3Client.send(new PutObjectCommand({
+          Bucket: AWS_BUCKET,
+          Key: s3Key,
+          Body: fileBuffer,
+          ContentType: mimeType,
+          CacheControl: 'public, max-age=31536000, immutable',
+        }));
+
+        const finalUrl = `https://${AWS_BUCKET}.s3.${AWS_REGION}.amazonaws.com/${s3Key}`;
+        console.log('[AWS S3 API Upload] Uploaded successfully to S3:', finalUrl);
+        return res.json({ success: true, url: finalUrl, imageUrl: finalUrl, key: s3Key });
+      } catch (s3Err: any) {
+        console.warn('[AWS S3 API Upload] S3 client upload failed, using local persistent fallback:', s3Err?.message || s3Err);
+      }
+    }
+
+    // High availability local persistent fallback
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads', cleanFolder);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    const localFilePath = path.join(uploadDir, `${Date.now()}_${path.basename(fileName)}`);
+    fs.writeFileSync(localFilePath, fileBuffer);
+    const localUrl = `/uploads/${cleanFolder}/${path.basename(localFilePath)}`;
+    console.log('[Upload API] Saved locally to:', localUrl);
+    return res.json({ success: true, url: localUrl, imageUrl: localUrl, key: s3Key, isLocalFallback: true });
+  } catch (err: any) {
+    console.error('Error in /api/upload:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// REAL AWS BACKEND DATA API: PRODUCTS
+// ==========================================
+function readLocalProducts(): any[] {
+  const paths = [
+    path.join(process.cwd(), 'public', 'affiliate-products.json'),
+    path.join(process.cwd(), 'dist', 'affiliate-products.json'),
+    path.join(process.cwd(), 'affiliate-products.json')
+  ];
+  for (const p of paths) {
+    if (fs.existsSync(p)) {
+      try {
+        const raw = fs.readFileSync(p, 'utf-8');
+        const data = JSON.parse(raw);
+        if (Array.isArray(data)) return data;
+      } catch {}
+    }
+  }
+  return [];
+}
+
+function saveLocalProducts(products: any[]) {
+  const paths = [
+    path.join(process.cwd(), 'public', 'affiliate-products.json'),
+    path.join(process.cwd(), 'dist', 'affiliate-products.json'),
+    path.join(process.cwd(), 'affiliate-products.json')
+  ];
+  for (const p of paths) {
+    try {
+      const dir = path.dirname(p);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(p, JSON.stringify(products, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn(`Could not save products to ${p}:`, e);
+    }
+  }
+}
+
+// GET all products: checks AWS S3 master index then local persistence
+app.get(['/api/products', '/api/affiliate/products'], async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  const aws = getAwsConfig();
+
+  if (aws.bucket && aws.region && aws.accessKeyId && aws.secretAccessKey) {
+    try {
+      const s3Client = new S3Client({
+        region: aws.region,
+        credentials: {
+          accessKeyId: aws.accessKeyId,
+          secretAccessKey: aws.secretAccessKey,
+        },
+      });
+      const s3Res = await s3Client.send(new GetObjectCommand({
+        Bucket: aws.bucket,
+        Key: 'affiliate/index.json',
+      }));
+      if (s3Res.Body) {
+        const bodyStr = await s3Res.Body.transformToString();
+        const s3Data = JSON.parse(bodyStr);
+        if (Array.isArray(s3Data) && s3Data.length > 0) {
+          saveLocalProducts(s3Data);
+          return res.json(s3Data);
+        }
+      }
+    } catch (e) {
+      // S3 object might not exist yet, fallback to local storage
+    }
+  }
+
+  const list = readLocalProducts();
+  return res.json(list);
+});
+
+// GET single product by ID
+app.get(['/api/products/:id', '/api/affiliate/products/:id'], async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  const { id } = req.params;
+  const cleanId = String(id).replace(/^prod_/, '').trim();
+  const aws = getAwsConfig();
+
+  if (aws.bucket && aws.region && aws.accessKeyId && aws.secretAccessKey) {
+    const s3Client = new S3Client({
+      region: aws.region,
+      credentials: {
+        accessKeyId: aws.accessKeyId,
+        secretAccessKey: aws.secretAccessKey,
+      },
+    });
+    const keys = [
+      `affiliate/product-${id}.json`,
+      `affiliate/product-${cleanId}.json`,
+      `affiliate/product-prod_${cleanId}.json`
+    ];
+    for (const key of keys) {
+      try {
+        const s3Res = await s3Client.send(new GetObjectCommand({
+          Bucket: aws.bucket,
+          Key: key,
+        }));
+        if (s3Res.Body) {
+          const bodyStr = await s3Res.Body.transformToString();
+          const item = JSON.parse(bodyStr);
+          return res.json({ success: true, product: item });
+        }
+      } catch {}
+    }
+  }
+
+  const list = readLocalProducts();
+  const found = list.find((p: any) => p.id === id || p.id === `prod_${cleanId}` || p.id === cleanId);
+  if (found) {
+    return res.json({ success: true, product: found });
+  }
+
+  return res.status(404).json({ error: 'Product not found' });
+});
+
+// POST save product: Writes directly to AWS S3 & persists locally
+app.post(['/api/products', '/api/affiliate/products'], async (req, res) => {
+  try {
+    const body = req.body || {};
+    const product = body.product || body;
+
+    if (!product.title || !product.imageUrl || !product.affiliateUrl) {
+      return res.status(400).json({ error: 'Missing required product fields (title, imageUrl, affiliateUrl)' });
+    }
+
+    const productId = product.id || `prod_${Date.now()}`;
+    const fullProduct = {
+      id: productId,
+      title: String(product.title).trim(),
+      description: String(product.description || '').trim(),
+      imageUrl: String(product.imageUrl).trim(),
+      affiliateUrl: String(product.affiliateUrl).trim(),
+      youtubeUrl: String(product.youtubeUrl || '').trim(),
+      platform: product.platform || 'Amazon',
+      category: product.category || 'Spiritual & Puja',
+      isFeatured: Boolean(product.isFeatured),
+      inStock: product.inStock !== false,
+      createdAt: product.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Update local persistent file
+    const currentList = readLocalProducts();
+    const existingIndex = currentList.findIndex((p: any) => p.id === productId);
+    let updatedList = [...currentList];
+    if (existingIndex >= 0) {
+      updatedList[existingIndex] = fullProduct;
+    } else {
+      updatedList.unshift(fullProduct);
+    }
+    saveLocalProducts(updatedList);
+
+    // Sync to AWS S3 bucket
+    const aws = getAwsConfig();
+    if (aws.accessKeyId && aws.secretAccessKey && aws.bucket && aws.region) {
+      try {
+        const s3Client = new S3Client({
+          region: aws.region,
+          credentials: {
+            accessKeyId: aws.accessKeyId,
+            secretAccessKey: aws.secretAccessKey,
+          },
+        });
+
+        // 1. Single product JSON file in S3: affiliate/product-${productId}.json
+        const singleBytes = new TextEncoder().encode(JSON.stringify(fullProduct, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: aws.bucket,
+          Key: `affiliate/product-${productId}.json`,
+          Body: singleBytes,
+          ContentType: 'application/json; charset=utf-8',
+          CacheControl: 'public, max-age=0, must-revalidate',
+        }));
+
+        // 2. Master index JSON file in S3: affiliate/index.json
+        const indexBytes = new TextEncoder().encode(JSON.stringify(updatedList, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: aws.bucket,
+          Key: `affiliate/index.json`,
+          Body: indexBytes,
+          ContentType: 'application/json; charset=utf-8',
+          CacheControl: 'public, max-age=0, must-revalidate',
+        }));
+        console.log(`[AWS S3] ✅ Successfully saved product ${productId} and master index to AWS S3!`);
+      } catch (s3Err) {
+        console.error('[AWS S3 Error] Failed pushing product to S3:', s3Err);
+      }
+    }
+
+    return res.json({ success: true, product: fullProduct });
+  } catch (err: any) {
+    console.error('Error saving product:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT & PATCH update product in AWS S3 and database
+app.put(['/api/products/:id', '/api/affiliate/products/:id'], async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body || {};
+    const product = body.product || body;
+
+    const currentList = readLocalProducts();
+    const existingIndex = currentList.findIndex((p: any) => p.id === id);
+    if (existingIndex < 0) {
+      return res.status(404).json({ error: 'Product not found to update' });
+    }
+
+    const existingProduct = currentList[existingIndex];
+    const updatedProduct = {
+      ...existingProduct,
+      ...product,
+      id,
+      title: product.title !== undefined ? String(product.title).trim() : existingProduct.title,
+      description: product.description !== undefined ? String(product.description).trim() : existingProduct.description,
+      imageUrl: product.imageUrl !== undefined ? String(product.imageUrl).trim() : existingProduct.imageUrl,
+      affiliateUrl: product.affiliateUrl !== undefined ? String(product.affiliateUrl).trim() : existingProduct.affiliateUrl,
+      youtubeUrl: product.youtubeUrl !== undefined ? String(product.youtubeUrl).trim() : existingProduct.youtubeUrl,
+      platform: product.platform || existingProduct.platform || 'Amazon',
+      category: product.category || existingProduct.category || 'Spiritual & Puja',
+      isFeatured: product.isFeatured !== undefined ? Boolean(product.isFeatured) : existingProduct.isFeatured,
+      inStock: product.inStock !== undefined ? Boolean(product.inStock) : existingProduct.inStock,
+      updatedAt: new Date().toISOString(),
+    };
+
+    currentList[existingIndex] = updatedProduct;
+    saveLocalProducts(currentList);
+
+    // Sync updated product and master index to AWS S3
+    const aws = getAwsConfig();
+    if (aws.accessKeyId && aws.secretAccessKey && aws.bucket && aws.region) {
+      try {
+        const s3Client = new S3Client({
+          region: aws.region,
+          credentials: {
+            accessKeyId: aws.accessKeyId,
+            secretAccessKey: aws.secretAccessKey,
+          },
+        });
+
+        // Update single product JSON in S3
+        const singleBytes = new TextEncoder().encode(JSON.stringify(updatedProduct, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: aws.bucket,
+          Key: `affiliate/product-${id}.json`,
+          Body: singleBytes,
+          ContentType: 'application/json; charset=utf-8',
+          CacheControl: 'public, max-age=0, must-revalidate',
+        }));
+
+        // Update master index JSON in S3
+        const indexBytes = new TextEncoder().encode(JSON.stringify(currentList, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: aws.bucket,
+          Key: `affiliate/index.json`,
+          Body: indexBytes,
+          ContentType: 'application/json; charset=utf-8',
+          CacheControl: 'public, max-age=0, must-revalidate',
+        }));
+        console.log(`[AWS S3] ✅ Successfully updated product ${id} via PUT in AWS S3!`);
+      } catch (s3Err) {
+        console.error('[AWS S3 Error] Failed updating product in S3:', s3Err);
+      }
+    }
+
+    return res.json({ success: true, product: updatedProduct });
+  } catch (err: any) {
+    console.error('Error updating product:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch(['/api/products/:id', '/api/affiliate/products/:id'], async (req, res) => {
+  // Delegate patch to put
+  const putHandler: any = app._router.stack.find((layer: any) => layer.route && layer.route.methods.put && layer.route.path?.includes('/api/products/:id'));
+  if (putHandler) {
+    return putHandler.handle(req, res);
+  }
+  return res.status(405).json({ error: 'Method not supported' });
+});
+
+// DELETE product from AWS S3 and database
+app.delete(['/api/products/:id', '/api/affiliate/products/:id'], async (req, res) => {
+  try {
+    const { id } = req.params;
+    const currentList = readLocalProducts();
+    const updatedList = currentList.filter((p: any) => p.id !== id);
+    saveLocalProducts(updatedList);
+
+    const aws = getAwsConfig();
+    if (aws.accessKeyId && aws.secretAccessKey && aws.bucket && aws.region) {
+      try {
+        const s3Client = new S3Client({
+          region: aws.region,
+          credentials: {
+            accessKeyId: aws.accessKeyId,
+            secretAccessKey: aws.secretAccessKey,
+          },
+        });
+        await s3Client.send(new DeleteObjectCommand({
+          Bucket: aws.bucket,
+          Key: `affiliate/product-${id}.json`,
+        }));
+        const indexBytes = new TextEncoder().encode(JSON.stringify(updatedList, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: aws.bucket,
+          Key: `affiliate/index.json`,
+          Body: indexBytes,
+          ContentType: 'application/json; charset=utf-8',
+          CacheControl: 'public, max-age=0, must-revalidate',
+        }));
+      } catch (e) {
+        console.error('Error deleting product from S3:', e);
+      }
+    }
+
+    return res.json({ success: true, message: 'Deleted successfully' });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ==========================================
+// REAL AWS BACKEND DATA API: BANNERS / SLIDERS
+// ==========================================
+function readLocalBanners(): any {
+  const paths = [
+    path.join(process.cwd(), 'public', 'slider-config.json'),
+    path.join(process.cwd(), 'dist', 'slider-config.json'),
+    path.join(process.cwd(), 'slider-config.json')
+  ];
+  for (const p of paths) {
+    if (fs.existsSync(p)) {
+      try {
+        return JSON.parse(fs.readFileSync(p, 'utf-8'));
+      } catch {}
+    }
+  }
+  return { autoSlideIntervalSeconds: 5, images: [] };
+}
+
+function saveLocalBanners(cfg: any) {
+  const paths = [
+    path.join(process.cwd(), 'public', 'slider-config.json'),
+    path.join(process.cwd(), 'dist', 'slider-config.json'),
+    path.join(process.cwd(), 'slider-config.json')
+  ];
+  for (const p of paths) {
+    try {
+      const dir = path.dirname(p);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(p, JSON.stringify(cfg, null, 2), 'utf-8');
+    } catch (e) {}
+  }
+}
+
+app.get(['/api/banners', '/api/sliders'], async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  const aws = getAwsConfig();
+  if (aws.bucket && aws.region) {
+    try {
+      const s3Url = `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/slider/config.json?t=${Date.now()}`;
+      const r = await fetch(s3Url);
+      if (r.ok) {
+        const data = await r.json();
+        saveLocalBanners(data);
+        return res.json({ success: true, config: data });
+      }
+    } catch {}
+  }
+  const local = readLocalBanners();
+  return res.json({ success: true, config: local });
+});
+
+app.post(['/api/banners', '/api/sliders'], async (req, res) => {
+  try {
+    const config = req.body || {};
+    const formatted = {
+      autoSlideIntervalSeconds: Number(config.autoSlideIntervalSeconds) || 5,
+      images: Array.isArray(config.images) ? config.images : [],
+      updatedAt: new Date().toISOString()
+    };
+
+    saveLocalBanners(formatted);
+
+    const aws = getAwsConfig();
+    if (aws.accessKeyId && aws.secretAccessKey && aws.bucket && aws.region) {
+      try {
+        const s3Client = new S3Client({
+          region: aws.region,
+          credentials: { accessKeyId: aws.accessKeyId, secretAccessKey: aws.secretAccessKey },
+        });
+        const bytes = new TextEncoder().encode(JSON.stringify(formatted, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: aws.bucket,
+          Key: `slider/config.json`,
+          Body: bytes,
+          ContentType: 'application/json; charset=utf-8',
+          CacheControl: 'public, max-age=0, must-revalidate',
+        }));
+        console.log('[AWS S3] ✅ Successfully saved slider banners to AWS S3!');
+      } catch (e) {
+        console.error('Error saving banners to S3:', e);
+      }
+    }
+
+    return res.json({ success: true, config: formatted });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete(['/api/banners/:id', '/api/sliders/:id'], async (req, res) => {
+  try {
+    const { id } = req.params;
+    const current = readLocalBanners();
+    const images = Array.isArray(current.images) ? current.images : [];
+    const updatedImages = images.filter((img: any) => img.id !== id);
+    const formatted = {
+      ...current,
+      images: updatedImages,
+      updatedAt: new Date().toISOString()
+    };
+    saveLocalBanners(formatted);
+
+    const aws = getAwsConfig();
+    if (aws.accessKeyId && aws.secretAccessKey && aws.bucket && aws.region) {
+      try {
+        const s3Client = new S3Client({
+          region: aws.region,
+          credentials: { accessKeyId: aws.accessKeyId, secretAccessKey: aws.secretAccessKey },
+        });
+        const bytes = new TextEncoder().encode(JSON.stringify(formatted, null, 2));
+        await s3Client.send(new PutObjectCommand({
+          Bucket: aws.bucket,
+          Key: `slider/config.json`,
+          Body: bytes,
+          ContentType: 'application/json; charset=utf-8',
+          CacheControl: 'public, max-age=0, must-revalidate',
+        }));
+        console.log(`[AWS S3] Deleted banner ${id} from config`);
+      } catch (e) {
+        console.error('Error deleting banner from S3:', e);
+      }
+    }
+
+    return res.json({ success: true, config: formatted });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/sync-story-html', async (req, res) => {
@@ -706,15 +1283,26 @@ app.get(['/deal/*', '/deal'], async (req, res, next) => {
       let deal = null;
       
       const aws = getAwsConfig();
-      if (aws.bucket && aws.region) {
-        const url = `https://${aws.bucket}.s3.${aws.region}.amazonaws.com/affiliate/product-${cleanId}.json?t=${Date.now()}`;
+      if (aws.bucket && aws.region && aws.accessKeyId && aws.secretAccessKey) {
         try {
-          const fetchRes = await fetch(url);
-          if (fetchRes.ok) {
-            deal = await fetchRes.json();
+          const s3Client = new S3Client({
+            region: aws.region,
+            credentials: { accessKeyId: aws.accessKeyId, secretAccessKey: aws.secretAccessKey },
+          });
+          const s3Res = await s3Client.send(new GetObjectCommand({
+            Bucket: aws.bucket,
+            Key: `affiliate/product-${cleanId}.json`,
+          }));
+          if (s3Res.Body) {
+            deal = JSON.parse(await s3Res.Body.transformToString());
             console.log(`[SSR] Found deal ${cleanId} from S3!`);
           }
         } catch (e) {}
+      }
+
+      if (!deal) {
+        const localList = readLocalProducts();
+        deal = localList.find((p: any) => p.id === cleanId || p.id === `prod_${cleanId}`);
       }
 
       if (deal) {

@@ -1,6 +1,6 @@
 {
-  "name": "Remix Puja Samagri List Generator and Management System",
-  "description": "Complete Puja Samagri list creation, management, PDF generator, and payment verification portal for Pujaris and Admin.",
+  "name": "Bhakti Store",
+  "description": "Premium Affiliate E-commerce Website for verified spiritual products, puja samagri, and brass idols.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

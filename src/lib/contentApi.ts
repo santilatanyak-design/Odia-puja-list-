@@ -179,6 +179,7 @@ export function normalizeStory(item: any): SpiritualStory | null {
     readTimeMinutes: Number(item.readTimeMinutes) || 3,
     publishedAt: item.publishedAt || item.createdAt || new Date().toISOString().split('T')[0],
     likesCount: Number(item.likesCount) || 12,
+    isFeatured: !!item.isFeatured,
     affiliateAd: item.affiliateAd || undefined,
   };
 }

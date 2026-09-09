@@ -1,5 +1,5 @@
 export const getActiveAd = () => null;
 export const triggerAffiliateAd = () => {};
 
-export function findTriggerInText() { return null; }
-export function logAffiliateDebug() {}
+export function findTriggerInText(...args: any[]) { return null; }
+export function logAffiliateDebug(...args: any[]) {}
