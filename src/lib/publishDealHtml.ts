@@ -99,6 +99,18 @@ export function buildDealHtml(product: AffiliateProduct): string {
       dealId: "${escapeHtml(dealId)}",
       deal: ${safeJsonPayload}
     };
+    
+    // Instant Deep-Link Redirect to live website with this exact product loaded
+    (function() {
+      var isDirectAction = window.location.search.indexOf('no_redirect=1') !== -1;
+      if (!isDirectAction) {
+        var targetSpa = "${directSpaUrl}";
+        // Smoothly transfer to SPA
+        if (window.location.href !== targetSpa) {
+          window.location.replace(targetSpa);
+        }
+      }
+    })();
   </script>
 
   <style>
@@ -318,10 +330,12 @@ export async function autoPublishDealHtmlToS3(product: AffiliateProduct): Promis
       if (idWithProd !== cleanId) {
         await uploadWithFallback(`deal/${idWithProd}.html`);
         await uploadWithFallback(`deal/${idWithProd}`);
+        await uploadWithFallback(`deal/${idWithProd}/index.html`);
       }
       if (idWithoutProd !== cleanId) {
         await uploadWithFallback(`deal/${idWithoutProd}.html`);
         await uploadWithFallback(`deal/${idWithoutProd}`);
+        await uploadWithFallback(`deal/${idWithoutProd}/index.html`);
       }
 
       // Also ensure JSON payload is uploaded to S3

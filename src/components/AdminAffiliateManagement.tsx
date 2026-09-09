@@ -31,6 +31,7 @@ import { S3PhotoUploader } from './S3PhotoUploader';
 import { AdminAwsSettings } from './AdminAwsSettings';
 import { getClientAwsConfig } from '../lib/s3Upload';
 import { autoPublishDealHtmlToS3, bulkPublishAllDealsToS3 } from '../lib/publishDealHtml';
+import { triggerAmplifyRebuild } from '../lib/s3Upload';
 import { ShareButton } from './ShareButton';
 
 export function AdminAffiliateManagement() {
@@ -205,6 +206,7 @@ export function AdminAffiliateManagement() {
         // Automatically publish static HTML to AWS S3 so WhatsApp & Facebook scrapers show the original photo & title
         try {
           await autoPublishDealHtmlToS3(productPayload);
+          triggerAmplifyRebuild();
         } catch (publishErr) {
           console.warn('Auto publish deal HTML notice:', publishErr);
         }
