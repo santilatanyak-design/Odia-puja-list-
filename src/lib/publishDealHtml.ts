@@ -32,7 +32,7 @@ export function buildDealHtml(product: AffiliateProduct): string {
 
   const rawImg = (product.imageUrl || DEFAULT_BRAND_LOGO).trim();
   const imageUrl = rawImg.startsWith('http') ? rawImg : `${DOMAIN}/${rawImg.replace(/^\//, '')}`;
-  const canonicalUrl = `${DOMAIN}/deal/${encodeURIComponent(dealId)}`;
+  const canonicalUrl = `${DOMAIN}/deal/${encodeURIComponent(dealId)}.html`;
   const directSpaUrl = `${DOMAIN}/?deal=${encodeURIComponent(dealId)}`;
 
   let imageType = 'image/jpeg';
