@@ -197,18 +197,18 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
               className="w-full py-2.5 px-4 bg-gradient-to-r from-[#ff9900] via-[#ffaa00] to-[#e68a00] hover:from-[#f08d00] hover:to-[#d67e00] text-slate-950 font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-amber-600/40"
             >
               <ShoppingBag className="w-4 h-4 text-slate-950" />
-              <span>Buy on Amazon</span>
+              <span>Buy on Bhakti Store</span>
               <ExternalLink className="w-4 h-4 text-slate-950" />
             </button>
           )}
 
-          {ad.flipkartLink && (
+          {ad.amazonLink && (
             <button type="button"
-              onClick={(e) => { handleDeepLink(e, ad.flipkartLink!, 'flipkart'); onClose(); }}
+              onClick={(e) => { handleDeepLink(e, ad.amazonLink!, 'amazon'); onClose(); }}
               className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-black text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 transition transform active:scale-98 cursor-pointer border border-blue-400"
             >
               <ShoppingBag className="w-4 h-4 text-white" />
-              <span>Buy on Flipkart</span>
+              <span>Buy on Bhakti Store</span>
               <ExternalLink className="w-4 h-4 text-white" />
             </button>
           )}
@@ -225,7 +225,7 @@ export const AffiliateAdModal: React.FC<AffiliateAdModalProps> = ({
           )}
 
           {/* Fallback if no specific links are set, but an affiliate URL is set */}
-          {!ad.amazonLink && !ad.flipkartLink && !ad.meeshoLink && ad.affiliateUrl && (
+          {!ad.amazonLink && !ad.amazonLink && !ad.meeshoLink && ad.affiliateUrl && (
             <button
               id="affiliate-ad-cta-btn"
               onClick={handleOrderClick}

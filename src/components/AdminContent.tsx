@@ -617,7 +617,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                     type="text"
                     value={awsConfigState.amplifyWebhookUrl}
                     onChange={(e) => setAwsConfigState({ ...awsConfigState, amplifyWebhookUrl: e.target.value })}
-                    placeholder="https://webhooks.amplify.ap-south-1.amazonaws.com/prod/webhooks?..."
+                    placeholder="https://webhooks.amplify.ap-south-1.Bhakti Storeaws.com/prod/webhooks?..."
                     className="w-full px-3 py-2 rounded-xl border border-amber-300 font-mono text-xs bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
@@ -661,7 +661,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                       {editingStory.id ? 'କାହାଣୀ ସଂପାଦନା (Edit Dynamic Post)' : 'ନୂତନ ଆଧ୍ୟାତ୍ମିକ ପୋଷ୍ଟ ଯୋଡ଼ନ୍ତୁ (Dynamic Custom Post)'}
                     </h3>
                     <p className="text-xs text-slate-500 font-medium">
-                      ଶୂନ୍ୟ-ଷ୍ଟୋରେଜ୍ (Zero-Storage): ଇମେଜ୍ URL ମାଧ୍ୟମରେ ସହଜରେ କଷ୍ଟମ୍ ପୋଷ୍ଟ ଓ Amazon Affiliate ବିଜ୍ଞାପନ ଯୋଡ଼ନ୍ତୁ।
+                      ଶୂନ୍ୟ-ଷ୍ଟୋରେଜ୍ (Zero-Storage): ଇମେଜ୍ URL ମାଧ୍ୟମରେ ସହଜରେ କଷ୍ଟମ୍ ପୋଷ୍ଟ ଓ Bhakti Store Affiliate ବିଜ୍ଞାପନ ଯୋଡ଼ନ୍ତୁ।
                     </p>
                   </div>
                 </div>
@@ -900,10 +900,10 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                     </span>
                     <div>
                       <h4 className="font-black text-amber-950 text-xs sm:text-sm">
-                        ସ୍ମାର୍ଟ Amazon Affiliate Pop-up ବିଜ୍ଞାପନ (Smart Affiliate Ad System)
+                        ସ୍ମାର୍ଟ Bhakti Store Affiliate Pop-up ବିଜ୍ଞାପନ (Smart Affiliate Ad System)
                       </h4>
                       <p className="text-[11px] text-amber-900 font-medium">
-                        ପାଠକ କାହାଣୀ ପଢ଼ିବା ସମୟରେ ନିର୍ଦ୍ଦିଷ୍ଟ ସେକେଣ୍ଡ ପରେ ଆପେ ଆପେ Amazon ପ୍ରଡକ୍ଟ ପପ୍-ଅପ୍ ହେବ ଏବଂ କାଉଣ୍ଟଡାଉନ୍ ପରେ ବନ୍ଦ ହେବ।
+                        ପାଠକ କାହାଣୀ ପଢ଼ିବା ସମୟରେ ନିର୍ଦ୍ଦିଷ୍ଟ ସେକେଣ୍ଡ ପରେ ଆପେ ଆପେ Bhakti Store ପ୍ରଡକ୍ଟ ପପ୍-ଅପ୍ ହେବ ଏବଂ କାଉଣ୍ଟଡାଉନ୍ ପରେ ବନ୍ଦ ହେବ।
                       </p>
                     </div>
                   </div>
@@ -940,7 +940,7 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-800">
-                          Amazon Link
+                          Bhakti Store Link
                         </label>
                         <input
                           type="url"
@@ -954,47 +954,47 @@ export const AdminContent: React.FC<AdminContentProps> = ({ defaultSection = 'pa
                               },
                             })
                           }
-                          placeholder="https://amazon.in/..."
+                          placeholder="https://Bhakti Store.in/..."
                           className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-800">
-                          Flipkart Link
+                          Bhakti Store Link
                         </label>
                         <input
                           type="url"
-                          value={editingStory.affiliateAd?.flipkartLink || ''}
+                          value={editingStory.affiliateAd?.amazonLink || ''}
                           onChange={(e) =>
                             setEditingStory({
                               ...editingStory,
                               affiliateAd: {
                                 ...(editingStory.affiliateAd || {}),
-                                flipkartLink: e.target.value,
+                                amazonLink: e.target.value,
                               },
                             })
                           }
-                          placeholder="https://flipkart.com/..."
+                          placeholder="https://Bhakti Store.com/..."
                           className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-800">
-                          Meesho Link
+                          Bhakti Store Link
                         </label>
                         <input
                           type="url"
-                          value={editingStory.affiliateAd?.meeshoLink || ''}
+                          value={editingStory.affiliateAd?.amazonLink || ''}
                           onChange={(e) =>
                             setEditingStory({
                               ...editingStory,
                               affiliateAd: {
                                 ...(editingStory.affiliateAd || {}),
-                                meeshoLink: e.target.value,
+                                amazonLink: e.target.value,
                               },
                             })
                           }
-                          placeholder="https://meesho.com/..."
+                          placeholder="https://Bhakti Store.com/..."
                           className="w-full px-3 py-2 rounded-xl border border-amber-300 text-xs font-mono bg-white"
                         />
                       </div>

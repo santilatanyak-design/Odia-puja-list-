@@ -557,7 +557,7 @@ export async function getAllContent(): Promise<UnifiedFeedItem[]> {
         readTimeMinutes: 4,
         publishedAt: '2026-01-01',
         sourceType: 'temple',
-        isFeatured: false,
+        isFeatured: true,
         originalData: temple,
       });
     }
@@ -591,7 +591,7 @@ export async function getAllContent(): Promise<UnifiedFeedItem[]> {
         readTimeMinutes: 3,
         publishedAt: dItem.createdAt ? dItem.createdAt.split('T')[0] : '2026-01-01',
         sourceType: isPurana ? 'purana' : 'district_story',
-        isFeatured: false,
+        isFeatured: true,
         affiliateAd: hasValidAd
           ? {
               enabled: true,

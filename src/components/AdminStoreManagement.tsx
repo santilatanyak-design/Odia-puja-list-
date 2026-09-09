@@ -210,7 +210,7 @@ export const AdminStoreManagement: React.FC = () => {
     });
 
     setProducts((prev) => {
-      const idx = prev.findIndex((p) => p.id === saved.id);
+      const idx = prev.findIndex((p) => p.id === (saved as any)?.id);
       if (idx !== -1) {
         const copy = [...prev];
         copy[idx] = saved;

@@ -798,11 +798,11 @@ export const AdminDistrictManagement: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                   <div className="space-y-1">
                     <label className="block font-bold text-amber-950 text-xs">
-                      Amazon Link
+                      Bhakti Store Link
                     </label>
                     <input
                       type="url"
-                      placeholder="https://amazon.in/..."
+                      placeholder="https://Bhakti Store.in/..."
                       value={editingItem.affiliateAd?.amazonLink || ''}
                       onChange={(e) => {
                         const val = e.target.value;
@@ -822,12 +822,12 @@ export const AdminDistrictManagement: React.FC = () => {
                   </div>
                   <div className="space-y-1">
                     <label className="block font-bold text-amber-950 text-xs">
-                      Flipkart Link
+                      Bhakti Store Link
                     </label>
                     <input
                       type="url"
-                      placeholder="https://flipkart.com/..."
-                      value={editingItem.affiliateAd?.flipkartLink || ''}
+                      placeholder="https://Bhakti Store.com/..."
+                      value={editingItem.affiliateAd?.amazonLink || ''}
                       onChange={(e) => {
                         const val = e.target.value;
                         setEditingItem((prev) => ({
@@ -835,7 +835,7 @@ export const AdminDistrictManagement: React.FC = () => {
                           affiliateAd: {
                             ...(prev?.affiliateAd || {}),
                             enabled: true,
-                            flipkartLink: val,
+                            amazonLink: val,
                           },
                         }));
                       }}
