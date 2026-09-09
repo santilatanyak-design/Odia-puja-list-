@@ -168,7 +168,7 @@ export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) =
 
   const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
-  const shareUrl = customUrl || `${origin}/story/${encodeURIComponent(cleanId)}`;
+  const shareUrl = customUrl || `${origin}/story/${encodeURIComponent(cleanId)}.html`;
 
   const pageTitle = `${story.title} | Bhakti Ananda Odia TV`;
   const metaTitle = story.title ? `📖 ${story.title} - ${story.category || 'ଆଧ୍ୟାତ୍ମିକ କଥା'}` : 'ଆଧ୍ୟାତ୍ମିକ କଥା | Bhakti Ananda Odia TV';
@@ -265,7 +265,7 @@ export const setDynamicStoreProductMeta = (product: StoreProduct, customUrl?: st
 export const getStoryShareUrl = (story: SpiritualStory): string => {
   const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
   const origin = 'https://www.bhaktianandaodiatvofficial.blog';
-  return `${origin}/story/${encodeURIComponent(cleanId)}`;
+  return `${origin}/story/${encodeURIComponent(cleanId)}.html`;
 };
 
 /**
@@ -660,7 +660,7 @@ export const updateAffiliateProductOgMeta = (product: {
   document.title = pageTitle;
 
   // Exact clean URL for production domain and external crawlers
-  const shareUrl = `https://www.bhaktianandaodiatvofficial.blog/deal/${product.id}`;
+  const shareUrl = `https://www.bhaktianandaodiatvofficial.blog/deal/${product.id}.html`;
   
   // Real product image URL (AWS S3) - strictly prioritize the product image
   const rawImg = (product.imageUrl || '').trim();
