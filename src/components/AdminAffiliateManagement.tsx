@@ -30,6 +30,8 @@ import {
 import { S3PhotoUploader } from './S3PhotoUploader';
 import { AdminAwsSettings } from './AdminAwsSettings';
 import { getClientAwsConfig } from '../lib/s3Upload';
+import { autoPublishDealHtmlToS3, bulkPublishAllDealsToS3 } from '../lib/publishDealHtml';
+import { ShareButton } from './ShareButton';
 
 export function AdminAffiliateManagement() {
   // 1. STRICT PURE DYNAMIC STATE: zero demo arrays or placeholder items
@@ -41,6 +43,8 @@ export function AdminAffiliateManagement() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const [showAwsModal, setShowAwsModal] = useState<boolean>(false);
+  const [syncingOgMeta, setSyncingOgMeta] = useState<boolean>(false);
+  const [syncProgress, setSyncProgress] = useState<string | null>(null);
 
   const awsConfig = getClientAwsConfig();
 
@@ -198,10 +202,17 @@ export function AdminAffiliateManagement() {
       }
 
       if (success) {
+        // Automatically publish static HTML to AWS S3 so WhatsApp & Facebook scrapers show the original photo & title
+        try {
+          await autoPublishDealHtmlToS3(productPayload);
+        } catch (publishErr) {
+          console.warn('Auto publish deal HTML notice:', publishErr);
+        }
+
         showNotification(
           isUpdate 
-            ? `✅ Successfully updated "${productPayload.title}" in AWS database & S3!` 
-            : `✅ Successfully created and published product to AWS S3!`,
+            ? `✅ "${productPayload.title}" ସଫଳତାର ସହ AWS database ଓ S3 ରେ ଅପଡେଟ୍ ହେଲା ଏବଂ Social Media Share ପାଇଁ ସ୍ୱୟଂକ୍ରିୟ ଭାବେ ଅରିଜିନାଲ୍ ଫଟୋ ସହ ପ୍ରସ୍ତୁତ ହେଲା!` 
+            : `✅ "${productPayload.title}" ସଫଳତାର ସହ AWS S3 ରେ ପ୍ରକାଶିତ ହେଲା ଏବଂ Social Media Share ରେ ଅରିଜିନାଲ୍ ଫଟୋ ସହ ଦେଖାଯିବ!`,
           'success'
         );
         handleCancelForm();
@@ -214,6 +225,34 @@ export function AdminAffiliateManagement() {
       showNotification(`Error: ${err.message || 'Failed to save product'}`, 'error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Bulk sync all deals to S3 static HTML with exact OG Meta tags
+  const handleSyncSocialOgMeta = async () => {
+    if (products.length === 0) {
+      showNotification('କୌଣସି ପ୍ରଡକ୍ଟ ଉପଲବ୍ଧ ନାହିଁ। ପ୍ରଥମେ ନୂତନ ପ୍ରଡକ୍ଟ ଯୋଡ଼ନ୍ତୁ।', 'error');
+      return;
+    }
+    setSyncingOgMeta(true);
+    setSyncProgress('ପ୍ରଡକ୍ଟ ଗୁଡ଼ିକ AWS S3 ରେ ସିଙ୍କ୍ ହେଉଛି...');
+    try {
+      const result = await bulkPublishAllDealsToS3(products, (done, total) => {
+        setSyncProgress(`${done}/${total} ଟି ଡିଲ୍ S3 ରେ ପ୍ରସ୍ତୁତ ହେଲା...`);
+      });
+      if (result.success > 0) {
+        showNotification(
+          `✅ ସମସ୍ତ ${result.success} ଟି ପ୍ରଡକ୍ଟ ର ଅରିଜିନାଲ୍ ଫଟୋ ଓ ଟାଇଟଲ୍ WhatsApp/Facebook Social Media Share ପାଇଁ AWS S3 ରେ ସଫଳତାର ସହ ସିଙ୍କ୍ ହୋଇଗଲା!`,
+          'success'
+        );
+      } else {
+        showNotification('କିଛି ତ୍ରୁଟି ଦେଖାଦେଲା, ଦୟାକରି AWS S3 Keys ଯାଞ୍ଚ କରନ୍ତୁ।', 'error');
+      }
+    } catch (err: any) {
+      showNotification(`Sync ତ୍ରୁଟି: ${err.message || 'Failed to sync'}`, 'error');
+    } finally {
+      setSyncingOgMeta(false);
+      setSyncProgress(null);
     }
   };
 
@@ -259,6 +298,18 @@ export function AdminAffiliateManagement() {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-amber-400' : ''}`} />
             <span>Sync AWS</span>
+          </button>
+
+          {/* WhatsApp & Facebook Social Share Fix Button */}
+          <button
+            type="button"
+            onClick={handleSyncSocialOgMeta}
+            disabled={syncingOgMeta || products.length === 0}
+            className="px-3.5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 border border-indigo-500 cursor-pointer disabled:opacity-50 shadow-md shadow-indigo-600/20"
+            title="Generate & upload static HTML files with original product image & title for WhatsApp and Facebook"
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${syncingOgMeta ? 'animate-spin text-white' : 'text-amber-300'}`} />
+            <span>{syncingOgMeta ? (syncProgress || 'Syncing...') : 'Fix WhatsApp/FB Share'}</span>
           </button>
 
           {!isEditing && (
@@ -683,13 +734,23 @@ export function AdminAffiliateManagement() {
                             <span>Delete</span>
                           </button>
 
+                          {/* Share button to test real WhatsApp / Facebook metadata preview */}
+                          <ShareButton
+                            productId={p.id}
+                            title={p.title}
+                            description={p.description}
+                            imageUrl={p.imageUrl}
+                            variant="icon"
+                            className="p-1.5 w-7 h-7 text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition"
+                          />
+
                           {/* Deal page preview link */}
                           <a
-                            href={`/deal/${p.id}`}
+                            href={`https://www.bhaktianandaodiatvofficial.blog/deal/${encodeURIComponent(p.id)}.html`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition"
-                            title="Open live deal page"
+                            title="Open live deal page in new tab"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>

@@ -14,26 +14,27 @@ export function ShareButton({ productId, title, description, imageUrl, className
   const [showModal, setShowModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Clean live production URL for external social sharing and crawlers
+  // Clean canonical live URL with .html extension for 100% reliable S3 static website scraping
   const LIVE_BASE_URL = 'https://www.bhaktianandaodiatvofficial.blog';
-  const url = `${LIVE_BASE_URL}/deal/${productId}`;
+  const cleanId = (productId || '').replace(/\.html?$/i, '').replace(/^(\/)?deal\//i, '').replace(/^(\/)?product\//i, '').trim();
+  const url = `${LIVE_BASE_URL}/deal/${encodeURIComponent(cleanId)}.html`;
 
-  const shareText = description 
-    ? `${title} - ${description.slice(0, 120)}...` 
-    : `Check out this deal on Bhakti Store: ${title}`;
+  const shareTitle = `${title} | Bhakti Store`;
+  const shareSummary = description ? `${description.slice(0, 140)}...` : 'Verified spiritual deal on Bhakti Store.';
+  const shareText = `🚩 ${title}\n${shareSummary}\n${url}`;
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${title} | Bhakti Store`,
-          text: shareText,
+          title: shareTitle,
+          text: `🚩 ${title}\n${shareSummary}`,
           url: url,
         });
       } catch (err) {
-        // User cancelled or error, fail gracefully
-        console.log("Error sharing", err);
+        // User cancelled or error, fallback to modal
+        setShowModal(true);
       }
     } else {
       setShowModal(true);
@@ -53,8 +54,12 @@ export function ShareButton({ productId, title, description, imageUrl, className
   };
 
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(`${title} | Bhakti Store`);
-  const encodedFullWhatsapp = encodeURIComponent(`*${title}*\n${url}`);
+  const encodedTitle = encodeURIComponent(shareTitle);
+  const encodedFullWhatsapp = encodeURIComponent(
+    `🚩 *${title}*\n\n` +
+    `${description ? description.slice(0, 140) + '...\n\n' : ''}` +
+    `👉 କିଣିବା କିମ୍ବା ଡିଲ୍ ଦେଖିବା ପାଇଁ ଏହି ଲିଙ୍କ୍ ଖୋଲନ୍ତୁ:\n${url}`
+  );
 
   return (
     <>

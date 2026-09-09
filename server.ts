@@ -707,6 +707,66 @@ app.post('/api/sync-story-html', async (req, res) => {
   }
 });
 
+app.post('/api/sync-deal-html', async (req, res) => {
+  try {
+    const { product, html } = req.body;
+    if (!product || !html) return res.status(400).json({ error: 'Missing product or html data' });
+
+    const rawId = (product.id || '').replace(/\.html?$/i, '').replace(/^(\/)?deal\//i, '').replace(/^(\/)?product\//i, '').trim();
+    const dealId = rawId;
+
+    // 1. Write to local filesystem in public/deal and dist/deal
+    const publicDealDir = path.join(process.cwd(), 'public', 'deal');
+    const distDealDir = path.join(process.cwd(), 'dist', 'deal');
+    for (const d of [publicDealDir, distDealDir]) {
+      try {
+        if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
+        fs.writeFileSync(path.join(d, `${dealId}.html`), html, 'utf-8');
+        fs.writeFileSync(path.join(d, `${dealId}`), html, 'utf-8');
+      } catch (writeErr) {}
+    }
+
+    // 2. Upload to S3 if AWS credentials configured on server
+    const awsConf = getAwsConfig();
+    if (awsConf.region && awsConf.bucket && awsConf.accessKeyId && awsConf.secretAccessKey) {
+      const s3Client = new S3Client({
+        region: awsConf.region,
+        credentials: {
+          accessKeyId: awsConf.accessKeyId,
+          secretAccessKey: awsConf.secretAccessKey,
+        }
+      });
+      const bodyBytes = new TextEncoder().encode(html);
+      const safeUpload = async (key: string) => {
+        try {
+          await s3Client.send(new PutObjectCommand({
+            Bucket: awsConf.bucket,
+            Key: key,
+            Body: bodyBytes,
+            ContentType: 'text/html; charset=utf-8',
+            CacheControl: 'public, max-age=0, must-revalidate'
+          }));
+        } catch {}
+      };
+
+      await Promise.all([
+        safeUpload(`deal/${dealId}.html`),
+        safeUpload(`deal/${dealId}`),
+        safeUpload(`deal/${dealId}/index.html`),
+        safeUpload(`product/${dealId}.html`),
+        safeUpload(`product/${dealId}`),
+        safeUpload(`affiliate/product-${dealId}.html`),
+      ]);
+      console.log('[Backend] ✅ S3 static deal HTML uploaded for', dealId);
+    }
+
+    return res.json({ success: true });
+  } catch (err: any) {
+    console.error('Error in sync-deal-html:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/district-items', (req, res) => {
   const { districtId } = req.query;
   const items: any[] = [];

@@ -11,17 +11,17 @@ export default function App() {
   const [selectedDealId, setSelectedDealId] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
       if ((window as any).__PRELOADED_STATE__?.dealId) {
-        return (window as any).__PRELOADED_STATE__.dealId;
+        return String((window as any).__PRELOADED_STATE__.dealId).replace(/\.html?$/i, '');
       }
       const path = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
-      const queryDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId');
-      if (queryDeal) return queryDeal;
+      const rawDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId') || urlParams.get('id');
+      if (rawDeal) return rawDeal.replace(/\.html?$/i, '');
       if (path.startsWith('/deal/')) {
-        return path.split('/deal/')[1]?.split('?')[0]?.split('/')[0] || null;
+        return path.split('/deal/')[1]?.split('?')[0]?.split('/')[0]?.replace(/\.html?$/i, '') || null;
       }
       if (path.startsWith('/product/')) {
-        return path.split('/product/')[1]?.split('?')[0]?.split('/')[0] || null;
+        return path.split('/product/')[1]?.split('?')[0]?.split('/')[0]?.replace(/\.html?$/i, '') || null;
       }
     }
     return null;
@@ -33,7 +33,7 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
-      const queryDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId');
+      const queryDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId') || urlParams.get('id');
       
       if (queryDeal || path.startsWith('/deal/') || path.startsWith('/product/')) {
         return 'deal';
@@ -52,16 +52,16 @@ export default function App() {
       
       const path = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
-      const queryDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId');
+      const rawDeal = urlParams.get('deal') || urlParams.get('p') || urlParams.get('productId') || urlParams.get('id');
 
-      if (queryDeal) {
-        setSelectedDealId(queryDeal);
+      if (rawDeal) {
+        setSelectedDealId(rawDeal.replace(/\.html?$/i, ''));
         setViewMode('deal');
         return;
       }
 
       if (path.startsWith('/deal/')) {
-        const id = path.split('/deal/')[1]?.split('?')[0]?.split('/')[0];
+        const id = path.split('/deal/')[1]?.split('?')[0]?.split('/')[0]?.replace(/\.html?$/i, '');
         if (id) {
           setSelectedDealId(id);
           setViewMode('deal');
@@ -70,7 +70,7 @@ export default function App() {
       }
 
       if (path.startsWith('/product/')) {
-        const id = path.split('/product/')[1]?.split('?')[0]?.split('/')[0];
+        const id = path.split('/product/')[1]?.split('?')[0]?.split('/')[0]?.replace(/\.html?$/i, '');
         if (id) {
           setSelectedDealId(id);
           setViewMode('deal');

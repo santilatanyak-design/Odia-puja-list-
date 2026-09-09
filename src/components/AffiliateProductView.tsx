@@ -33,29 +33,37 @@ export function AffiliateProductView({ productId, onBack }: AffiliateProductView
   const loadProduct = async () => {
     setLoading(true);
     try {
+      const cleanId = (productId || '').replace(/\.html?$/i, '').replace(/^(\/)?deal\//i, '').replace(/^(\/)?product\//i, '').trim();
+      const idWithoutProd = cleanId.replace(/^prod_/, '');
+      const idWithProd = cleanId.startsWith('prod_') ? cleanId : `prod_${cleanId}`;
+
       // 1. First check if window.__PRELOADED_STATE__ already has the deal (from SSR)
-      if (typeof window !== 'undefined' && (window as any).__PRELOADED_STATE__?.deal?.id === productId) {
+      if (typeof window !== 'undefined' && (window as any).__PRELOADED_STATE__?.deal) {
         const preloaded = (window as any).__PRELOADED_STATE__.deal;
-        setProduct(preloaded);
-        updateAffiliateProductOgMeta({
-          id: preloaded.id,
-          title: preloaded.title,
-          description: preloaded.description,
-          imageUrl: preloaded.imageUrl,
-          platform: preloaded.platform,
-        });
-        setLoading(false);
-        return;
+        if (preloaded && (preloaded.id === cleanId || preloaded.id === idWithProd || preloaded.id === idWithoutProd)) {
+          setProduct(preloaded);
+          updateAffiliateProductOgMeta({
+            id: preloaded.id,
+            title: preloaded.title,
+            description: preloaded.description,
+            imageUrl: preloaded.imageUrl,
+            platform: preloaded.platform,
+          });
+          setLoading(false);
+          return;
+        }
       }
 
-      // 2. Fetch product by ID with retry & fallback
+      // 2. Fetch product by ID with retry & fallback across all sources
       let found: AffiliateProduct | null = null;
       try {
-        found = await fetchAffiliateProductById(productId);
+        found = await fetchAffiliateProductById(cleanId);
+        if (!found && cleanId !== idWithProd) {
+          found = await fetchAffiliateProductById(idWithProd);
+        }
         if (!found) {
           const products = await fetchAffiliateProducts();
-          const cleanTarget = productId.replace(/^prod_/, '');
-          found = products.find(p => p.id === productId || p.id.replace(/^prod_/, '') === cleanTarget) || null;
+          found = products.find(p => p && (p.id === cleanId || p.id === idWithProd || p.id === idWithoutProd)) || null;
         }
       } catch (apiErr) {
         console.warn('Could not load deal product:', apiErr);
