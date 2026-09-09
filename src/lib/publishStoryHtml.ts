@@ -94,9 +94,11 @@ export async function buildStoryHtml(story: SpiritualStory): Promise<string> {
         }
       }
 
-      // If user arrives via social media direct link on the static HTML, redirect to SPA
-      if (window.location.pathname.indexOf('/story/') !== -1 && window.location.search.indexOf('noredirect') === -1) {
-        window.location.href = "${DOMAIN}/?view=blog&storyId=${encodeURIComponent(storyId)}";
+      // If user arrives via social media direct link on the static HTML, redirect to SPA (skip for crawlers)
+      var ua = navigator.userAgent || navigator.vendor || window.opera || '';
+      var isCrawler = /bot|facebook|whatsapp|twitter|pinterest|linkedin|slack|preview|crawler/i.test(ua);
+      if (!isCrawler && window.location.pathname.indexOf('/story/') !== -1 && window.location.search.indexOf('noredirect') === -1) {
+        window.location.replace("${DOMAIN}/?view=blog&storyId=${encodeURIComponent(storyId)}");
       }
     </script>
     <script type="application/ld+json">

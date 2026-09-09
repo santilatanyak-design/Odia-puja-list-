@@ -100,10 +100,13 @@ export function buildDealHtml(product: AffiliateProduct): string {
       deal: ${safeJsonPayload}
     };
     
-    // Instant Deep-Link Redirect to live website with this exact product loaded
+    // Instant Deep-Link Redirect to live website with this exact product loaded (skip for crawlers)
     (function() {
+      var ua = navigator.userAgent || navigator.vendor || window.opera || '';
+      var isCrawler = /bot|facebook|whatsapp|twitter|pinterest|linkedin|slack|preview|crawler/i.test(ua);
       var isDirectAction = window.location.search.indexOf('no_redirect=1') !== -1;
-      if (!isDirectAction) {
+      
+      if (!isCrawler && !isDirectAction) {
         var targetSpa = "${directSpaUrl}";
         // Smoothly transfer to SPA
         if (window.location.href !== targetSpa) {
