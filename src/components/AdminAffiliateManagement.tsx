@@ -25,7 +25,7 @@ export function AdminAffiliateManagement() {
   };
 
   const handleSave = async () => {
-    if (!formData.title || !formData.imageUrl || !formData.affiliateUrl || !formData.price) {
+    if (!formData.title || !formData.imageUrl || !formData.affiliateUrl) {
       alert("Please fill all required fields");
       return;
     }
@@ -35,8 +35,6 @@ export function AdminAffiliateManagement() {
       id: formData.id || `prod_${Date.now()}`,
       title: formData.title,
       description: formData.description || '',
-      price: formData.price,
-      discountPrice: formData.discountPrice,
       imageUrl: formData.imageUrl,
       affiliateUrl: formData.affiliateUrl,
       platform: formData.platform as any || 'Amazon',
@@ -107,9 +105,7 @@ export function AdminAffiliateManagement() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
                 <input 
-                  type="text" 
-                  value={formData.price || ''} 
-                  onChange={e => setFormData({...formData, price: e.target.value})}
+                  type="text"
                   className="w-full border-gray-300 rounded-md p-2 border" 
                   placeholder="₹999"
                 />
@@ -218,7 +214,7 @@ export function AdminAffiliateManagement() {
                     </div>
                     <div className="text-xs text-orange-600 font-bold mb-1">{p.platform}</div>
                     <h4 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-2 flex-1">{p.title}</h4>
-                    <div className="font-bold text-gray-900 mb-3">{p.discountPrice || p.price}</div>
+                    
                     <button 
                       onClick={() => editProduct(p)}
                       className="mt-auto w-full flex items-center justify-center gap-1 py-1.5 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50"

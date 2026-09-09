@@ -5,8 +5,6 @@ export interface AffiliateProduct {
   id: string;
   title: string;
   description?: string;
-  price: string;
-  discountPrice?: string;
   imageUrl: string;
   affiliateUrl: string;
   platform: 'Amazon' | 'Flipkart' | 'Meesho' | 'Myntra' | 'Other';

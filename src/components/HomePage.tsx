@@ -125,12 +125,10 @@ export function HomePage({ onNavigateToDeal, onNavigateToCategories }: any) {
                     onClick={() => onNavigateToDeal(heroProduct.id)}
                     className="bg-slate-900 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-slate-800 transition-transform hover:-translate-y-1 shadow-lg shadow-slate-900/20"
                   >
-                    View Deal
+                    Grab Deal
                   </button>
                   <ShareButton productId={heroProduct.id} title={heroProduct.title} variant="icon" className="p-4 w-14 h-14" />
-                  <span className="text-2xl font-bold text-slate-900">
-                    {heroProduct.discountPrice || heroProduct.price}
-                  </span>
+                  
                 </div>
               </div>
               <div className="relative aspect-square md:aspect-auto md:h-[500px] bg-slate-100 rounded-3xl overflow-hidden flex items-center justify-center p-8 group">
@@ -202,16 +200,7 @@ export function HomePage({ onNavigateToDeal, onNavigateToCategories }: any) {
                     </h3>
                     
                     <div className="mt-auto flex items-center justify-between">
-                      <div>
-                        <span className="text-xl font-black text-slate-900 block">
-                          {product.discountPrice || product.price}
-                        </span>
-                        {product.discountPrice && (
-                          <span className="text-sm text-slate-400 line-through">
-                            {product.price}
-                          </span>
-                        )}
-                      </div>
+                      
                       <div className="flex items-center gap-2">
                         <ShareButton productId={product.id} title={product.title} variant="icon" className="p-3 w-11 h-11 bg-transparent border border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-slate-800" />
                         <button 

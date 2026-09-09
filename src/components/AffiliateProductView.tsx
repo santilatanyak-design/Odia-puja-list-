@@ -115,7 +115,7 @@ export function AffiliateProductView({ productId, onBack }: AffiliateProductView
                 onClick={(e) => handleDeepLink(e, product.affiliateUrl, product.platform as any || 'amazon')}
                 className="w-full bg-slate-900 text-white font-bold text-lg py-5 rounded-2xl shadow-lg shadow-slate-900/20 hover:bg-slate-800 transition-transform hover:-translate-y-1 flex items-center justify-center gap-3"
               >
-                Buy Now Securely <ExternalLink className="w-5 h-5" />
+                Buy Now <ExternalLink className="w-5 h-5" />
               </button>
               <ShareButton 
                 productId={product.id} 
