@@ -1,4 +1,5 @@
 import React, { useState, Suspense, useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { AdminPanel } from './components/AdminPanel';
@@ -121,9 +122,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-amber-500/20 flex flex-col justify-between">
-      <div>
-        {viewMode !== 'admin' && (
+    <HelmetProvider>
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-amber-500/20 flex flex-col justify-between">
+        <div>
+          {viewMode !== 'admin' && (
           <Navbar
             currentView={viewMode}
             setViewMode={setViewMode}
@@ -177,6 +179,7 @@ export default function App() {
       </div>
 
       {viewMode !== 'admin' && <Footer />}
-    </div>
+      </div>
+    </HelmetProvider>
   );
 }

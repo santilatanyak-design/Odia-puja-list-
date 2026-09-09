@@ -167,7 +167,8 @@ export const setDynamicStoryMeta = (story: SpiritualStory, customUrl?: string) =
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
   const origin = window.location.origin || 'https://www.bhaktianandaodiatvofficial.blog';
-  const shareUrl = customUrl || `${origin}/story/${encodeURIComponent(story.id)}`;
+  const cleanId = (story.id || '').replace(/^(\/)?story\//i, '').replace(/\.html?$/i, '').replace(/\/$/, '').trim();
+  const shareUrl = customUrl || `${origin}/story/${encodeURIComponent(cleanId)}.html`;
 
   const pageTitle = `${story.title} | Bhakti Ananda Odia TV`;
   const metaTitle = story.title ? `📖 ${story.title} - ${story.category || 'ଆଧ୍ୟାତ୍ମିକ କଥା'}` : 'ଆଧ୍ୟାତ୍ମିକ କଥା | Bhakti Ananda Odia TV';

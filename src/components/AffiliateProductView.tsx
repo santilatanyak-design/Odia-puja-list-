@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -123,6 +124,16 @@ export function AffiliateProductView({ productId, onBack }: AffiliateProductView
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 sm:py-12 selection:bg-amber-500/20">
+      <Helmet>
+        <title>{`${product.title} | Bhakti Store`}</title>
+        <meta name="description" content={product.description || `Verified authentic deal on ${product.title} via ${product.platform || 'Bhakti Store'}.`} />
+        <meta property="og:title" content={`${product.title} | Bhakti Store`} />
+        <meta property="og:description" content={product.description || `Verified authentic deal on ${product.title} via ${product.platform || 'Bhakti Store'}.`} />
+        <meta property="og:image" content={product.imageUrl} />
+        <meta property="og:url" content={`https://www.bhaktianandaodiatvofficial.blog/deal/${product.id}`} />
+        <meta property="og:type" content="product" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Navigation Breadcrumb */}

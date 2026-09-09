@@ -15,3 +15,13 @@ frontend:
     paths:
       - node_modules/**/*
       - .npm/**/*
+customRules:
+  - source: '/deal/<*>'
+    target: 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/deal/<*>'
+    status: '200'
+  - source: '/story/<*>'
+    target: 'https://bhakti-ananda-photos.s3.ap-south-1.amazonaws.com/story/<*>'
+    status: '200'
+  - source: '</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|html)$)([^.]+$)/>'
+    target: '/index.html'
+    status: '200'
