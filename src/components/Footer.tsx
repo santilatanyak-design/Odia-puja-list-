@@ -7,6 +7,7 @@ export function Footer(props: any) {
         <h3 className="text-xl font-bold mb-4 text-blue-400">Bhakti Store</h3>
         <p className="text-sm text-gray-400 mb-4">Your daily source for the best deals and products.</p>
         <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} Bhakti Store. All rights reserved.</p>
+        <p className="text-xs text-gray-500 mt-2">Disclaimer: As an affiliate, we may earn a small commission for purchases made through links on this site.</p>
       </div>
     </footer>
   );
